@@ -30,20 +30,20 @@ export function FAQPageContent() {
             ))}
           </Accordion>
 
-          <p className="mt-8 text-center text-sm text-sage-600">
+          <p className="mt-8 text-center text-sm text-charcoal">
             Still have questions?{" "}
             <Link
               href="/contact"
-              className="font-medium text-sage-700 underline-offset-4 hover:underline"
+              className="font-medium text-charcoal underline-offset-4 hover:underline"
             >
               Contact us
             </Link>{" "}
             or{" "}
             <Link
-              href="/consultation"
-              className="font-medium text-sage-700 underline-offset-4 hover:underline"
+              href="/programs"
+              className="font-medium text-charcoal underline-offset-4 hover:underline"
             >
-              book a free call
+              explore our programs
             </Link>
             .
           </p>

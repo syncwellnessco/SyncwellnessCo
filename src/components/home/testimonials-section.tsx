@@ -92,7 +92,7 @@ export function TestimonialsSection() {
                   {item.value}
                 </h3>
 
-                <p className="mt-2 text-xs font-semibold uppercase tracking-[0.15em] text-sage-700 sm:text-sm">
+                <p className="mt-2 text-xs font-semibold uppercase tracking-[0.15em] text-charcoal sm:text-sm">
                   {item.label}
                 </p>
               </div>
@@ -134,19 +134,19 @@ export function TestimonialsSection() {
                           />
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-sage-900">
+                          <p className="text-sm font-semibold text-charcoal">
                             {t.name}
                           </p>
-                          <p className="text-xs text-sage-500">{t.location}</p>
+                          <p className="text-xs text-charcoal">{t.location}</p>
                           <StarRating rating={t.rating} />
                         </div>
                       </div>
 
                       <div className="mt-2.5 sm:mt-3">
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-sage-500">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-charcoal">
                           Client Feedback on Programme
                         </p>
-                        <p className="mt-1.5 text-[13px] leading-relaxed text-sage-700 sm:mt-2 sm:text-sm">
+                        <p className="mt-1.5 text-[13px] leading-relaxed text-charcoal sm:mt-2 sm:text-sm">
                           {(() => {
                             const message = getMessage(t);
                             const expanded = expandedId === t.id;
@@ -163,7 +163,7 @@ export function TestimonialsSection() {
                                 prev === t.id ? null : t.id,
                               )
                             }
-                            className="mt-2 text-xs font-semibold uppercase tracking-[0.12em] text-sage-700 hover:text-charcoal"
+                            className="mt-2 text-xs font-semibold uppercase tracking-[0.12em] text-charcoal hover:text-charcoal"
                           >
                             {expandedId === t.id ? "View Less" : "View More"}
                           </button>
@@ -185,7 +185,7 @@ export function TestimonialsSection() {
               <button
                 type="button"
                 onClick={scrollPrev}
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-beige-300 bg-cream text-sage-700 transition-colors hover:bg-sage-100"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-beige-300 bg-cream text-charcoal transition-colors hover:bg-sage-100"
                 aria-label="Previous testimonial"
               >
                 <ChevronLeft className="h-5 w-5" />
@@ -209,7 +209,7 @@ export function TestimonialsSection() {
               <button
                 type="button"
                 onClick={scrollNext}
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-beige-300 bg-cream text-sage-700 transition-colors hover:bg-sage-100"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-beige-300 bg-cream text-charcoal transition-colors hover:bg-sage-100"
                 aria-label="Next testimonial"
               >
                 <ChevronRight className="h-5 w-5" />
@@ -220,7 +220,7 @@ export function TestimonialsSection() {
           <div className="mt-12 flex justify-center">
             <a 
               href="/testimonials" 
-              className="inline-flex h-12 items-center justify-center rounded-sm bg-[#B38A58] px-8 text-xs font-semibold uppercase tracking-[0.15em] text-white transition-colors hover:bg-[#967246]"
+              className="inline-flex h-12 items-center justify-center rounded-sm bg-[#B8955F] px-8 text-xs font-semibold uppercase tracking-[0.15em] text-white transition-colors hover:bg-[#967246]"
             >
               Show More Testimonials
             </a>

@@ -39,6 +39,6 @@ export const faqs: FAQ[] = [
     id: "6",
     question: "How do I get started?",
     answer:
-      "Book a free discovery call to discuss your health goals and determine which program is the best fit. There's no pressure — just an honest conversation about how we can support your transformation.",
+      "Explore our programs to find the best fit for your health goals. There's no pressure — just an honest conversation about how we can support your transformation.",
   },
 ];

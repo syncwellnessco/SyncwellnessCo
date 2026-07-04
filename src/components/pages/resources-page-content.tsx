@@ -25,16 +25,16 @@ export function ResourcesPageContent() {
             <h1 className="font-display text-4xl lg:text-5xl font-normal text-charcoal mb-6">
               Free Hormone Balance eBook
             </h1>
-            <p className="text-[15px] leading-relaxed text-slate-700 mb-10 max-w-lg">
+            <p className="text-[15px] leading-relaxed text-charcoal mb-10 max-w-lg">
               Discover the 7 foundational principles for balancing hormones naturally — without restrictive diets or overwhelming protocols.
             </p>
             
             <div className="relative w-full aspect-[3/4] max-w-sm rounded-sm overflow-hidden shadow-sm border border-[#EBE3DB] bg-[#FAF8F5] flex flex-col items-center justify-center p-8">
-              <BookOpen className="h-12 w-12 text-[#B38A58] mb-6" />
+              <BookOpen className="h-12 w-12 text-[#B8955F] mb-6" />
               <h3 className="font-display text-2xl font-medium text-center text-charcoal mb-6">
                 The Hormone Balance Guide
               </h3>
-              <ul className="space-y-3 text-sm text-slate-600 w-full">
+              <ul className="space-y-3 text-sm text-charcoal w-full">
                 <li className="border-b border-[#EBE3DB] pb-3 text-center tracking-wide">• Cycle-synced nutrition basics</li>
                 <li className="border-b border-[#EBE3DB] pb-3 text-center tracking-wide">• Gut-hormone connection</li>
                 <li className="border-b border-[#EBE3DB] pb-3 text-center tracking-wide">• Stress & sleep optimization</li>
@@ -52,8 +52,8 @@ export function ResourcesPageContent() {
             
             {submitted ? (
               <div className="bg-[#FAF8F5] p-8 border border-[#EBE3DB] rounded-sm">
-                <p className="text-[#A8895C] font-display text-2xl mb-2">Check your inbox!</p>
-                <p className="text-slate-600 text-sm">Your free eBook download link is on its way.</p>
+                <p className="text-[#B8955F] font-display text-2xl mb-2">Check your inbox!</p>
+                <p className="text-charcoal text-sm">Your free eBook download link is on its way.</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="flex flex-col gap-8 w-full max-w-md">
@@ -81,7 +81,7 @@ export function ResourcesPageContent() {
                   <button 
                     type="submit" 
                     disabled={loading}
-                    className="flex items-center justify-center gap-2 bg-[#B38A58] text-white hover:bg-[#967246] uppercase tracking-[0.15em] text-[11px] font-semibold py-4 px-12 transition-colors disabled:opacity-70 w-full sm:w-auto"
+                    className="flex items-center justify-center gap-2 bg-[#B8955F] text-white hover:bg-[#967246] uppercase tracking-[0.15em] text-[11px] font-semibold py-4 px-12 transition-colors disabled:opacity-70 w-full sm:w-auto"
                   >
                     {loading ? "SENDING..." : (
                       <>

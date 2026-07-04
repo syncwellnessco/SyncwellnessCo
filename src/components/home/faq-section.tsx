@@ -39,18 +39,18 @@ export function FAQSection() {
             ))}
           </Accordion>
 
-          <p className="mt-6 text-center text-xs text-sage-600 sm:mt-8 sm:text-sm">
+          <p className="mt-6 text-center text-xs text-charcoal sm:mt-8 sm:text-sm">
             Have more questions?{" "}
             <Link
               href="/faq"
-              className="font-medium text-sage-700 underline-offset-4 hover:underline"
+              className="font-medium text-charcoal underline-offset-4 hover:underline"
             >
               View all FAQs
             </Link>{" "}
             or{" "}
             <Link
               href="/contact"
-              className="font-medium text-sage-700 underline-offset-4 hover:underline"
+              className="font-medium text-charcoal underline-offset-4 hover:underline"
             >
               contact us
             </Link>

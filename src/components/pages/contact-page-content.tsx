@@ -28,7 +28,7 @@ export function ContactPageContent() {
             <h1 className="font-display text-4xl lg:text-5xl font-normal text-charcoal mb-6">
               Have A Question? We're Here To Help.
             </h1>
-            <p className="text-[15px] leading-relaxed text-slate-700 mb-10 max-w-lg">
+            <p className="text-[15px] leading-relaxed text-charcoal mb-10 max-w-lg">
               Whether you're curious about our programs, health coaching, or collaboration opportunities — we're just a message away. Reach out and a member from our team will get back to you within 24-48 business hours.
             </p>
             
@@ -46,8 +46,8 @@ export function ContactPageContent() {
           <div className="flex flex-col pt-2 lg:pt-4">
             {submitted ? (
               <div className="bg-[#FAF8F5] p-8 border border-[#EBE3DB] rounded-sm">
-                <p className="text-[#A8895C] font-display text-2xl mb-2">Message Sent</p>
-                <p className="text-slate-600 text-sm">Thank you for reaching out! We will get back to you shortly.</p>
+                <p className="text-[#B8955F] font-display text-2xl mb-2">Message Sent</p>
+                <p className="text-charcoal text-sm">Thank you for reaching out! We will get back to you shortly.</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="flex flex-col gap-8 w-full max-w-md">
@@ -103,7 +103,7 @@ export function ContactPageContent() {
                   <button 
                     type="submit" 
                     disabled={loading}
-                    className="bg-[#B38A58] text-white hover:bg-[#967246] uppercase tracking-[0.15em] text-[11px] font-semibold py-4 px-12 transition-colors disabled:opacity-70"
+                    className="bg-[#B8955F] text-white hover:bg-[#967246] uppercase tracking-[0.15em] text-[11px] font-semibold py-4 px-12 transition-colors disabled:opacity-70"
                   >
                     {loading ? "SENDING..." : "SUBMIT"}
                   </button>
@@ -126,16 +126,16 @@ export function ContactPageContent() {
                 Connect with the Founder
               </h2>
               
-              <div className="space-y-6 text-[15px] text-slate-700 leading-relaxed">
+              <div className="space-y-6 text-[15px] text-charcoal leading-relaxed">
                 <div>
-                  <h3 className="font-display text-xl text-[#B38A58] italic mb-2">Interested in working together?</h3>
+                  <h3 className="font-display text-xl text-[#B8955F] italic mb-2">Interested in working together?</h3>
                   <p>
                     The best way to get started is to fill in the form above and leave detailed information about what type of support you are looking for.
                   </p>
                 </div>
                 
                 <div>
-                  <h3 className="font-display text-xl text-[#B38A58] italic mb-2">Interested in connecting?</h3>
+                  <h3 className="font-display text-xl text-[#B8955F] italic mb-2">Interested in connecting?</h3>
                   <p>
                     I am obsessed with sharing knowledge and would love to connect with you! I am open to blog interviews, guest features, joint ventures, affiliate relationships, speaking opportunities, and collaborations.
                   </p>

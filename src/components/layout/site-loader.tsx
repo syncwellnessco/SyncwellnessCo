@@ -51,7 +51,7 @@ export function SiteLoader({ children }: { children: React.ReactNode }) {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className="mt-3 text-xs uppercase tracking-[0.16em] text-sage-700 sm:text-sm"
+                className="mt-3 text-xs uppercase tracking-[0.16em] text-charcoal sm:text-sm"
               >
                 {lines[lineIndex]}
               </motion.p>

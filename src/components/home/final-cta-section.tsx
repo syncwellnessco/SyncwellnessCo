@@ -67,14 +67,14 @@ export function FinalCTASection() {
             </p>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
               <Link
-                href="/consultation"
+                href="/programs"
                 className="inline-flex items-center justify-center gap-2 bg-cream px-7 py-3.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-charcoal transition-colors hover:bg-cream/90"
               >
                 Book Free Call
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
-                href="/consultation"
+                href="/programs"
                 className="inline-flex items-center justify-center gap-2 border border-cream/55 px-7 py-3.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-cream transition-colors hover:bg-cream/10"
               >
                 Apply For Coaching

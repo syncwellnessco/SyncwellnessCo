@@ -21,89 +21,112 @@ export async function ProgramDetailContent({ id }: ProgramDetailContentProps) {
   }
 
   return (
-    <article className="pb-16">
+    <article className="pb-0">
       {/* Hero Section */}
-      <section className="relative min-h-[85vh] flex items-center bg-cream overflow-hidden pt-24 pb-16 lg:pt-0 lg:pb-0">
-        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+      <section 
+        className="relative min-h-[90vh] flex items-center bg-cover bg-center overflow-hidden pt-32 pb-24"
+        style={{ backgroundImage: `url(https://res.cloudinary.com/daw1tscqr/image/upload/v1780733233/shadow-background_wbrsm4.jpg)` }}
+      >
+        <div className="absolute inset-0 bg-[#4A5D5E]/70 mix-blend-multiply" />
+        <div className="absolute inset-0 bg-slate-900/20" />
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
             
-            {/* Left Image/Video */}
-            <div className="relative w-full aspect-[4/5] lg:aspect-[3/4] rounded-sm overflow-hidden order-2 lg:order-1 border border-beige-200 shadow-sm">
-              {program.videoUrl ? (
-                <video
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  className="absolute inset-0 h-full w-full object-cover"
-                  src={program.videoUrl}
-                />
-              ) : (
-                <div className="absolute inset-0 bg-sage-100 flex items-center justify-center">
-                  <span className="text-sage-400 font-display">No media available</span>
-                </div>
-              )}
-            </div>
-
-            {/* Right Content */}
-            <div className="relative z-10 order-1 lg:order-2 flex flex-col justify-center py-8 lg:py-24">
+            <div className="lg:col-span-7 flex flex-col justify-center">
               {program.trustLine && (
-                <span className="mb-6 block text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-600">
+                <span className="mb-6 block text-[11px] font-semibold uppercase tracking-[0.2em] text-[#B8955F]">
                   {program.trustLine}
                 </span>
               )}
               
-              <h1 className="font-display text-4xl lg:text-[3.2rem] font-medium leading-[1.15] text-[#2C3E3A]">
-                {program.name}{" "}
-                <span className="box-decoration-clone bg-[#EBE3DB] px-3 py-1">
-                  Program
-                </span>
+              <h1 className="font-display text-5xl lg:text-[4.5rem] font-medium leading-[1.05] text-white mb-6">
+                {program.name}
               </h1>
               
-              <div className="mt-8 space-y-6 text-[1.1rem] leading-relaxed text-[#4A5551] max-w-lg">
+              <p className="font-display italic text-2xl lg:text-3xl text-white/90 mb-8 font-light">
+                {program.overview}
+              </p>
+              
+              <div className="space-y-6 text-[1.1rem] leading-relaxed text-white/80 max-w-xl">
                 <p>{program.description}</p>
               </div>
               
-              <div className="mt-8 flex flex-wrap items-center gap-2">
-                <GlassBadge variant="dark" className="bg-[#2C3E3A]/10 text-[#2C3E3A] border-[#2C3E3A]/20">{program.duration}</GlassBadge>
-                <GlassBadge variant="dark" className="bg-[#2C3E3A]/10 text-[#2C3E3A] border-[#2C3E3A]/20">{program.format}</GlassBadge>
+              <div className="mt-10 flex flex-wrap items-center gap-3">
+                <GlassBadge variant="dark" className="bg-white/10 text-white border-white/20 rounded-none tracking-widest uppercase text-[10px]">{program.duration}</GlassBadge>
+                <GlassBadge variant="dark" className="bg-white/10 text-white border-white/20 rounded-none tracking-widest uppercase text-[10px]">{program.format}</GlassBadge>
               </div>
 
-              <div className="mt-12">
+              <div className="mt-12 flex flex-col sm:flex-row items-start sm:items-center gap-6">
                 <BookingButton 
                   programId={program.id} 
                   programName={program.name} 
-                  className="w-full sm:w-auto bg-[#B38A58] text-white hover:bg-[#967246] uppercase tracking-[0.15em] text-xs font-semibold h-14 px-10 rounded-sm border-0 transition-colors"
+                  className="w-full sm:w-auto bg-[#B8955F] text-white hover:bg-white hover:text-charcoal uppercase tracking-[0.15em] text-[11px] font-bold h-14 px-10 rounded-none border-0 transition-all duration-300"
                 >
                   {program.cta}
                 </BookingButton>
                 
                 {program.pricing && (
-                  <p className="mt-4 text-sm text-[#8F9C9F] italic">
+                  <p className="text-sm text-white/70 italic">
                     Investment: {program.pricing}
                   </p>
                 )}
               </div>
             </div>
 
+            <div className="lg:col-span-5 relative">
+              <div className="relative w-full aspect-[4/5] rounded-none overflow-hidden shadow-2xl ring-1 ring-white/10">
+                {program.videoUrl ? (
+                  <video autoPlay muted loop playsInline className="absolute inset-0 h-full w-full object-cover" src={program.videoUrl} />
+                ) : (
+                  <div className="absolute inset-0 bg-charcoal/50 flex items-center justify-center">
+                    <span className="text-white/50 font-display">No media</span>
+                  </div>
+                )}
+              </div>
+              {/* Decorative element */}
+              <div className="absolute -bottom-6 -left-6 w-24 h-24 bg-[#B8955F] rounded-none mix-blend-multiply opacity-50 blur-2xl" />
+            </div>
+
           </div>
         </div>
       </section>
 
-      {/* Keypoints Row */}
-      <section className="py-6 sm:py-8 bg-cream">
+      {/* Stats / Keypoints */}
+      <section className="bg-charcoal py-8 border-y border-white/5">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="bg-charcoal py-4 sm:py-5 px-4 rounded-sm">
-            <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-3 sm:gap-6 lg:gap-8">
-              {program.stats.map((stat, i) => (
-                <div 
-                  key={i} 
-                  className="flex shrink-0 items-center gap-1.5 whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.16em] text-[#B38C50] sm:text-xs"
-                >
-                  <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-sage-400 sm:h-4 sm:w-4">
-                    <Check className="h-2 w-2 text-cream sm:h-2.5 sm:w-2.5 stroke-[3]" />
-                  </span>
+          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 sm:gap-12">
+            {program.stats.map((stat, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <Star className="h-3 w-3 text-[#B8955F]" />
+                <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/90">
                   {stat}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Is This For You? (The Problem) */}
+      <section className="py-24 lg:py-32 bg-[#FAF8F5]">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-start">
+            <div className="lg:sticky lg:top-32">
+              <span className="text-[#B8955F] text-[11px] font-bold uppercase tracking-[0.2em] mb-4 block">The Reality</span>
+              <h2 className="font-display text-4xl lg:text-[3.5rem] leading-[1.1] text-charcoal mb-8">
+                Is this you right now?
+              </h2>
+              <p className="text-lg text-charcoal/80 leading-relaxed max-w-md">
+                You’re doing everything "right" but still feeling exhausted, out of balance, and overwhelmed. It's not your fault—the conventional approach often misses the root cause.
+              </p>
+            </div>
+            <div className="space-y-6">
+              {program.problems.map((problem, i) => (
+                <div key={i} className="flex items-start gap-5 p-6 bg-white rounded-none shadow-[0_2px_10px_rgba(0,0,0,0.03)] border-l-2 border-[#B8955F] transition-all hover:translate-x-2 duration-300">
+                  <span className="text-[#B8955F] font-display text-xl opacity-50 italic mt-0.5">{String(i + 1).padStart(2, '0')}</span>
+                  <p className="text-[1.1rem] text-charcoal leading-relaxed font-medium">
+                    {problem}
+                  </p>
                 </div>
               ))}
             </div>
@@ -111,91 +134,58 @@ export async function ProgramDetailContent({ id }: ProgramDetailContentProps) {
         </div>
       </section>
 
-      {/* Program Overview */}
-      <section className="py-16 bg-[#FAF9F7]">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
-          <SectionHeading
-            eyebrow="About This Program"
-            title="A Better Way Forward"
-            description={program.overview}
-          />
-          {program.overviewParagraphs && (
-            <div className="mt-8 space-y-4 text-left text-base sm:text-lg text-sage-700 leading-relaxed max-w-3xl mx-auto">
-              {program.overviewParagraphs.map((p, i) => (
-                <p key={i}>{p}</p>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Problems We Solve (Glassmorphism) */}
-      <section className="py-16 bg-sage-50 relative overflow-hidden">
-        {/* Background blobs */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-gold/10 blur-3xl" />
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full bg-sage-200/50 blur-3xl" />
-        </div>
-        
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="font-display text-2xl font-semibold text-charcoal sm:text-3xl mb-10">Problems We Help With</h2>
-          <div className="flex flex-wrap justify-center gap-4 max-w-4xl mx-auto">
-            {program.problems.map((problem) => (
-              <span 
-                key={problem} 
-                className="group relative inline-flex shrink-0 cursor-default items-center gap-2.5 rounded-full border border-gold/20 bg-cream/90 px-5 py-2.5 shadow-[0_2px_12px_rgba(179,140,80,0.08),inset_0_1px_0_rgba(255,255,255,0.6)] backdrop-blur-md transition-all duration-300 hover:border-gold/50 hover:shadow-[0_4px_20px_rgba(179,140,80,0.16)] sm:px-6 sm:py-3"
-              >
-                <span className="h-1.5 w-1.5 rounded-full bg-gold/50 transition-colors duration-300 group-hover:bg-gold" />
-                <span className="whitespace-nowrap text-sm sm:text-base font-medium tracking-wide text-charcoal/85 transition-colors duration-300 group-hover:text-charcoal">
-                  {problem}
-                </span>
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* What's Included & Perfect For */}
-      <section className="py-16 bg-cream" id="curriculum">
+      {/* Perfect For & Curriculum */}
+      <section className="py-24 lg:py-32 bg-white border-t border-[#EBE3DB]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-12 lg:grid-cols-2">
+          <div className="text-center max-w-3xl mx-auto mb-20">
+            <span className="text-[#B8955F] text-[11px] font-bold uppercase tracking-[0.2em] mb-4 block">The Solution</span>
+            <h2 className="font-display text-4xl lg:text-[3.5rem] leading-[1.1] text-charcoal">
+              A Better Way Forward
+            </h2>
+            <div className="mt-6 space-y-4 text-lg text-charcoal/80">
+              <p>{program.overview}</p>
+              {program.overviewParagraphs?.map((p, i) => <p key={i}>{p}</p>)}
+            </div>
+          </div>
+
+          <div className="grid lg:grid-cols-12 gap-12 lg:gap-16">
             
-            <div>
-              <SectionHeading eyebrow="Curriculum" title="What's Included" align="left" />
-              <ul className="mt-8 space-y-4">
-                {program.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-4 p-5 rounded-2xl bg-white shadow-sm border border-beige-200 hover:border-gold/30 transition-colors">
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-beige-100 flex items-center justify-center">
-                      <Check className="h-4 w-4 text-gold" />
-                    </div>
-                    <span className="text-base text-charcoal pt-1">{feature}</span>
+            <div className="lg:col-span-5">
+              <h3 className="font-display text-3xl text-charcoal mb-8 border-b border-[#EBE3DB] pb-4">Perfect For...</h3>
+              <ul className="space-y-4">
+                {program.perfectFor.map((item, i) => (
+                  <li key={i} className="flex items-start gap-4">
+                    <CheckCircle2 className="h-5 w-5 text-[#B8955F] shrink-0 mt-0.5" strokeWidth={1.5} />
+                    <span className="text-base text-charcoal/90 leading-relaxed">{item}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
-            <div>
-              <SectionHeading eyebrow="Is this for you?" title="Perfect For" align="left" />
-              <div className="mt-8 grid gap-3">
-                {program.perfectFor.map((item) => (
-                  <div key={item} className="flex items-start gap-3 p-4 rounded-xl bg-sage-50/50 border border-sage-200/50">
-                    <CheckCircle2 className="h-5 w-5 text-sage-600 flex-shrink-0" />
-                    <span className="text-sm sm:text-base text-sage-800">{item}</span>
+            <div className="lg:col-span-7">
+              <h3 className="font-display text-3xl text-charcoal mb-8 border-b border-[#EBE3DB] pb-4">What's Included</h3>
+              <div className="grid sm:grid-cols-2 gap-6">
+                {program.features.map((feature, i) => (
+                  <div key={i} className="bg-[#FAF8F5] p-6 rounded-none">
+                    <div className="w-8 h-8 rounded-full bg-[#EBE3DB] flex items-center justify-center mb-4">
+                      <Check className="h-4 w-4 text-[#B8955F]" strokeWidth={2} />
+                    </div>
+                    <p className="text-[15px] text-charcoal font-medium leading-snug">{feature}</p>
                   </div>
                 ))}
               </div>
-              
+
               {program.bonuses && program.bonuses.length > 0 && (
-                <div className="mt-10 p-6 rounded-2xl bg-gradient-to-br from-charcoal to-espresso text-cream">
-                  <h3 className="font-display text-xl font-semibold mb-5 flex items-center gap-2">
-                    <Star className="h-5 w-5 text-gold fill-current" />
+                <div className="mt-10 p-8 bg-charcoal text-white rounded-none">
+                  <h4 className="font-display text-2xl mb-6 flex items-center gap-3">
+                    <Star className="h-5 w-5 text-[#B8955F] fill-current" />
                     Exclusive Bonuses
-                  </h3>
-                  <ul className="space-y-3">
-                    {program.bonuses.map((bonus) => (
-                      <li key={bonus} className="flex items-start gap-2 text-sm sm:text-base text-cream/90">
-                        <Check className="h-4 w-4 text-gold flex-shrink-0 mt-0.5" />
-                        <span>{bonus}</span>
+                  </h4>
+                  <ul className="space-y-4">
+                    {program.bonuses.map((bonus, i) => (
+                      <li key={i} className="flex items-start gap-3">
+                        <Check className="h-5 w-5 text-[#B8955F] shrink-0 mt-0.5" />
+                        <span className="text-[15px] text-white/90 leading-relaxed">{bonus}</span>
                       </li>
                     ))}
                   </ul>
@@ -209,23 +199,27 @@ export async function ProgramDetailContent({ id }: ProgramDetailContentProps) {
 
       {/* Program Timeline */}
       {program.timeline && program.timeline.length > 0 && (
-        <section className="py-16 bg-charcoal text-cream relative overflow-hidden">
-          <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }} />
-          <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <span className="text-gold tracking-[0.15em] uppercase text-[10px] font-semibold mb-2 block">The Journey</span>
-              <h2 className="font-display text-2xl sm:text-4xl font-semibold">Program Timeline</h2>
+        <section 
+          className="relative py-24 lg:py-32 bg-cover bg-center overflow-hidden"
+          style={{ backgroundImage: `url(https://res.cloudinary.com/daw1tscqr/image/upload/v1780733233/shadow-background_wbrsm4.jpg)` }}
+        >
+          <div className="absolute inset-0 bg-[#4A5D5E]/90 mix-blend-multiply" />
+          <div className="absolute inset-0 bg-charcoal/60" />
+          <div className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <span className="text-[#B8955F] tracking-[0.2em] uppercase text-[11px] font-bold mb-4 block">The Journey</span>
+              <h2 className="font-display text-4xl lg:text-5xl font-medium text-white">Program Timeline</h2>
             </div>
             
-            <div className="max-w-3xl mx-auto relative border-l-2 border-white/10 ml-4 sm:ml-auto">
+            <div className="relative border-l border-white/20 ml-4 sm:ml-8">
               {program.timeline.map((step, i) => (
-                <div key={i} className="mb-10 relative pl-8 sm:pl-10">
-                  <div className="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-gold shadow-[0_0_12px_rgba(212,175,55,0.5)]" />
-                  <span className="inline-block px-3 py-1 mb-2 text-[10px] font-semibold text-charcoal bg-gold rounded-full">
+                <div key={i} className="mb-12 relative pl-8 sm:pl-12 last:mb-0">
+                  <div className="absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full bg-[#B8955F] shadow-[0_0_10px_#B8955F]" />
+                  <span className="inline-block px-3 py-1 mb-3 text-[10px] font-bold uppercase tracking-widest text-charcoal bg-[#B8955F] rounded-none">
                     {step.label}
                   </span>
-                  <h3 className="text-xl font-display font-semibold mb-2">{step.title}</h3>
-                  <p className="text-cream/70 text-sm sm:text-base leading-relaxed">{step.description}</p>
+                  <h3 className="text-2xl font-display font-medium text-white mb-3">{step.title}</h3>
+                  <p className="text-white/70 text-base leading-relaxed">{step.description}</p>
                 </div>
               ))}
             </div>
@@ -234,21 +228,20 @@ export async function ProgramDetailContent({ id }: ProgramDetailContentProps) {
       )}
 
       {/* Outcomes & Methodology */}
-      <section className="py-16 bg-[#FAF9F7]">
+      <section className="py-24 bg-[#FAF8F5]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-6 md:grid-cols-2">
-            <HighlightCard 
-              title="Expected Outcomes" 
-              description={program.outcomes}
-              variant="light"
-            />
+          <div className="grid gap-8 md:grid-cols-2">
+            <div className="bg-white p-10 lg:p-14 rounded-none shadow-sm border border-[#EBE3DB]">
+              <span className="text-[#B8955F] text-[10px] font-bold uppercase tracking-[0.2em] mb-4 block">The Result</span>
+              <h3 className="font-display text-3xl text-charcoal mb-6">Expected Outcomes</h3>
+              <p className="text-charcoal/80 leading-relaxed text-lg">{program.outcomes}</p>
+            </div>
             {program.methodology && (
-              <HighlightCard 
-                title="Our Methodology" 
-                description={program.methodology}
-                variant="glass"
-                className="bg-white/40 border-sage-200"
-              />
+              <div className="bg-charcoal p-10 lg:p-14 rounded-none shadow-sm">
+                <span className="text-[#B8955F] text-[10px] font-bold uppercase tracking-[0.2em] mb-4 block">The Science</span>
+                <h3 className="font-display text-3xl text-white mb-6">Our Methodology</h3>
+                <p className="text-white/80 leading-relaxed text-lg">{program.methodology}</p>
+              </div>
             )}
           </div>
         </div>
@@ -256,44 +249,49 @@ export async function ProgramDetailContent({ id }: ProgramDetailContentProps) {
 
       {/* FAQ */}
       {program.faqs && program.faqs.length > 0 && (
-        <section className="py-16 bg-cream">
+        <section className="py-24 bg-white border-t border-[#EBE3DB]">
           <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-            <SectionHeading eyebrow="Got Questions?" title="Frequently Asked Questions" />
-            <div className="mt-10">
-              <Accordion type="single" collapsible className="w-full">
-                {program.faqs.map((faq, i) => (
-                  <AccordionItem key={i} value={`faq-${i}`} className="border-beige-200">
-                    <AccordionTrigger className="text-left font-medium text-base sm:text-lg text-charcoal hover:text-charcoal/80 py-5">
-                      {faq.question}
-                    </AccordionTrigger>
-                    <AccordionContent className="text-sage-700 text-sm sm:text-base leading-relaxed pb-5">
-                      {faq.answer}
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
+            <div className="text-center mb-16">
+              <span className="text-[#B8955F] text-[11px] font-bold uppercase tracking-[0.2em] mb-4 block">Clarity</span>
+              <h2 className="font-display text-4xl lg:text-5xl font-medium text-charcoal">Frequently Asked Questions</h2>
             </div>
+            <Accordion type="single" collapsible className="w-full">
+              {program.faqs.map((faq, i) => (
+                <AccordionItem key={i} value={`faq-${i}`} className="border-[#EBE3DB]">
+                  <AccordionTrigger className="text-left font-display text-xl sm:text-2xl text-charcoal hover:text-[#B8955F] py-6 transition-colors">
+                    {faq.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-charcoal/80 text-base leading-relaxed pb-6">
+                    {faq.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
           </div>
         </section>
       )}
 
       {/* Final CTA */}
-      <section className="py-16 bg-gradient-to-br from-beige-100 to-cream">
-        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="font-display text-3xl sm:text-4xl font-semibold text-charcoal mb-4">Ready to Transform Your Health?</h2>
-          <p className="text-lg text-sage-700 mb-8 max-w-2xl mx-auto">Take the first step towards a healthier, more balanced you. Spots are limited to ensure personalized attention.</p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
+      <section className="py-32 bg-[#EBE3DB]/40 text-center">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+          <h2 className="font-display text-4xl lg:text-[4rem] leading-[1.1] font-medium text-charcoal mb-6">
+            Ready to Transform?
+          </h2>
+          <p className="text-xl text-charcoal/80 mb-10 max-w-2xl mx-auto font-light">
+            Take the first step towards a healthier, more balanced you. Spots are limited to ensure personalized attention.
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-6">
             <BookingButton 
               programId={program.id} 
               programName={program.name} 
-              className="h-14 px-8 text-base"
+              className="bg-[#B8955F] text-white hover:bg-charcoal uppercase tracking-[0.2em] text-[11px] font-bold h-16 px-12 rounded-none border-0 transition-all duration-300 w-full sm:w-auto"
             >
               {program.cta}
             </BookingButton>
             {program.pricing && (
-              <div className="flex items-center justify-center text-sm font-medium text-sage-600 sm:ml-4">
-                {program.pricing}
-              </div>
+              <span className="text-charcoal/60 italic font-display text-xl">
+                or starting at {program.pricing}
+              </span>
             )}
           </div>
         </div>

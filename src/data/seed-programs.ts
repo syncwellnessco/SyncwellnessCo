@@ -12,9 +12,9 @@ export const seedPrograms: Program[] = [
     duration: "12 Weeks",
     format: "1:1 Coaching • Online",
     description:
-      "Our signature comprehensive program designed to balance hormones, optimize metabolism, improve sleep, manage stress, and restore vibrant energy through personalized protocols.",
+      "Our signature comprehensive program is designed to balance hormones, optimize metabolism, improve sleep, manage stress, and restore vibrant energy through personalized protocols.",
     overview:
-      "The Hormone Harmony Framework is a personalised 12-week coaching experience built for busy women who want sustainable results — not another restrictive diet.",
+      "Our signature comprehensive program is designed to balance hormones, optimize metabolism, improve sleep, manage stress, and restore vibrant energy through personalized protocols.",
     overviewParagraphs: [
       "Through weekly 1:1 sessions, you'll receive custom hormone-friendly meal plans, cycle-synced movement guidance, and practical lifestyle strategies that fit real life.",
       "This program helps you understand your body, balance hormones naturally, and build habits you can maintain long after coaching ends.",
@@ -30,14 +30,12 @@ export const seedPrograms: Program[] = [
     problems: [
       "Hormone imbalance",
       "Weight gain",
-      "Stress",
-      "Poor sleep",
+      "Digestive issues",
       "Fatigue",
-      "Digestion",
-      "PMS",
-      "Acne",
-      "Bloating",
+      "Poor sleep",
+      "Stress",
       "Low energy",
+      "Bloating"
     ],
     features: [
       "Weekly 1:1 online coaching sessions",
@@ -57,13 +55,21 @@ export const seedPrograms: Program[] = [
       "Perimenopause & menopause wellness guide",
     ],
     perfectFor: [
-      "Balance hormones naturally and sustainably",
-      "Lose weight without restrictive dieting",
+      "Balance their hormones naturally and sustainably",
+      "Lose weight in a healthy, long-term way without restrictive dieting",
       "Improve metabolism and support healthy fat loss",
-      "Increase energy and reduce fatigue",
-      "Improve sleep and manage daily stress",
+      "Build lean muscle through adequate protein intake and strategic movement",
+      "Increase energy levels and reduce fatigue",
+      "Improve sleep quality and wake up feeling refreshed",
+      "Reduce stress and better manage daily demands",
+      "Support mental and emotional wellbeing",
+      "Reduce PMS symptoms and improve cycle health",
       "Navigate perimenopause and menopause with confidence",
-      "Create lasting lifestyle habits for lifelong wellness",
+      "Improve digestion and create better gut health",
+      "Reduce bloating and inflammation",
+      "Achieve healthier, clearer, more radiant skin",
+      "Develop a healthier relationship with food and their body",
+      "Create lasting lifestyle habits that support lifelong wellness"
     ],
     timeline: [
       {
@@ -92,7 +98,7 @@ export const seedPrograms: Program[] = [
       },
     ],
     outcomes:
-      "By the end of the 12-week Hormone Harmony Framework, you'll have the knowledge, tools, and personalized strategies to support balanced hormones, improved metabolism, better sleep, reduced stress, and increased energy. Many women experience improvements in digestion, mood, body composition, cycle health, and overall wellbeing.",
+      "By the end of the 12-week Hormone Harmony Framework, you'll have the knowledge, tools, and personalized strategies to support balanced hormones, improved metabolism, better sleep, reduced stress, and increased energy. Many women experience improvements in digestion, mood, body composition, cycle health, and overall wellbeing while developing sustainable nutrition, movement, and lifestyle habits that support long-term health and vitality.",
     methodology:
       "Our framework integrates functional health principles with compassionate coaching — addressing hormones, gut health, metabolism, sleep, and stress as interconnected systems. Every protocol is personalised because no two women are the same.",
     faqs: [
@@ -130,9 +136,9 @@ export const seedPrograms: Program[] = [
       },
     ],
     featured: true,
-    cta: "Book Discovery Call",
+    cta: "Join Program",
     secondaryCta: "View Curriculum",
-    ctaLink: "/consultation",
+    ctaLink: "/programs",
     pricing: "Starting from $599",
     videoUrl: defaultVideo,
     trustLine: "Trusted by Women Worldwide",
@@ -180,11 +186,21 @@ export const seedPrograms: Program[] = [
       "Daily health tracking",
     ],
     perfectFor: [
-      "Reduce bloating and digestive discomfort",
-      "Identify food sensitivities safely",
-      "Improve energy and mental clarity",
-      "Support clearer skin and reduced inflammation",
-      "Build a foundation for long-term gut wellness",
+      "Bloating, gas, or digestive discomfort",
+      "Acid reflux, acidity, or indigestion",
+      "Constipation, diarrhea, or irregular bowel movements",
+      "Gut imbalances, including suspected SIBO symptoms",
+      "Food sensitivities and poor digestion",
+      "Persistent fatigue and low energy levels",
+      "Brain fog and difficulty concentrating",
+      "Anxiety, mood swings, or feeling overwhelmed",
+      "Acne, eczema, skin flare-ups, or other inflammatory skin concerns",
+      "PMS symptoms, painful periods, or irregular cycles",
+      "Hormonal imbalances affecting your wellbeing",
+      "Sugar cravings and difficulty managing appetite",
+      "Stubborn weight gain or difficulty losing weight",
+      "Poor sleep quality and waking up tired",
+      "A desire to improve overall gut health, metabolism, and wellbeing"
     ],
     timeline: [
       {
@@ -201,7 +217,7 @@ export const seedPrograms: Program[] = [
       },
     ],
     outcomes:
-      "By the end of this 2-week Gut Cleanse Program, you'll gain a clearer understanding of your digestive health and receive a personalized roadmap to support long-term gut wellness. Many women experience reduced bloating, improved bowel regularity, increased energy, and better mental clarity.",
+      "By the end of this 2-week Gut Cleanse Program, you'll gain a clearer understanding of your digestive health and receive a personalized roadmap to support long-term gut wellness. Many women experience reduced bloating and digestive discomfort, improved bowel regularity, increased energy, better mental clarity, fewer food sensitivities, improved skin health, and enhanced overall wellbeing. Through targeted nutrition, lifestyle strategies, and gut-supportive protocols, you'll build a strong foundation for healthier digestion, balanced hormones, improved metabolism, and sustainable wellness.",
     faqs: [
       {
         question: "Is this suitable if I suspect SIBO?",
@@ -215,9 +231,9 @@ export const seedPrograms: Program[] = [
       },
     ],
     featured: false,
-    cta: "Book Your Spot",
+    cta: "Join Program",
     secondaryCta: "View Curriculum",
-    ctaLink: "/consultation",
+    ctaLink: "/programs",
     pricing: "Starting from $149",
     videoUrl: defaultVideo,
     trustLine: "Trusted by Women Worldwide",
@@ -231,9 +247,9 @@ export const seedPrograms: Program[] = [
     duration: "4 Weeks",
     format: "Guided Program • Online",
     description:
-      "Jumpstart sustainable fat loss with metabolic reset strategies that work with your hormones — not against them.",
+      "Jumpstart sustainable fat loss with metabolic reset strategies that work with your hormones—not against them. This 4-week guided program is designed to help you build healthier habits, improve energy levels, and support sustainable fat loss through nutrition, movement, and accountability.",
     overview:
-      "A 4-week guided program to build healthier habits, improve energy, and support sustainable fat loss through nutrition, movement, and accountability.",
+      "Jumpstart sustainable fat loss with metabolic reset strategies that work with your hormones—not against them.",
     overviewParagraphs: [
       "You'll receive structured weekly guidance, personalised meal templates, and coaching support to keep you on track.",
       "This program teaches you how to work with your hormones for lasting results — no crash diets or extreme restrictions.",
@@ -255,21 +271,22 @@ export const seedPrograms: Program[] = [
       "Poor habits",
     ],
     features: [
-      "Structured weekly guidance",
-      "Personalized meal plan & recipe booklet",
-      "Macros calculation guide",
-      "Weekly check-ins & progress support",
-      "Daily habit & wellness tracker",
-      "Guided movement & workout plans",
-      "Sustainable fat loss education",
-      "Healthy habit-building strategies",
+      "Structured Weekly Guidance",
+      "Personalized Meal Plan & Recipe Booklet",
+      "Macros Calculation Guide (Protein, Carbohydrates & Fats)",
+      "Weekly Check-Ins & Progress Support",
+      "Daily Habit & Wellness Tracker",
+      "Accountability, Motivation & Coaching Support",
+      "Guided Movement & Workout Plans",
+      "Sustainable Fat Loss & Metabolism Education",
+      "Healthy Habit-Building Strategies for Long-Term Success"
     ],
     perfectFor: [
       "Lose body fat sustainably",
       "Improve energy and metabolism",
       "Create healthy habits that last",
       "Feel more confident in their body",
-      "Learn to work with hormones, not against them",
+      "Learn how to work with their hormones, not against them"
     ],
     timeline: [
       {
@@ -294,7 +311,7 @@ export const seedPrograms: Program[] = [
       },
     ],
     outcomes:
-      "By the end of this 4-week program, you'll have the tools, knowledge, and confidence to support sustainable fat loss while working in harmony with your hormones. You'll establish healthier nutrition and movement habits and develop a personalised approach to maintaining results long-term.",
+      "By the end of this 4-week Metabolic Fat Loss Kickstarter, you'll have the tools, knowledge, and confidence to support sustainable fat loss while working in harmony with your hormones. You'll establish healthier nutrition and movement habits, improve energy levels, boost metabolic function, reduce cravings, and develop a personalized approach to maintaining results long-term. Most importantly, you'll create a strong foundation for lasting health, body confidence, and continued progress beyond the program.",
     methodology:
       "We focus on hormone-friendly nutrition, adequate protein, strategic movement, and accountability — creating a metabolic reset that supports fat loss without extreme restriction.",
     faqs: [
@@ -310,9 +327,9 @@ export const seedPrograms: Program[] = [
       },
     ],
     featured: false,
-    cta: "Book Your Spot",
+    cta: "Join Program",
     secondaryCta: "View Curriculum",
-    ctaLink: "/consultation",
+    ctaLink: "/programs",
     pricing: "Starting from $249",
     videoUrl: defaultVideo,
     trustLine: "Trusted by Women Worldwide",

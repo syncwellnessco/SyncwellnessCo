@@ -39,12 +39,12 @@ export function FreeResourceSection() {
                   animate={{ opacity: 1, scale: 1 }}
                   className="mt-6 flex items-start gap-3 rounded-xl bg-sage-100 p-4 sm:mt-8 sm:p-5"
                 >
-                  <CheckCircle2 className="mt-0.5 h-6 w-6 shrink-0 text-sage-600" />
+                  <CheckCircle2 className="mt-0.5 h-6 w-6 shrink-0 text-charcoal" />
                   <div>
-                    <p className="font-semibold text-sage-900">
+                    <p className="font-semibold text-charcoal">
                       Check your inbox!
                     </p>
-                    <p className="mt-1 text-xs text-sage-600 sm:text-sm">
+                    <p className="mt-1 text-xs text-charcoal sm:text-sm">
                       Your free eBook download link is on its way. Don&apos;t
                       forget to check spam.
                     </p>
@@ -86,7 +86,7 @@ export function FreeResourceSection() {
                       </>
                     )}
                   </Button>
-                  <p className="text-xs text-sage-500">
+                  <p className="text-xs text-charcoal">
                     We respect your privacy. Unsubscribe anytime.
                   </p>
                 </form>
@@ -101,18 +101,18 @@ export function FreeResourceSection() {
                 className="relative w-full max-w-xs"
               >
                 <div className="aspect-[3/4] rounded-2xl border border-beige-200 bg-cream p-6 shadow-2xl sm:p-8">
-                  <BookOpen className="h-12 w-12 text-sage-600" />
-                  <h3 className="mt-4 font-display text-xl font-semibold text-sage-900 sm:mt-6 sm:text-2xl">
+                  <BookOpen className="h-12 w-12 text-charcoal" />
+                  <h3 className="mt-4 font-display text-xl font-semibold text-charcoal sm:mt-6 sm:text-2xl">
                     The Hormone Balance Guide
                   </h3>
-                  <ul className="mt-4 space-y-2 text-xs text-sage-600 sm:mt-6 sm:space-y-3 sm:text-sm">
+                  <ul className="mt-4 space-y-2 text-xs text-charcoal sm:mt-6 sm:space-y-3 sm:text-sm">
                     <li>• Cycle-synced nutrition basics</li>
                     <li>• Gut-hormone connection</li>
                     <li>• Stress & sleep optimization</li>
                     <li>• Supplement starter guide</li>
                     <li>• 7-day meal plan template</li>
                   </ul>
-                  <p className="mt-6 text-[10px] font-medium uppercase tracking-wider text-sage-500 sm:mt-8 sm:text-xs">
+                  <p className="mt-6 text-[10px] font-medium uppercase tracking-wider text-charcoal sm:mt-8 sm:text-xs">
                     42 pages · Instant download
                   </p>
                 </div>

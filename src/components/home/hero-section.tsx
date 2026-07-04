@@ -4,8 +4,10 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Check } from "lucide-react";
 import { heroContent, heroTrustBadges } from "@/data/home-content";
+import { useUserStore } from "@/store/user-store";
 
 export function HeroSection() {
+  const { user } = useUserStore();
   return (
     <section className="relative w-full">
       {/* 16:9 full-bleed hero video */}
@@ -31,21 +33,23 @@ export function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-b from-charcoal/55 via-charcoal/25 to-charcoal/85" />
         <div className="absolute inset-0 bg-gradient-to-r from-charcoal/40 via-transparent to-transparent" />
 
-        {/* Mobile: Member + Start Now on top of image */}
-        <div className="absolute top-[4.25rem] left-0 right-0 z-10 flex gap-2 px-4 sm:top-20 sm:gap-3 sm:px-6 lg:hidden">
-          <Link
-            href="/consultation"
-            className="flex-1 rounded-full border border-cream/50 bg-charcoal/30 py-2.5 text-center text-[11px] font-semibold uppercase tracking-[0.14em] text-cream backdrop-blur-sm transition-colors hover:bg-charcoal/50"
-          >
-            Member
-          </Link>
-          <Link
-            href="/consultation"
-            className="flex-1 rounded-full bg-cream py-2.5 text-center text-[11px] font-semibold uppercase tracking-[0.14em] text-charcoal transition-colors hover:bg-cream/90"
-          >
-            Join
-          </Link>
-        </div>
+        {/* Mobile: Login + Join on top of image */}
+        {!user && (
+          <div className="absolute top-[4.25rem] left-0 right-0 z-10 flex gap-2 px-4 sm:top-20 sm:gap-3 sm:px-6 lg:hidden">
+            <Link
+              href="/login"
+              className="flex-1 rounded-full border border-cream/50 bg-charcoal/30 py-2.5 text-center text-[11px] font-semibold uppercase tracking-[0.14em] text-cream backdrop-blur-sm transition-colors hover:bg-charcoal/50"
+            >
+              Login
+            </Link>
+            <Link
+              href="/signup"
+              className="flex-1 rounded-full bg-cream py-2.5 text-center text-[11px] font-semibold uppercase tracking-[0.14em] text-charcoal transition-colors hover:bg-cream/90"
+            >
+              Join
+            </Link>
+          </div>
+        )}
 
         {/* Desktop: marketing line + Get Started */}
         <div className="absolute inset-0 hidden flex-col justify-end lg:flex">
@@ -66,7 +70,7 @@ export function HeroSection() {
                 {heroContent.marketingSubline}
               </p>
               <Link
-                href="/consultation"
+                href="/programs"
                 className="group mt-6 inline-flex items-center gap-2 rounded-full bg-cream px-6 py-3 text-sm font-semibold uppercase tracking-[0.11em] text-charcoal transition-all hover:bg-beige-100 hover:shadow-lg"
               >
                 Get Started
@@ -96,7 +100,7 @@ export function HeroSection() {
       {/* Trust strip */}
       <div className="relative bg-charcoal">
         <div className="mx-auto max-w-7xl px-4 py-5 sm:flex sm:items-center sm:justify-between sm:gap-5 sm:px-6 sm:py-4 lg:px-8">
-          <p className="whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.16em] text-[#B38C50] sm:text-xs">
+          <p className="whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.16em] text-[#B8955F] sm:text-xs">
             Trusted by 100+ women worldwide
           </p>
           <ul className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-3 sm:mt-0 sm:flex-nowrap sm:gap-5 lg:gap-6">

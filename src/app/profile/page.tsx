@@ -85,7 +85,7 @@ export default function ProfilePage() {
                 {fullName}
               </h1>
               
-              <p className="text-[15px] text-slate-500 mb-8 font-medium">
+              <p className="text-[15px] text-charcoal mb-8 font-medium">
                 {user.email}
               </p>
               
@@ -111,7 +111,7 @@ export default function ProfilePage() {
                          {program.videoUrl ? (
                            <>
                              <video src={program.videoUrl} className="absolute inset-0 w-full h-full object-cover opacity-60" />
-                             <PlayCircle className="w-10 h-10 text-[#B38A58] absolute inset-0 m-auto z-10 group-hover:scale-110 transition-transform" />
+                             <PlayCircle className="w-10 h-10 text-[#B8955F] absolute inset-0 m-auto z-10 group-hover:scale-110 transition-transform" />
                            </>
                          ) : (
                            <div className="w-full h-full flex flex-col items-center justify-center p-4 text-center">
@@ -122,11 +122,11 @@ export default function ProfilePage() {
                       
                       <div className="flex flex-col justify-center flex-1">
                         <h3 className="font-display text-2xl font-normal text-charcoal mb-3">{program.name}</h3>
-                        <p className="text-sm text-slate-600 mb-6 line-clamp-2 leading-relaxed">{program.description}</p>
+                        <p className="text-sm text-charcoal mb-6 line-clamp-2 leading-relaxed">{program.description}</p>
                         
                         <Link 
                           href={`/programs/${program.id}/course`}
-                          className="text-[#B38A58] hover:text-[#967246] uppercase tracking-[0.15em] text-[11px] font-semibold flex items-center gap-2 mt-auto self-start"
+                          className="text-[#B8955F] hover:text-[#967246] uppercase tracking-[0.15em] text-[11px] font-semibold flex items-center gap-2 mt-auto self-start"
                         >
                           ACCESS COURSE <ArrowRight className="w-4 h-4" />
                         </Link>
@@ -138,14 +138,14 @@ export default function ProfilePage() {
                 <div className="bg-[#FAF8F5] p-10 sm:p-16 text-center border border-[#EBE3DB] rounded-sm flex flex-col items-center">
                   <BookOpen className="w-12 h-12 text-[#DCD3C6] mb-6" />
                   <h3 className="font-display text-2xl font-normal text-charcoal mb-4">Your Journey Awaits</h3>
-                  <p className="text-[15px] text-slate-600 max-w-md mx-auto mb-10 leading-relaxed">
+                  <p className="text-[15px] text-charcoal max-w-md mx-auto mb-10 leading-relaxed">
                     You haven't enrolled in any programs yet. Discover our transformative courses designed to help you balance your hormones naturally.
                   </p>
                   
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
                     <Link 
                       href="/programs"
-                      className="bg-[#B38A58] text-white hover:bg-[#967246] uppercase tracking-[0.15em] text-[11px] font-semibold py-4 px-8 transition-colors rounded-sm w-full sm:w-auto"
+                      className="bg-[#B8955F] text-white hover:bg-[#967246] uppercase tracking-[0.15em] text-[11px] font-semibold py-4 px-8 transition-colors rounded-sm w-full sm:w-auto"
                     >
                       EXPLORE PROGRAMMES
                     </Link>

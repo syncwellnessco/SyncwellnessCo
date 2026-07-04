@@ -80,10 +80,10 @@ export function AboutCoachSection() {
               />
             </div>
             <div className="absolute -bottom-3 -right-2 rounded-xl border border-beige-200 bg-cream px-3 py-2 shadow-md sm:-bottom-5 sm:-right-5 sm:px-4 sm:py-3">
-              <p className="font-display text-sm font-semibold text-sage-900 sm:text-base">
+              <p className="font-display text-sm font-semibold text-charcoal sm:text-base">
                 Certified Coach
               </p>
-              <p className="text-xs text-sage-600 sm:text-sm">
+              <p className="text-xs text-charcoal sm:text-sm">
                 Women&apos;s Health & Hormone Specialist
               </p>
             </div>
@@ -107,10 +107,10 @@ export function AboutCoachSection() {
                   transition={{ delay: index * 0.08 }}
                   className="rounded-xl border border-beige-200 bg-cream p-4 sm:p-5"
                 >
-                  <h3 className="font-display text-base font-semibold text-sage-900 sm:text-lg">
+                  <h3 className="font-display text-base font-semibold text-charcoal sm:text-lg">
                     {item.title}
                   </h3>
-                  <p className="mt-1.5 text-xs leading-relaxed text-sage-600 sm:mt-2 sm:text-sm">
+                  <p className="mt-1.5 text-xs leading-relaxed text-charcoal sm:mt-2 sm:text-sm">
                     {item.description}
                   </p>
                 </motion.div>

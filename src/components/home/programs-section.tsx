@@ -113,7 +113,7 @@ export function ProgramsSection() {
                 {program.name}
               </h3>
               
-              <p className="flex-1 text-base leading-relaxed text-sage-700 mb-8">
+              <p className="flex-1 text-base leading-relaxed text-charcoal mb-8">
                 {program.description}
               </p>
               

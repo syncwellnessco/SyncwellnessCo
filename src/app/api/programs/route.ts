@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     outcomes: body.outcomes ?? "",
     featured: body.featured ?? false,
     cta: body.cta ?? "Learn More",
-    ctaLink: body.ctaLink ?? "/consultation",
+    ctaLink: body.ctaLink ?? "/programs",
     pricing: body.pricing,
     videoUrl: body.videoUrl,
     published: body.published ?? true,

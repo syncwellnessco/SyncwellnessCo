@@ -58,7 +58,7 @@ export function HighlightHeading({
         <p
           className={cn(
             "mt-2 text-sm leading-relaxed sm:mt-3 sm:text-base",
-            dark ? "text-cream/85" : "text-sage-600",
+            dark ? "text-cream/85" : "text-charcoal",
           )}
         >
           {description}

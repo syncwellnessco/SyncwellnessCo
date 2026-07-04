@@ -17,14 +17,14 @@ export async function BlogPageContent() {
 
       <section className="py-12 sm:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-8 sm:mt-16 sm:grid-cols-2 lg:grid-cols-3">
             {posts.map((post) => (
               <article
                 key={post.id}
-                className="overflow-hidden rounded-2xl border border-beige-200 bg-cream shadow-sm transition-shadow hover:shadow-md"
+                className="flex flex-col overflow-hidden rounded-none bg-[#FAF8F5] shadow-sm transition-transform hover:-translate-y-1"
               >
                 {post.image && (
-                  <div className="relative aspect-[16/10] overflow-hidden">
+                  <div className="relative aspect-[4/5] overflow-hidden">
                     <Image
                       src={post.image}
                       alt={post.title}
@@ -34,24 +34,20 @@ export async function BlogPageContent() {
                     />
                   </div>
                 )}
-                <div className="p-5">
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gold">
+                <div className="flex flex-1 flex-col items-center justify-center p-6 sm:p-8 text-center">
+                  <h3 className="font-display text-2xl lg:text-[1.65rem] text-charcoal leading-tight mb-4">
+                    {post.title}
+                  </h3>
+                  <span className="font-display italic text-[#B8955F] text-[1.15rem]">
                     {post.category}
                   </span>
-                  <h2 className="mt-2 font-display text-xl font-semibold text-charcoal">
-                    {post.title}
-                  </h2>
-                  <p className="mt-2 text-sm leading-relaxed text-sage-600">
-                    {post.excerpt}
-                  </p>
-                  <Link
-                    href={`/blog/${post.id}`}
-                    className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-charcoal hover:text-gold"
-                  >
-                    Read More
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
                 </div>
+                <Link 
+                  href={`/blog/${post.id}`} 
+                  className="block w-full bg-[#B8955F] py-4 text-center text-[11px] font-semibold uppercase tracking-[0.15em] text-white transition-colors hover:bg-[#967246]"
+                >
+                  Read More
+                </Link>
               </article>
             ))}
           </div>

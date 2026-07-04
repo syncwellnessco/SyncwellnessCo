@@ -22,6 +22,8 @@ export function Navbar() {
 
   const heroNav = isHome && !isScrolled;
 
+  const isTransparent = heroNav && !mobileOpen;
+
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 24);
     handleScroll();
@@ -46,7 +48,9 @@ export function Navbar() {
     <header
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
-        heroNav
+        mobileOpen
+          ? "bg-[#f4f2f0] border-b border-[#EBE3DB]"
+          : heroNav
           ? "bg-transparent"
           : "border-b border-beige-200/80 bg-cream/95 shadow-sm backdrop-blur-md"
       )}
@@ -59,7 +63,7 @@ export function Navbar() {
               href="/profile"
               className={cn(
                 "inline-flex h-10 w-10 overflow-hidden items-center justify-center rounded-full border transition-colors lg:hidden",
-                heroNav
+                isTransparent
                   ? "border-cream/50 text-cream hover:bg-cream/10"
                   : "border-charcoal/20 text-charcoal hover:bg-charcoal/5"
               )}
@@ -76,7 +80,7 @@ export function Navbar() {
               type="button"
               className={cn(
                 "inline-flex h-10 w-10 items-center justify-center rounded-full border transition-colors lg:hidden",
-                heroNav
+                isTransparent
                   ? "border-cream/50 text-cream hover:bg-cream/10"
                   : "border-charcoal/20 text-charcoal hover:bg-charcoal/5"
               )}
@@ -86,18 +90,22 @@ export function Navbar() {
             </button>
           )}
 
-          <Logo
-            variant={heroNav ? "light" : "default"}
-            className="hidden lg:flex"
-          />
+          <div onClick={() => setMobileOpen(false)}>
+            <Logo
+              variant={isTransparent ? "light" : "default"}
+              className="hidden lg:flex"
+            />
+          </div>
         </div>
 
         {/* Center: nav tabs (desktop) / logo (mobile) */}
         <div className="flex justify-center">
-          <Logo
-            variant={heroNav ? "light" : "default"}
-            className="lg:hidden"
-          />
+          <div onClick={() => setMobileOpen(false)}>
+            <Logo
+              variant={isTransparent ? "light" : "default"}
+              className="lg:hidden"
+            />
+          </div>
 
           <ul className="hidden items-center gap-5 xl:gap-7 lg:flex">
             {siteConfig.navLinks.map((link) => {
@@ -108,11 +116,11 @@ export function Navbar() {
                     href={link.href}
                     className={cn(
                       "text-[11px] font-semibold uppercase tracking-[0.14em] transition-colors",
-                      heroNav
+                      isTransparent
                         ? "text-cream/90 hover:text-cream"
                         : isActive
                           ? "text-charcoal"
-                          : "text-sage-700 hover:text-charcoal"
+                          : "text-charcoal hover:text-charcoal"
                     )}
                   >
                     {link.label}
@@ -133,7 +141,7 @@ export function Navbar() {
                     href="/dashboard"
                     className={cn(
                       "rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] transition-all",
-                      heroNav
+                      isTransparent
                         ? "border-cream/60 text-cream hover:bg-cream/10"
                         : "border-charcoal/30 text-charcoal hover:bg-charcoal/5"
                     )}
@@ -145,7 +153,7 @@ export function Navbar() {
                   href="/profile"
                   className={cn(
                     "inline-flex h-10 w-10 overflow-hidden items-center justify-center rounded-full border transition-colors",
-                    heroNav
+                    isTransparent
                       ? "border-cream/50 text-cream hover:bg-cream/10"
                       : "border-charcoal/20 text-charcoal hover:bg-charcoal/5"
                   )}
@@ -164,7 +172,7 @@ export function Navbar() {
                   href="/login"
                   className={cn(
                     "rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] transition-all",
-                    heroNav
+                    isTransparent
                       ? "border-cream/60 text-cream hover:bg-cream/10"
                       : "border-charcoal/30 text-charcoal hover:bg-charcoal/5"
                   )}
@@ -175,7 +183,7 @@ export function Navbar() {
                   href="/signup"
                   className={cn(
                     "rounded-full px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] transition-all",
-                    heroNav
+                    isTransparent
                       ? "bg-cream text-charcoal hover:bg-cream/90"
                       : "bg-gold text-cream hover:bg-gold/90"
                   )}
@@ -190,7 +198,7 @@ export function Navbar() {
             type="button"
             className={cn(
               "inline-flex items-center justify-center rounded-lg p-2 lg:hidden",
-              heroNav ? "text-cream" : "text-charcoal"
+              isTransparent ? "text-cream" : "text-charcoal"
             )}
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}

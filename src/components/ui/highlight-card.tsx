@@ -56,7 +56,7 @@ export function HighlightCard({
       <p
         className={cn(
           "mt-2 text-sm leading-relaxed sm:mt-3 sm:text-base",
-          variant === "dark" ? "text-cream/90" : "text-sage-700",
+          variant === "dark" ? "text-cream/90" : "text-charcoal",
         )}
       >
         {description}

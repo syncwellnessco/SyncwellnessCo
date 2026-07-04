@@ -14,10 +14,12 @@ export async function ProgramsPageContent() {
   return (
     <article className="pb-24">
       {/* Hero */}
-      <section className="relative overflow-hidden bg-[#859496] pt-32 pb-24 sm:pt-40 sm:pb-32">
-        <div className="absolute inset-0 z-0">
-          <div className="absolute top-0 right-0 h-full w-full opacity-10 bg-[url('https://www.transparenttextures.com/patterns/concrete-wall.png')]" />
-        </div>
+      <section 
+        className="relative overflow-hidden bg-cover bg-center pt-32 pb-24 sm:pt-40 sm:pb-32"
+        style={{ backgroundImage: `url(https://res.cloudinary.com/daw1tscqr/image/upload/v1780733233/shadow-background_wbrsm4.jpg)` }}
+      >
+        <div className="absolute inset-0 bg-[#4A5D5E]/60 mix-blend-multiply" />
+        <div className="absolute inset-0 bg-slate-900/10" />
         <div className="relative z-10 mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
           <span className="mb-6 block text-[13px] font-semibold italic text-white/90 tracking-wide">
             Whether you're new to the journey or have been trying for years, one thing is clear:
@@ -47,7 +49,7 @@ export async function ProgramsPageContent() {
               
               <div className="flex flex-col justify-center order-2 lg:order-2">
                 <div className="mb-6">
-                  <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500 mb-2">
+                  <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-charcoal mb-2">
                     Our Featured Program
                   </span>
                 </div>
@@ -59,16 +61,16 @@ export async function ProgramsPageContent() {
                   </span>
                 </h2>
                 
-                <p className="text-lg leading-relaxed text-slate-700 mb-8 max-w-lg">
+                <p className="text-lg leading-relaxed text-charcoal mb-8 max-w-lg">
                   {featured.description}
                 </p>
                 
                 <div className="flex items-center gap-3 mb-10">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-[#A8895C] border border-[#A8895C]/30 px-3 py-1 rounded-sm">{featured.duration}</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[#B8955F] border border-[#A8895C]/30 px-3 py-1 rounded-sm">{featured.duration}</span>
                 </div>
                 
                 <div className="flex flex-col sm:flex-row gap-4 mt-auto">
-                  <Button asChild size="lg" className="w-full sm:w-auto bg-[#B38A58] text-white hover:bg-[#967246] uppercase tracking-[0.15em] text-xs font-semibold h-14 px-10 rounded-sm border-0 transition-colors">
+                  <Button asChild size="lg" className="w-full sm:w-auto bg-[#B8955F] text-white hover:bg-[#967246] uppercase tracking-[0.15em] text-xs font-semibold h-14 px-10 rounded-sm border-0 transition-colors">
                     <Link href={`/programs/${featured.id}`}>Explore Program</Link>
                   </Button>
                 </div>
@@ -110,31 +112,31 @@ export async function ProgramsPageContent() {
                 className="group relative flex flex-col bg-white border border-beige-200 p-10 transition-all hover:shadow-xl duration-300"
               >
                 <div className="mb-6 flex gap-3">
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#A8895C] border border-[#A8895C]/30 px-2.5 py-1 rounded-sm">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#B8955F] border border-[#A8895C]/30 px-2.5 py-1 rounded-sm">
                     {program.duration}
                   </span>
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#A8895C] border border-[#A8895C]/30 px-2.5 py-1 rounded-sm">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#B8955F] border border-[#A8895C]/30 px-2.5 py-1 rounded-sm">
                     {program.format}
                   </span>
                 </div>
                 
-                <h3 className="font-display text-3xl font-medium text-charcoal sm:text-4xl mb-6 group-hover:text-[#A8895C] transition-colors">
+                <h3 className="font-display text-3xl font-medium text-charcoal sm:text-4xl mb-6 group-hover:text-[#B8955F] transition-colors">
                   {program.name}
                 </h3>
                 
-                <p className="flex-1 text-base leading-relaxed text-slate-700 mb-8">
+                <p className="flex-1 text-base leading-relaxed text-charcoal mb-8">
                   {program.description}
                 </p>
                 
                 <div className="mb-10">
-                  <h4 className="font-semibold text-xs text-slate-500 uppercase tracking-widest mb-4">Core Focus</h4>
+                  <h4 className="font-semibold text-xs text-charcoal uppercase tracking-widest mb-4">Core Focus</h4>
                   <ul className="space-y-4">
                     {program.features.slice(0, 3).map((f) => (
                       <li
                         key={f}
-                        className="flex items-start gap-4 text-sm text-slate-700"
+                        className="flex items-start gap-4 text-sm text-charcoal"
                       >
-                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#A8895C]" />
+                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#B8955F]" />
                         <span className="leading-relaxed">{f}</span>
                       </li>
                     ))}
@@ -143,7 +145,7 @@ export async function ProgramsPageContent() {
                 
                 <div className="flex items-center justify-between border-t border-beige-200 pt-6 mt-auto">
                   <span className="font-medium text-slate-800">{program.pricing}</span>
-                  <Button asChild variant="ghost" className="group/btn text-[#A8895C] hover:text-[#967246] hover:bg-transparent px-0 font-semibold tracking-wide uppercase text-xs">
+                  <Button asChild variant="ghost" className="group/btn text-[#B8955F] hover:text-[#967246] hover:bg-transparent px-0 font-semibold tracking-wide uppercase text-xs">
                     <Link href={`/programs/${program.id}`}>
                       View Details
                       <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover/btn:translate-x-1" />

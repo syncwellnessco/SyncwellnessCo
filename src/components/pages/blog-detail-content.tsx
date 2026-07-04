@@ -33,12 +33,12 @@ export async function BlogDetailContent({ id }: BlogDetailContentProps) {
               />
             </div>
           )}
-          <p className="text-sm text-sage-500">By {post.author}</p>
+          <p className="text-sm text-charcoal">By {post.author}</p>
           <div className="prose prose-sage mt-6 max-w-none">
             {post.content.split("\n\n").map((paragraph) => (
               <p
                 key={paragraph.slice(0, 40)}
-                className="mb-4 text-base leading-relaxed text-sage-700"
+                className="mb-4 text-base leading-relaxed text-charcoal"
               >
                 {paragraph}
               </p>

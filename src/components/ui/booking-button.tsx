@@ -57,12 +57,12 @@ export function BookingButton({ programId, programName, pricing, className, chil
     setIsOpen(true);
   };
 
-  if (!isClient) return <Button className={className}>{children || "Book Discovery Call"}</Button>;
+  if (!isClient) return <Button className={className}>{children || "Join Program"}</Button>;
 
   return (
     <>
       <Button className={className} onClick={handleClick}>
-        {children || "Book Discovery Call"}
+        {children || "Join Program"}
       </Button>
       <PopupModal
         url="https://calendly.com/your-calendly-link" // Ensure user updates this

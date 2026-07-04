@@ -51,7 +51,7 @@ export function VideoTestimonialsSection() {
                 <div className="absolute inset-0 bg-sage-900/20 transition-colors group-hover:bg-sage-900/30" />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="flex h-16 w-16 items-center justify-center rounded-full bg-cream/95 shadow-lg transition-transform group-hover:scale-110">
-                    <Play className="ml-1 h-7 w-7 fill-sage-700 text-sage-700" />
+                    <Play className="ml-1 h-7 w-7 fill-sage-700 text-charcoal" />
                   </div>
                 </div>
                 <span className="absolute bottom-3 right-3 rounded-md bg-sage-900/80 px-2 py-1 text-xs font-medium text-white">
@@ -59,10 +59,10 @@ export function VideoTestimonialsSection() {
                 </span>
               </div>
               <div className="p-4 sm:p-5">
-                <h3 className="font-display text-base font-semibold text-sage-900 sm:text-lg">
+                <h3 className="font-display text-base font-semibold text-charcoal sm:text-lg">
                   {video.title}
                 </h3>
-                <p className="mt-1 text-xs text-sage-600 sm:text-sm">
+                <p className="mt-1 text-xs text-charcoal sm:text-sm">
                   {video.name}
                 </p>
               </div>

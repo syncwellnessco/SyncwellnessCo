@@ -76,7 +76,7 @@ function SignupContent() {
             ].map((benefit, i) => (
               <div key={i} className="flex items-center gap-4 text-charcoal/90 p-4">
                 <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#EBE3DB] flex items-center justify-center">
-                  <svg className="w-4 h-4 text-[#A8895C]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 text-[#B8955F]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
@@ -95,7 +95,7 @@ function SignupContent() {
           </div>
           
           <h2 className="font-display text-3xl font-semibold text-charcoal mb-2">Create your account</h2>
-          <p className="text-sage-600 mb-8">Join SyncWellnessCo today</p>
+          <p className="text-charcoal mb-8">Join SyncWellnessCo today</p>
 
           <Button
             type="button"
@@ -178,7 +178,7 @@ function SignupContent() {
             </Button>
           </form>
 
-          <div className="mt-8 text-center text-sm text-sage-600">
+          <div className="mt-8 text-center text-sm text-charcoal">
             Already have an account?{" "}
             <Link href={`/login?redirect=${encodeURIComponent(redirectUrl)}`} className="font-semibold text-charcoal hover:text-charcoal/80 transition-colors">
               Sign in

@@ -13,10 +13,10 @@ const buttonVariants = cva(
         secondary:
           "bg-blush-200 text-sage-800 hover:bg-blush-300 active:scale-[0.98]",
         outline:
-          "border-2 border-sage-600 text-sage-700 bg-transparent hover:bg-sage-50 active:scale-[0.98]",
+          "border-2 border-sage-600 text-charcoal bg-transparent hover:bg-sage-50 active:scale-[0.98]",
         ghost:
-          "text-sage-700 hover:bg-sage-100/60 active:scale-[0.98]",
-        link: "text-sage-700 underline-offset-4 hover:underline",
+          "text-charcoal hover:bg-sage-100/60 active:scale-[0.98]",
+        link: "text-charcoal underline-offset-4 hover:underline",
       },
       size: {
         default: "h-11 px-6 py-2",

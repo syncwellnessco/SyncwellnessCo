@@ -17,7 +17,7 @@ export function BlogSection({ blogs }: BlogSectionProps) {
   if (featuredBlogs.length === 0) return null;
 
   return (
-    <section className="bg-gold-muted/60 py-8 sm:py-16" id="blog">
+    <section className="bg-[#EBE3DB] py-20 lg:py-32" id="blog">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
           eyebrow="From the Blog"
@@ -25,7 +25,7 @@ export function BlogSection({ blogs }: BlogSectionProps) {
           description="Practical reads on hormones, nutrition, and living well — curated for women like you."
         />
 
-        <div className="mt-6 grid gap-5 sm:mt-8 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-12 grid gap-8 sm:mt-16 sm:grid-cols-2 lg:grid-cols-3">
           {featuredBlogs.map((post, index) => (
             <motion.article
               key={post.id}
@@ -33,10 +33,9 @@ export function BlogSection({ blogs }: BlogSectionProps) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.08 }}
-              className="overflow-hidden rounded-2xl bg-cream shadow-sm"
+              className="flex flex-col overflow-hidden rounded-none bg-[#FAF8F5] shadow-sm transition-transform hover:-translate-y-1"
             >
-              <Link href={`/blog/${post.id}`} className="block">
-              <div className="relative aspect-[16/10] overflow-hidden">
+              <div className="relative aspect-[4/5] overflow-hidden">
                 <Image
                   src={post.image}
                   alt={post.title}
@@ -45,17 +44,19 @@ export function BlogSection({ blogs }: BlogSectionProps) {
                   sizes="(max-width: 768px) 100vw, 33vw"
                 />
               </div>
-              <div className="p-4 sm:p-5">
-                <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gold">
-                  {post.category}
-                </span>
-                <h3 className="mt-2 font-display text-lg font-semibold text-charcoal sm:text-xl">
+              <div className="flex flex-1 flex-col items-center justify-center p-6 sm:p-8 text-center">
+                <h3 className="font-display text-2xl lg:text-[1.65rem] text-charcoal leading-tight mb-4">
                   {post.title}
                 </h3>
-                <p className="mt-2 text-sm leading-relaxed text-sage-600">
-                  {post.excerpt}
-                </p>
+                <span className="font-display italic text-[#B8955F] text-[1.15rem]">
+                  {post.category}
+                </span>
               </div>
+              <Link 
+                href={`/blog/${post.id}`} 
+                className="block w-full bg-[#B8955F] py-4 text-center text-[11px] font-semibold uppercase tracking-[0.15em] text-white transition-colors hover:bg-[#967246]"
+              >
+                Read More
               </Link>
             </motion.article>
           ))}
