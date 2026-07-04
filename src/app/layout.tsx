@@ -4,6 +4,7 @@ import "./globals.css";
 import { JsonLd } from "@/components/seo/json-ld";
 import { SiteLoader } from "@/components/layout/site-loader";
 import { siteConfig } from "@/data/site";
+import { AuthProvider } from "@/components/providers/auth-provider";
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
@@ -54,12 +55,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${cormorant.variable} ${openSans.variable}`}>
+    <html lang="en" className={`${cormorant.variable} ${openSans.variable}`} suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
         <JsonLd />
       </head>
-      <body className="min-h-screen bg-cream font-sans text-sage-800 antialiased">
-        <SiteLoader>{children}</SiteLoader>
+      <body className="min-h-screen bg-cream font-sans text-sage-800 antialiased" suppressHydrationWarning>
+        <AuthProvider>
+          <SiteLoader>{children}</SiteLoader>
+        </AuthProvider>
       </body>
     </html>
   );

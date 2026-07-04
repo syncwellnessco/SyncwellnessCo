@@ -60,7 +60,7 @@ export function Footer() {
                   {siteConfig.email}
                 </a>
               </li>
-              <li>{siteConfig.phone}</li>
+              <li>{siteConfig.businessHours}</li>
             </ul>
           </div>
 

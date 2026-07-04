@@ -1,0 +1,54 @@
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import Link from "next/link";
+import { PageHero } from "@/components/layout/page-hero";
+import { faqs } from "@/data/faqs";
+
+export function FAQPageContent() {
+  return (
+    <>
+      <PageHero
+        eyebrow="FAQ"
+        title="Frequently Asked Questions"
+        description="Everything you need to know about working with SyncWellnessCo."
+      />
+
+      <section className="py-12 sm:py-16">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+          <Accordion type="single" collapsible className="w-full">
+            {faqs.map((faq) => (
+              <AccordionItem key={faq.id} value={faq.id}>
+                <AccordionTrigger className="text-left font-display text-base sm:text-lg">
+                  {faq.question}
+                </AccordionTrigger>
+                <AccordionContent>{faq.answer}</AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+
+          <p className="mt-8 text-center text-sm text-sage-600">
+            Still have questions?{" "}
+            <Link
+              href="/contact"
+              className="font-medium text-sage-700 underline-offset-4 hover:underline"
+            >
+              Contact us
+            </Link>{" "}
+            or{" "}
+            <Link
+              href="/consultation"
+              className="font-medium text-sage-700 underline-offset-4 hover:underline"
+            >
+              book a free call
+            </Link>
+            .
+          </p>
+        </div>
+      </section>
+    </>
+  );
+}

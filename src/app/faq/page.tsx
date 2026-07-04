@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { UnderDevelopment } from "@/components/layout/under-development";
+import { PageShell } from "@/components/layout/page-shell";
+import { FAQPageContent } from "@/components/pages/faq-page-content";
 
 export const metadata: Metadata = {
   title: "FAQ",
@@ -7,5 +8,9 @@ export const metadata: Metadata = {
 };
 
 export default function FAQPage() {
-  return <UnderDevelopment pageName="FAQ" />;
+  return (
+    <PageShell>
+      <FAQPageContent />
+    </PageShell>
+  );
 }

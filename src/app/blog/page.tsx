@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
-import { UnderDevelopment } from "@/components/layout/under-development";
+import { PageShell } from "@/components/layout/page-shell";
+import { BlogPageContent } from "@/components/pages/blog-page-content";
 
 export const metadata: Metadata = {
   title: "Blog",
-  description:
-    "Women's health, hormone balance, gut health, and wellness articles from SyncWellnessCo.",
+  description: "Wellness insights on hormones, gut health, and sustainable nutrition.",
 };
 
 export default function BlogPage() {
-  return <UnderDevelopment pageName="Blog" />;
+  return (
+    <PageShell>
+      <BlogPageContent />
+    </PageShell>
+  );
 }

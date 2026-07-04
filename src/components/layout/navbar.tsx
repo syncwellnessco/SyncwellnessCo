@@ -2,18 +2,23 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, User, X } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
 import { siteConfig } from "@/data/site";
 import { cn } from "@/lib/utils";
+import { useUserStore } from "@/store/user-store";
+import { createClient } from "@/lib/supabase-client";
 
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const isHome = pathname === "/";
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, logout } = useUserStore();
+  const supabase = createClient();
 
   const heroNav = isHome && !isScrolled;
 
@@ -31,6 +36,12 @@ export function Navbar() {
     };
   }, [mobileOpen]);
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    logout();
+    router.push("/");
+  };
+
   return (
     <header
       className={cn(
@@ -43,18 +54,37 @@ export function Navbar() {
       <nav className="mx-auto grid max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-4 px-4 py-3 sm:px-6 lg:px-8">
         {/* Left: brand */}
         <div className="flex items-center gap-3">
-          <button
-            type="button"
-            className={cn(
-              "inline-flex h-10 w-10 items-center justify-center rounded-full border transition-colors lg:hidden",
-              heroNav
-                ? "border-cream/50 text-cream hover:bg-cream/10"
-                : "border-charcoal/20 text-charcoal hover:bg-charcoal/5"
-            )}
-            aria-label="Profile placeholder"
-          >
-            <User className="h-5 w-5" />
-          </button>
+          {user ? (
+            <Link
+              href="/profile"
+              className={cn(
+                "inline-flex h-10 w-10 overflow-hidden items-center justify-center rounded-full border transition-colors lg:hidden",
+                heroNav
+                  ? "border-cream/50 text-cream hover:bg-cream/10"
+                  : "border-charcoal/20 text-charcoal hover:bg-charcoal/5"
+              )}
+              aria-label="Profile"
+            >
+              {user.user_metadata?.avatar_url ? (
+                <img src={user.user_metadata.avatar_url} alt="Profile" className="h-full w-full object-cover" />
+              ) : (
+                <User className="h-5 w-5" />
+              )}
+            </Link>
+          ) : (
+            <button
+              type="button"
+              className={cn(
+                "inline-flex h-10 w-10 items-center justify-center rounded-full border transition-colors lg:hidden",
+                heroNav
+                  ? "border-cream/50 text-cream hover:bg-cream/10"
+                  : "border-charcoal/20 text-charcoal hover:bg-charcoal/5"
+              )}
+              aria-label="Profile placeholder"
+            >
+              <User className="h-5 w-5" />
+            </button>
+          )}
 
           <Logo
             variant={heroNav ? "light" : "default"}
@@ -96,28 +126,64 @@ export function Navbar() {
         {/* Right: CTAs + mobile menu */}
         <div className="flex items-center justify-end gap-2 sm:gap-3">
           <div className="hidden items-center gap-2 sm:gap-3 lg:flex">
-            <Link
-              href="/consultation"
-              className={cn(
-                "rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] transition-all",
-                heroNav
-                  ? "border-cream/60 text-cream hover:bg-cream/10"
-                  : "border-charcoal/30 text-charcoal hover:bg-charcoal/5"
-              )}
-            >
-              Member
-            </Link>
-            <Link
-              href="/consultation"
-              className={cn(
-                "rounded-full px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] transition-all",
-                heroNav
-                  ? "bg-cream text-charcoal hover:bg-cream/90"
-                  : "bg-gold text-cream hover:bg-gold/90"
-              )}
-            >
-              Join
-            </Link>
+            {user ? (
+              <div className="flex items-center gap-3">
+                {user.user_metadata?.role === 'admin' && (
+                  <Link
+                    href="/dashboard"
+                    className={cn(
+                      "rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] transition-all",
+                      heroNav
+                        ? "border-cream/60 text-cream hover:bg-cream/10"
+                        : "border-charcoal/30 text-charcoal hover:bg-charcoal/5"
+                    )}
+                  >
+                    Dashboard
+                  </Link>
+                )}
+                <Link
+                  href="/profile"
+                  className={cn(
+                    "inline-flex h-10 w-10 overflow-hidden items-center justify-center rounded-full border transition-colors",
+                    heroNav
+                      ? "border-cream/50 text-cream hover:bg-cream/10"
+                      : "border-charcoal/20 text-charcoal hover:bg-charcoal/5"
+                  )}
+                  aria-label="Profile"
+                >
+                  {user.user_metadata?.avatar_url ? (
+                    <img src={user.user_metadata.avatar_url} alt="Profile" className="h-full w-full object-cover" />
+                  ) : (
+                    <User className="h-5 w-5" />
+                  )}
+                </Link>
+              </div>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className={cn(
+                    "rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] transition-all",
+                    heroNav
+                      ? "border-cream/60 text-cream hover:bg-cream/10"
+                      : "border-charcoal/30 text-charcoal hover:bg-charcoal/5"
+                  )}
+                >
+                  Member
+                </Link>
+                <Link
+                  href="/signup"
+                  className={cn(
+                    "rounded-full px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] transition-all",
+                    heroNav
+                      ? "bg-cream text-charcoal hover:bg-cream/90"
+                      : "bg-gold text-cream hover:bg-gold/90"
+                  )}
+                >
+                  Join
+                </Link>
+              </>
+            )}
           </div>
 
           <button
@@ -173,20 +239,52 @@ export function Navbar() {
 
                   <div className="mt-6 border-t border-beige-200 pt-6">
                     <div className="space-y-3">
-                      <Link
-                        href="/consultation"
-                        onClick={() => setMobileOpen(false)}
-                        className="block w-full rounded-md border border-charcoal/20 bg-beige-100 py-3 text-center text-sm font-semibold uppercase tracking-[0.14em] text-charcoal transition-colors hover:bg-beige-200"
-                      >
-                        Join
-                      </Link>
-                      <Link
-                        href="/consultation"
-                        onClick={() => setMobileOpen(false)}
-                        className="block w-full rounded-md bg-gold py-3 text-center text-sm font-semibold uppercase tracking-[0.14em] text-cream transition-colors hover:bg-gold/90"
-                      >
-                        Member Login
-                      </Link>
+                      {user ? (
+                        <>
+                          {user.user_metadata?.role === 'admin' && (
+                            <Link
+                              href="/dashboard"
+                              onClick={() => setMobileOpen(false)}
+                              className="block w-full rounded-md border border-charcoal/20 bg-beige-100 py-3 text-center text-sm font-semibold uppercase tracking-[0.14em] text-charcoal transition-colors hover:bg-beige-200"
+                            >
+                              Dashboard
+                            </Link>
+                          )}
+                          <Link
+                            href="/profile"
+                            onClick={() => setMobileOpen(false)}
+                            className="block w-full rounded-md bg-gold py-3 text-center text-sm font-semibold uppercase tracking-[0.14em] text-cream transition-colors hover:bg-gold/90"
+                          >
+                            My Profile
+                          </Link>
+                          <button
+                            onClick={() => {
+                              setMobileOpen(false);
+                              handleLogout();
+                            }}
+                            className="block w-full rounded-md border border-charcoal/20 bg-beige-100 py-3 text-center text-sm font-semibold uppercase tracking-[0.14em] text-charcoal transition-colors hover:bg-beige-200"
+                          >
+                            Logout
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <Link
+                            href="/signup"
+                            onClick={() => setMobileOpen(false)}
+                            className="block w-full rounded-md border border-charcoal/20 bg-beige-100 py-3 text-center text-sm font-semibold uppercase tracking-[0.14em] text-charcoal transition-colors hover:bg-beige-200"
+                          >
+                            Join
+                          </Link>
+                          <Link
+                            href="/login"
+                            onClick={() => setMobileOpen(false)}
+                            className="block w-full rounded-md bg-gold py-3 text-center text-sm font-semibold uppercase tracking-[0.14em] text-cream transition-colors hover:bg-gold/90"
+                          >
+                            Member Login
+                          </Link>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>

@@ -1,11 +1,17 @@
 import type { Metadata } from "next";
-import { UnderDevelopment } from "@/components/layout/under-development";
+import { PageShell } from "@/components/layout/page-shell";
+import { AboutPageContent } from "@/components/pages/about-page-content";
 
 export const metadata: Metadata = {
   title: "About",
-  description: "Learn about SyncWellnessCo and our approach to women's health coaching.",
+  description:
+    "Meet Neha — Certified Women's Health Coach helping women balance hormones and achieve sustainable wellness.",
 };
 
 export default function AboutPage() {
-  return <UnderDevelopment pageName="About" />;
+  return (
+    <PageShell>
+      <AboutPageContent />
+    </PageShell>
+  );
 }

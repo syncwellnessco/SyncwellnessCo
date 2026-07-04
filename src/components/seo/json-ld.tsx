@@ -9,7 +9,7 @@ export function JsonLd() {
       "Certified Women's Health Coach specializing in hormone balance, gut health, and sustainable fat loss for women.",
     url: "https://syncwellnessco.com",
     email: siteConfig.email,
-    telephone: siteConfig.phone,
+    openingHours: siteConfig.businessHours,
     areaServed: "Worldwide",
     priceRange: "$$",
     knowsAbout: siteConfig.seoKeywords,

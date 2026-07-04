@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
-import { UnderDevelopment } from "@/components/layout/under-development";
+import { PageShell } from "@/components/layout/page-shell";
+import { ContactPageContent } from "@/components/pages/contact-page-content";
 
 export const metadata: Metadata = {
   title: "Contact",
-  description: "Get in touch with SyncWellnessCo for women's health coaching inquiries.",
+  description: "Get in touch with SyncWellnessCo — email, social, and contact form.",
 };
 
 export default function ContactPage() {
-  return <UnderDevelopment pageName="Contact" />;
+  return (
+    <PageShell>
+      <ContactPageContent />
+    </PageShell>
+  );
 }

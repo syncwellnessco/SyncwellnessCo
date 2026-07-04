@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Check, Star } from "lucide-react";
+import { Check, Star, ArrowRight, PlayCircle } from "lucide-react";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { GlassBadge } from "@/components/ui/glass-badge";
 import { programs } from "@/data/programs";
 
 export function ProgramsSection() {
@@ -14,94 +14,126 @@ export function ProgramsSection() {
 
   return (
     <section
-      className="py-8 sm:py-16"
+      className="py-24 relative overflow-hidden bg-[#FAF9F7]"
       id="programs"
-      style={{ backgroundColor: "#E8DDD9" }}
     >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="absolute top-0 right-0 h-[600px] w-[600px] rounded-full bg-gold/5 blur-[100px] mix-blend-multiply pointer-events-none" />
+      <div className="absolute bottom-0 left-0 h-[600px] w-[600px] rounded-full bg-sage-200/20 blur-[100px] mix-blend-multiply pointer-events-none" />
+
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
           eyebrow="Signature Programs"
-          title="Transform Your Health with Expert Guidance"
+          title="Transform Your Health"
           description="Choose the program that meets you where you are — each designed to deliver real, sustainable results."
         />
 
-        <div className="mt-6 grid gap-5 sm:mt-8 sm:gap-8 lg:grid-cols-3">
+        <div className="mt-16 grid gap-8 lg:grid-cols-12">
           {featured && (
-            <motion.article
+            <motion.div
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="relative flex flex-col rounded-3xl border border-white/20 bg-gradient-to-br from-charcoal/90 to-espresso/80 p-5 text-white shadow-[0_8px_32px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.2)] backdrop-blur-xl sm:p-8 lg:col-span-1 hover:shadow-[0_12px_40px_rgba(0,0,0,0.2)] transition-shadow duration-300"
+              className="lg:col-span-12 relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-espresso to-charcoal border border-white/10 shadow-2xl"
             >
-              <Badge className="mb-3 w-fit border-white/40 bg-white/15 text-[10px] text-white/90 sm:mb-4 backdrop-blur-md">
-                <Star className="mr-1 h-3 w-3 fill-current" />
-                Featured Program
-              </Badge>
-              <h3 className="font-display text-xl font-semibold sm:text-3xl">
-                {featured.name}
-              </h3>
-              <p className="mt-1 text-sage-100">{featured.duration}</p>
-              <p className="mt-3 flex-1 text-sm leading-relaxed text-sage-50/90 sm:mt-4 sm:text-base">
-                {featured.description}
-              </p>
-              <ul className="mt-4 space-y-1.5 sm:mt-6 sm:space-y-2">
-                {featured.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-sm">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <Button
-                asChild
-                variant="secondary"
-                size="lg"
-                className="mt-5 bg-cream text-sage-800 hover:bg-beige-100 sm:mt-8"
-              >
-                <Link href="/consultation">{featured.cta}</Link>
-              </Button>
-            </motion.article>
+              <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
+              
+              <div className="relative z-10 grid gap-8 lg:grid-cols-2 p-8 sm:p-12 lg:p-16">
+                <div className="flex flex-col justify-center">
+                  <div className="mb-6 flex flex-wrap gap-3">
+                    <GlassBadge variant="gold" className="px-4 py-1.5 text-xs">
+                      <Star className="mr-1.5 h-3.5 w-3.5 fill-current" />
+                      Featured
+                    </GlassBadge>
+                    <GlassBadge variant="dark" className="px-4 py-1.5 text-xs">
+                      {featured.duration}
+                    </GlassBadge>
+                  </div>
+                  
+                  <h3 className="font-display text-3xl font-semibold text-white sm:text-4xl lg:text-5xl mb-6">
+                    {featured.name}
+                  </h3>
+                  
+                  <p className="text-lg leading-relaxed text-cream/80 mb-8 max-w-lg">
+                    {featured.description}
+                  </p>
+                  
+                  <ul className="mb-10 space-y-3">
+                    {featured.features.slice(0, 3).map((f) => (
+                      <li key={f} className="flex items-start gap-3 text-cream/90">
+                        <Check className="mt-1 h-5 w-5 shrink-0 text-gold" />
+                        <span className="text-base">{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  
+                  <div className="flex flex-col sm:flex-row gap-4 mt-auto">
+                    <Button asChild size="lg" className="bg-gold text-charcoal hover:bg-gold/90 text-base h-14 px-8 w-fit">
+                      <Link href={`/programs/${featured.id}`}>View Details</Link>
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="relative hidden lg:block rounded-2xl overflow-hidden border border-white/10 shadow-inner group min-h-[400px]">
+                  {featured.videoUrl ? (
+                     <>
+                       <video 
+                         autoPlay 
+                         muted 
+                         loop 
+                         playsInline 
+                         src={featured.videoUrl} 
+                         className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                       />
+                       <div className="absolute inset-0 bg-charcoal/20" />
+                     </>
+                  ) : (
+                    <div className="absolute inset-0 bg-sage-200/20 backdrop-blur-md flex items-center justify-center">
+                      <PlayCircle className="w-16 h-16 text-white/50" />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </motion.div>
           )}
 
           {others.map((program, index) => (
-            <motion.article
+            <motion.div
               key={program.id}
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              className="relative flex flex-col rounded-3xl border border-gold/20 bg-cream/70 p-5 text-charcoal shadow-[0_4px_20px_rgba(179,140,80,0.08),inset_0_1px_0_rgba(255,255,255,0.6)] backdrop-blur-lg sm:p-8 hover:shadow-[0_8px_32px_rgba(179,140,80,0.15)] hover:bg-cream/80 transition-all duration-300"
+              className="lg:col-span-6 group relative flex flex-col rounded-3xl border border-beige-200 bg-white p-8 shadow-sm transition-all hover:shadow-xl hover:-translate-y-1 duration-300"
             >
-              <h3 className="font-display text-xl font-semibold sm:text-3xl text-charcoal">
+              <div className="mb-6 flex gap-3">
+                <GlassBadge variant="light">{program.duration}</GlassBadge>
+              </div>
+              
+              <h3 className="font-display text-2xl font-semibold text-charcoal sm:text-3xl mb-4 group-hover:text-gold transition-colors">
                 {program.name}
               </h3>
-              <p className="mt-1 text-sage-600 font-medium">
-                {program.duration}
-              </p>
-              <p className="mt-3 flex-1 text-sm leading-relaxed text-sage-700 sm:mt-4 sm:text-base">
+              
+              <p className="flex-1 text-base leading-relaxed text-sage-700 mb-8">
                 {program.description}
               </p>
-              <ul className="mt-4 space-y-1.5 sm:mt-6 sm:space-y-2">
-                {program.features.map((f) => (
-                  <li
-                    key={f}
-                    className="flex items-start gap-2 text-sm text-sage-700"
-                  >
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-sage-600" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="mt-5 sm:mt-8"
-              >
-                <Link href="/consultation">{program.cta}</Link>
-              </Button>
-            </motion.article>
+              
+              <div className="flex items-center justify-between border-t border-beige-100 pt-6 mt-auto">
+                <span className="font-medium text-sage-800">{program.pricing}</span>
+                <Button asChild variant="ghost" className="group/btn text-charcoal hover:text-gold hover:bg-transparent px-0">
+                  <Link href={`/programs/${program.id}`}>
+                    Explore
+                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
+                  </Link>
+                </Button>
+              </div>
+            </motion.div>
           ))}
+        </div>
+        
+        <div className="mt-12 text-center">
+          <Button asChild variant="outline" size="lg" className="rounded-full border-charcoal/20 bg-transparent text-charcoal hover:bg-charcoal/5 px-8">
+            <Link href="/programs">View All Programs</Link>
+          </Button>
         </div>
       </div>
     </section>

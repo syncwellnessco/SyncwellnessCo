@@ -92,7 +92,7 @@ export function AboutCoachSection() {
           <div className="order-2 lg:order-2">
             <SectionHeading
               eyebrow="Meet Your Coach"
-              title="Compassionate Expertise for Your Unique Journey"
+              title={<>Compassionate Expertise for Your <span className="box-decoration-clone bg-[#B38C50] px-2 py-0.5 text-cream">Unique Journey</span></>}
               description="I'm passionate about helping women reclaim their health without sacrificing their lifestyle. Every protocol is personalized, every client is supported."
               align="left"
             />

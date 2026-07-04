@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
-import { UnderDevelopment } from "@/components/layout/under-development";
+import { PageShell } from "@/components/layout/page-shell";
+import { ResourcesPageContent } from "@/components/pages/resources-page-content";
 
 export const metadata: Metadata = {
   title: "Resources",
-  description: "Free guides, eBooks, and wellness resources for women's hormone health.",
+  description: "Free wellness resources, eBooks, and guides from SyncWellnessCo.",
 };
 
 export default function ResourcesPage() {
-  return <UnderDevelopment pageName="Resources" />;
+  return (
+    <PageShell>
+      <ResourcesPageContent />
+    </PageShell>
+  );
 }

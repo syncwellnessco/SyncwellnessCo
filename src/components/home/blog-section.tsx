@@ -5,46 +5,28 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { SectionHeading } from "@/components/ui/section-heading";
+import type { BlogPost } from "@/types/blog";
 
-const demoBlogs = [
-  {
-    id: "1",
-    title: "5 Signs Your Hormones Need Attention",
-    excerpt: "Learn the subtle signals your body sends when hormones are out of balance.",
-    category: "Hormone Health",
-    image:
-      "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&h=400&fit=crop",
-  },
-  {
-    id: "2",
-    title: "Gut Health & Your Cycle: What's Connected",
-    excerpt: "Why digestive wellness plays a bigger role in hormonal balance than you think.",
-    category: "Gut Health",
-    image:
-      "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&h=400&fit=crop",
-  },
-  {
-    id: "3",
-    title: "Sustainable Fat Loss Without Restriction",
-    excerpt: "A gentler approach to body composition that actually lasts.",
-    category: "Nutrition",
-    image:
-      "https://images.unsplash.com/photo-1498837167922-ddd27525cd17?w=600&h=400&fit=crop",
-  },
-];
+type BlogSectionProps = {
+  blogs: BlogPost[];
+};
 
-export function BlogSection() {
+export function BlogSection({ blogs }: BlogSectionProps) {
+  const featuredBlogs = blogs.filter(post => post.featured);
+  
+  if (featuredBlogs.length === 0) return null;
+
   return (
     <section className="bg-gold-muted/60 py-8 sm:py-16" id="blog">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
           eyebrow="From the Blog"
-          title="Wellness Insights & Tips"
+          title={<>Wellness Insights & <span className="box-decoration-clone bg-[#B38C50] px-2 py-0.5 text-cream">Tips</span></>}
           description="Practical reads on hormones, nutrition, and living well — curated for women like you."
         />
 
         <div className="mt-6 grid gap-5 sm:mt-8 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {demoBlogs.map((post, index) => (
+          {featuredBlogs.map((post, index) => (
             <motion.article
               key={post.id}
               initial={{ opacity: 0, y: 16 }}
@@ -53,6 +35,7 @@ export function BlogSection() {
               transition={{ delay: index * 0.08 }}
               className="overflow-hidden rounded-2xl bg-cream shadow-sm"
             >
+              <Link href={`/blog/${post.id}`} className="block">
               <div className="relative aspect-[16/10] overflow-hidden">
                 <Image
                   src={post.image}
@@ -73,13 +56,14 @@ export function BlogSection() {
                   {post.excerpt}
                 </p>
               </div>
+              </Link>
             </motion.article>
           ))}
         </div>
 
         <div className="mt-6 text-center sm:mt-8">
           <Link
-            href="/resources"
+            href="/blog"
             className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.12em] text-charcoal transition-colors hover:text-gold"
           >
             View All Articles

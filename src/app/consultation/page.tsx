@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
-import { UnderDevelopment } from "@/components/layout/under-development";
+import { PageShell } from "@/components/layout/page-shell";
+import { ConsultationPageContent } from "@/components/pages/consultation-page-content";
 
 export const metadata: Metadata = {
-  title: "Book Free Consultation",
-  description:
-    "Schedule your free discovery call with a certified women's health coach.",
+  title: "Book a Consultation",
+  description: "Book your free discovery call with SyncWellnessCo.",
 };
 
 export default function ConsultationPage() {
-  return <UnderDevelopment pageName="Consultation" />;
+  return (
+    <PageShell>
+      <ConsultationPageContent />
+    </PageShell>
+  );
 }

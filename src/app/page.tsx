@@ -12,7 +12,15 @@ import { FreeResourceSection } from "@/components/home/free-resource-section";
 import { FAQSection } from "@/components/home/faq-section";
 import { FinalCTASection } from "@/components/home/final-cta-section";
 
-export default function HomePage() {
+import { getBlogPosts } from "@/lib/content-store";
+import { seedBlogs } from "@/data/seed-blogs";
+
+export default async function HomePage() {
+  let blogs = await getBlogPosts();
+  if (!blogs || blogs.length === 0) {
+    blogs = seedBlogs;
+  }
+
   return (
     <>
       <Navbar />
@@ -24,7 +32,7 @@ export default function HomePage() {
         <AboutCoachSection />
         <TestimonialsSection />
         <VideoTestimonialsSection />
-        <BlogSection />
+        <BlogSection blogs={blogs} />
         <FreeResourceSection />
         <FinalCTASection />
         <FAQSection />

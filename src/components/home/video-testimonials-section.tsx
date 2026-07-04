@@ -12,7 +12,7 @@ export function VideoTestimonialsSection() {
   const active = videoTestimonials.find((v) => v.id === activeVideo);
 
   return (
-    <section className="bg-sage-100/40 py-7 sm:py-12">
+    <section className="bg-sage-100/40 pt-7 pb-1 sm:pt-12 sm:pb-2">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
           eyebrow="Video Stories"
@@ -62,7 +62,9 @@ export function VideoTestimonialsSection() {
                 <h3 className="font-display text-base font-semibold text-sage-900 sm:text-lg">
                   {video.title}
                 </h3>
-                <p className="mt-1 text-xs text-sage-600 sm:text-sm">{video.name}</p>
+                <p className="mt-1 text-xs text-sage-600 sm:text-sm">
+                  {video.name}
+                </p>
               </div>
             </motion.article>
           ))}
