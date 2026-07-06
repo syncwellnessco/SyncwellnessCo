@@ -6,13 +6,17 @@ import { Check, Star, ArrowRight, PlayCircle } from "lucide-react";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Button } from "@/components/ui/button";
 import { GlassBadge } from "@/components/ui/glass-badge";
+import { ProgramHeroMedia } from "@/components/pages/program-hero-media";
 import type { Program } from "@/types/program";
 
 export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
   // Only show Rank 1 featured program on the Home Page
   const featuredPrograms = programs.filter((p) => p.featured && p.featured_rank === 1);
   const featuredIds = featuredPrograms.map(p => p.id);
-  const others = programs.filter((p) => !featuredIds.includes(p.id) && p.showOnHome);
+  const others = programs.filter((p) => {
+    if (featuredIds.includes(p.id)) return false;
+    return p.showOnHome || p.featured;
+  });
 
   return (
     <section
@@ -37,14 +41,14 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: fIdx * 0.1 }}
-              className="lg:col-span-12 relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-espresso to-charcoal border border-white/10 shadow-2xl"
+              className="lg:col-span-12 relative overflow-hidden rounded-3xl bg-gradient-to-br from-espresso to-charcoal border border-white/10 shadow-2xl"
             >
               <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
               
-              <div className="relative z-10 grid gap-8 lg:gap-12 lg:grid-cols-2 p-8 sm:p-12 lg:p-14">
+              <div className="relative z-10 grid gap-6 lg:gap-8 lg:grid-cols-2 p-5 sm:p-6 lg:p-8">
                 <div className="flex flex-col justify-center">
                   <div className="mb-4 flex flex-wrap gap-3">
-                    <GlassBadge variant="gold" className="px-4 py-1.5 text-[11px] uppercase tracking-widest font-bold">
+                    <GlassBadge className="px-4 py-1.5 text-[11px] uppercase tracking-widest font-bold border-[#D4AF37]/30 bg-[#D4AF37]/10 text-[#D4AF37] shadow-sm">
                       <Star className="mr-1.5 h-3.5 w-3.5 fill-current" />
                       Featured
                     </GlassBadge>
@@ -75,31 +79,12 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
                   </div>
                 </div>
                 
-                <div className="relative hidden lg:block rounded-2xl overflow-hidden border border-white/10 shadow-inner group aspect-video my-auto bg-sage-900/50">
-                  {featured.hero?.introVideo ? (
-                     <>
-                       <video 
-                         autoPlay 
-                         muted 
-                         loop 
-                         playsInline 
-                         src={featured.hero.introVideo} 
-                         className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                       />
-                       <div className="absolute inset-0 bg-charcoal/20" />
-                     </>
-                  ) : featured.hero?.bannerImage ? (
-                    <img 
-                      src={featured.hero.bannerImage} 
-                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                      alt={featured.title} 
-                    />
-                  ) : (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-white/30">
-                      <Star className="w-16 h-16 mb-4 opacity-50" />
-                      <span className="font-display tracking-widest uppercase text-xs">Featured Program</span>
-                    </div>
-                  )}
+                <div className="relative hidden lg:block my-auto">
+                  <ProgramHeroMedia 
+                    videoUrl={featured.hero?.introVideo} 
+                    imageUrl={featured.hero?.bannerImage} 
+                    title={featured.title} 
+                  />
                 </div>
               </div>
             </motion.div>
@@ -112,7 +97,7 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              className="lg:col-span-6 group relative flex flex-col rounded-3xl border border-beige-200 bg-white p-8 shadow-sm transition-all hover:shadow-xl hover:-translate-y-1 duration-300"
+              className="lg:col-span-6 group relative flex flex-col rounded-3xl border border-beige-200 bg-white p-5 sm:p-6 shadow-sm transition-all hover:shadow-xl hover:-translate-y-1 duration-300"
             >
               <div className="mb-6 flex gap-3">
                 <GlassBadge variant="light">{program.duration}</GlassBadge>

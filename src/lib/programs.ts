@@ -8,6 +8,7 @@ function mapDbToProgram(row: any): Program {
     problemsSolved: row.problemssolved !== undefined ? row.problemssolved : row.problemsSolved,
     createdAt: row.createdat !== undefined ? row.createdat : row.createdAt,
     updatedAt: row.updatedat !== undefined ? row.updatedat : row.updatedAt,
+    showOnHome: row.showonhome !== undefined ? row.showonhome : (row.showOnHome !== undefined ? row.showOnHome : true),
   };
 }
 

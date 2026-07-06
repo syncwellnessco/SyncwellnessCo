@@ -17,7 +17,7 @@ export function ProgramHeroMedia({ videoUrl, imageUrl, title }: ProgramHeroMedia
     <div className="relative flex flex-col gap-8 w-full max-w-lg mx-auto lg:ml-auto">
       {videoUrl && (
         <div 
-          className="relative w-full aspect-video rounded-none overflow-hidden shadow-2xl ring-1 ring-white/10 group cursor-pointer"
+          className="relative w-full aspect-video rounded-3xl overflow-hidden shadow-2xl ring-1 ring-white/10 group cursor-pointer"
           onClick={() => setActiveModal('video')}
         >
           <video 
@@ -47,7 +47,7 @@ export function ProgramHeroMedia({ videoUrl, imageUrl, title }: ProgramHeroMedia
 
       {imageUrl && (
         <div 
-          className="relative w-full aspect-video rounded-none overflow-hidden shadow-2xl ring-1 ring-white/10 group cursor-pointer"
+          className="relative w-full aspect-video rounded-3xl overflow-hidden shadow-2xl ring-1 ring-white/10 group cursor-pointer"
           onClick={() => setActiveModal('image')}
         >
           <img src={imageUrl} alt={title} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
@@ -56,7 +56,7 @@ export function ProgramHeroMedia({ videoUrl, imageUrl, title }: ProgramHeroMedia
       )}
 
       {!videoUrl && !imageUrl && (
-        <div className="relative w-full aspect-video rounded-none overflow-hidden shadow-2xl ring-1 ring-white/10 bg-charcoal/50 flex items-center justify-center">
+        <div className="relative w-full aspect-video rounded-3xl overflow-hidden shadow-2xl ring-1 ring-white/10 bg-charcoal/50 flex items-center justify-center">
           <span className="text-white/50 font-display">No media</span>
         </div>
       )}
