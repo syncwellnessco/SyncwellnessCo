@@ -283,9 +283,10 @@ export default function TestimonialsPage() {
                   onPause={() => setIsPlaying(false)}
                   className="absolute inset-0 w-full h-full object-cover cursor-pointer"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
                 
-                <div className="absolute bottom-6 left-6 flex gap-3 z-10">
+                {/* Desktop controls (Hidden on mobile) */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none hidden md:block" />
+                <div className="absolute bottom-6 left-6 gap-3 z-10 hidden md:flex">
                   <button onClick={togglePlay} className="p-3 rounded-full bg-black/40 text-white hover:bg-black/60 backdrop-blur-md border border-white/20 transition-colors shadow-lg">
                     {isPlaying ? <Pause className="w-5 h-5 fill-white" /> : <Play className="w-5 h-5 fill-white" />}
                   </button>
@@ -293,10 +294,36 @@ export default function TestimonialsPage() {
                     {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
                   </button>
                 </div>
+
+                {/* Mobile Overlay Content (Hidden on Desktop) */}
+                <div className="absolute inset-x-0 bottom-0 pt-32 pb-6 px-5 bg-gradient-to-t from-black via-black/80 to-transparent md:hidden z-10 flex flex-col justify-end pointer-events-none rounded-b-2xl">
+                  <div className="flex gap-3 mb-4 pointer-events-auto">
+                    <button onClick={togglePlay} className="p-2.5 rounded-full bg-white/20 text-white backdrop-blur-md border border-white/30 shadow-lg">
+                      {isPlaying ? <Pause className="w-5 h-5 fill-white" /> : <Play className="w-5 h-5 fill-white" />}
+                    </button>
+                    <button onClick={toggleMute} className="p-2.5 rounded-full bg-white/20 text-white backdrop-blur-md border border-white/30 shadow-lg">
+                      {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+                    </button>
+                  </div>
+
+                  <div className="pointer-events-auto flex flex-col overflow-hidden">
+                    {getProgramName(activeVideo.program_id) && (
+                      <div className="mb-2 shrink-0">
+                        <span className="inline-block bg-[#8C6D40]/80 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-widest shadow-sm">
+                          {getProgramName(activeVideo.program_id)}
+                        </span>
+                      </div>
+                    )}
+                    <h4 className="text-white font-display font-semibold text-xl drop-shadow-md leading-tight shrink-0 mb-2">{activeVideo.name}</h4>
+                    <div className="overflow-y-auto pr-2" style={{ maxHeight: '150px' }}>
+                      <p className="text-white/90 text-sm drop-shadow-md leading-relaxed">{activeVideo.caption}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              {/* Right Side: Content */}
-              <div className="w-full md:flex-1 p-8 md:p-12 lg:p-16 flex flex-col justify-center bg-[#1A1A1A] text-white overflow-y-auto">
+              {/* Right Side: Content (Desktop Only) */}
+              <div className="hidden w-full md:flex-1 p-8 md:p-12 lg:p-16 md:flex flex-col justify-center bg-[#1A1A1A] text-white overflow-y-auto">
                 {getProgramName(activeVideo.program_id) && (
                   <div className="mb-6">
                     <span className="inline-block bg-[#8C6D40]/20 text-[#D4AF37] border border-[#8C6D40]/30 text-[10px] md:text-xs font-bold px-3 py-1.5 rounded-sm uppercase tracking-widest">
