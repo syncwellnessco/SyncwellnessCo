@@ -23,50 +23,16 @@ export function Footer() {
   return (
     <footer className="border-t border-cream/10 bg-charcoal text-cream/75">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
-          <div className="lg:col-span-1">
+        <div className="grid gap-x-8 gap-y-12 grid-cols-2 lg:grid-cols-5">
+          <div className="col-span-2 lg:col-span-2">
             <Logo variant="light" />
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-cream/60">
               Certified Women&apos;s Health Coach helping busy women restore
               energy, balance hormones, and feel confident through sustainable
               wellness programs.
             </p>
-          </div>
-
-          <div>
-            <h4 className="font-display text-base text-cream">Navigation</h4>
-            <ul className="mt-4 space-y-2">
-              {footerLinks.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-cream/60 transition-colors hover:text-cream"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-display text-base text-cream">Contact</h4>
-            <ul className="mt-4 space-y-2 text-sm text-cream/60">
-              <li>
-                <a
-                  href={`mailto:${siteConfig.email}`}
-                  className="transition-colors hover:text-cream"
-                >
-                  {siteConfig.email}
-                </a>
-              </li>
-              <li>{siteConfig.businessHours}</li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-display text-base text-cream">Follow Us</h4>
-            <div className="mt-4 flex gap-3">
+            <h4 className="font-display text-base text-cream mt-8 mb-4">Follow Us</h4>
+            <div className="flex gap-3">
               <a
                 href={siteConfig.social.instagram}
                 target="_blank"
@@ -96,13 +62,71 @@ export function Footer() {
               </a>
             </div>
           </div>
+
+          <div className="col-span-1 lg:col-span-1">
+            <h4 className="font-display text-base text-cream">Navigation</h4>
+            <ul className="mt-4 space-y-2">
+              {footerLinks.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-cream/60 transition-colors hover:text-cream"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="col-span-1 lg:col-span-1">
+            <h4 className="font-display text-base text-cream">Legal</h4>
+            <ul className="mt-4 space-y-2">
+              <li>
+                <Link href="/privacy" className="text-sm text-cream/60 transition-colors hover:text-cream">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms" className="text-sm text-cream/60 transition-colors hover:text-cream">
+                  Terms & Conditions
+                </Link>
+              </li>
+              <li>
+                <Link href="/refund" className="text-sm text-cream/60 transition-colors hover:text-cream">
+                  Refund Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/disclaimer" className="text-sm text-cream/60 transition-colors hover:text-cream">
+                  Disclaimer
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div className="col-span-2 lg:col-span-1">
+            <h4 className="font-display text-base text-cream">Contact</h4>
+            <ul className="mt-4 space-y-2 text-sm text-cream/60">
+              <li>
+                <a
+                  href={`mailto:${siteConfig.email}`}
+                  className="transition-colors hover:text-cream"
+                >
+                  {siteConfig.email}
+                </a>
+              </li>
+              <li>{siteConfig.businessHours}</li>
+            </ul>
+          </div>
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-cream/10 pt-8 sm:flex-row">
+        <div className="mt-12 flex flex-col items-center justify-between gap-6 border-t border-cream/10 pt-8 lg:flex-row flex-wrap">
           <p className="text-sm text-cream/50">
             &copy; {year} {siteConfig.name}. All rights reserved.
           </p>
-          <p className="text-xs text-cream/40">
+
+          <p className="text-xs text-cream/40 hidden xl:block">
             {siteConfig.seoKeywords.slice(0, 4).join(" · ")}
           </p>
         </div>
