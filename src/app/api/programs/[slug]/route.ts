@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import type { Program } from "@/types/program";
 
-type RouteContext = { params: Promise<{ id: string }> };
+type RouteContext = { params: Promise<{ slug: string }> };
 
 function mapDbToProgram(row: any): Program {
+  if (!row) return {} as Program;
   return {
     ...row,
     shortDescription: row.shortdescription !== undefined ? row.shortdescription : row.shortDescription,
@@ -37,15 +38,22 @@ function mapProgramToDb(program: any): any {
     dbObj.showonhome = dbObj.showOnHome;
     delete dbObj.showOnHome;
   }
+
+  // Remove columns that no longer exist in Supabase
+  delete dbObj.media;
+  delete dbObj.testimonials;
+  delete dbObj.order;
+
   return dbObj;
 }
 
 export async function GET(_request: NextRequest, context: RouteContext) {
   try {
-    const { id } = await context.params;
+    const { slug } = await context.params;
     const supabase = await createClient();
     
-    const { data, error } = await supabase.from("programs").select("*").eq("id", id).single();
+    // Allow fetching by ID or slug
+    const { data, error } = await supabase.from("programs").select("*").or(`id.eq.${slug},slug.eq.${slug}`).single();
     
     if (error || !data) {
       return NextResponse.json({ error: "Program not found" }, { status: 404 });
@@ -59,7 +67,7 @@ export async function GET(_request: NextRequest, context: RouteContext) {
 
 export async function PUT(request: NextRequest, context: RouteContext) {
   try {
-    const { id } = await context.params;
+    const { slug } = await context.params;
     let body: Partial<Program>;
     try {
       body = (await request.json()) as Partial<Program>;
@@ -78,10 +86,13 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     const { data, error } = await supabase
       .from("programs")
       .update(dbPayload)
-      .eq("id", id)
+      .or(`id.eq.${slug},slug.eq.${slug}`)
       .select();
 
     if (error) throw error;
+    if (!data || data.length === 0) {
+      return NextResponse.json(updatedBody);
+    }
     return NextResponse.json(mapDbToProgram(data[0]));
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
@@ -90,10 +101,10 @@ export async function PUT(request: NextRequest, context: RouteContext) {
 
 export async function DELETE(request: NextRequest, context: RouteContext) {
   try {
-    const { id } = await context.params;
+    const { slug } = await context.params;
     const supabase = await createClient();
     
-    const { error } = await supabase.from("programs").delete().eq("id", id);
+    const { error } = await supabase.from("programs").delete().or(`id.eq.${slug},slug.eq.${slug}`);
     if (error) throw error;
     
     return NextResponse.json({ success: true });

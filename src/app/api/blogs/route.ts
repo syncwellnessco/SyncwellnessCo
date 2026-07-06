@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyApiSecret } from "@/lib/api-auth";
 import { getBlogPosts, saveBlogPost } from "@/lib/content-store";
-import { seedBlogs } from "@/data/seed-blogs";
 import type { BlogPost, CreateBlogInput } from "@/types/blog";
 
 function slugify(text: string) {
@@ -15,8 +14,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const publishedOnly = searchParams.get("published") === "true";
 
-  const stored = await getBlogPosts();
-  const posts = stored.length > 0 ? stored : seedBlogs;
+  const posts = await getBlogPosts();
   const filtered = publishedOnly ? posts.filter((p) => p.published) : posts;
 
   return NextResponse.json(filtered);

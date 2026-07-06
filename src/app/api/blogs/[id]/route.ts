@@ -5,14 +5,12 @@ import {
   getBlogPosts,
   saveBlogPost,
 } from "@/lib/content-store";
-import { seedBlogs } from "@/data/seed-blogs";
 import type { UpdateBlogInput } from "@/types/blog";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
 async function findPost(id: string) {
-  const stored = await getBlogPosts();
-  const posts = stored.length > 0 ? stored : seedBlogs;
+  const posts = await getBlogPosts();
   return posts.find((p) => p.id === id);
 }
 
@@ -68,15 +66,6 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
 
   if (!existing) {
     return NextResponse.json({ error: "Blog post not found" }, { status: 404 });
-  }
-
-  const stored = await getBlogPosts();
-  if (stored.length === 0) {
-    const remaining = seedBlogs.filter((p) => p.id !== id);
-    for (const post of remaining) {
-      await saveBlogPost(post);
-    }
-    return NextResponse.json({ success: true });
   }
 
   const deleted = await deleteBlogPost(id);

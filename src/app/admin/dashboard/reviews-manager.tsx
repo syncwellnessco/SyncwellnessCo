@@ -62,6 +62,7 @@ export function ReviewsManager() {
   // Modals
   const [viewReview, setViewReview] = useState<Review | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   
   // Add Form
@@ -131,28 +132,59 @@ export function ReviewsManager() {
     }
     setSubmitting(true);
     try {
-      const res = await fetch("/api/reviews", {
-        method: "POST",
+      const isEditing = !!editingId;
+      // Convert camelCase to snake_case for PATCH body to match DB schema
+      const payload = isEditing ? {
+        name: form.name,
+        testimonial: form.testimonial,
+        program_id: form.programId,
+        before_image: form.beforeImage,
+        after_image: form.afterImage,
+        rating: form.rating
+      } : form;
+
+      const res = await fetch(isEditing ? `/api/reviews/${editingId}` : "/api/reviews", {
+        method: isEditing ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form)
+        body: JSON.stringify(payload)
       });
       if (res.ok) {
-        toast.success("Review added");
-        setIsAddModalOpen(false);
-        setForm({ name: "", testimonial: "", programId: "", beforeImage: "", beforePublicId: "", afterImage: "", afterPublicId: "", rating: 5 });
+        toast.success(isEditing ? "Review updated" : "Review added");
+        closeModal();
         fetchReviews();
       } else {
         const err = await res.json();
         toast.error(`Error: ${err.error || "Unknown"}`);
-        if (form.beforePublicId) await deleteCloudinaryFile(form.beforePublicId, 'image');
-        if (form.afterPublicId) await deleteCloudinaryFile(form.afterPublicId, 'image');
+        if (!isEditing && form.beforePublicId) await deleteCloudinaryFile(form.beforePublicId, 'image');
+        if (!isEditing && form.afterPublicId) await deleteCloudinaryFile(form.afterPublicId, 'image');
       }
     } catch {
-      toast.error("Error adding review");
-      if (form.beforePublicId) await deleteCloudinaryFile(form.beforePublicId, 'image');
-      if (form.afterPublicId) await deleteCloudinaryFile(form.afterPublicId, 'image');
+      toast.error("Error saving review");
+      if (!editingId && form.beforePublicId) await deleteCloudinaryFile(form.beforePublicId, 'image');
+      if (!editingId && form.afterPublicId) await deleteCloudinaryFile(form.afterPublicId, 'image');
     }
     setSubmitting(false);
+  };
+
+  const openEditModal = (review: Review) => {
+    setForm({
+      name: review.name || "",
+      testimonial: review.testimonial || "",
+      programId: review.program_id || "",
+      beforeImage: review.before_image || "",
+      beforePublicId: "", // Optional since we don't have it
+      afterImage: review.after_image || "",
+      afterPublicId: "",
+      rating: review.rating || 5
+    });
+    setEditingId(review.id);
+    setIsAddModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsAddModalOpen(false);
+    setEditingId(null);
+    setForm({ name: "", testimonial: "", programId: "", beforeImage: "", beforePublicId: "", afterImage: "", afterPublicId: "", rating: 5 });
   };
 
   if (loading) return <Skeleton className="h-64 w-full" />;
@@ -164,7 +196,7 @@ export function ReviewsManager() {
           <h2 className="text-2xl font-display text-charcoal">Reviews</h2>
           <p className="text-sm text-charcoal/60 mt-1">Manage user reviews and publish them to program pages.</p>
         </div>
-        <Button onClick={() => setIsAddModalOpen(true)} className="bg-[#8C6D40] hover:bg-[#B8955F] text-white">
+        <Button onClick={() => { setEditingId(null); setIsAddModalOpen(true); }} className="bg-[#8C6D40] hover:bg-[#B8955F] text-white">
           Add Review Manually
         </Button>
       </div>
@@ -214,9 +246,14 @@ export function ReviewsManager() {
                     </div>
                   </td>
                   <td className="px-4 py-4 text-right">
-                    <Button onClick={() => setViewReview(review)} variant="ghost" size="sm" className="h-8 w-8 rounded-full p-0 text-charcoal hover:bg-[#EBE3DB]" title="View">
-                      <Eye className="h-4 w-4" />
-                    </Button>
+                    <div className="flex items-center justify-end gap-1">
+                      <Button onClick={() => setViewReview(review)} variant="ghost" size="sm" className="h-8 w-8 rounded-full p-0 text-charcoal hover:bg-[#EBE3DB]" title="View">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button onClick={() => openEditModal(review)} variant="ghost" size="sm" className="h-8 w-8 rounded-full p-0 text-charcoal hover:bg-[#EBE3DB]" title="Edit">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -229,9 +266,9 @@ export function ReviewsManager() {
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/60 backdrop-blur-sm">
           <div className="bg-white rounded-md w-full max-w-4xl shadow-xl relative max-h-[90vh] overflow-y-auto">
-            <button onClick={() => setIsAddModalOpen(false)} className="absolute top-4 right-4 text-charcoal/50 hover:text-charcoal"><X className="h-5 w-5" /></button>
+            <button onClick={closeModal} className="absolute top-4 right-4 text-charcoal/50 hover:text-charcoal"><X className="h-5 w-5" /></button>
             <div className="p-8">
-              <h3 className="font-display text-2xl text-charcoal mb-6 border-b pb-4">Add Manual Review</h3>
+              <h3 className="font-display text-2xl text-charcoal mb-6 border-b pb-4">{editingId ? 'Edit' : 'Add Manual'} Review</h3>
               <form onSubmit={handleAddReview} className="flex flex-col md:flex-row gap-8">
                 
                 {/* Left Side: Images */}
@@ -291,7 +328,7 @@ export function ReviewsManager() {
                   
                   <div className="pt-4">
                     <Button type="submit" disabled={submitting} className="w-full h-12 bg-[#8C6D40] hover:bg-[#B8955F] text-white">
-                      {submitting ? "Adding..." : "Save Review (will be pending by default)"}
+                      {submitting ? "Saving..." : editingId ? "Save Changes" : "Save Review (will be pending by default)"}
                     </Button>
                   </div>
                 </div>

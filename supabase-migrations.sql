@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS programs (
   category TEXT,
   status TEXT DEFAULT 'draft',
   featured BOOLEAN DEFAULT FALSE,
-  "order" INTEGER DEFAULT 0,
+  featured_rank INTEGER,
   
   -- Use JSONB for nested schema structures
   pricing JSONB,
@@ -26,9 +26,7 @@ CREATE TABLE IF NOT EXISTS programs (
   methodology JSONB,
   faqs JSONB,
   enrollment JSONB,
-  testimonials JSONB,
   quiz JSONB,
-  media JSONB,
   seo JSONB,
 
   createdAt TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()),

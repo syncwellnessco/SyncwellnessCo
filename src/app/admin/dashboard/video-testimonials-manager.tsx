@@ -56,6 +56,7 @@ export function VideoTestimonialsManager() {
   const [programs, setPrograms] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({ video_url: "", public_id: "", caption: "", name: "", program_id: "", featured_on_home: true });
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
@@ -91,31 +92,53 @@ export function VideoTestimonialsManager() {
     }
     setSubmitting(true);
     try {
-      const res = await fetch("/api/videos", {
-        method: "POST",
+      const isEditing = !!editingId;
+      const payload = { ...form };
+      delete (payload as any).public_id; // Remove public_id since it's not in the DB schema
+
+      const res = await fetch(isEditing ? `/api/videos/${editingId}` : "/api/videos", {
+        method: isEditing ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form)
+        body: JSON.stringify(payload)
       });
       if (res.ok) {
-        toast.success("Video testimonial added");
-        setIsAddModalOpen(false);
-        setForm({ video_url: "", public_id: "", caption: "", name: "", program_id: "", featured_on_home: true });
+        toast.success(isEditing ? "Video testimonial updated" : "Video testimonial added");
+        closeModal();
         fetchVideos();
       } else {
         const errorData = await res.json();
         toast.error(`Database error: ${errorData.error || "Unknown error"}`);
-        // DB upload failed! Clean up the video from Cloudinary
-        if (form.public_id) {
+        // DB upload failed! Clean up the video from Cloudinary ONLY IF NEW
+        if (!isEditing && form.public_id) {
           await deleteCloudinaryFile(form.public_id, 'video');
         }
       }
     } catch {
-      toast.error("Error adding video");
-      if (form.public_id) {
+      toast.error("Error saving video");
+      if (!editingId && form.public_id) {
         await deleteCloudinaryFile(form.public_id, 'video');
       }
     }
     setSubmitting(false);
+  };
+
+  const openEditModal = (video: VideoTestimonial) => {
+    setForm({
+      video_url: video.video_url || "",
+      public_id: "", // We don't have the original public_id saved in DB currently, it's fine
+      caption: video.caption || "",
+      name: video.name || "",
+      program_id: video.program_id || "",
+      featured_on_home: video.featured_on_home || false
+    });
+    setEditingId(video.id);
+    setIsAddModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsAddModalOpen(false);
+    setEditingId(null);
+    setForm({ video_url: "", public_id: "", caption: "", name: "", program_id: "", featured_on_home: true });
   };
 
   const handleRemoveVideo = async () => {
@@ -163,7 +186,7 @@ export function VideoTestimonialsManager() {
           <h2 className="text-2xl font-display text-charcoal">Video Testimonials</h2>
           <p className="text-sm text-charcoal/60 mt-1">Upload and manage video testimonials for the home page.</p>
         </div>
-        <Button onClick={() => setIsAddModalOpen(true)} className="bg-[#8C6D40] hover:bg-[#B8955F] text-white">
+        <Button onClick={() => { setEditingId(null); setIsAddModalOpen(true); }} className="bg-[#8C6D40] hover:bg-[#B8955F] text-white">
           Add Video Testimonial
         </Button>
       </div>
@@ -196,9 +219,14 @@ export function VideoTestimonialsManager() {
                     />
                     Feature on Home
                   </label>
-                  <Button onClick={() => setDeleteConfirmId(video.id)} variant="ghost" size="sm" className="w-full text-red-500 hover:text-red-600 hover:bg-red-50 justify-start">
-                    <Trash2 className="h-4 w-4 mr-2" /> Delete
-                  </Button>
+                  <div className="flex items-center gap-1 justify-end">
+                    <Button onClick={() => openEditModal(video)} variant="ghost" size="sm" className="h-8 w-8 rounded-md p-0 text-charcoal hover:bg-[#EBE3DB]" title="Edit">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                    </Button>
+                    <Button onClick={() => setDeleteConfirmId(video.id)} variant="ghost" size="sm" className="h-8 w-8 rounded-md p-0 text-red-500 hover:text-red-600 hover:bg-red-50" title="Delete">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -209,9 +237,9 @@ export function VideoTestimonialsManager() {
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/60 backdrop-blur-sm">
           <div className="bg-white rounded-md w-full max-w-2xl shadow-xl relative max-h-[90vh] overflow-y-auto">
-            <button onClick={() => setIsAddModalOpen(false)} className="absolute top-4 right-4 text-charcoal/50 hover:text-charcoal"><X className="h-5 w-5" /></button>
+            <button onClick={closeModal} className="absolute top-4 right-4 text-charcoal/50 hover:text-charcoal"><X className="h-5 w-5" /></button>
             <div className="p-8">
-              <h3 className="font-display text-2xl text-charcoal mb-6 border-b pb-4">Upload Video Testimonial</h3>
+              <h3 className="font-display text-2xl text-charcoal mb-6 border-b pb-4">{editingId ? 'Edit' : 'Upload'} Video Testimonial</h3>
               <form onSubmit={handleAdd} className="flex flex-col sm:flex-row gap-8">
                 <div className="w-full sm:w-1/2 flex flex-col gap-6 pr-0 sm:pr-8 sm:border-r border-[#EBE3DB]">
                   <CloudinaryVideoBtn 

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
-import { seedPrograms } from "@/data/seed-programs";
 import type { Program } from "@/types/program";
 
 function slugify(text: string) {
@@ -10,7 +9,22 @@ function slugify(text: string) {
     .replace(/(^-|-$)/g, "");
 }
 
+async function generateUniqueSlug(title: string, supabase: any) {
+  const baseSlug = slugify(title);
+  
+  const { data } = await supabase
+    .from("programs")
+    .select("slug")
+    .eq("slug", baseSlug)
+    .single();
+    
+  if (!data) return baseSlug;
+  
+  return baseSlug + '-' + Math.random().toString(36).substring(2, 6);
+}
+
 function mapDbToProgram(row: any): Program {
+  if (!row) return {} as Program;
   return {
     ...row,
     shortDescription: row.shortdescription !== undefined ? row.shortdescription : row.shortDescription,
@@ -43,6 +57,14 @@ function mapProgramToDb(program: any): any {
     dbObj.showonhome = dbObj.showOnHome;
     delete dbObj.showOnHome;
   }
+  
+  // Do not delete id; it is required as a primary key.
+
+  // Remove columns that no longer exist in Supabase
+  delete dbObj.media;
+  delete dbObj.testimonials;
+  delete dbObj.order;
+
   return dbObj;
 }
 
@@ -52,7 +74,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const supabase = await createClient();
-    let query = supabase.from("programs").select("*").order("order", { ascending: true });
+    let query = supabase.from("programs").select("*").order("featured_rank", { ascending: true });
     
     if (publishedOnly) {
       query = query.eq("status", "published");
@@ -60,25 +82,21 @@ export async function GET(request: NextRequest) {
 
     const { data, error } = await query;
     
-    // If table doesn't exist or error, fallback to seedPrograms so site doesn't break
+    // If table doesn't exist or error, return empty array
     if (error) {
-      console.warn("Supabase query failed, falling back to seed programs.", error.message);
-      const filtered = publishedOnly ? seedPrograms.filter((p) => p.status === "published") : seedPrograms;
-      return NextResponse.json(filtered);
+      console.error("Supabase query failed.", error.message);
+      return NextResponse.json([]);
     }
 
-    // If table is empty, we also return seedPrograms so they can see them and sync them
     if (!data || data.length === 0) {
-      const filtered = publishedOnly ? seedPrograms.filter((p) => p.status === "published") : seedPrograms;
-      return NextResponse.json(filtered);
+      return NextResponse.json([]);
     }
 
     const mappedData = data.map(mapDbToProgram);
     return NextResponse.json(mappedData);
   } catch (err: any) {
     console.error("Programs API Error:", err);
-    const filtered = publishedOnly ? seedPrograms.filter((p) => p.status === "published") : seedPrograms;
-    return NextResponse.json(filtered);
+    return NextResponse.json([]);
   }
 }
 
@@ -98,11 +116,13 @@ export async function POST(request: NextRequest) {
   }
 
   const now = new Date().toISOString();
+  const supabase = await createClient();
+  const newSlug = await generateUniqueSlug(body.title, supabase);
   
   const program: Program = {
-    id: body.id ?? slugify(body.title),
+    id: body.id || crypto.randomUUID(),
     title: body.title,
-    slug: body.slug ?? slugify(body.title),
+    slug: newSlug,
     shortDescription: body.shortDescription ?? "",
     description: body.description,
     duration: body.duration ?? "",
@@ -110,8 +130,7 @@ export async function POST(request: NextRequest) {
     category: body.category ?? "",
     status: body.status ?? "draft",
     featured: body.featured ?? false,
-    order: body.order ?? 0,
-    pricing: body.pricing ?? { price: 0, currency: "USD", paymentType: "one-time", installmentAvailable: false },
+    pricing: body.pricing ?? { price: 0, currency: "AUD", paymentType: "one-time", installmentAvailable: false },
     hero: body.hero ?? { bannerImage: "", ctaText: "Join", ctaLink: "/programs" },
     audience: body.audience ?? { designedFor: [], notFor: [], idealClient: [] },
     problemsSolved: body.problemsSolved ?? [],
@@ -122,8 +141,6 @@ export async function POST(request: NextRequest) {
     methodology: body.methodology ?? { framework: "", process: "", whyItWorks: "", scientificBasis: "" },
     faqs: body.faqs ?? [],
     enrollment: body.enrollment ?? { startDates: [], process: "", applicationProcess: "", paymentPlans: "" },
-    testimonials: body.testimonials ?? [],
-    media: body.media ?? { bannerImages: [], gallery: [], videos: [], pdfs: [], resources: [] },
     seo: body.seo ?? { metaTitle: body.title, metaDescription: "", keywords: [] },
     quiz: body.quiz ?? { enabled: false, title: "" },
     createdAt: now,
@@ -131,12 +148,14 @@ export async function POST(request: NextRequest) {
   };
 
   try {
-    const supabase = await createClient();
     const dbProgram = mapProgramToDb(program);
     const { data, error } = await supabase.from("programs").insert([dbProgram]).select();
     
     if (error) {
       return NextResponse.json({ error: `Database Error: ${error.message}. Did you create the table?` }, { status: 500 });
+    }
+    if (!data || data.length === 0) {
+      return NextResponse.json(program, { status: 201 });
     }
     return NextResponse.json(mapDbToProgram(data[0]), { status: 201 });
   } catch (err: any) {

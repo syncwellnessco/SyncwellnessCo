@@ -1,17 +1,15 @@
 import type { Metadata } from "next";
 import { PageShell } from "@/components/layout/page-shell";
 import { ProgramDetailContent } from "@/components/pages/program-detail-content";
-import { getAllPrograms } from "@/lib/programs";
+import { getProgramBySlug } from "@/lib/programs";
 
 type PageProps = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 };
 
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { id } = await params;
-  const programs = await getAllPrograms();
-  const program = programs.find((p) => p.id === id);
+  const { slug } = await params;
+  const program = await getProgramBySlug(slug);
 
   return {
     title: program?.title ?? "Program",
@@ -20,11 +18,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function ProgramDetailPage({ params }: PageProps) {
-  const { id } = await params;
+  const { slug } = await params;
 
   return (
     <PageShell>
-      <ProgramDetailContent id={id} />
+      <ProgramDetailContent slug={slug} />
     </PageShell>
   );
 }

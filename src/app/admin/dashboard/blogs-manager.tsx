@@ -268,64 +268,55 @@ export function BlogsManager() {
         </Button>
       </div>
       
-      <div className="overflow-x-auto border border-[#EBE3DB] rounded-md shadow-sm">
-        <table className="w-full text-left text-sm text-charcoal">
-          <thead className="bg-[#FAF8F5] text-charcoal/60 uppercase tracking-wider text-[10px]">
-            <tr>
-              <th className="px-4 py-3 font-semibold rounded-tl-md">Blog Details</th>
-              <th className="px-4 py-3 font-semibold">Category</th>
-              <th className="px-4 py-3 font-semibold">Status</th>
-              <th className="px-4 py-3 font-semibold text-right rounded-tr-md">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[#EBE3DB]">
-            {blogs.length === 0 ? (
-              <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-charcoal/50 bg-white">
-                  No blogs found. Click "New Blog" to create one.
-                </td>
-              </tr>
-            ) : (
-              blogs.map((blog) => (
-                <tr key={blog.id} className="hover:bg-[#FAF8F5]/50 transition-colors bg-white">
-                  <td className="px-4 py-4">
-                    <div className="flex items-center gap-3">
-                      {blog.image_url ? (
-                        <img src={blog.image_url} alt="" className="h-12 w-16 object-cover rounded-sm border border-[#EBE3DB]" />
-                      ) : (
-                        <div className="h-12 w-16 bg-[#FAF8F5] flex items-center justify-center rounded-sm border border-[#EBE3DB]">
-                          <ImageIcon className="h-4 w-4 text-charcoal/30" />
-                        </div>
-                      )}
-                      <div>
-                        <div className="font-semibold text-charcoal mb-1">{blog.title}</div>
-                        <div className="text-xs text-charcoal/60 font-mono">/{blog.slug}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 text-charcoal/80 text-xs">
-                    {blog.category || 'General'}
-                  </td>
-                  <td className="px-4 py-4">
-                    <span className={`text-[10px] px-2 py-1 uppercase tracking-wider font-bold rounded-sm ${blog.published ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                      {blog.published ? 'Published' : 'Draft'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4 text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleEdit(blog)}>
-                        <Edit className="h-3 w-3" />
-                      </Button>
-                      <Button variant="outline" size="icon" className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => handleDelete(blog.id)}>
-                        <Trash className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {blogs.length === 0 ? (
+          <div className="col-span-full py-12 text-center text-charcoal/50 border border-dashed border-[#EBE3DB] rounded-lg bg-white">
+            No blogs found. Click "New Blog" to create one.
+          </div>
+        ) : (
+          blogs.map((blog) => (
+            <div key={blog.id} className="bg-white border border-[#EBE3DB] rounded-lg shadow-sm hover:shadow-md transition-all flex flex-col overflow-hidden">
+              <div className="relative h-40 w-full bg-[#FAF8F5] border-b border-[#EBE3DB]">
+                {blog.image_url ? (
+                  <img src={blog.image_url} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center text-charcoal/30">
+                    <ImageIcon className="h-8 w-8 mb-2" />
+                    <span className="text-[10px] uppercase tracking-wider font-bold">No Cover Image</span>
+                  </div>
+                )}
+                <span className={`absolute top-3 right-3 text-[9px] px-2.5 py-1 uppercase tracking-wider font-bold rounded-sm shadow-sm backdrop-blur-md ${blog.published ? 'bg-green-100/90 text-green-700' : 'bg-yellow-100/90 text-yellow-700'}`}>
+                  {blog.published ? 'Published' : 'Draft'}
+                </span>
+              </div>
+              
+              <div className="p-5 flex-1 flex flex-col">
+                <div className="text-[10px] text-[#8C6D40] font-bold uppercase tracking-wider mb-2">{blog.category || 'General'}</div>
+                <h3 className="font-display text-lg text-charcoal font-bold leading-tight mb-2 line-clamp-2">{blog.title}</h3>
+                <div className="text-[10px] text-charcoal/40 font-mono mb-3 truncate bg-charcoal/5 px-2 py-1 rounded-sm w-fit">/{blog.slug}</div>
+                <p className="text-xs text-charcoal/70 line-clamp-3 mt-auto">{blog.excerpt || 'No excerpt provided for this blog.'}</p>
+              </div>
+
+              <div className="bg-[#FAF8F5] border-t border-[#EBE3DB] flex items-stretch h-10">
+                <button 
+                  onClick={() => handleEdit(blog)} 
+                  className="flex items-center justify-center text-charcoal/60 hover:text-[#8C6D40] flex-1 hover:bg-[#8C6D40]/5 transition-colors"
+                  title="Edit Blog"
+                >
+                  <Edit className="h-4 w-4" />
+                </button>
+                <div className="w-px bg-[#EBE3DB]"></div>
+                <button 
+                  onClick={() => handleDelete(blog.id)} 
+                  className="flex items-center justify-center text-red-400 hover:text-red-600 flex-1 hover:bg-red-50 transition-colors"
+                  title="Delete Blog"
+                >
+                  <Trash className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

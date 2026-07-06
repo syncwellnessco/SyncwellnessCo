@@ -137,7 +137,7 @@ export default function ProfilePage() {
                         <p className="text-sm text-charcoal mb-6 line-clamp-2 leading-relaxed">{program.description}</p>
                         
                         <Link 
-                          href={`/programs/${program.id}/course`}
+                          href={`/programs/${program.slug || program.id}/course`}
                           className="text-[#8C6D40] hover:text-[#B8955F] uppercase tracking-[0.15em] text-[11px] font-semibold flex items-center gap-2 mt-auto self-start"
                         >
                           ACCESS COURSE <ArrowRight className="w-4 h-4" />

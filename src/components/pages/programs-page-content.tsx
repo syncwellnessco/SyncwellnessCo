@@ -8,14 +8,15 @@ import { MyProgramsSection } from "@/components/pages/my-programs-section";
 
 export async function ProgramsPageContent() {
   const programs = await getAllPrograms({ publishedOnly: true });
-  const featured = programs.find((p) => p.featured);
-  const others = programs.filter((p) => !p.featured);
+  const featuredPrograms = programs.filter((p) => p.featured).sort((a, b) => (a.featured_rank || 99) - (b.featured_rank || 99));
+  const featuredIds = featuredPrograms.map(p => p.id);
+  const others = programs.filter((p) => !featuredIds.includes(p.id));
 
   return (
-    <article className="pb-24">
+    <article className="pb-12">
       {/* Hero */}
       <section 
-        className="relative overflow-hidden bg-cover bg-center pt-32 pb-24 sm:pt-40 sm:pb-32"
+        className="relative overflow-hidden bg-cover bg-center pt-24 pb-12 sm:pt-32 sm:pb-16"
         style={{ backgroundImage: `url(https://res.cloudinary.com/daw1tscqr/image/upload/v1780733233/shadow-background_wbrsm4.jpg)` }}
       >
         <div className="absolute inset-0 bg-[#4A5D5E]/60 mix-blend-multiply" />
@@ -41,16 +42,16 @@ export async function ProgramsPageContent() {
       {/* My Programs */}
       <MyProgramsSection allPrograms={programs} />
 
-      {/* Featured Program */}
-      {featured && (
-        <section className="relative bg-cream py-24 border-b border-beige-200">
+      {/* Featured Programs */}
+      {featuredPrograms.map((featured, fIdx) => (
+        <section key={featured.id} className="relative bg-cream py-12 lg:py-16 border-b border-beige-200">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
               
               <div className="flex flex-col justify-center order-2 lg:order-2">
                 <div className="mb-6">
                   <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-charcoal mb-2">
-                    Our Featured Program
+                    #{fIdx + 1} Featured Program
                   </span>
                 </div>
                 
@@ -65,18 +66,15 @@ export async function ProgramsPageContent() {
                   {featured.description}
                 </p>
                 
-                <div className="flex items-center gap-3 mb-10">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-[#8C6D40] border border-[#A8895C]/30 px-3 py-1 rounded-sm">{featured.duration}</span>
-                </div>
-                
-                <div className="flex flex-col sm:flex-row gap-4 mt-auto">
-                  <Button asChild size="lg" className="w-full sm:w-auto bg-[#8C6D40] text-white hover:bg-[#B8955F] uppercase tracking-[0.15em] text-xs font-semibold h-14 px-10 rounded-sm border-0 transition-colors">
-                    <Link href={`/programs/${featured.id}`}>Explore Program</Link>
+                <div className="flex items-center justify-between mt-auto pt-4 border-t border-beige-200">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[#8C6D40]">{featured.duration}</span>
+                  <Button asChild size="lg" className="bg-[#8C6D40] text-white hover:bg-[#B8955F] uppercase tracking-[0.15em] text-[10px] font-bold h-12 px-8 rounded-sm border-0 transition-colors">
+                    <Link href={`/programs/${featured.slug || featured.id}`}>Explore Program</Link>
                   </Button>
                 </div>
               </div>
               
-              <div className="relative order-1 lg:order-1 aspect-[4/5] lg:aspect-auto lg:h-[600px] w-full rounded-sm overflow-hidden border border-beige-200 shadow-sm group">
+              <div className="relative order-1 lg:order-1 aspect-video w-full rounded-sm overflow-hidden border border-beige-200 shadow-sm group bg-cream flex items-center justify-center">
                 {featured.hero?.introVideo ? (
                    <>
                      <video 
@@ -88,9 +86,16 @@ export async function ProgramsPageContent() {
                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" 
                      />
                    </>
+                ) : featured.hero?.bannerImage ? (
+                  <img 
+                    src={featured.hero.bannerImage} 
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                    alt={featured.title} 
+                  />
                 ) : (
-                  <div className="absolute inset-0 bg-sage-50 flex items-center justify-center">
-                    <PlayCircle className="w-16 h-16 text-sage-200" />
+                  <div className="flex flex-col items-center justify-center text-sage-200">
+                    <Star className="w-16 h-16 mb-4 opacity-50" />
+                    <span className="font-display tracking-widest uppercase text-xs">Featured Program</span>
                   </div>
                 )}
               </div>
@@ -98,10 +103,10 @@ export async function ProgramsPageContent() {
             </div>
           </div>
         </section>
-      )}
+      ))}
 
       {/* Other Programs */}
-      <section className="py-24 bg-[#FAF9F7]">
+      <section className="py-12 lg:py-16 bg-[#FAF9F7]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeading eyebrow="More Options" title="Find Your Perfect Fit" align="center" />
           
@@ -148,7 +153,7 @@ export async function ProgramsPageContent() {
                     {program.pricing?.price ? `$${program.pricing.price}` : "Free"}
                   </span>
                   <Button asChild variant="ghost" className="group/btn text-[#8C6D40] hover:text-[#B8955F] hover:bg-transparent px-0 font-semibold tracking-wide uppercase text-xs">
-                    <Link href={`/programs/${program.id}`}>
+                    <Link href={`/programs/${program.slug || program.id}`}>
                       View Details
                       <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
                     </Link>

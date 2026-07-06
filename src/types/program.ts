@@ -16,7 +16,7 @@ export interface Program {
   status: "draft" | "published";
   featured: boolean;
   showOnHome?: boolean;
-  order: number;
+  featured_rank?: number;
 
   // --------------------------
   // PRICING
@@ -27,7 +27,6 @@ export interface Program {
     salePrice?: number;
 
     paymentType: "one-time" | "subscription" | "custom";
-    paymentLink?: string;
 
     installmentAvailable: boolean;
     installmentText?: string;
@@ -130,19 +129,6 @@ export interface Program {
   };
 
   // --------------------------
-  // TESTIMONIALS
-  // --------------------------
-  testimonials: {
-    name: string;
-    designation?: string;
-    image?: string;
-    testimonial: string;
-    successStory?: string;
-    beforeImage?: string;
-    afterImage?: string;
-  }[];
-
-  // --------------------------
   // QUIZ (Optional)
   // --------------------------
   quiz?: {
@@ -150,17 +136,6 @@ export interface Program {
     title: string;
     description?: string;
     quizLink?: string;
-  };
-
-  // --------------------------
-  // MEDIA
-  // --------------------------
-  media: {
-    bannerImages: string[];
-    gallery: string[];
-    videos: string[];
-    pdfs: string[];
-    resources: string[];
   };
 
   // --------------------------

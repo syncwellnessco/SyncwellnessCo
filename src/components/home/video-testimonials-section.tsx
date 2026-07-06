@@ -107,9 +107,11 @@ export function VideoTestimonialsSection() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
                     
                     {getProgramName(video.program_id) && (
-                      <span className="absolute left-3 top-3 rounded-full bg-charcoal/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-cream backdrop-blur-sm shadow-sm border border-white/10 z-10">
-                        {getProgramName(video.program_id)}
-                      </span>
+                      <div className="absolute left-3 top-3 right-3 flex">
+                        <span className="rounded bg-charcoal/80 px-2.5 py-1.5 text-[9px] font-semibold uppercase tracking-wider leading-tight text-cream backdrop-blur-md shadow-sm border border-white/10 z-10 line-clamp-2 max-w-full text-left">
+                          {getProgramName(video.program_id)}
+                        </span>
+                      </div>
                     )}
 
                     <div className="absolute inset-0 flex items-center justify-center">

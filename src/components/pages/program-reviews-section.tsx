@@ -53,6 +53,7 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeReview, setActiveReview] = useState<Review | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   // Form state
@@ -154,7 +155,11 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {reviews.map(r => (
-              <div key={r.id} className="bg-white p-6 rounded-2xl border border-beige-200 shadow-sm">
+              <div 
+                key={r.id} 
+                className="bg-white p-6 rounded-2xl border border-beige-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow hover:border-gold/30 group"
+                onClick={() => setActiveReview(r)}
+              >
                 <div className="flex items-center gap-2 mb-4">
                   <div className="h-10 w-10 rounded-full bg-gold/20 flex items-center justify-center font-display font-semibold text-gold">
                     {r.name.charAt(0).toUpperCase()}
@@ -166,13 +171,31 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
                     </div>
                   </div>
                 </div>
-                <p className="text-charcoal/80 text-sm leading-relaxed italic mb-4">"{r.testimonial}"</p>
-                {(r.before_image || r.after_image) && (
-                  <div className="flex gap-2 mt-4 pt-4 border-t border-beige-100">
-                    {r.before_image && <div className="flex-1 relative rounded overflow-hidden aspect-[4/5]"><img src={r.before_image} alt="Before" className="absolute inset-0 w-full h-full object-cover" /><span className="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded backdrop-blur-sm">Before</span></div>}
-                    {r.after_image && <div className="flex-1 relative rounded overflow-hidden aspect-[4/5]"><img src={r.after_image} alt="After" className="absolute inset-0 w-full h-full object-cover" /><span className="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded backdrop-blur-sm">After</span></div>}
+                <p className="text-charcoal/80 text-sm leading-relaxed italic mb-4 line-clamp-3">"{r.testimonial}"</p>
+                
+                <div className="mt-4 pt-4 border-t border-beige-100">
+                  <div className="relative rounded-md overflow-hidden w-80 max-w-full aspect-[1.6] flex bg-black/5 ring-1 ring-black/5">
+                    <div className="relative h-full w-1/2 bg-charcoal/5 flex items-center justify-center">
+                      {r.before_image ? (
+                        <img src={r.before_image} alt="Before" className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                      ) : (
+                        <Star className="h-6 w-6 text-charcoal/20" />
+                      )}
+                      <span className="absolute bottom-2 left-2 bg-black/60 text-white text-[9px] uppercase font-bold tracking-widest px-2 py-1 rounded-sm backdrop-blur-sm z-10">Before</span>
+                    </div>
+                    
+                    <div className="w-[1.5px] h-full bg-white relative z-10 shadow-[0_0_10px_rgba(0,0,0,0.3)]"></div>
+                    
+                    <div className="relative h-full w-1/2 bg-charcoal/5 flex items-center justify-center">
+                      {r.after_image ? (
+                        <img src={r.after_image} alt="After" className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                      ) : (
+                        <Star className="h-6 w-6 text-charcoal/20" />
+                      )}
+                      <span className="absolute bottom-2 right-2 bg-black/60 text-white text-[9px] uppercase font-bold tracking-widest px-2 py-1 rounded-sm backdrop-blur-sm z-10">After</span>
+                    </div>
                   </div>
-                )}
+                </div>
               </div>
             ))}
           </div>
@@ -244,6 +267,59 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
                   {submitting ? "Submitting..." : "Submit Review"}
                 </Button>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Review Read Modal */}
+      {activeReview && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-charcoal/80 backdrop-blur-sm overflow-y-auto" onClick={() => setActiveReview(null)}>
+          <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl relative my-8" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setActiveReview(null)} className="absolute top-4 right-4 text-charcoal/50 hover:text-charcoal z-10 bg-white/80 rounded-full p-1">
+              <X className="h-6 w-6" />
+            </button>
+            <div className="p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="h-12 w-12 rounded-full bg-gold/20 flex items-center justify-center font-display font-bold text-gold text-xl">
+                  {activeReview.name.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <h4 className="font-semibold text-lg text-charcoal">{activeReview.name}</h4>
+                  <div className="flex text-gold">
+                    {[...Array(5)].map((_, i) => <Star key={i} className={`h-4 w-4 ${i < (activeReview.rating || 5) ? 'fill-current' : 'text-gray-300'}`} />)}
+                  </div>
+                </div>
+              </div>
+              <p className="text-charcoal/90 text-base md:text-lg leading-relaxed italic mb-8 whitespace-pre-wrap">"{activeReview.testimonial}"</p>
+              
+              <div className="relative rounded-lg overflow-hidden w-full aspect-[1.6] flex bg-black/5 ring-1 ring-black/10">
+                <div className="relative h-full w-1/2 bg-charcoal/5 flex items-center justify-center">
+                  {activeReview.before_image ? (
+                    <img src={activeReview.before_image} alt="Before" className="absolute inset-0 w-full h-full object-cover" />
+                  ) : (
+                    <div className="flex flex-col items-center gap-2">
+                      <Star className="h-8 w-8 text-charcoal/20" />
+                      <span className="text-charcoal/40 text-xs font-bold uppercase tracking-widest">No Image</span>
+                    </div>
+                  )}
+                  <span className="absolute bottom-3 left-3 bg-black/70 text-white text-[10px] uppercase font-bold tracking-widest px-3 py-1.5 rounded-sm backdrop-blur-md z-10">Before</span>
+                </div>
+                
+                <div className="w-[1.5px] h-full bg-white relative z-10 shadow-[0_0_15px_rgba(0,0,0,0.3)]"></div>
+                
+                <div className="relative h-full w-1/2 bg-charcoal/5 flex items-center justify-center">
+                  {activeReview.after_image ? (
+                    <img src={activeReview.after_image} alt="After" className="absolute inset-0 w-full h-full object-cover" />
+                  ) : (
+                    <div className="flex flex-col items-center gap-2">
+                      <Star className="h-8 w-8 text-charcoal/20" />
+                      <span className="text-charcoal/40 text-xs font-bold uppercase tracking-widest">No Image</span>
+                    </div>
+                  )}
+                  <span className="absolute bottom-3 right-3 bg-black/70 text-white text-[10px] uppercase font-bold tracking-widest px-3 py-1.5 rounded-sm backdrop-blur-md z-10">After</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

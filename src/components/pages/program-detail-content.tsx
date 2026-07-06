@@ -8,14 +8,16 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/
 import { getProgram } from "@/lib/programs";
 import { HighlightCard } from "@/components/ui/highlight-card";
 import { BookingButton } from "@/components/ui/booking-button";
+import { ProgramHeroMedia } from "@/components/pages/program-hero-media";
 import { ProgramReviewsSection } from "@/components/pages/program-reviews-section";
 
 type ProgramDetailContentProps = {
-  id: string;
+  slug: string;
 };
 
-export async function ProgramDetailContent({ id }: ProgramDetailContentProps) {
-  const program = await getProgram(id);
+export async function ProgramDetailContent({ slug }: ProgramDetailContentProps) {
+  const { getProgramBySlug } = await import("@/lib/programs");
+  const program = await getProgramBySlug(slug);
 
   if (!program || program.status !== "published") {
     notFound();
@@ -25,7 +27,7 @@ export async function ProgramDetailContent({ id }: ProgramDetailContentProps) {
     <article className="pb-0">
       {/* Hero Section */}
       <section 
-        className="relative min-h-[90vh] flex items-center bg-cover bg-center overflow-hidden pt-32 pb-24"
+        className="relative min-h-[70vh] flex items-center bg-cover bg-center overflow-hidden pt-24 pb-12"
         style={{ backgroundImage: `url(https://res.cloudinary.com/daw1tscqr/image/upload/v1780733233/shadow-background_wbrsm4.jpg)` }}
       >
         <div className="absolute inset-0 bg-[#4A5D5E]/70 mix-blend-multiply" />
@@ -35,7 +37,7 @@ export async function ProgramDetailContent({ id }: ProgramDetailContentProps) {
             
             <div className="lg:col-span-7 flex flex-col justify-center">
               {program.category && (
-                <span className="mb-6 block text-[11px] font-semibold uppercase tracking-[0.2em] text-[#8C6D40]">
+                <span className="mb-6 w-fit bg-[#8C6D40] text-white px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] rounded-sm">
                   {program.category}
                 </span>
               )}
@@ -59,7 +61,7 @@ export async function ProgramDetailContent({ id }: ProgramDetailContentProps) {
 
               <div className="mt-12 flex flex-col sm:flex-row items-start sm:items-center gap-6">
                 <BookingButton 
-                  programId={program.id} 
+                  programId={program.slug || program.id} 
                   programName={program.title} 
                   className="w-full sm:w-auto bg-[#8C6D40] text-white hover:bg-white hover:text-charcoal uppercase tracking-[0.15em] text-[11px] font-bold h-14 px-10 rounded-none border-0 transition-all duration-300"
                 >
@@ -75,17 +77,11 @@ export async function ProgramDetailContent({ id }: ProgramDetailContentProps) {
             </div>
 
             <div className="lg:col-span-5 relative">
-              <div className="relative w-full aspect-[4/5] rounded-none overflow-hidden shadow-2xl ring-1 ring-white/10">
-                {program.hero?.introVideo ? (
-                  <video autoPlay muted loop playsInline className="absolute inset-0 h-full w-full object-cover" src={program.hero.introVideo} />
-                ) : (
-                  <div className="absolute inset-0 bg-charcoal/50 flex items-center justify-center">
-                    <span className="text-white/50 font-display">No media</span>
-                  </div>
-                )}
-              </div>
-              {/* Decorative element */}
-              <div className="absolute -bottom-6 -left-6 w-24 h-24 bg-[#8C6D40] rounded-none mix-blend-multiply opacity-50 blur-2xl" />
+              <ProgramHeroMedia 
+                videoUrl={program.hero?.introVideo} 
+                imageUrl={program.hero?.bannerImage} 
+                title={program.title} 
+              />
             </div>
 
           </div>
@@ -109,7 +105,7 @@ export async function ProgramDetailContent({ id }: ProgramDetailContentProps) {
       </section>
 
       {/* Is This For You? (The Problem) */}
-      <section className="py-24 lg:py-32 bg-[#FAF8F5]">
+      <section className="py-12 lg:py-16 bg-[#FAF8F5]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-start">
             <div className="lg:sticky lg:top-32">
@@ -136,9 +132,9 @@ export async function ProgramDetailContent({ id }: ProgramDetailContentProps) {
       </section>
 
       {/* Perfect For & Curriculum */}
-      <section className="py-24 lg:py-32 bg-white border-t border-[#EBE3DB]">
+      <section className="py-12 lg:py-16 bg-white border-t border-[#EBE3DB]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-20">
+          <div className="text-center max-w-3xl mx-auto mb-12">
             <span className="text-[#8C6D40] text-[11px] font-bold uppercase tracking-[0.2em] mb-4 block">The Solution</span>
             <h2 className="font-display text-4xl lg:text-[3.5rem] leading-[1.1] text-charcoal">
               A Better Way Forward
@@ -166,8 +162,8 @@ export async function ProgramDetailContent({ id }: ProgramDetailContentProps) {
               <h3 className="font-display text-3xl text-charcoal mb-8 border-b border-[#EBE3DB] pb-4">What's Included</h3>
               <div className="grid sm:grid-cols-2 gap-6">
                 {program.included?.map((feature, i) => (
-                  <div key={i} className="bg-[#FAF8F5] p-6 rounded-none">
-                    <div className="w-8 h-8 rounded-full bg-[#EBE3DB] flex items-center justify-center mb-4">
+                  <div key={i} className="bg-[#FAF8F5] p-6 flex items-center gap-4 rounded-none">
+                    <div className="w-8 h-8 rounded-full bg-[#EBE3DB] flex items-center justify-center shrink-0">
                       <Check className="h-4 w-4 text-[#8C6D40]" strokeWidth={2} />
                     </div>
                     <p className="text-[15px] text-charcoal font-medium leading-snug">{feature.title}</p>
@@ -200,7 +196,7 @@ export async function ProgramDetailContent({ id }: ProgramDetailContentProps) {
       {/* Program Timeline */}
       {program.structure?.weeks && program.structure.weeks.length > 0 && (
         <section 
-          className="relative py-24 lg:py-32 bg-cover bg-center overflow-hidden"
+          className="relative py-12 lg:py-16 bg-cover bg-center overflow-hidden"
           style={{ backgroundImage: `url(https://res.cloudinary.com/daw1tscqr/image/upload/v1780733233/shadow-background_wbrsm4.jpg)` }}
         >
           <div className="absolute inset-0 bg-[#4A5D5E]/90 mix-blend-multiply" />
@@ -228,7 +224,7 @@ export async function ProgramDetailContent({ id }: ProgramDetailContentProps) {
       )}
 
       {/* Outcomes & Methodology */}
-      <section className="py-24 bg-[#FAF8F5]">
+      <section className="py-12 lg:py-16 bg-[#FAF8F5]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid gap-8 md:grid-cols-2">
             <div className="bg-white p-10 lg:p-14 rounded-none shadow-sm border border-[#EBE3DB]">
@@ -249,7 +245,7 @@ export async function ProgramDetailContent({ id }: ProgramDetailContentProps) {
 
       {/* FAQ */}
       {program.faqs && program.faqs.length > 0 && (
-        <section className="py-24 bg-white border-t border-[#EBE3DB]">
+        <section className="py-12 lg:py-16 bg-white border-t border-[#EBE3DB]">
           <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <span className="text-[#8C6D40] text-[11px] font-bold uppercase tracking-[0.2em] mb-4 block">Clarity</span>
@@ -275,7 +271,7 @@ export async function ProgramDetailContent({ id }: ProgramDetailContentProps) {
       <ProgramReviewsSection programId={program.id} />
 
       {/* Final CTA */}
-      <section className="py-32 bg-[#EBE3DB]/40 text-center">
+      <section className="py-12 lg:py-16 bg-[#EBE3DB]/40 text-center">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
           <h2 className="font-display text-4xl lg:text-[4rem] leading-[1.1] font-medium text-charcoal mb-6">
             Ready to Transform?
@@ -285,7 +281,7 @@ export async function ProgramDetailContent({ id }: ProgramDetailContentProps) {
           </p>
           <div className="flex flex-col sm:flex-row justify-center items-center gap-6">
             <BookingButton 
-              programId={program.id} 
+              programId={program.slug || program.id} 
               programName={program.title} 
               className="bg-[#8C6D40] text-white hover:bg-charcoal uppercase tracking-[0.2em] text-[11px] font-bold h-16 px-12 rounded-none border-0 transition-all duration-300 w-full sm:w-auto"
             >

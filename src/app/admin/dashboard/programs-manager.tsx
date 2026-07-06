@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CldUploadWidget } from "next-cloudinary";
 import { optimizeCloudinaryUrl, deleteCloudinaryFile } from "@/lib/cloudinary-utils";
+
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 
 const CloudinaryUploader = ({ onUpload, label }: { onUpload: (url: string) => void, label: string }) => {
@@ -194,7 +195,7 @@ export function ProgramsManager() {
     { id: 'audience', label: 'Audience & Outcomes' },
     { id: 'structure', label: 'Structure & Method' },
     { id: 'content', label: 'Included & FAQs' },
-    { id: 'media', label: 'Media, SEO & More' },
+    { id: 'media', label: 'SEO & Enrollment' },
   ];
 
   useEffect(() => {
@@ -230,18 +231,18 @@ export function ProgramsManager() {
 
   const handleAddClick = () => {
     const newProg: Partial<Program> = {
-      title: "", slug: "", shortDescription: "", description: "", duration: "", format: "", category: "", status: "draft", order: 0,
+      title: "", slug: "", shortDescription: "", description: "", duration: "", format: "", category: "", status: "draft", featured_rank: 1,
       featured: false, showOnHome: false,
-      pricing: { price: 0, currency: "USD", paymentType: "one-time", installmentAvailable: false },
+      pricing: { price: 0, currency: "AUD", paymentType: "one-time", installmentAvailable: false },
       hero: { bannerImage: "", ctaText: "Join", ctaLink: "" },
       audience: { designedFor: [], notFor: [], idealClient: [] },
       problemsSolved: [],
       outcomes: { summary: "", physical: [], mental: [], lifestyle: [], wellness: [] },
-      included: [], bonuses: [],
-      structure: { weeks: [], coachingSchedule: "", sessionFrequency: "", supportStructure: "" },
+      included: [{ title: "" }], 
+      bonuses: [{ title: "" }],
+      structure: { weeks: [{ week: "Week 1", title: "", description: "" }], coachingSchedule: "", sessionFrequency: "", supportStructure: "" },
       methodology: { framework: "", process: "", whyItWorks: "", scientificBasis: "" },
       faqs: [], enrollment: { startDates: [], process: "", applicationProcess: "", paymentPlans: "" },
-      testimonials: [], media: { bannerImages: [], gallery: [], videos: [], pdfs: [], resources: [] },
       seo: { metaTitle: "", metaDescription: "", keywords: [] },
       quiz: { enabled: false, title: "" }
     };
@@ -266,10 +267,19 @@ export function ProgramsManager() {
   };
 
   const handleSave = async () => {
+    if (editForm.featured && editForm.featured_rank) {
+      const existing = programs.find(p => p.featured && p.featured_rank === editForm.featured_rank && p.id !== (isNew ? null : selectedProgram?.id) && !(p as any).isSeed);
+      if (existing) {
+        toast.error(`Rank ${editForm.featured_rank} is already assigned to "${existing.title}". Please choose a different rank.`);
+        return;
+      }
+    }
+
     setIsSaving(true);
     try {
-      const url = isNew ? '/api/programs' : `/api/programs/${selectedProgram?.id}`;
-      const method = isNew ? 'POST' : 'PUT';
+      const isActuallyNew = isNew || (selectedProgram as any)?.isSeed;
+      const url = isActuallyNew ? '/api/programs' : `/api/programs/${selectedProgram?.id}`;
+      const method = isActuallyNew ? 'POST' : 'PUT';
       
       const res = await fetch(url, {
         method,
@@ -344,53 +354,45 @@ export function ProgramsManager() {
         </div>
       </div>
       
-      <div className="overflow-x-auto border border-[#EBE3DB] rounded-md shadow-sm bg-white">
-        <table className="w-full text-left text-sm text-charcoal">
-          <thead className="bg-[#FAF8F5] text-charcoal/60 uppercase tracking-wider text-[10px]">
-            <tr>
-              <th className="px-4 py-3 font-semibold rounded-tl-md">Title</th>
-              <th className="px-4 py-3 font-semibold">Duration</th>
-              <th className="px-4 py-3 font-semibold">Price</th>
-              <th className="px-4 py-3 font-semibold">Status</th>
-              <th className="px-4 py-3 font-semibold text-right rounded-tr-md">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[#EBE3DB]">
-            {programs.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-charcoal/50">
-                  No programs found.
-                </td>
-              </tr>
-            ) : (
-              programs.map((prog) => (
-                <tr key={prog.id} className="hover:bg-[#FAF8F5]/50 transition-colors">
-                  <td className="px-4 py-4 font-medium">
-                    {prog.title}
-                    <div className="text-[10px] text-charcoal/50 font-normal uppercase tracking-wider mt-1">{prog.category}</div>
-                  </td>
-                  <td className="px-4 py-4">{prog.duration}</td>
-                  <td className="px-4 py-4">{prog.pricing?.price ? `${prog.pricing.currency} ${prog.pricing.price}` : "Free"}</td>
-                  <td className="px-4 py-4">
-                    <span className={`text-[10px] px-2 py-1 uppercase tracking-wider font-bold rounded-sm ${prog.status === 'published' ? 'bg-green-100 text-green-700' : 'bg-charcoal/10 text-charcoal/60'}`}>
-                      {prog.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4 text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button onClick={() => handleView(prog)} variant="ghost" size="sm" className="h-8 w-8 p-0 text-charcoal/50 hover:text-blue-500">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button onClick={() => setDeleteConfirmId(prog.id)} variant="ghost" size="sm" className="h-8 w-8 p-0 text-charcoal/50 hover:text-red-500">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {programs.length === 0 ? (
+          <div className="col-span-full py-12 text-center text-charcoal/50 border border-dashed border-[#EBE3DB] rounded-lg bg-white">
+            No programs found.
+          </div>
+        ) : (
+          programs.map((prog) => (
+            <div key={prog.id} className="bg-white border border-[#EBE3DB] rounded-lg shadow-sm hover:shadow-md transition-all flex flex-col overflow-hidden">
+              <div className="p-5 flex-1">
+                <div className="flex justify-between items-start mb-3">
+                  <span className={`text-[9px] px-2 py-1 uppercase tracking-wider font-bold rounded-sm ${prog.status === 'published' ? 'bg-green-100 text-green-700' : 'bg-charcoal/10 text-charcoal/60'}`}>
+                    {prog.status}
+                  </span>
+                  <span className="text-xs font-semibold text-[#8C6D40]">{prog.pricing?.price ? `${prog.pricing.currency} ${prog.pricing.price}` : "Free"}</span>
+                </div>
+                <h3 className="font-display text-lg text-charcoal font-bold mb-1">{prog.title}</h3>
+                <div className="text-[10px] text-charcoal/50 font-normal uppercase tracking-wider mb-3">{prog.category || "Uncategorized"} • {prog.duration || "No duration"}</div>
+                <p className="text-xs text-charcoal/70 line-clamp-2">{prog.shortDescription || 'No short description provided.'}</p>
+              </div>
+              <div className="bg-[#FAF8F5] border-t border-[#EBE3DB] flex items-stretch h-10">
+                <button 
+                  onClick={() => handleView(prog)} 
+                  className="flex items-center justify-center text-charcoal/60 hover:text-[#8C6D40] flex-1 hover:bg-[#8C6D40]/5 transition-colors"
+                  title="Edit Program"
+                >
+                  <Edit className="h-4 w-4" />
+                </button>
+                <div className="w-px bg-[#EBE3DB]"></div>
+                <button 
+                  onClick={() => setDeleteConfirmId(prog.id)} 
+                  className="flex items-center justify-center text-red-400 hover:text-red-600 flex-1 hover:bg-red-50 transition-colors"
+                  title="Delete Program"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {selectedProgram && (
@@ -447,9 +449,39 @@ export function ProgramsManager() {
                   )}
 
                   {activeTab === 'hero' && (
-                    <div className="bg-[#FAF8F5] p-4 rounded-sm border border-[#EBE3DB]">
-                      <h4 className="text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-3">Hero Section</h4>
-                      <DataDisplay data={selectedProgram.hero} />
+                    <div className="bg-[#FAF8F5] p-6 rounded-sm border border-[#EBE3DB] space-y-6">
+                      <div className="grid grid-cols-2 gap-6">
+                        <div>
+                          <h4 className="text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-3">Banner Image</h4>
+                          {selectedProgram.hero?.bannerImage ? (
+                            <img src={selectedProgram.hero.bannerImage} alt="Banner" className="w-full aspect-video object-cover rounded border border-[#EBE3DB] shadow-sm" />
+                          ) : <span className="text-sm text-charcoal/50">No image</span>}
+                        </div>
+                        <div>
+                          <h4 className="text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-3">Intro Video</h4>
+                          {selectedProgram.hero?.introVideo ? (
+                            <video src={selectedProgram.hero.introVideo} controls className="w-full aspect-video object-cover rounded border border-[#EBE3DB] shadow-sm bg-black" />
+                          ) : <span className="text-sm text-charcoal/50">No video</span>}
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-6">
+                        <div>
+                          <h4 className="text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Headline</h4>
+                          <p className="text-sm">{selectedProgram.hero?.headline || <span className="text-charcoal/50 italic">None</span>}</p>
+                        </div>
+                        <div>
+                          <h4 className="text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Subheadline</h4>
+                          <p className="text-sm">{selectedProgram.hero?.subheadline || <span className="text-charcoal/50 italic">None</span>}</p>
+                        </div>
+                        <div>
+                          <h4 className="text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">CTA Text</h4>
+                          <p className="text-sm">{selectedProgram.hero?.ctaText || <span className="text-charcoal/50 italic">None</span>}</p>
+                        </div>
+                        <div>
+                          <h4 className="text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">CTA Link</h4>
+                          <p className="text-sm">{selectedProgram.hero?.ctaLink || <span className="text-charcoal/50 italic">None</span>}</p>
+                        </div>
+                      </div>
                     </div>
                   )}
 
@@ -477,7 +509,7 @@ export function ProgramsManager() {
                   {activeTab === 'media' && (
                     <div className="bg-[#FAF8F5] p-4 rounded-sm border border-[#EBE3DB]">
                       <h4 className="text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-3">Media, SEO & More</h4>
-                      <DataDisplay data={{ media: selectedProgram.media, seo: selectedProgram.seo, enrollment: selectedProgram.enrollment, quiz: selectedProgram.quiz }} />
+                      <DataDisplay data={{ seo: selectedProgram.seo, enrollment: selectedProgram.enrollment, quiz: selectedProgram.quiz }} />
                     </div>
                   )}
                   
@@ -490,15 +522,11 @@ export function ProgramsManager() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="md:col-span-2">
                         <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Title</label>
-                        <input type="text" value={editForm.title || ''} onChange={e => setEditForm({...editForm, title: e.target.value})} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40]" />
-                      </div>
-                      <div>
-                        <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Slug</label>
-                        <input type="text" value={editForm.slug || ''} onChange={e => setEditForm({...editForm, slug: e.target.value})} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40]" placeholder="e.g. hormone-harmony" />
+                        <input type="text" value={editForm.title || ''} onChange={e => setEditForm({...editForm, title: e.target.value})} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40]" placeholder="e.g. The Hormone Harmony Program" />
                       </div>
                       <div>
                         <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Category</label>
-                        <input type="text" value={editForm.category || ''} onChange={e => setEditForm({...editForm, category: e.target.value})} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40]" />
+                        <input type="text" value={editForm.category || ''} onChange={e => setEditForm({...editForm, category: e.target.value})} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40]" placeholder="e.g. Women's Health, Fitness, Nutrition" />
                       </div>
                       <div>
                         <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Duration</label>
@@ -506,7 +534,7 @@ export function ProgramsManager() {
                       </div>
                       <div>
                         <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Format</label>
-                        <input type="text" value={editForm.format || ''} onChange={e => setEditForm({...editForm, format: e.target.value})} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40]" placeholder="e.g. 1:1 Online" />
+                        <input type="text" value={editForm.format || ''} onChange={e => setEditForm({...editForm, format: e.target.value})} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40]" placeholder="e.g. 1:1 Online Coaching" />
                       </div>
                       <div>
                         <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Status</label>
@@ -515,10 +543,6 @@ export function ProgramsManager() {
                           <option value="published">Published</option>
                         </select>
                       </div>
-                      <div>
-                        <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Order</label>
-                        <input type="number" value={editForm.order || 0} onChange={e => setEditForm({...editForm, order: parseInt(e.target.value) || 0})} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40]" />
-                      </div>
                       <div className="md:col-span-2 flex flex-col sm:flex-row items-start sm:items-center gap-6">
                         <div className="flex items-center gap-2">
                           <input type="checkbox" id="featured" checked={editForm.featured || false} onChange={e => {
@@ -526,6 +550,29 @@ export function ProgramsManager() {
                           }} className="w-4 h-4 text-[#8C6D40]" />
                           <label htmlFor="featured" className="text-[10px] uppercase font-bold tracking-wider text-[#8C6D40]">Featured Program</label>
                         </div>
+                        {editForm.featured && (
+                          <div className="flex items-center gap-2">
+                            <label htmlFor="featured_rank" className="text-[10px] uppercase font-bold tracking-wider text-[#8C6D40]">Featured Rank</label>
+                            <input 
+                              type="number" 
+                              id="featured_rank" 
+                              min="1" 
+                              value={editForm.featured_rank === undefined ? '' : editForm.featured_rank} 
+                              onChange={e => {
+                                const val = e.target.value;
+                                if (val === '') {
+                                  setEditForm({...editForm, featured_rank: undefined as any});
+                                } else {
+                                  const num = parseInt(val);
+                                  if (!isNaN(num) && num >= 1) {
+                                    setEditForm({...editForm, featured_rank: num});
+                                  }
+                                }
+                              }} 
+                              className="w-12 text-sm border border-[#EBE3DB] p-1.5 rounded-sm focus:outline-none focus:border-[#8C6D40] text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
+                            />
+                          </div>
+                        )}
                         <div className="flex items-center gap-2">
                           <input type="checkbox" id="showOnHome" disabled={editForm.featured} checked={editForm.featured ? true : (editForm.showOnHome || false)} onChange={e => setEditForm({...editForm, showOnHome: e.target.checked})} className="w-4 h-4 text-[#8C6D40] disabled:opacity-50" />
                           <label htmlFor="showOnHome" className="text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] disabled:opacity-50">Show on Home Page</label>
@@ -533,11 +580,11 @@ export function ProgramsManager() {
                       </div>
                       <div className="md:col-span-2">
                         <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Short Description</label>
-                        <textarea value={editForm.shortDescription || ''} onChange={e => setEditForm({...editForm, shortDescription: e.target.value})} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm min-h-[80px] focus:outline-none focus:border-[#8C6D40]" />
+                        <textarea value={editForm.shortDescription || ''} onChange={e => setEditForm({...editForm, shortDescription: e.target.value})} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm min-h-[80px] focus:outline-none focus:border-[#8C6D40]" placeholder="e.g. A quick 2-sentence summary of what this program delivers." />
                       </div>
                       <div className="md:col-span-2">
                         <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Full Description</label>
-                        <textarea value={editForm.description || ''} onChange={e => setEditForm({...editForm, description: e.target.value})} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm min-h-[120px] focus:outline-none focus:border-[#8C6D40]" />
+                        <textarea value={editForm.description || ''} onChange={e => setEditForm({...editForm, description: e.target.value})} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm min-h-[120px] focus:outline-none focus:border-[#8C6D40]" placeholder="e.g. Describe the full journey. What will they experience? Why does it matter?" />
                       </div>
                     </div>
                   )}
@@ -546,16 +593,12 @@ export function ProgramsManager() {
                   {activeTab === 'pricing' && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                        <div>
-                        <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Price</label>
-                        <input type="number" value={editForm.pricing?.price || 0} onChange={e => updateNested(['pricing', 'price'], parseFloat(e.target.value) || 0)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40]" />
+                        <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Price (AUD)</label>
+                        <input type="number" value={editForm.pricing?.price === undefined ? '' : editForm.pricing.price} onChange={e => updateNested(['pricing', 'price'], e.target.value === '' ? undefined : parseFloat(e.target.value))} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40]" placeholder="e.g. 499" />
                       </div>
                       <div>
-                        <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Sale Price</label>
-                        <input type="number" value={editForm.pricing?.salePrice || ''} onChange={e => updateNested(['pricing', 'salePrice'], parseFloat(e.target.value) || undefined)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40]" />
-                      </div>
-                      <div>
-                        <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Currency</label>
-                        <input type="text" value={editForm.pricing?.currency || 'USD'} onChange={e => updateNested(['pricing', 'currency'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40]" />
+                        <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Sale Price (AUD)</label>
+                        <input type="number" value={editForm.pricing?.salePrice === undefined ? '' : editForm.pricing.salePrice} onChange={e => updateNested(['pricing', 'salePrice'], e.target.value === '' ? undefined : parseFloat(e.target.value))} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40]" placeholder="e.g. 399" />
                       </div>
                       <div>
                         <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Payment Type</label>
@@ -564,10 +607,6 @@ export function ProgramsManager() {
                           <option value="subscription">Subscription</option>
                           <option value="custom">Custom</option>
                         </select>
-                      </div>
-                      <div className="md:col-span-2">
-                        <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Payment Link (URL)</label>
-                        <input type="text" value={editForm.pricing?.paymentLink || ''} onChange={e => updateNested(['pricing', 'paymentLink'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40]" />
                       </div>
                       <div className="md:col-span-2 flex items-center gap-2">
                         <input type="checkbox" id="installments" checked={editForm.pricing?.installmentAvailable || false} onChange={e => updateNested(['pricing', 'installmentAvailable'], e.target.checked)} className="w-4 h-4 text-[#8C6D40]" />
@@ -587,44 +626,62 @@ export function ProgramsManager() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                        <div className="md:col-span-2">
                         <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Hero Headline</label>
-                        <input type="text" value={editForm.hero?.headline || ''} onChange={e => updateNested(['hero', 'headline'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40]" />
+                        <input type="text" value={editForm.hero?.headline || ''} onChange={e => updateNested(['hero', 'headline'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40]" placeholder="e.g. Master Your Hormones Naturally" />
                       </div>
                       <div className="md:col-span-2">
                         <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Hero Subheadline</label>
-                        <textarea value={editForm.hero?.subheadline || ''} onChange={e => updateNested(['hero', 'subheadline'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40] min-h-[80px]" />
+                        <textarea value={editForm.hero?.subheadline || ''} onChange={e => updateNested(['hero', 'subheadline'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40] min-h-[80px]" placeholder="e.g. A 12-week comprehensive program designed to restore your energy and balance your body..." />
                       </div>
-                      <div className="md:col-span-2">
-                        <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Banner Image URL</label>
-                        {editForm.hero?.bannerImage ? (
-                          <div className="flex gap-2 items-center text-xs bg-[#FAF8F5] p-2 rounded border border-[#EBE3DB]">
-                            {(editForm.hero.bannerImage.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) || editForm.hero.bannerImage.includes('res.cloudinary.com/daw1tscqr/image')) ? (
-                              <img src={editForm.hero.bannerImage} alt="" className="h-10 w-16 object-cover rounded-sm border border-[#EBE3DB]" />
-                            ) : null}
-                            <span className="truncate flex-1">{editForm.hero.bannerImage}</span>
-                            <button type="button" onClick={() => updateNested(['hero', 'bannerImage'], '')} className="text-red-500"><MinusCircle className="w-4 h-4" /></button>
-                          </div>
-                        ) : (
-                          <CloudinaryUploader label="Upload Banner Image" onUpload={(url) => updateNested(['hero', 'bannerImage'], url)} />
-                        )}
+                      
+                      <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Banner Image Box */}
+                        <div className="border-2 border-dashed border-[#8C6D40]/30 p-8 rounded-lg bg-[#FAF8F5] flex flex-col items-center justify-center text-center transition-colors hover:border-[#8C6D40]/60 hover:bg-[#8C6D40]/5">
+                          <label className="block text-xs uppercase font-bold tracking-widest text-[#8C6D40] mb-4">Banner Image</label>
+                          {editForm.hero?.bannerImage ? (
+                            <div className="flex flex-col items-center gap-3 w-full">
+                              {(editForm.hero.bannerImage.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) || editForm.hero.bannerImage.includes('res.cloudinary.com/daw1tscqr/image')) ? (
+                                <img src={editForm.hero.bannerImage} alt="" className="h-32 w-auto object-cover rounded-md border border-[#EBE3DB] shadow-sm" />
+                              ) : null}
+                              <span className="text-[10px] text-charcoal/60 truncate max-w-full px-4">{editForm.hero.bannerImage}</span>
+                              <Button type="button" variant="outline" size="sm" onClick={() => updateNested(['hero', 'bannerImage'], '')} className="text-red-500 border-red-200 hover:bg-red-50">
+                                <Trash2 className="w-3 h-3 mr-1" /> Remove Image
+                              </Button>
+                            </div>
+                          ) : (
+                            <>
+                              <p className="text-[11px] text-charcoal/50 mb-4 max-w-[200px]">Upload a high-quality, wide image to feature at the top of the program page.</p>
+                              <CloudinaryUploader label="Upload Image" onUpload={(url) => updateNested(['hero', 'bannerImage'], url)} />
+                            </>
+                          )}
+                        </div>
+
+                        {/* Intro Video Box */}
+                        <div className="border-2 border-dashed border-[#8C6D40]/30 p-8 rounded-lg bg-[#FAF8F5] flex flex-col items-center justify-center text-center transition-colors hover:border-[#8C6D40]/60 hover:bg-[#8C6D40]/5">
+                          <label className="block text-xs uppercase font-bold tracking-widest text-[#8C6D40] mb-4">Intro Video (Optional)</label>
+                          {editForm.hero?.introVideo ? (
+                            <div className="flex flex-col items-center gap-3 w-full">
+                              <video src={editForm.hero.introVideo} className="h-32 w-auto object-cover rounded-md border border-[#EBE3DB] shadow-sm bg-black" controls />
+                              <span className="text-[10px] text-charcoal/60 truncate max-w-full px-4">{editForm.hero.introVideo}</span>
+                              <Button type="button" variant="outline" size="sm" onClick={() => updateNested(['hero', 'introVideo'], '')} className="text-red-500 border-red-200 hover:bg-red-50">
+                                <Trash2 className="w-3 h-3 mr-1" /> Remove Video
+                              </Button>
+                            </div>
+                          ) : (
+                            <>
+                              <p className="text-[11px] text-charcoal/50 mb-4 max-w-[200px]">Upload an introductory video message for potential clients.</p>
+                              <CloudinaryUploader label="Upload Video" onUpload={(url) => updateNested(['hero', 'introVideo'], url)} />
+                            </>
+                          )}
+                        </div>
                       </div>
-                      <div className="md:col-span-2">
-                        <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Intro Video URL</label>
-                        {editForm.hero?.introVideo ? (
-                          <div className="flex gap-2 items-center text-xs bg-[#FAF8F5] p-2 rounded border border-[#EBE3DB]">
-                            <span className="truncate flex-1">{editForm.hero.introVideo}</span>
-                            <button type="button" onClick={() => updateNested(['hero', 'introVideo'], '')} className="text-red-500"><MinusCircle className="w-4 h-4" /></button>
-                          </div>
-                        ) : (
-                          <CloudinaryUploader label="Upload Intro Video" onUpload={(url) => updateNested(['hero', 'introVideo'], url)} />
-                        )}
-                      </div>
+
                       <div>
                         <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">CTA Text</label>
-                        <input type="text" value={editForm.hero?.ctaText || ''} onChange={e => updateNested(['hero', 'ctaText'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40]" />
+                        <input type="text" value={editForm.hero?.ctaText || ''} onChange={e => updateNested(['hero', 'ctaText'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40]" placeholder="e.g. Join the Program" />
                       </div>
                       <div>
                         <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">CTA Link</label>
-                        <input type="text" value={editForm.hero?.ctaLink || ''} onChange={e => updateNested(['hero', 'ctaLink'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40]" />
+                        <input type="text" value={editForm.hero?.ctaLink || ''} onChange={e => updateNested(['hero', 'ctaLink'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40]" placeholder="e.g. https://calendly.com/your-link" />
                       </div>
                     </div>
                   )}
@@ -633,22 +690,22 @@ export function ProgramsManager() {
                   {activeTab === 'audience' && (
                     <div className="space-y-8">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <ArrayTextEditor label="Designed For" value={editForm.audience?.designedFor || []} onChange={v => updateNested(['audience', 'designedFor'], v)} />
-                        <ArrayTextEditor label="Not For" value={editForm.audience?.notFor || []} onChange={v => updateNested(['audience', 'notFor'], v)} />
-                        <ArrayTextEditor label="Ideal Client" value={editForm.audience?.idealClient || []} onChange={v => updateNested(['audience', 'idealClient'], v)} />
-                        <ArrayTextEditor label="Problems Solved" value={editForm.problemsSolved || []} onChange={v => setEditForm({...editForm, problemsSolved: v})} />
+                        <ArrayTextEditor label="Designed For" value={editForm.audience?.designedFor || []} onChange={v => updateNested(['audience', 'designedFor'], v)} placeholder="e.g. Women struggling with low energy" />
+                        <ArrayTextEditor label="Not For" value={editForm.audience?.notFor || []} onChange={v => updateNested(['audience', 'notFor'], v)} placeholder="e.g. Those looking for a quick fix" />
+                        <ArrayTextEditor label="Ideal Client" value={editForm.audience?.idealClient || []} onChange={v => updateNested(['audience', 'idealClient'], v)} placeholder="e.g. Ambitious women ready to reclaim their health" />
+                        <ArrayTextEditor label="Problems Solved" value={editForm.problemsSolved || []} onChange={v => setEditForm({...editForm, problemsSolved: v})} placeholder="e.g. Stubborn weight gain, brain fog, fatigue" />
                       </div>
                       <hr className="border-[#EBE3DB]" />
                       <h4 className="font-bold text-charcoal">Outcomes</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="md:col-span-2">
                           <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Outcomes Summary</label>
-                          <textarea value={editForm.outcomes?.summary || ''} onChange={e => updateNested(['outcomes', 'summary'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm min-h-[80px]" />
+                          <textarea value={editForm.outcomes?.summary || ''} onChange={e => updateNested(['outcomes', 'summary'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm min-h-[80px]" placeholder="e.g. By the end of this program, you will experience a complete transformation..." />
                         </div>
-                        <ArrayTextEditor label="Physical Outcomes" value={editForm.outcomes?.physical || []} onChange={v => updateNested(['outcomes', 'physical'], v)} />
-                        <ArrayTextEditor label="Mental Outcomes" value={editForm.outcomes?.mental || []} onChange={v => updateNested(['outcomes', 'mental'], v)} />
-                        <ArrayTextEditor label="Lifestyle Outcomes" value={editForm.outcomes?.lifestyle || []} onChange={v => updateNested(['outcomes', 'lifestyle'], v)} />
-                        <ArrayTextEditor label="Wellness Outcomes" value={editForm.outcomes?.wellness || []} onChange={v => updateNested(['outcomes', 'wellness'], v)} />
+                        <ArrayTextEditor label="Physical Outcomes" value={editForm.outcomes?.physical || []} onChange={v => updateNested(['outcomes', 'physical'], v)} placeholder="e.g. Increased energy levels" />
+                        <ArrayTextEditor label="Mental Outcomes" value={editForm.outcomes?.mental || []} onChange={v => updateNested(['outcomes', 'mental'], v)} placeholder="e.g. Enhanced mental clarity" />
+                        <ArrayTextEditor label="Lifestyle Outcomes" value={editForm.outcomes?.lifestyle || []} onChange={v => updateNested(['outcomes', 'lifestyle'], v)} placeholder="e.g. Better sleep quality" />
+                        <ArrayTextEditor label="Wellness Outcomes" value={editForm.outcomes?.wellness || []} onChange={v => updateNested(['outcomes', 'wellness'], v)} placeholder="e.g. Deep understanding of your body" />
                       </div>
                     </div>
                   )}
@@ -659,15 +716,15 @@ export function ProgramsManager() {
                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
                           <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Coaching Schedule</label>
-                          <input type="text" value={editForm.structure?.coachingSchedule || ''} onChange={e => updateNested(['structure', 'coachingSchedule'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm" />
+                          <input type="text" value={editForm.structure?.coachingSchedule || ''} onChange={e => updateNested(['structure', 'coachingSchedule'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm" placeholder="e.g. Weekly calls on Tuesdays" />
                         </div>
                         <div>
                           <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Session Frequency</label>
-                          <input type="text" value={editForm.structure?.sessionFrequency || ''} onChange={e => updateNested(['structure', 'sessionFrequency'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm" />
+                          <input type="text" value={editForm.structure?.sessionFrequency || ''} onChange={e => updateNested(['structure', 'sessionFrequency'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm" placeholder="e.g. 1 hour per week" />
                         </div>
                         <div>
                           <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Support Structure</label>
-                          <input type="text" value={editForm.structure?.supportStructure || ''} onChange={e => updateNested(['structure', 'supportStructure'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm" />
+                          <input type="text" value={editForm.structure?.supportStructure || ''} onChange={e => updateNested(['structure', 'supportStructure'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm" placeholder="e.g. Unlimited text support via WhatsApp" />
                         </div>
                       </div>
 
@@ -687,19 +744,19 @@ export function ProgramsManager() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                          <div>
                           <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Framework</label>
-                          <textarea value={editForm.methodology?.framework || ''} onChange={e => updateNested(['methodology', 'framework'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm h-24" />
+                          <textarea value={editForm.methodology?.framework || ''} onChange={e => updateNested(['methodology', 'framework'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm h-24" placeholder="e.g. The 4-Phase Sync Protocol" />
                         </div>
                         <div>
                           <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Process</label>
-                          <textarea value={editForm.methodology?.process || ''} onChange={e => updateNested(['methodology', 'process'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm h-24" />
+                          <textarea value={editForm.methodology?.process || ''} onChange={e => updateNested(['methodology', 'process'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm h-24" placeholder="e.g. Step 1: Assessment, Step 2: Detox..." />
                         </div>
                         <div>
                           <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Why It Works</label>
-                          <textarea value={editForm.methodology?.whyItWorks || ''} onChange={e => updateNested(['methodology', 'whyItWorks'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm h-24" />
+                          <textarea value={editForm.methodology?.whyItWorks || ''} onChange={e => updateNested(['methodology', 'whyItWorks'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm h-24" placeholder="e.g. Addresses the root cause instead of masking symptoms." />
                         </div>
                         <div>
                           <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Scientific Basis</label>
-                          <textarea value={editForm.methodology?.scientificBasis || ''} onChange={e => updateNested(['methodology', 'scientificBasis'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm h-24" />
+                          <textarea value={editForm.methodology?.scientificBasis || ''} onChange={e => updateNested(['methodology', 'scientificBasis'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm h-24" placeholder="e.g. Backed by functional medicine principles and gut microbiome research." />
                         </div>
                       </div>
                     </div>
@@ -713,9 +770,7 @@ export function ProgramsManager() {
                         items={editForm.included || []} 
                         onChange={v => setEditForm({...editForm, included: v})}
                         fields={[
-                          {key: 'title', label: 'Title', type: 'text'},
-                          {key: 'description', label: 'Description', type: 'textarea'},
-                          {key: 'icon', label: 'Icon (Optional)', type: 'text'}
+                          {key: 'title', label: 'Title', type: 'text'}
                         ]} 
                       />
 
@@ -726,8 +781,7 @@ export function ProgramsManager() {
                         items={editForm.bonuses || []} 
                         onChange={v => setEditForm({...editForm, bonuses: v})}
                         fields={[
-                          {key: 'title', label: 'Title', type: 'text'},
-                          {key: 'description', label: 'Description', type: 'textarea'}
+                          {key: 'title', label: 'Title', type: 'text'}
                         ]} 
                       />
 
@@ -745,64 +799,38 @@ export function ProgramsManager() {
                     </div>
                   )}
 
-                  {/* EDIT MODE: MEDIA, SEO & TESTIMONIALS */}
+                  {/* EDIT MODE: SEO & ENROLLMENT */}
                   {activeTab === 'media' && (
                     <div className="space-y-8">
-                      <ObjectArrayEditor 
-                        title="Testimonials" 
-                        items={editForm.testimonials || []} 
-                        onChange={v => setEditForm({...editForm, testimonials: v})}
-                        fields={[
-                          {key: 'name', label: 'Name', type: 'text'},
-                          {key: 'designation', label: 'Designation (Optional)', type: 'text'},
-                          {key: 'testimonial', label: 'Testimonial', type: 'textarea'},
-                          {key: 'image', label: 'Image URL', type: 'image'},
-                          {key: 'beforeImage', label: 'Before Image URL', type: 'image'},
-                          {key: 'afterImage', label: 'After Image URL', type: 'image'},
-                          {key: 'successStory', label: 'Success Story URL (Optional)', type: 'text'}
-                        ]} 
-                      />
-
-                      <hr className="border-[#EBE3DB]" />
-                      <h4 className="font-bold text-charcoal">Media Gallery (URLs)</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <ArrayMediaEditor label="Banner Images" value={editForm.media?.bannerImages || []} onChange={v => updateNested(['media', 'bannerImages'], v)} />
-                        <ArrayMediaEditor label="Gallery Images" value={editForm.media?.gallery || []} onChange={v => updateNested(['media', 'gallery'], v)} />
-                        <ArrayMediaEditor label="Videos" value={editForm.media?.videos || []} onChange={v => updateNested(['media', 'videos'], v)} />
-                        <ArrayMediaEditor label="Resources/PDFs" value={editForm.media?.resources || []} onChange={v => updateNested(['media', 'resources'], v)} />
-                        <ArrayMediaEditor label="PDFs (Legacy)" value={editForm.media?.pdfs || []} onChange={v => updateNested(['media', 'pdfs'], v)} />
-                      </div>
-
-                      <hr className="border-[#EBE3DB]" />
                       <h4 className="font-bold text-charcoal">SEO & Enrollment</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                          <div>
                           <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Meta Title</label>
-                          <input type="text" value={editForm.seo?.metaTitle || ''} onChange={e => updateNested(['seo', 'metaTitle'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40]" />
+                          <input type="text" value={editForm.seo?.metaTitle || ''} onChange={e => updateNested(['seo', 'metaTitle'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40]" placeholder="e.g. Syncwellness | The Hormone Harmony Program" />
                         </div>
                         <div>
                           <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Meta Description</label>
-                          <input type="text" value={editForm.seo?.metaDescription || ''} onChange={e => updateNested(['seo', 'metaDescription'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40]" />
+                          <input type="text" value={editForm.seo?.metaDescription || ''} onChange={e => updateNested(['seo', 'metaDescription'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40]" placeholder="e.g. Discover a 12-week program designed to balance your hormones..." />
                         </div>
                         <div className="md:col-span-2">
-                           <ArrayTextEditor label="SEO Keywords" value={editForm.seo?.keywords || []} onChange={v => updateNested(['seo', 'keywords'], v)} />
+                           <ArrayTextEditor label="SEO Keywords" value={editForm.seo?.keywords || []} onChange={v => updateNested(['seo', 'keywords'], v)} placeholder="e.g. hormone balancing program, natural healing" />
                         </div>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                         <div className="md:col-span-2">
-                           <ArrayTextEditor label="Start Dates (Enrollment)" value={editForm.enrollment?.startDates || []} onChange={v => updateNested(['enrollment', 'startDates'], v)} />
+                           <ArrayTextEditor label="Start Dates (Enrollment)" value={editForm.enrollment?.startDates || []} onChange={v => updateNested(['enrollment', 'startDates'], v)} placeholder="e.g. October 1st, 2024" />
                         </div>
                          <div>
                           <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Enrollment Process</label>
-                          <textarea value={editForm.enrollment?.process || ''} onChange={e => updateNested(['enrollment', 'process'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm h-24" />
+                          <textarea value={editForm.enrollment?.process || ''} onChange={e => updateNested(['enrollment', 'process'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm h-24" placeholder="e.g. 1. Apply, 2. Consultation, 3. Start" />
                         </div>
                         <div>
                           <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Application Process</label>
-                          <textarea value={editForm.enrollment?.applicationProcess || ''} onChange={e => updateNested(['enrollment', 'applicationProcess'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm h-24" />
+                          <textarea value={editForm.enrollment?.applicationProcess || ''} onChange={e => updateNested(['enrollment', 'applicationProcess'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm h-24" placeholder="e.g. Fill out the application form linked below to see if we're a good fit." />
                         </div>
                         <div className="md:col-span-2">
                           <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Payment Plans (Text)</label>
-                          <textarea value={editForm.enrollment?.paymentPlans || ''} onChange={e => updateNested(['enrollment', 'paymentPlans'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm h-24" />
+                          <textarea value={editForm.enrollment?.paymentPlans || ''} onChange={e => updateNested(['enrollment', 'paymentPlans'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm h-24" placeholder="e.g. We offer flexible payment plans. Pay in full for a discount, or split it into 3 payments." />
                         </div>
                       </div>
 
