@@ -81,59 +81,64 @@ export function VideoTestimonialsSection() {
         />
       </div>
 
-      <div className="relative overflow-hidden w-full flex items-center group py-4">
-        <div className="flex gap-4 sm:gap-6 w-max animate-marquee-reverse group-hover:[animation-play-state:paused]">
-          {[...videos, ...videos, ...videos].map((video, index) => (
-            <div
-              key={`${video.id}-${index}`}
-              className="w-[240px] sm:w-[280px] shrink-0"
-            >
-              <article
-                className="group cursor-pointer overflow-hidden rounded-2xl border border-beige-200 bg-cream shadow-sm transition-all duration-500 hover:shadow-xl hover:-translate-y-1 relative aspect-[9/16] bg-black"
-                onClick={() => setActiveVideo(video)}
-                role="button"
-                tabIndex={0}
-              >
-                <video 
-                  src={video.video_url} 
-                  className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500 group-hover:scale-105"
-                  preload="metadata"
-                  muted
-                  playsInline
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
-                
-                {getProgramName(video.program_id) && (
-                  <span className="absolute left-3 top-3 rounded-full bg-charcoal/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-cream backdrop-blur-sm shadow-sm border border-white/10 z-10">
-                    {getProgramName(video.program_id)}
-                  </span>
-                )}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="relative overflow-hidden w-full flex items-center group py-4 mt-2 sm:mt-4">
+          <div className="flex gap-4 sm:gap-6 w-max animate-marquee-reverse group-hover:[animation-play-state:paused]">
+            {Array.from({ length: Math.max(12, videos.length * 4) }).map((_, i) => {
+              const video = videos[i % videos.length];
+              return (
+                <div
+                  key={`${video.id}-${i}`}
+                  className="w-[240px] sm:w-[280px] shrink-0"
+                >
+                  <article
+                    className="group cursor-pointer overflow-hidden rounded-2xl border border-beige-200 bg-cream shadow-sm transition-all duration-500 hover:shadow-xl hover:-translate-y-1 relative aspect-[9/16] bg-black"
+                    onClick={() => setActiveVideo(video)}
+                    role="button"
+                    tabIndex={0}
+                  >
+                    <video 
+                      src={video.video_url} 
+                      className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500 group-hover:scale-105"
+                      preload="metadata"
+                      muted
+                      playsInline
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
+                    
+                    {getProgramName(video.program_id) && (
+                      <span className="absolute left-3 top-3 rounded-full bg-charcoal/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-cream backdrop-blur-sm shadow-sm border border-white/10 z-10">
+                        {getProgramName(video.program_id)}
+                      </span>
+                    )}
 
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-md shadow-lg transition-transform group-hover:scale-110 border border-white/30">
-                    <Play className="ml-1 h-6 w-6 fill-white text-white" />
-                  </div>
-                </div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-md shadow-lg transition-transform group-hover:scale-110 border border-white/30">
+                        <Play className="ml-1 h-6 w-6 fill-white text-white" />
+                      </div>
+                    </div>
 
-                <div className="absolute bottom-0 inset-x-0 p-4">
-                  <h4 className="text-white font-bold text-sm drop-shadow-md mb-1">{video.name}</h4>
-                  <p className="text-white/90 font-medium text-xs drop-shadow-md line-clamp-2 leading-snug">
-                    {video.caption}
-                  </p>
+                    <div className="absolute bottom-0 inset-x-0 p-4">
+                      <h4 className="text-white font-bold text-sm drop-shadow-md mb-1">{video.name}</h4>
+                      <p className="text-white/90 font-medium text-xs drop-shadow-md line-clamp-2 leading-snug">
+                        {video.caption}
+                      </p>
+                    </div>
+                  </article>
                 </div>
-              </article>
-            </div>
-          ))}
+              );
+            })}
+          </div>
+          <style jsx>{`
+            @keyframes marquee-reverse {
+              0% { transform: translateX(calc(-50% - 12px)); }
+              100% { transform: translateX(0%); }
+            }
+            .animate-marquee-reverse {
+              animation: marquee-reverse 30s linear infinite;
+            }
+          `}</style>
         </div>
-        <style jsx>{`
-          @keyframes marquee-reverse {
-            0% { transform: translateX(-33.333333%); }
-            100% { transform: translateX(0%); }
-          }
-          .animate-marquee-reverse {
-            animation: marquee-reverse 20s linear infinite;
-          }
-        `}</style>
       </div>
 
       <AnimatePresence>
