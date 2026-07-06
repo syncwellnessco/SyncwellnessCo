@@ -42,6 +42,7 @@ export async function POST(request: NextRequest) {
   const now = new Date().toISOString();
   const post: BlogPost = {
     id: body.id ?? slugify(body.title),
+    slug: slugify(body.title),
     title: body.title,
     excerpt: body.excerpt ?? body.content.slice(0, 160),
     content: body.content,
