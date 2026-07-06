@@ -91,7 +91,7 @@ export default async function ResourcesHubPage() {
             {latestBlogs.map(blog => (
               <Link 
                 key={blog.id} 
-                href={`/resources/blogs/${blog.id}`}
+                href={`/resources/blogs/${blog.slug || blog.id}`}
                 className="group flex flex-col bg-[#FAF8F5] border border-[#EBE3DB] rounded-sm overflow-hidden hover:-translate-y-1 transition-transform"
               >
                 {blog.image ? (

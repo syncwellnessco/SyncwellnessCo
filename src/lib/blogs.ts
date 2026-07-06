@@ -17,7 +17,8 @@ export async function getAllBlogPosts(options?: {
   if (error || !data) return [];
   
   return data.map((d: any) => ({
-    id: d.slug, // mapping slug to id to keep routes clean
+    id: d.id || d.slug,
+    slug: d.slug,
     title: d.title,
     excerpt: d.excerpt || "",
     content: d.content || "",
@@ -31,11 +32,17 @@ export async function getAllBlogPosts(options?: {
   }));
 }
 
-export async function getBlogPost(slug: string): Promise<BlogPost | undefined> {
-  const { data, error } = await supabase.from('blogs').select('*').eq('slug', slug).single();
+export async function getBlogPost(slugOrId: string): Promise<BlogPost | undefined> {
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId);
+  const query = isUuid 
+    ? supabase.from('blogs').select('*').or(`id.eq.${slugOrId},slug.eq.${slugOrId}`)
+    : supabase.from('blogs').select('*').eq('slug', slugOrId);
+    
+  const { data, error } = await query.single();
   if (error || !data) return undefined;
   return {
-    id: data.slug,
+    id: data.id || data.slug,
+    slug: data.slug,
     title: data.title,
     excerpt: data.excerpt || "",
     content: data.content || "",

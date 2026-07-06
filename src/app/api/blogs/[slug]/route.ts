@@ -7,16 +7,16 @@ import {
 } from "@/lib/content-store";
 import type { UpdateBlogInput } from "@/types/blog";
 
-type RouteContext = { params: Promise<{ id: string }> };
+type RouteContext = { params: Promise<{ slug: string }> };
 
-async function findPost(id: string) {
+async function findPost(slugOrId: string) {
   const posts = await getBlogPosts();
-  return posts.find((p) => p.id === id);
+  return posts.find((p) => (p.slug || p.id) === slugOrId || p.id === slugOrId);
 }
 
 export async function GET(_request: NextRequest, context: RouteContext) {
-  const { id } = await context.params;
-  const post = await findPost(id);
+  const { slug } = await context.params;
+  const post = await findPost(slug);
 
   if (!post) {
     return NextResponse.json({ error: "Blog post not found" }, { status: 404 });
@@ -30,8 +30,8 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = await context.params;
-  const existing = await findPost(id);
+  const { slug } = await context.params;
+  const existing = await findPost(slug);
 
   if (!existing) {
     return NextResponse.json({ error: "Blog post not found" }, { status: 404 });
@@ -47,7 +47,8 @@ export async function PUT(request: NextRequest, context: RouteContext) {
   const updated = {
     ...existing,
     ...body,
-    id,
+    id: existing.id,
+    slug: existing.slug,
     createdAt: existing.createdAt,
     updatedAt: new Date().toISOString(),
   };
@@ -61,14 +62,14 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = await context.params;
-  const existing = await findPost(id);
+  const { slug } = await context.params;
+  const existing = await findPost(slug);
 
   if (!existing) {
     return NextResponse.json({ error: "Blog post not found" }, { status: 404 });
   }
 
-  const deleted = await deleteBlogPost(id);
+  const deleted = await deleteBlogPost(existing.id);
   if (!deleted) {
     return NextResponse.json({ error: "Blog post not found" }, { status: 404 });
   }

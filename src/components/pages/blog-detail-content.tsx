@@ -5,11 +5,11 @@ import { getBlogPost } from "@/lib/blogs";
 import { BlogEditButton } from "@/components/admin/blog-edit-button";
 
 type BlogDetailContentProps = {
-  id: string;
+  slug: string;
 };
 
-export async function BlogDetailContent({ id }: BlogDetailContentProps) {
-  const post = await getBlogPost(id);
+export async function BlogDetailContent({ slug }: BlogDetailContentProps) {
+  const post = await getBlogPost(slug);
 
   if (!post || !post.published) {
     notFound();
