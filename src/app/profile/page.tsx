@@ -6,6 +6,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { User, LogOut, BookOpen, ArrowRight, PlayCircle } from "lucide-react";
 import { useUserStore } from "@/store/user-store";
+import { Spinner } from "@/components/ui/spinner";
+import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase-client";
 import { Button } from "@/components/ui/button";
 import { getProgramsAction } from "@/app/actions/programs";
@@ -22,6 +24,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (user === undefined) return; // Still loading
     if (user === null) {
       router.push("/login?redirect=/profile");
     } else {
@@ -40,16 +43,19 @@ export default function ProfilePage() {
 
   if (!user || loading) {
     return (
-      <>
-        <Navbar />
-        <div className="min-h-screen bg-[#FAF9F7] flex items-center justify-center pt-24">
-          <div className="animate-pulse flex flex-col items-center">
-            <div className="h-24 w-24 bg-beige-200 rounded-full mb-4"></div>
-            <div className="h-6 w-48 bg-beige-200 rounded-md"></div>
+      <div className="min-h-screen bg-cream pt-24 pb-16">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row gap-8">
+            <div className="w-full md:w-64">
+              <Skeleton className="h-64 w-full" />
+            </div>
+            <div className="flex-1 space-y-6">
+              <Skeleton className="h-40 w-full" />
+              <Skeleton className="h-40 w-full" />
+            </div>
           </div>
         </div>
-        <Footer />
-      </>
+      </div>
     );
   }
 
@@ -111,7 +117,7 @@ export default function ProfilePage() {
                          {program.videoUrl ? (
                            <>
                              <video src={program.videoUrl} className="absolute inset-0 w-full h-full object-cover opacity-60" />
-                             <PlayCircle className="w-10 h-10 text-[#B8955F] absolute inset-0 m-auto z-10 group-hover:scale-110 transition-transform" />
+                             <PlayCircle className="w-10 h-10 text-[#8C6D40] absolute inset-0 m-auto z-10 group-hover:scale-110 transition-transform" />
                            </>
                          ) : (
                            <div className="w-full h-full flex flex-col items-center justify-center p-4 text-center">
@@ -126,7 +132,7 @@ export default function ProfilePage() {
                         
                         <Link 
                           href={`/programs/${program.id}/course`}
-                          className="text-[#B8955F] hover:text-[#967246] uppercase tracking-[0.15em] text-[11px] font-semibold flex items-center gap-2 mt-auto self-start"
+                          className="text-[#8C6D40] hover:text-[#B8955F] uppercase tracking-[0.15em] text-[11px] font-semibold flex items-center gap-2 mt-auto self-start"
                         >
                           ACCESS COURSE <ArrowRight className="w-4 h-4" />
                         </Link>
@@ -145,7 +151,7 @@ export default function ProfilePage() {
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
                     <Link 
                       href="/programs"
-                      className="bg-[#B8955F] text-white hover:bg-[#967246] uppercase tracking-[0.15em] text-[11px] font-semibold py-4 px-8 transition-colors rounded-sm w-full sm:w-auto"
+                      className="bg-[#8C6D40] text-white hover:bg-[#B8955F] uppercase tracking-[0.15em] text-[11px] font-semibold py-4 px-8 transition-colors rounded-sm w-full sm:w-auto"
                     >
                       EXPLORE PROGRAMMES
                     </Link>

@@ -9,11 +9,20 @@ export async function BlogPageContent() {
 
   return (
     <>
-      <PageHero
-        eyebrow="Blog"
-        title="Wellness Insights & Tips"
-        description="Practical reads on hormones, nutrition, and living well — curated for women like you."
-      />
+      <article className="bg-cream">
+        <section className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-20 lg:py-32 text-center">
+          <span className="mb-4 inline-block text-[10px] font-semibold uppercase tracking-[0.2em] text-[#8C6D40]">
+            Blog
+          </span>
+          <h1 className="font-display text-5xl lg:text-7xl font-normal text-charcoal mb-6 leading-tight">
+            Wellness Insights & <br />
+            <span className="italic text-[#8C6D40]">Tips.</span>
+          </h1>
+          <p className="mx-auto text-base lg:text-lg leading-relaxed text-charcoal/80 max-w-2xl">
+            Practical reads on hormones, nutrition, and living well — curated for women like you.
+          </p>
+        </section>
+      </article>
 
       <section className="py-12 sm:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -24,7 +33,7 @@ export async function BlogPageContent() {
                 className="flex flex-col overflow-hidden rounded-none bg-[#FAF8F5] shadow-sm transition-transform hover:-translate-y-1"
               >
                 {post.image && (
-                  <div className="relative aspect-[4/5] overflow-hidden">
+                  <div className="relative aspect-[4/3] overflow-hidden">
                     <Image
                       src={post.image}
                       alt={post.title}
@@ -38,13 +47,13 @@ export async function BlogPageContent() {
                   <h3 className="font-display text-2xl lg:text-[1.65rem] text-charcoal leading-tight mb-4">
                     {post.title}
                   </h3>
-                  <span className="font-display italic text-[#B8955F] text-[1.15rem]">
+                  <span className="font-display italic text-[#8C6D40] text-[1.15rem]">
                     {post.category}
                   </span>
                 </div>
                 <Link 
                   href={`/blog/${post.id}`} 
-                  className="block w-full bg-[#B8955F] py-4 text-center text-[11px] font-semibold uppercase tracking-[0.15em] text-white transition-colors hover:bg-[#967246]"
+                  className="block w-full bg-[#8C6D40] py-4 text-center text-[11px] font-semibold uppercase tracking-[0.15em] text-white transition-colors hover:bg-[#B8955F]"
                 >
                   Read More
                 </Link>

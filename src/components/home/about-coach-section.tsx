@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { useEffect } from "react";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { coachHighlights } from "@/data/home-content";
 
@@ -11,26 +10,7 @@ export function AboutCoachSection() {
   const coachBackgroundSrc =
     "https://res.cloudinary.com/daw1tscqr/image/upload/v1780733233/shadow-background_wbrsm4.jpg";
 
-  useEffect(() => {
-    // #region agent log
-    fetch("http://127.0.0.1:7549/ingest/3b4cb57e-473b-43c7-96be-d8535731c4c3", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Debug-Session-Id": "9adf1d",
-      },
-      body: JSON.stringify({
-        sessionId: "9adf1d",
-        runId: "post-fix",
-        hypothesisId: "H1",
-        location: "about-coach-section.tsx:13",
-        message: "Coach image source selected",
-        data: { coachImageSrc },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
-    // #endregion
-  }, []);
+
 
   return (
     <section
@@ -54,29 +34,6 @@ export function AboutCoachSection() {
                 fill
                 className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 50vw"
-                onError={() => {
-                  // #region agent log
-                  fetch(
-                    "http://127.0.0.1:7549/ingest/3b4cb57e-473b-43c7-96be-d8535731c4c3",
-                    {
-                      method: "POST",
-                      headers: {
-                        "Content-Type": "application/json",
-                        "X-Debug-Session-Id": "9adf1d",
-                      },
-                      body: JSON.stringify({
-                        sessionId: "9adf1d",
-                        runId: "post-fix",
-                        hypothesisId: "H1",
-                        location: "about-coach-section.tsx:47",
-                        message: "Coach image failed to load",
-                        data: { coachImageSrc },
-                        timestamp: Date.now(),
-                      }),
-                    },
-                  ).catch(() => {});
-                  // #endregion
-                }}
               />
             </div>
             <div className="absolute -bottom-3 -right-2 rounded-xl border border-beige-200 bg-cream px-3 py-2 shadow-md sm:-bottom-5 sm:-right-5 sm:px-4 sm:py-3">

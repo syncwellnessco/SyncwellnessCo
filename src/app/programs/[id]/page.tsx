@@ -7,10 +7,6 @@ type PageProps = {
   params: Promise<{ id: string }>;
 };
 
-export async function generateStaticParams() {
-  const programs = await getAllPrograms({ publishedOnly: true });
-  return programs.map((p) => ({ id: p.id }));
-}
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
@@ -18,7 +14,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const program = programs.find((p) => p.id === id);
 
   return {
-    title: program?.name ?? "Program",
+    title: program?.title ?? "Program",
     description: program?.description,
   };
 }

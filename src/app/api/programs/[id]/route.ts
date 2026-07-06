@@ -1,90 +1,105 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyApiSecret } from "@/lib/api-auth";
-import {
-  deleteProgram,
-  getPrograms,
-  saveProgram,
-} from "@/lib/content-store";
-import { seedPrograms } from "@/data/seed-programs";
-import type { UpdateProgramInput } from "@/types/program";
+import { createClient } from "@/lib/supabase-server";
+import type { Program } from "@/types/program";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
-async function findProgram(id: string) {
-  const stored = await getPrograms();
-  const programs = stored.length > 0 ? stored : seedPrograms;
-  return programs.find((p) => p.id === id);
+function mapDbToProgram(row: any): Program {
+  return {
+    ...row,
+    shortDescription: row.shortdescription !== undefined ? row.shortdescription : row.shortDescription,
+    problemsSolved: row.problemssolved !== undefined ? row.problemssolved : row.problemsSolved,
+    createdAt: row.createdat !== undefined ? row.createdat : row.createdAt,
+    updatedAt: row.updatedat !== undefined ? row.updatedat : row.updatedAt,
+    showOnHome: row.showonhome !== undefined ? row.showonhome : row.showOnHome,
+  };
+}
+
+function mapProgramToDb(program: any): any {
+  const dbObj = { ...program };
+  if (dbObj.shortDescription !== undefined) {
+    dbObj.shortdescription = dbObj.shortDescription;
+    delete dbObj.shortDescription;
+  }
+  if (dbObj.problemsSolved !== undefined) {
+    dbObj.problemssolved = dbObj.problemsSolved;
+    delete dbObj.problemsSolved;
+  }
+  if (dbObj.createdAt !== undefined) {
+    dbObj.createdat = dbObj.createdAt;
+    delete dbObj.createdAt;
+  }
+  if (dbObj.updatedAt !== undefined) {
+    dbObj.updatedat = dbObj.updatedAt;
+    delete dbObj.updatedAt;
+  }
+  if (dbObj.showOnHome !== undefined) {
+    dbObj.showonhome = dbObj.showOnHome;
+    delete dbObj.showOnHome;
+  }
+  return dbObj;
 }
 
 export async function GET(_request: NextRequest, context: RouteContext) {
-  const { id } = await context.params;
-  const program = await findProgram(id);
+  try {
+    const { id } = await context.params;
+    const supabase = await createClient();
+    
+    const { data, error } = await supabase.from("programs").select("*").eq("id", id).single();
+    
+    if (error || !data) {
+      return NextResponse.json({ error: "Program not found" }, { status: 404 });
+    }
 
-  if (!program) {
-    return NextResponse.json({ error: "Program not found" }, { status: 404 });
+    return NextResponse.json(mapDbToProgram(data));
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
-
-  return NextResponse.json(program);
 }
 
 export async function PUT(request: NextRequest, context: RouteContext) {
-  if (!verifyApiSecret(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { id } = await context.params;
-  const existing = await findProgram(id);
-
-  if (!existing) {
-    return NextResponse.json({ error: "Program not found" }, { status: 404 });
-  }
-
-  let body: UpdateProgramInput;
   try {
-    body = (await request.json()) as UpdateProgramInput;
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    const { id } = await context.params;
+    let body: Partial<Program>;
+    try {
+      body = (await request.json()) as Partial<Program>;
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    }
+
+    const supabase = await createClient();
+    const updatedBody = {
+      ...body,
+      updatedAt: new Date().toISOString(),
+    };
+
+    const dbPayload = mapProgramToDb(updatedBody);
+
+    const { data, error } = await supabase
+      .from("programs")
+      .update(dbPayload)
+      .eq("id", id)
+      .select();
+
+    if (error) throw error;
+    return NextResponse.json(mapDbToProgram(data[0]));
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
-
-  const updated = {
-    ...existing,
-    ...body,
-    id,
-    createdAt: existing.createdAt,
-    updatedAt: new Date().toISOString(),
-  };
-
-  const saved = await saveProgram(updated);
-  return NextResponse.json(saved);
 }
 
 export async function DELETE(request: NextRequest, context: RouteContext) {
-  if (!verifyApiSecret(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { id } = await context.params;
-  const existing = await findProgram(id);
-
-  if (!existing) {
-    return NextResponse.json({ error: "Program not found" }, { status: 404 });
-  }
-
-  const stored = await getPrograms();
-  if (stored.length === 0) {
-    const remaining = seedPrograms.filter((p) => p.id !== id);
-    for (const program of remaining) {
-      await saveProgram(program);
-    }
+  try {
+    const { id } = await context.params;
+    const supabase = await createClient();
+    
+    const { error } = await supabase.from("programs").delete().eq("id", id);
+    if (error) throw error;
+    
     return NextResponse.json({ success: true });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
-
-  const deleted = await deleteProgram(id);
-  if (!deleted) {
-    return NextResponse.json({ error: "Program not found" }, { status: 404 });
-  }
-
-  return NextResponse.json({ success: true });
 }
 
 export async function PATCH(request: NextRequest, context: RouteContext) {

@@ -55,7 +55,7 @@ export async function ProgramsPageContent() {
                 </div>
                 
                 <h2 className="font-display text-4xl lg:text-5xl font-medium leading-[1.15] text-charcoal mb-6">
-                  {featured.name}{" "}
+                  {featured.title}{" "}
                   <span className="box-decoration-clone bg-[#EBE3DB] px-3 py-1">
                     Masterclass
                   </span>
@@ -66,25 +66,25 @@ export async function ProgramsPageContent() {
                 </p>
                 
                 <div className="flex items-center gap-3 mb-10">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-[#B8955F] border border-[#A8895C]/30 px-3 py-1 rounded-sm">{featured.duration}</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[#8C6D40] border border-[#A8895C]/30 px-3 py-1 rounded-sm">{featured.duration}</span>
                 </div>
                 
                 <div className="flex flex-col sm:flex-row gap-4 mt-auto">
-                  <Button asChild size="lg" className="w-full sm:w-auto bg-[#B8955F] text-white hover:bg-[#967246] uppercase tracking-[0.15em] text-xs font-semibold h-14 px-10 rounded-sm border-0 transition-colors">
+                  <Button asChild size="lg" className="w-full sm:w-auto bg-[#8C6D40] text-white hover:bg-[#B8955F] uppercase tracking-[0.15em] text-xs font-semibold h-14 px-10 rounded-sm border-0 transition-colors">
                     <Link href={`/programs/${featured.id}`}>Explore Program</Link>
                   </Button>
                 </div>
               </div>
               
               <div className="relative order-1 lg:order-1 aspect-[4/5] lg:aspect-auto lg:h-[600px] w-full rounded-sm overflow-hidden border border-beige-200 shadow-sm group">
-                {featured.videoUrl ? (
+                {featured.hero?.introVideo ? (
                    <>
                      <video 
                        autoPlay 
                        muted 
                        loop 
                        playsInline 
-                       src={featured.videoUrl} 
+                       src={featured.hero.introVideo} 
                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" 
                      />
                    </>
@@ -112,16 +112,16 @@ export async function ProgramsPageContent() {
                 className="group relative flex flex-col bg-white border border-beige-200 p-10 transition-all hover:shadow-xl duration-300"
               >
                 <div className="mb-6 flex gap-3">
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#B8955F] border border-[#A8895C]/30 px-2.5 py-1 rounded-sm">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#8C6D40] border border-[#A8895C]/30 px-2.5 py-1 rounded-sm">
                     {program.duration}
                   </span>
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#B8955F] border border-[#A8895C]/30 px-2.5 py-1 rounded-sm">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#8C6D40] border border-[#A8895C]/30 px-2.5 py-1 rounded-sm">
                     {program.format}
                   </span>
                 </div>
                 
-                <h3 className="font-display text-3xl font-medium text-charcoal sm:text-4xl mb-6 group-hover:text-[#B8955F] transition-colors">
-                  {program.name}
+                <h3 className="font-display text-3xl font-medium text-charcoal sm:text-4xl mb-6 group-hover:text-[#8C6D40] transition-colors">
+                  {program.title}
                 </h3>
                 
                 <p className="flex-1 text-base leading-relaxed text-charcoal mb-8">
@@ -131,21 +131,23 @@ export async function ProgramsPageContent() {
                 <div className="mb-10">
                   <h4 className="font-semibold text-xs text-charcoal uppercase tracking-widest mb-4">Core Focus</h4>
                   <ul className="space-y-4">
-                    {program.features.slice(0, 3).map((f) => (
+                    {program.included?.slice(0, 3).map((f, idx) => (
                       <li
-                        key={f}
+                        key={idx}
                         className="flex items-start gap-4 text-sm text-charcoal"
                       >
-                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#B8955F]" />
-                        <span className="leading-relaxed">{f}</span>
+                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#8C6D40]" />
+                        <span className="leading-relaxed">{f.title}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
                 
                 <div className="flex items-center justify-between border-t border-beige-200 pt-6 mt-auto">
-                  <span className="font-medium text-slate-800">{program.pricing}</span>
-                  <Button asChild variant="ghost" className="group/btn text-[#B8955F] hover:text-[#967246] hover:bg-transparent px-0 font-semibold tracking-wide uppercase text-xs">
+                  <span className="font-medium text-slate-800">
+                    {program.pricing?.price ? `$${program.pricing.price}` : "Free"}
+                  </span>
+                  <Button asChild variant="ghost" className="group/btn text-[#8C6D40] hover:text-[#B8955F] hover:bg-transparent px-0 font-semibold tracking-wide uppercase text-xs">
                     <Link href={`/programs/${program.id}`}>
                       View Details
                       <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover/btn:translate-x-1" />

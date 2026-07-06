@@ -3,6 +3,8 @@
 import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { ArrowRight, Mail, Lock, AlertCircle } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { createClient } from "@/lib/supabase-client";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/ui/logo";
@@ -70,7 +72,7 @@ function LoginContent() {
             ].map((benefit, i) => (
               <div key={i} className="flex items-center gap-4 text-charcoal/90 p-4">
                 <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#EBE3DB] flex items-center justify-center">
-                  <svg className="w-4 h-4 text-[#B8955F]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 text-[#8C6D40]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
@@ -96,50 +98,48 @@ function LoginContent() {
             variant="outline"
             onClick={handleGoogleLogin}
             disabled={googleLoading}
-            className="w-full h-12 rounded-xl border-beige-200 bg-white hover:bg-beige-50 text-charcoal font-medium flex items-center justify-center gap-3 mb-6"
+            className="w-full flex justify-center items-center gap-3 py-4 px-4 border border-[#DCD3C6] rounded-none bg-transparent hover:bg-[#FAF8F5] hover:border-[#A8895C] transition-colors text-charcoal font-medium"
           >
-            <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
-              <path d="M12.0003 4.75C13.7703 4.75 15.3553 5.36002 16.6053 6.54998L20.0303 3.125C17.9502 1.19 15.2353 0 12.0003 0C7.31028 0 3.25527 2.69 1.28027 6.60998L5.27028 9.70498C6.21525 6.86002 8.87028 4.75 12.0003 4.75Z" fill="#EA4335"/>
-              <path d="M23.49 12.275C23.49 11.49 23.415 10.73 23.3 10H12V14.51H18.47C18.18 15.99 17.34 17.25 16.08 18.1L19.945 21.1C22.2 19.01 23.49 15.92 23.49 12.275Z" fill="#4285F4"/>
-              <path d="M5.26498 14.2949C5.02498 13.5699 4.88501 12.7999 4.88501 11.9999C4.88501 11.1999 5.01998 10.4299 5.26498 9.7049L1.275 6.60986C0.46 8.22986 0 10.0599 0 11.9999C0 13.9399 0.46 15.7699 1.28 17.3899L5.26498 14.2949Z" fill="#FBBC05"/>
-              <path d="M12.0004 24.0001C15.2404 24.0001 17.9654 22.935 19.9454 21.095L16.0804 18.095C15.0054 18.82 13.6204 19.245 12.0004 19.245C8.87037 19.245 6.21537 17.135 5.26538 14.29L1.27539 17.385C3.25539 21.31 7.3104 24.0001 12.0004 24.0001Z" fill="#34A853"/>
-            </svg>
-            {googleLoading ? "Connecting..." : "Continue with Google"}
+            {googleLoading ? <Spinner className="h-4 w-4" /> : (
+              <>
+                <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+                  <path d="M12.0003 4.75C13.7703 4.75 15.3553 5.36002 16.6053 6.54998L20.0303 3.125C17.9502 1.19 15.2353 0 12.0003 0C7.31028 0 3.25527 2.69 1.28027 6.60998L5.27028 9.70498C6.21525 6.86002 8.87028 4.75 12.0003 4.75Z" fill="#EA4335"/>
+                  <path d="M23.49 12.275C23.49 11.49 23.415 10.73 23.3 10H12V14.51H18.47C18.18 15.99 17.34 17.25 16.08 18.1L19.945 21.1C22.2 19.01 23.49 15.92 23.49 12.275Z" fill="#4285F4"/>
+                  <path d="M5.26498 14.2949C5.02498 13.5699 4.88501 12.7999 4.88501 11.9999C4.88501 11.1999 5.01998 10.4299 5.26498 9.7049L1.275 6.60986C0.46 8.22986 0 10.0599 0 11.9999C0 13.9399 0.46 15.7699 1.28 17.3899L5.26498 14.2949Z" fill="#FBBC05"/>
+                  <path d="M12.0004 24.0001C15.2404 24.0001 17.9654 22.935 19.9454 21.095L16.0804 18.095C15.0054 18.82 13.6204 19.245 12.0004 19.245C8.87037 19.245 6.21537 17.135 5.26538 14.29L1.27539 17.385C3.25539 21.31 7.3104 24.0001 12.0004 24.0001Z" fill="#34A853"/>
+                </svg>
+                Continue with Google
+              </>
+            )}
           </Button>
 
-          <div className="relative flex items-center mb-6">
-            <div className="flex-grow border-t border-beige-200"></div>
-            <span className="flex-shrink-0 px-4 text-sm text-sage-400">or sign in with email</span>
-            <div className="flex-grow border-t border-beige-200"></div>
+          <div className="relative flex items-center my-8">
+            <div className="flex-grow border-t border-[#DCD3C6]"></div>
+            <span className="flex-shrink-0 px-4 text-xs tracking-wider uppercase font-semibold text-charcoal/50">or sign in with email</span>
+            <div className="flex-grow border-t border-[#DCD3C6]"></div>
           </div>
 
-          <form className="space-y-5" onSubmit={handleLogin}>
-            <div>
-              <label className="block text-sm font-medium text-charcoal mb-1.5" htmlFor="email">
-                Email address
-              </label>
+          <form className="space-y-8" onSubmit={handleLogin}>
+            <div className="relative">
               <input
                 id="email"
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="block w-full rounded-xl border border-beige-200 px-4 py-3 text-charcoal placeholder-sage-400 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold bg-white"
-                placeholder="you@example.com"
+                className="w-full bg-transparent border-0 border-b border-[#DCD3C6] py-3 px-0 text-charcoal placeholder:text-slate-400 focus:ring-0 focus:border-[#A8895C] text-[15px] transition-colors"
+                placeholder="*Email Address"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-charcoal mb-1.5" htmlFor="password">
-                Password
-              </label>
+            <div className="relative">
               <input
                 id="password"
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="block w-full rounded-xl border border-beige-200 px-4 py-3 text-charcoal placeholder-sage-400 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold bg-white"
-                placeholder="••••••••"
+                className="w-full bg-transparent border-0 border-b border-[#DCD3C6] py-3 px-0 text-charcoal placeholder:text-slate-400 focus:ring-0 focus:border-[#A8895C] text-[15px] transition-colors"
+                placeholder="*Password"
               />
             </div>
 
@@ -152,15 +152,15 @@ function LoginContent() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-charcoal text-white hover:bg-charcoal/90 h-12 text-base rounded-xl mt-2"
+              className="w-full bg-[#8C6D40] text-white hover:bg-[#B8955F] uppercase tracking-[0.15em] text-[11px] font-semibold py-4 rounded-none transition-colors mt-6 disabled:opacity-70 flex justify-center"
             >
-              {loading ? "Signing in..." : "Sign in"}
+              {loading ? <Spinner className="h-4 w-4 text-white" /> : "SIGN IN"}
             </Button>
           </form>
 
-          <div className="mt-8 text-center text-sm text-charcoal">
+          <div className="mt-8 text-center text-[13px] text-charcoal">
             Don't have an account?{" "}
-            <Link href={`/signup?redirect=${encodeURIComponent(redirectUrl)}`} className="font-semibold text-gold hover:text-gold/80 transition-colors">
+            <Link href={`/signup?redirect=${encodeURIComponent(redirectUrl)}`} className="font-semibold text-[#8C6D40] hover:text-[#B8955F] transition-colors underline underline-offset-4">
               Sign up
             </Link>
           </div>
@@ -172,7 +172,7 @@ function LoginContent() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-cream flex items-center justify-center">Loading...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-cream flex items-center justify-center"><Spinner /></div>}>
       <LoginContent />
     </Suspense>
   );

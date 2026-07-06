@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { BookOpen, Download, CheckCircle2 } from "lucide-react";
+import toast from "react-hot-toast";
+import { Spinner } from "@/components/ui/spinner";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -71,21 +73,20 @@ export function FreeResourceSection() {
                       required
                     />
                   </div>
-                  <Button
-                    type="submit"
-                    size="lg"
-                    className="w-full sm:w-auto"
-                    disabled={loading}
-                  >
-                    {loading ? (
-                      "Sending..."
-                    ) : (
-                      <>
-                        <Download className="h-4 w-4" />
-                        Download Free eBook
-                      </>
-                    )}
-                  </Button>
+                  <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-[#8C6D40] text-white hover:bg-[#B8955F] uppercase tracking-[0.15em] text-[11px] font-semibold py-4 px-12 transition-colors disabled:opacity-70 flex items-center justify-center min-w-[200px]"
+                >
+                  {loading ? (
+                    <Spinner className="h-4 w-4" />
+                  ) : (
+                    <>
+                      <Download className="mr-2 h-4 w-4" />
+                      DOWNLOAD EBOOK
+                    </>
+                  )}
+                </button>
                   <p className="text-xs text-charcoal">
                     We respect your privacy. Unsubscribe anytime.
                   </p>

@@ -17,7 +17,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     });
 
-    // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -29,7 +28,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     });
 
-    return () => subscription.unsubscribe();
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (!session?.user) {
+            setUser(null);
+            setPurchasedPrograms([]);
+          }
+        });
+      }
+    };
+
+    window.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [setUser, setPurchasedPrograms, supabase.auth]);
 
   const fetchUserPrograms = async (userId: string) => {

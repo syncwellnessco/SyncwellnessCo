@@ -1,0 +1,253 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { X, CheckCircle2, Upload, Loader2, Star } from "lucide-react";
+import toast from "react-hot-toast";
+import { CldUploadWidget } from "next-cloudinary";
+import { optimizeCloudinaryUrl, deleteCloudinaryFile } from "@/lib/cloudinary-utils";
+
+interface Review {
+  id: string;
+  name: string;
+  testimonial: string;
+  before_image: string | null;
+  after_image: string | null;
+  rating: number;
+  created_at: string;
+}
+
+const CloudinaryBtn = ({ label, onUpload, onRemove, value }: { label: string, onUpload: (u: string, pId: string) => void, onRemove: () => void, value: string }) => (
+  <div className="flex flex-col gap-2">
+    <span className="text-sm font-medium text-charcoal/80">{label}</span>
+    {value ? (
+      <div className="relative w-full h-32 rounded-md overflow-hidden border border-[#EBE3DB]">
+        <img src={value} alt="Preview" className="w-full h-full object-cover" />
+        <button type="button" onClick={onRemove} className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full hover:bg-black/70 transition-colors">
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+    ) : (
+      <CldUploadWidget 
+        uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_REVIEWS || process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "syncwellness"}
+        options={{ folder: 'syncwellness/reviews' }}
+        onSuccess={(res: any) => {
+          if (res?.info?.secure_url) {
+            const optimizedUrl = optimizeCloudinaryUrl(res.info.secure_url);
+            onUpload(optimizedUrl, res.info.public_id);
+          }
+        }}
+      >
+        {({ open }) => (
+          <button type="button" onClick={() => open()} className="w-full h-32 border-2 border-dashed border-[#EBE3DB] rounded-md flex flex-col items-center justify-center text-charcoal/50 hover:bg-[#FAF8F5] hover:border-[#8C6D40] transition-colors">
+            <Upload className="h-6 w-6 mb-2" />
+            <span className="text-xs">Click to upload</span>
+          </button>
+        )}
+      </CldUploadWidget>
+    )}
+  </div>
+);
+
+export function ProgramReviewsSection({ programId }: { programId: string }) {
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  // Form state
+  const [name, setName] = useState("");
+  const [testimonial, setTestimonial] = useState("");
+  const [beforeImage, setBeforeImage] = useState("");
+  const [beforePublicId, setBeforePublicId] = useState("");
+  const [afterImage, setAfterImage] = useState("");
+  const [afterPublicId, setAfterPublicId] = useState("");
+  const [rating, setRating] = useState(5);
+
+  useEffect(() => {
+    fetch(`/api/reviews?programId=${programId}&status=published`)
+      .then(res => res.json())
+      .then(data => {
+        setReviews(Array.isArray(data) ? data : []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [programId]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name || !testimonial) {
+      toast.error("Please provide your name and review");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ programId, name, testimonial, beforeImage, afterImage, rating }),
+      });
+
+      if (res.ok) {
+        toast.success("Thank you! Your review has been submitted for approval.");
+        setIsModalOpen(false);
+        setName("");
+        setTestimonial("");
+        setBeforeImage("");
+        setBeforePublicId("");
+        setAfterImage("");
+        setAfterPublicId("");
+        setRating(5);
+      } else {
+        toast.error("Failed to submit review");
+        if (beforePublicId) await deleteCloudinaryFile(beforePublicId, 'image');
+        if (afterPublicId) await deleteCloudinaryFile(afterPublicId, 'image');
+      }
+    } catch (e) {
+      toast.error("Something went wrong");
+      if (beforePublicId) await deleteCloudinaryFile(beforePublicId, 'image');
+      if (afterPublicId) await deleteCloudinaryFile(afterPublicId, 'image');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="py-16 mt-16 border-t border-beige-200">
+      <div className="mx-auto max-w-4xl px-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-12 gap-6">
+          <div>
+            <h2 className="font-display text-3xl font-semibold text-charcoal">Program Reviews</h2>
+            <div className="flex items-center gap-3 mt-3">
+              {reviews.length > 0 ? (
+                <>
+                  <div className="flex text-gold">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className={`h-5 w-5 ${i < Math.round(reviews.reduce((a, b) => a + (b.rating || 5), 0) / reviews.length) ? 'fill-current' : 'text-gray-300'}`} />
+                    ))}
+                  </div>
+                  <span className="font-semibold text-charcoal">{((reviews.reduce((a, b) => a + (b.rating || 5), 0) / reviews.length) || 0).toFixed(1)}</span>
+                  <span className="text-charcoal/60">({reviews.length} reviews)</span>
+                </>
+              ) : (
+                <p className="text-charcoal/70">See what others are saying about this program.</p>
+              )}
+            </div>
+          </div>
+          <Button onClick={() => setIsModalOpen(true)} className="bg-charcoal hover:bg-charcoal/90 text-white rounded-full px-6">
+            Write a Review
+          </Button>
+        </div>
+
+        {loading ? (
+          <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-gold" /></div>
+        ) : reviews.length === 0 ? (
+          <div className="text-center py-16 bg-[#FAF9F7] rounded-2xl border border-beige-100">
+            <Star className="h-12 w-12 text-gold/30 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-charcoal mb-2">No reviews yet</h3>
+            <p className="text-charcoal/60 mb-6">Be the first to share your experience!</p>
+            <Button onClick={() => setIsModalOpen(true)} variant="outline" className="border-gold text-gold hover:bg-gold hover:text-white rounded-full">
+              Write a Review
+            </Button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {reviews.map(r => (
+              <div key={r.id} className="bg-white p-6 rounded-2xl border border-beige-200 shadow-sm">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="h-10 w-10 rounded-full bg-gold/20 flex items-center justify-center font-display font-semibold text-gold">
+                    {r.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-charcoal">{r.name}</h4>
+                    <div className="flex text-gold">
+                      {[...Array(5)].map((_, i) => <Star key={i} className={`h-3 w-3 ${i < (r.rating || 5) ? 'fill-current' : 'text-gray-300'}`} />)}
+                    </div>
+                  </div>
+                </div>
+                <p className="text-charcoal/80 text-sm leading-relaxed italic mb-4">"{r.testimonial}"</p>
+                {(r.before_image || r.after_image) && (
+                  <div className="flex gap-2 mt-4 pt-4 border-t border-beige-100">
+                    {r.before_image && <div className="flex-1 relative rounded overflow-hidden aspect-[4/5]"><img src={r.before_image} alt="Before" className="absolute inset-0 w-full h-full object-cover" /><span className="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded backdrop-blur-sm">Before</span></div>}
+                    {r.after_image && <div className="flex-1 relative rounded overflow-hidden aspect-[4/5]"><img src={r.after_image} alt="After" className="absolute inset-0 w-full h-full object-cover" /><span className="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded backdrop-blur-sm">After</span></div>}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-charcoal/60 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl relative my-8">
+            <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 text-charcoal/50 hover:text-charcoal">
+              <X className="h-5 w-5" />
+            </button>
+            <div className="p-8">
+              <h3 className="font-display text-2xl font-semibold text-charcoal mb-2">Write a Review</h3>
+              <p className="text-charcoal/60 text-sm mb-6">Share your transformation story to inspire others.</p>
+              
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div>
+                  <label className="block text-sm font-medium text-charcoal/80 mb-1">Your Name</label>
+                  <input type="text" value={name} onChange={e => setName(e.target.value)} required className="w-full px-4 py-3 rounded-md border border-beige-200 focus:border-gold focus:ring-1 focus:ring-gold outline-none transition-colors" placeholder="e.g. Sarah J." />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-charcoal/80 mb-2">Rating</label>
+                  <div className="flex gap-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setRating(star)}
+                        className={`transition-colors ${star <= rating ? 'text-gold' : 'text-gray-300 hover:text-gold/50'}`}
+                      >
+                        <Star className="h-8 w-8 fill-current" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-charcoal/80 mb-1">Your Experience</label>
+                  <textarea value={testimonial} onChange={e => setTestimonial(e.target.value)} required rows={4} className="w-full px-4 py-3 rounded-md border border-beige-200 focus:border-gold focus:ring-1 focus:ring-gold outline-none transition-colors resize-none" placeholder="How did this program help you?" />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <CloudinaryBtn 
+                    label="Before Image (Optional)" 
+                    value={beforeImage} 
+                    onUpload={(u, pId) => { setBeforeImage(u); setBeforePublicId(pId); }} 
+                    onRemove={async () => {
+                      if (beforePublicId) await deleteCloudinaryFile(beforePublicId, 'image');
+                      setBeforeImage("");
+                      setBeforePublicId("");
+                    }}
+                  />
+                  <CloudinaryBtn 
+                    label="After Image (Optional)" 
+                    value={afterImage} 
+                    onUpload={(u, pId) => { setAfterImage(u); setAfterPublicId(pId); }} 
+                    onRemove={async () => {
+                      if (afterPublicId) await deleteCloudinaryFile(afterPublicId, 'image');
+                      setAfterImage("");
+                      setAfterPublicId("");
+                    }}
+                  />
+                </div>
+
+                <Button type="submit" disabled={submitting} className="w-full bg-gold hover:bg-gold/90 text-charcoal h-12 text-base font-semibold rounded-full mt-4">
+                  {submitting ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <CheckCircle2 className="h-5 w-5 mr-2" />}
+                  {submitting ? "Submitting..." : "Submit Review"}
+                </Button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -1,54 +1,180 @@
-export type ProgramTimelineItem = {
-  label: string;
-  title: string;
-  description: string;
-};
-
-export type ProgramFAQ = {
-  question: string;
-  answer: string;
-};
-
-export type ProgramMedia = {
-  type: "image" | "video";
-  url: string;
-  title?: string;
-};
-
-export type Program = {
+export interface Program {
   id: string;
-  name: string;
-  duration: string;
-  format: string;
+
+  // --------------------------
+  // BASIC INFORMATION
+  // --------------------------
+  title: string;
+  slug: string;
+  shortDescription: string;
   description: string;
-  overview: string;
-  overviewParagraphs?: string[];
-  stats: string[];
-  problems: string[];
-  features: string[];
-  bonuses?: string[];
-  perfectFor: string[];
-  timeline?: ProgramTimelineItem[];
-  outcomes: string;
-  methodology?: string;
-  faqs?: ProgramFAQ[];
-  gallery?: ProgramMedia[];
-  featured?: boolean;
-  cta: string;
-  ctaLink: string;
-  secondaryCta?: string;
-  pricing?: string;
-  videoUrl?: string;
-  trustLine?: string;
-  published: boolean;
+
+  duration: string; // "12 Weeks"
+  format: string; // "1:1 Online"
+  category: string; // Hormones, Gut Health, Fat Loss
+
+  status: "draft" | "published";
+  featured: boolean;
+  showOnHome?: boolean;
+  order: number;
+
+  // --------------------------
+  // PRICING
+  // --------------------------
+  pricing: {
+    price: number;
+    currency: string;
+    salePrice?: number;
+
+    paymentType: "one-time" | "subscription" | "custom";
+    paymentLink?: string;
+
+    installmentAvailable: boolean;
+    installmentText?: string;
+  };
+
+  // --------------------------
+  // HERO
+  // --------------------------
+  hero: {
+    headline?: string;
+    subheadline?: string;
+    bannerImage: string;
+    introVideo?: string;
+    ctaText: string;
+    ctaLink: string;
+  };
+
+  // --------------------------
+  // TARGET AUDIENCE
+  // --------------------------
+  audience: {
+    designedFor: string[];
+    notFor: string[];
+    idealClient: string[];
+  };
+
+  // --------------------------
+  // PROBLEMS SOLVED
+  // --------------------------
+  problemsSolved: string[];
+
+  // --------------------------
+  // BENEFITS / OUTCOMES
+  // --------------------------
+  outcomes: {
+    summary: string;
+    physical: string[];
+    mental: string[];
+    lifestyle: string[];
+    wellness: string[];
+  };
+
+  // --------------------------
+  // WHAT'S INCLUDED
+  // --------------------------
+  included: {
+    title: string;
+    description?: string;
+    icon?: string;
+  }[];
+
+  // --------------------------
+  // BONUSES
+  // --------------------------
+  bonuses: {
+    title: string;
+    description?: string;
+  }[];
+
+  // --------------------------
+  // PROGRAM STRUCTURE
+  // --------------------------
+  structure: {
+    weeks: {
+      week: string;
+      title: string;
+      description: string;
+    }[];
+    coachingSchedule: string;
+    sessionFrequency: string;
+    supportStructure: string;
+  };
+
+  // --------------------------
+  // METHODOLOGY
+  // --------------------------
+  methodology: {
+    framework: string;
+    process: string;
+    whyItWorks: string;
+    scientificBasis: string;
+  };
+
+  // --------------------------
+  // FAQ
+  // --------------------------
+  faqs: {
+    question: string;
+    answer: string;
+  }[];
+
+  // --------------------------
+  // ENROLLMENT
+  // --------------------------
+  enrollment: {
+    startDates: string[];
+    process: string;
+    applicationProcess: string;
+    paymentPlans: string;
+  };
+
+  // --------------------------
+  // TESTIMONIALS
+  // --------------------------
+  testimonials: {
+    name: string;
+    designation?: string;
+    image?: string;
+    testimonial: string;
+    successStory?: string;
+    beforeImage?: string;
+    afterImage?: string;
+  }[];
+
+  // --------------------------
+  // QUIZ (Optional)
+  // --------------------------
+  quiz?: {
+    enabled: boolean;
+    title: string;
+    description?: string;
+    quizLink?: string;
+  };
+
+  // --------------------------
+  // MEDIA
+  // --------------------------
+  media: {
+    bannerImages: string[];
+    gallery: string[];
+    videos: string[];
+    pdfs: string[];
+    resources: string[];
+  };
+
+  // --------------------------
+  // SEO
+  // --------------------------
+  seo: {
+    metaTitle: string;
+    metaDescription: string;
+    keywords: string[];
+  };
+
+  // --------------------------
+  // TIMESTAMPS
+  // --------------------------
   createdAt: string;
   updatedAt: string;
-};
-
-export type CreateProgramInput = Omit<Program, "id" | "createdAt" | "updatedAt"> & {
-  id?: string;
-};
-
-export type UpdateProgramInput = Partial<Omit<Program, "id" | "createdAt">> & {
-  id: string;
-};
+}

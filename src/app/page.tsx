@@ -14,12 +14,15 @@ import { FinalCTASection } from "@/components/home/final-cta-section";
 
 import { getBlogPosts } from "@/lib/content-store";
 import { seedBlogs } from "@/data/seed-blogs";
+import { getAllPrograms } from "@/lib/programs";
 
 export default async function HomePage() {
   let blogs = await getBlogPosts();
   if (!blogs || blogs.length === 0) {
     blogs = seedBlogs;
   }
+
+  const allPrograms = await getAllPrograms({ publishedOnly: true });
 
   return (
     <>
@@ -28,7 +31,7 @@ export default async function HomePage() {
         <HeroSection />
         <StrugglesSection />
         <HowWeHelpSection />
-        <ProgramsSection />
+        <ProgramsSection programs={allPrograms} />
         <AboutCoachSection />
         <TestimonialsSection />
         <VideoTestimonialsSection />

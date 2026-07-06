@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import toast from "react-hot-toast";
+import { Spinner } from "@/components/ui/spinner";
 import { siteConfig } from "@/data/site";
 
 export function ContactPageContent() {
@@ -11,9 +13,34 @@ export function ContactPageContent() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 800));
-    setLoading(false);
-    setSubmitted(true);
+    
+    const form = e.currentTarget;
+    const data = {
+      name: (form.elements.namedItem('name') as HTMLInputElement).value,
+      email: (form.elements.namedItem('email') as HTMLInputElement).value,
+      subject: (form.elements.namedItem('business') as HTMLInputElement).value,
+      message: (form.elements.namedItem('message') as HTMLTextAreaElement).value + 
+               " | Source: " + (form.elements.namedItem('source') as HTMLInputElement).value
+    };
+
+    try {
+      const res = await fetch("/api/enquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+      if (res.ok) {
+        setSubmitted(true);
+        toast.success("Message sent successfully!");
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        toast.error(errorData.error || "There was an error sending your message. Please try again.");
+      }
+    } catch (err) {
+      toast.error("There was an error connecting to the server. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -46,7 +73,7 @@ export function ContactPageContent() {
           <div className="flex flex-col pt-2 lg:pt-4">
             {submitted ? (
               <div className="bg-[#FAF8F5] p-8 border border-[#EBE3DB] rounded-sm">
-                <p className="text-[#B8955F] font-display text-2xl mb-2">Message Sent</p>
+                <p className="text-[#8C6D40] font-display text-2xl mb-2">Message Sent</p>
                 <p className="text-charcoal text-sm">Thank you for reaching out! We will get back to you shortly.</p>
               </div>
             ) : (
@@ -103,9 +130,9 @@ export function ContactPageContent() {
                   <button 
                     type="submit" 
                     disabled={loading}
-                    className="bg-[#B8955F] text-white hover:bg-[#967246] uppercase tracking-[0.15em] text-[11px] font-semibold py-4 px-12 transition-colors disabled:opacity-70"
+                    className="bg-[#8C6D40] text-white hover:bg-[#B8955F] uppercase tracking-[0.15em] text-[11px] font-semibold py-4 px-12 transition-colors disabled:opacity-70 flex items-center justify-center min-w-[150px]"
                   >
-                    {loading ? "SENDING..." : "SUBMIT"}
+                    {loading ? <Spinner className="h-4 w-4" /> : "SUBMIT"}
                   </button>
                 </div>
               </form>
@@ -128,14 +155,14 @@ export function ContactPageContent() {
               
               <div className="space-y-6 text-[15px] text-charcoal leading-relaxed">
                 <div>
-                  <h3 className="font-display text-xl text-[#B8955F] italic mb-2">Interested in working together?</h3>
+                  <h3 className="font-display text-xl text-[#8C6D40] italic mb-2">Interested in working together?</h3>
                   <p>
                     The best way to get started is to fill in the form above and leave detailed information about what type of support you are looking for.
                   </p>
                 </div>
                 
                 <div>
-                  <h3 className="font-display text-xl text-[#B8955F] italic mb-2">Interested in connecting?</h3>
+                  <h3 className="font-display text-xl text-[#8C6D40] italic mb-2">Interested in connecting?</h3>
                   <p>
                     I am obsessed with sharing knowledge and would love to connect with you! I am open to blog interviews, guest features, joint ventures, affiliate relationships, speaking opportunities, and collaborations.
                   </p>

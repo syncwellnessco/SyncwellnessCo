@@ -35,7 +35,7 @@ export function BlogSection({ blogs }: BlogSectionProps) {
               transition={{ delay: index * 0.08 }}
               className="flex flex-col overflow-hidden rounded-none bg-[#FAF8F5] shadow-sm transition-transform hover:-translate-y-1"
             >
-              <div className="relative aspect-[4/5] overflow-hidden">
+              <div className="relative aspect-[4/3] overflow-hidden">
                 <Image
                   src={post.image}
                   alt={post.title}
@@ -48,13 +48,13 @@ export function BlogSection({ blogs }: BlogSectionProps) {
                 <h3 className="font-display text-2xl lg:text-[1.65rem] text-charcoal leading-tight mb-4">
                   {post.title}
                 </h3>
-                <span className="font-display italic text-[#B8955F] text-[1.15rem]">
+                <span className="font-display italic text-[#8C6D40] text-[1.15rem]">
                   {post.category}
                 </span>
               </div>
               <Link 
                 href={`/blog/${post.id}`} 
-                className="block w-full bg-[#B8955F] py-4 text-center text-[11px] font-semibold uppercase tracking-[0.15em] text-white transition-colors hover:bg-[#967246]"
+                className="block w-full bg-[#8C6D40] py-4 text-center text-[11px] font-semibold uppercase tracking-[0.15em] text-white transition-colors hover:bg-[#B8955F]"
               >
                 Read More
               </Link>

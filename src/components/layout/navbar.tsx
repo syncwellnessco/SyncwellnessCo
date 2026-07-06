@@ -59,34 +59,40 @@ export function Navbar() {
         {/* Left: brand */}
         <div className="flex items-center gap-3">
           {user ? (
-            <Link
-              href="/profile"
-              className={cn(
-                "inline-flex h-10 w-10 overflow-hidden items-center justify-center rounded-full border transition-colors lg:hidden",
-                isTransparent
-                  ? "border-cream/50 text-cream hover:bg-cream/10"
-                  : "border-charcoal/20 text-charcoal hover:bg-charcoal/5"
-              )}
-              aria-label="Profile"
-            >
-              {user.user_metadata?.avatar_url ? (
-                <img src={user.user_metadata.avatar_url} alt="Profile" className="h-full w-full object-cover" />
-              ) : (
-                <User className="h-5 w-5" />
-              )}
-            </Link>
+            <div className="flex items-center gap-2 lg:hidden">
+              <span className={cn(
+                "text-[11px] font-medium tracking-wide",
+                isTransparent ? "text-cream/90" : "text-charcoal/80"
+              )}>
+                Hey, {user.user_metadata?.full_name?.split(' ')[0] || "there"}
+              </span>
+              <Link
+                href="/profile"
+                className={cn(
+                  "inline-flex h-8 w-8 overflow-hidden items-center justify-center rounded-full transition-colors",
+                  !user.user_metadata?.avatar_url && (isTransparent ? "border border-cream/50 text-cream hover:bg-cream/10" : "border border-charcoal/20 text-charcoal hover:bg-charcoal/5")
+                )}
+                aria-label="Profile"
+              >
+                {user.user_metadata?.avatar_url ? (
+                  <img src={user.user_metadata.avatar_url} alt="Profile" className="h-full w-full object-cover" />
+                ) : (
+                  <User className="h-4 w-4" />
+                )}
+              </Link>
+            </div>
           ) : (
             <button
               type="button"
               className={cn(
-                "inline-flex h-10 w-10 items-center justify-center rounded-full border transition-colors lg:hidden",
+                "inline-flex h-8 w-8 items-center justify-center rounded-full border transition-colors lg:hidden",
                 isTransparent
                   ? "border-cream/50 text-cream hover:bg-cream/10"
                   : "border-charcoal/20 text-charcoal hover:bg-charcoal/5"
               )}
               aria-label="Profile placeholder"
             >
-              <User className="h-5 w-5" />
+              <User className="h-4 w-4" />
             </button>
           )}
 
@@ -138,9 +144,9 @@ export function Navbar() {
               <div className="flex items-center gap-3">
                 {user.user_metadata?.role === 'admin' && (
                   <Link
-                    href="/dashboard"
+                    href="/admin/dashboard"
                     className={cn(
-                      "rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] transition-all",
+                      "rounded-full border px-4 h-8 flex items-center justify-center text-[10px] font-semibold uppercase tracking-[0.12em] transition-all",
                       isTransparent
                         ? "border-cream/60 text-cream hover:bg-cream/10"
                         : "border-charcoal/30 text-charcoal hover:bg-charcoal/5"
@@ -149,29 +155,35 @@ export function Navbar() {
                     Dashboard
                   </Link>
                 )}
-                <Link
-                  href="/profile"
-                  className={cn(
-                    "inline-flex h-10 w-10 overflow-hidden items-center justify-center rounded-full border transition-colors",
-                    isTransparent
-                      ? "border-cream/50 text-cream hover:bg-cream/10"
-                      : "border-charcoal/20 text-charcoal hover:bg-charcoal/5"
-                  )}
-                  aria-label="Profile"
-                >
-                  {user.user_metadata?.avatar_url ? (
-                    <img src={user.user_metadata.avatar_url} alt="Profile" className="h-full w-full object-cover" />
-                  ) : (
-                    <User className="h-5 w-5" />
-                  )}
-                </Link>
+                <div className="flex items-center gap-2">
+                  <span className={cn(
+                    "text-xs font-medium tracking-wide",
+                    isTransparent ? "text-cream/90" : "text-charcoal/80"
+                  )}>
+                    Hey, {user.user_metadata?.full_name?.split(' ')[0] || "there"}
+                  </span>
+                  <Link
+                    href="/profile"
+                    className={cn(
+                      "inline-flex h-8 w-8 overflow-hidden items-center justify-center rounded-full transition-colors",
+                      !user.user_metadata?.avatar_url && (isTransparent ? "border border-cream/50 text-cream hover:bg-cream/10" : "border border-charcoal/20 text-charcoal hover:bg-charcoal/5")
+                    )}
+                    aria-label="Profile"
+                  >
+                    {user.user_metadata?.avatar_url ? (
+                      <img src={user.user_metadata.avatar_url} alt="Profile" className="h-full w-full object-cover" />
+                    ) : (
+                      <User className="h-4 w-4" />
+                    )}
+                  </Link>
+                </div>
               </div>
             ) : (
               <>
                 <Link
                   href="/login"
                   className={cn(
-                    "rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] transition-all",
+                    "rounded-full border px-4 h-8 flex items-center justify-center text-[10px] font-semibold uppercase tracking-[0.12em] transition-all",
                     isTransparent
                       ? "border-cream/60 text-cream hover:bg-cream/10"
                       : "border-charcoal/30 text-charcoal hover:bg-charcoal/5"
@@ -182,10 +194,10 @@ export function Navbar() {
                 <Link
                   href="/signup"
                   className={cn(
-                    "rounded-full px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] transition-all",
+                    "rounded-full px-4 h-8 flex items-center justify-center text-[10px] font-semibold uppercase tracking-[0.12em] transition-all",
                     isTransparent
                       ? "bg-cream text-charcoal hover:bg-cream/90"
-                      : "bg-gold text-cream hover:bg-gold/90"
+                      : "bg-[#8C6D40] text-white hover:bg-[#B8955F]"
                   )}
                 >
                   Join
@@ -251,7 +263,7 @@ export function Navbar() {
                         <>
                           {user.user_metadata?.role === 'admin' && (
                             <Link
-                              href="/dashboard"
+                              href="/admin/dashboard"
                               onClick={() => setMobileOpen(false)}
                               className="block w-full rounded-md border border-charcoal/20 bg-beige-100 py-3 text-center text-sm font-semibold uppercase tracking-[0.14em] text-charcoal transition-colors hover:bg-beige-200"
                             >

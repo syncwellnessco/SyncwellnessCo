@@ -5,10 +5,19 @@ import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import { motion } from "framer-motion";
-import { Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { SectionHeading } from "@/components/ui/section-heading";
-import { testimonials, testimonialStats } from "@/data/testimonials";
 import { cn } from "@/lib/utils";
+
+interface Review {
+  id: string;
+  program_id: string;
+  name: string;
+  testimonial: string;
+  before_image: string | null;
+  after_image: string | null;
+  rating: number;
+}
 
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -41,6 +50,21 @@ export function TestimonialsSection() {
   );
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [programs, setPrograms] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      fetch("/api/reviews?featured=true").then(res => res.json()),
+      fetch("/api/programs").then(res => res.json())
+    ]).then(([revData, progData]) => {
+      setReviews(Array.isArray(revData) ? revData : []);
+      setPrograms(Array.isArray(progData) ? progData : []);
+      setLoading(false);
+    });
+  }, []);
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
@@ -50,8 +74,10 @@ export function TestimonialsSection() {
     setSelectedIndex(emblaApi.selectedScrollSnap());
   }, [emblaApi]);
 
-  const getMessage = (item: (typeof testimonials)[number]) =>
-    `${item.feedback} ${item.highlight}`;
+  const getProgramName = (id: string) => {
+    const p = programs.find(x => x.id === id);
+    return p ? p.title : "Program";
+  };
 
   const shouldTruncate = (message: string) => message.length > 145;
 
@@ -100,131 +126,91 @@ export function TestimonialsSection() {
           ))}
         </div>
 
-        <div className="relative mt-6 sm:mt-8">
-          <div className="overflow-hidden" ref={emblaRef}>
-            <div className="flex touch-pan-y">
-              {testimonials.map((t) => (
+        {loading ? (
+          <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-[#8C6D40]" /></div>
+        ) : reviews.length === 0 ? (
+          <div className="text-center py-20 text-charcoal/60">No featured reviews yet.</div>
+        ) : (
+          <div className="relative mt-10 sm:mt-12 overflow-hidden w-full flex items-center group py-4">
+            <div className="flex gap-4 sm:gap-5 w-max animate-marquee group-hover:[animation-play-state:paused]">
+              {[...reviews, ...reviews, ...reviews].map((r, index) => (
                 <div
-                  key={t.id}
-                  className="min-w-0 flex-[0_0_90%] px-2 sm:flex-[0_0_65%] lg:flex-[0_0_42%]"
+                  key={`${r.id}-${index}`}
+                  className="w-[300px] sm:w-[360px] shrink-0 h-full"
                 >
-                  <article className="mx-auto max-w-md overflow-hidden rounded-2xl border border-beige-200 bg-cream shadow-sm">
-                    <div className="relative aspect-[16/10]">
-                      <Image
-                        src={t.afterImage}
-                        alt={`${t.name} transformation`}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, 40vw"
-                      />
-                      <span className="absolute left-3 top-3 rounded-full bg-charcoal/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-cream">
-                        {t.program}
-                      </span>
-                    </div>
-
-                    <div className="p-3 sm:p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="relative h-10 w-10 overflow-hidden rounded-full ring-2 ring-sage-200">
-                          <Image
-                            src={t.image}
-                            alt={t.name}
-                            fill
-                            className="object-cover"
-                            sizes="48px"
+                  <article className="overflow-hidden rounded-2xl border border-beige-200 bg-cream shadow-sm flex flex-col h-full hover:shadow-xl hover:-translate-y-1 transition-all duration-500 cursor-pointer">
+                    {(r.after_image || r.before_image) && (
+                      <div className="relative flex aspect-[16/10] bg-charcoal overflow-hidden group/img">
+                        {r.before_image && (
+                          <img
+                            src={r.before_image}
+                            alt={`${r.name} before`}
+                            className={cn("object-cover h-full", r.after_image ? "w-1/2 border-r border-black/20" : "w-full")}
                           />
-                        </div>
-                        <div>
-                          <p className="text-sm font-semibold text-charcoal">
-                            {t.name}
-                          </p>
-                          <p className="text-xs text-charcoal">{t.location}</p>
-                          <StarRating rating={t.rating} />
-                        </div>
-                      </div>
-
-                      <div className="mt-2.5 sm:mt-3">
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-charcoal">
-                          Client Feedback on Programme
-                        </p>
-                        <p className="mt-1.5 text-[13px] leading-relaxed text-charcoal sm:mt-2 sm:text-sm">
-                          {(() => {
-                            const message = getMessage(t);
-                            const expanded = expandedId === t.id;
-                            if (expanded || !shouldTruncate(message))
-                              return message;
-                            return `${message.slice(0, 145).trim()}...`;
-                          })()}
-                        </p>
-                        {shouldTruncate(getMessage(t)) && (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setExpandedId((prev) =>
-                                prev === t.id ? null : t.id,
-                              )
-                            }
-                            className="mt-2 text-xs font-semibold uppercase tracking-[0.12em] text-charcoal hover:text-charcoal"
-                          >
-                            {expandedId === t.id ? "View Less" : "View More"}
-                          </button>
+                        )}
+                        {r.after_image && (
+                          <img
+                            src={r.after_image}
+                            alt={`${r.name} after`}
+                            className={cn("object-cover h-full", r.before_image ? "w-1/2" : "w-full")}
+                          />
+                        )}
+                        <span className="absolute left-3 top-3 rounded-full bg-charcoal/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-cream backdrop-blur-sm shadow-sm border border-white/10">
+                          {getProgramName(r.program_id)}
+                        </span>
+                        {r.before_image && r.after_image && (
+                          <div className="absolute inset-x-0 bottom-0 p-2 flex gap-1 justify-center bg-gradient-to-t from-black/60 to-transparent">
+                            <span className="bg-black/50 text-white text-[9px] px-3 py-0.5 rounded backdrop-blur">BEFORE & AFTER</span>
+                          </div>
                         )}
                       </div>
+                    )}
 
-                      <div className="mt-2.5 inline-flex rounded-full bg-sage-100 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-sage-800 sm:mt-3">
-                        {t.duration}
+                    <div className="p-5 flex-1 flex flex-col">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="h-10 w-10 rounded-full bg-[#8C6D40]/20 flex items-center justify-center font-display font-semibold text-[#8C6D40] text-lg shrink-0">
+                          {r.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-charcoal truncate max-w-[200px]">
+                            {r.name}
+                          </p>
+                          <StarRating rating={r.rating || 5} />
+                        </div>
+                      </div>
+
+                      <div className="flex-1">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-charcoal mb-2">
+                          Client Experience
+                        </p>
+                        <p className="text-[13px] leading-relaxed text-charcoal sm:text-sm italic line-clamp-5">
+                          "{r.testimonial}"
+                        </p>
                       </div>
                     </div>
                   </article>
                 </div>
               ))}
             </div>
+            <style jsx>{`
+              @keyframes marquee {
+                0% { transform: translateX(0%); }
+                100% { transform: translateX(-33.333333%); }
+              }
+              .animate-marquee {
+                animation: marquee 20s linear infinite;
+              }
+            `}</style>
           </div>
-
-          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-6 sm:mt-8">
-            <div className="flex items-center gap-3 sm:gap-4">
-              <button
-                type="button"
-                onClick={scrollPrev}
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-beige-300 bg-cream text-charcoal transition-colors hover:bg-sage-100"
-                aria-label="Previous testimonial"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <div className="flex gap-2">
-                {testimonials.map((_, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => emblaApi?.scrollTo(i)}
-                    className={cn(
-                      "h-2 rounded-full transition-all",
-                      i === selectedIndex
-                        ? "w-8 bg-sage-600"
-                        : "w-2 bg-beige-300 hover:bg-sage-300",
-                    )}
-                    aria-label={`Go to testimonial ${i + 1}`}
-                  />
-                ))}
-              </div>
-              <button
-                type="button"
-                onClick={scrollNext}
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-beige-300 bg-cream text-charcoal transition-colors hover:bg-sage-100"
-                aria-label="Next testimonial"
-              >
-                <ChevronRight className="h-5 w-5" />
-              </button>
-            </div>
-          </div>
+        )}
           
-          <div className="mt-12 flex justify-center">
-            <a 
-              href="/testimonials" 
-              className="inline-flex h-12 items-center justify-center rounded-sm bg-[#B8955F] px-8 text-xs font-semibold uppercase tracking-[0.15em] text-white transition-colors hover:bg-[#967246]"
-            >
-              Show More Testimonials
-            </a>
-          </div>
+        <div className="mt-12 flex justify-center">
+          <a 
+            href="/testimonials" 
+            className="inline-flex h-12 items-center justify-center rounded-sm bg-[#8C6D40] px-8 text-xs font-semibold uppercase tracking-[0.15em] text-white transition-colors hover:bg-[#B8955F]"
+          >
+            Show More Testimonials
+          </a>
         </div>
       </div>
     </section>

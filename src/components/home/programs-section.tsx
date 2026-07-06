@@ -6,11 +6,11 @@ import { Check, Star, ArrowRight, PlayCircle } from "lucide-react";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Button } from "@/components/ui/button";
 import { GlassBadge } from "@/components/ui/glass-badge";
-import { programs } from "@/data/programs";
+import type { Program } from "@/types/program";
 
-export function ProgramsSection() {
+export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
   const featured = programs.find((p) => p.featured);
-  const others = programs.filter((p) => !p.featured);
+  const others = programs.filter((p) => !p.featured && p.showOnHome);
 
   return (
     <section
@@ -50,7 +50,7 @@ export function ProgramsSection() {
                   </div>
                   
                   <h3 className="font-display text-3xl font-semibold text-white sm:text-4xl lg:text-5xl mb-6">
-                    {featured.name}
+                    {featured.title}
                   </h3>
                   
                   <p className="text-lg leading-relaxed text-cream/80 mb-8 max-w-lg">
@@ -58,10 +58,10 @@ export function ProgramsSection() {
                   </p>
                   
                   <ul className="mb-10 space-y-3">
-                    {featured.features.slice(0, 3).map((f) => (
-                      <li key={f} className="flex items-start gap-3 text-cream/90">
+                    {featured.included?.slice(0, 3).map((f, idx) => (
+                      <li key={idx} className="flex items-start gap-3 text-cream/90">
                         <Check className="mt-1 h-5 w-5 shrink-0 text-gold" />
-                        <span className="text-base">{f}</span>
+                        <span className="text-base">{f.title}</span>
                       </li>
                     ))}
                   </ul>
@@ -74,14 +74,14 @@ export function ProgramsSection() {
                 </div>
                 
                 <div className="relative hidden lg:block rounded-2xl overflow-hidden border border-white/10 shadow-inner group min-h-[400px]">
-                  {featured.videoUrl ? (
+                  {featured.hero?.introVideo ? (
                      <>
                        <video 
                          autoPlay 
                          muted 
                          loop 
                          playsInline 
-                         src={featured.videoUrl} 
+                         src={featured.hero.introVideo} 
                          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" 
                        />
                        <div className="absolute inset-0 bg-charcoal/20" />
@@ -110,7 +110,7 @@ export function ProgramsSection() {
               </div>
               
               <h3 className="font-display text-2xl font-semibold text-charcoal sm:text-3xl mb-4 group-hover:text-gold transition-colors">
-                {program.name}
+                {program.title}
               </h3>
               
               <p className="flex-1 text-base leading-relaxed text-charcoal mb-8">
@@ -118,7 +118,9 @@ export function ProgramsSection() {
               </p>
               
               <div className="flex items-center justify-between border-t border-beige-100 pt-6 mt-auto">
-                <span className="font-medium text-sage-800">{program.pricing}</span>
+                <span className="font-medium text-sage-800">
+                  {program.pricing?.price ? `$${program.pricing.price}` : "Free"}
+                </span>
                 <Button asChild variant="ghost" className="group/btn text-charcoal hover:text-gold hover:bg-transparent px-0">
                   <Link href={`/programs/${program.id}`}>
                     Explore

@@ -5,6 +5,7 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { SiteLoader } from "@/components/layout/site-loader";
 import { siteConfig } from "@/data/site";
 import { AuthProvider } from "@/components/providers/auth-provider";
+import { Toaster } from "react-hot-toast";
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
@@ -61,6 +62,26 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-cream font-sans text-sage-800 antialiased" suppressHydrationWarning>
         <AuthProvider>
+          <Toaster 
+            position="top-center" 
+            toastOptions={{
+              style: {
+                background: '#FAF8F5',
+                color: '#333333',
+                border: '1px solid #EBE3DB',
+                borderRadius: '2px',
+                fontSize: '13px',
+                fontFamily: 'var(--font-open-sans)',
+                letterSpacing: '0.05em'
+              },
+              success: {
+                iconTheme: {
+                  primary: '#8C6D40',
+                  secondary: '#fff',
+                },
+              },
+            }}
+          />
           <SiteLoader>{children}</SiteLoader>
         </AuthProvider>
       </body>

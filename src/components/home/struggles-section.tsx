@@ -78,7 +78,7 @@ export function StrugglesSection() {
           <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
 
           <div className="relative">
-            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#B8955F]">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#8C6D40]">
               Sound Familiar?
             </span>
             <h2 className="mt-3 font-display text-[2rem] font-semibold leading-tight text-charcoal sm:text-4xl lg:text-5xl">

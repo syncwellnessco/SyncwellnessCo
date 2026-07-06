@@ -1,18 +1,41 @@
 import { seedPrograms } from "@/data/seed-programs";
-import { getPrograms as getStoredPrograms } from "@/lib/content-store";
+import { createClient } from "@/lib/supabase-server";
 import type { Program } from "@/types/program";
+
+function mapDbToProgram(row: any): Program {
+  return {
+    ...row,
+    shortDescription: row.shortdescription !== undefined ? row.shortdescription : row.shortDescription,
+    problemsSolved: row.problemssolved !== undefined ? row.problemssolved : row.problemsSolved,
+    createdAt: row.createdat !== undefined ? row.createdat : row.createdAt,
+    updatedAt: row.updatedat !== undefined ? row.updatedat : row.updatedAt,
+  };
+}
 
 export async function getAllPrograms(options?: {
   publishedOnly?: boolean;
 }): Promise<Program[]> {
-  const stored = await getStoredPrograms();
-  const programs = stored.length > 0 ? stored : seedPrograms;
+  try {
+    const supabase = await createClient();
+    let query = supabase.from("programs").select("*").order("order", { ascending: true });
+    
+    if (options?.publishedOnly) {
+      query = query.eq("status", "published");
+    }
 
-  if (options?.publishedOnly) {
-    return programs.filter((p) => p.published);
+    const { data, error } = await query;
+
+    if (error || !data || data.length === 0) {
+      console.warn("Falling back to seed programs", error?.message);
+      const filtered = options?.publishedOnly ? seedPrograms.filter((p) => p.status === "published") : seedPrograms;
+      return filtered as Program[];
+    }
+
+    return data.map(mapDbToProgram);
+  } catch (err) {
+    console.error("Error fetching programs from Supabase:", err);
+    return (options?.publishedOnly ? seedPrograms.filter((p) => p.status === "published") : seedPrograms) as Program[];
   }
-
-  return programs;
 }
 
 export async function getProgram(id: string): Promise<Program | undefined> {
