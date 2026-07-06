@@ -38,8 +38,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing email" }, { status: 400 });
     }
 
-    // 1. Save to Supabase
+    // 1. Check for duplicates
     const supabase = await createClient();
+    const { data: existingRequest } = await supabase
+      .from("ebook_requests")
+      .select("id")
+      .eq("email", email)
+      .eq("ebookname", ebookName)
+      .single();
+
+    if (existingRequest) {
+      return NextResponse.json(
+        { error: "You have already requested this eBook! Please check your inbox (and spam folder) for the download link." },
+        { status: 409 }
+      );
+    }
+
+    // 2. Save to Supabase
     const { data, error } = await supabase
       .from("ebook_requests")
       .insert([
@@ -57,7 +72,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: `Database Error: ${error.message}` }, { status: 400 });
     }
 
-    // 2. Add to MailerLite
+    // 3. Add to MailerLite
     if (process.env.MAILERLITE_API_KEY) {
       try {
         const mlRes = await fetch("https://connect.mailerlite.com/api/subscribers", {

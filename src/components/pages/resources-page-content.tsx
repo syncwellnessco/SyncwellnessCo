@@ -4,13 +4,24 @@ import { useState } from "react";
 import { BookOpen, Download } from "lucide-react";
 import toast from "react-hot-toast";
 import { Spinner } from "@/components/ui/spinner";
+import { useUserStore } from "@/store/user-store";
+import { useRouter } from "next/navigation";
 
 export function ResourcesPageContent() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { user } = useUserStore();
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    if (!user) {
+      toast.error("Please log in or sign up to download the eBook.");
+      router.push("/login?redirect=/resources");
+      return;
+    }
+
     setLoading(true);
     
     const form = e.currentTarget;
@@ -126,7 +137,10 @@ export function ResourcesPageContent() {
                 {submitted ? (
                   <div className="bg-[#FAF8F5] p-8 border border-[#EBE3DB] rounded-sm text-center">
                     <p className="text-[#8C6D40] font-display text-2xl mb-2">Check your inbox!</p>
-                    <p className="text-charcoal text-sm">Your free eBook download link is on its way.</p>
+                    <p className="text-charcoal text-sm mb-3">Your free eBook download link is on its way.</p>
+                    <p className="text-charcoal/70 text-xs italic">
+                      (Note: Please check your spam or promotions folder if you don't receive it within a few minutes!)
+                    </p>
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit} className="flex flex-col gap-8 w-full">

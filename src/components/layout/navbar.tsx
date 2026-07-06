@@ -60,40 +60,32 @@ export function Navbar() {
         <div className="flex items-center gap-3">
           {user ? (
             <div className="flex items-center gap-2 lg:hidden">
-              <span className={cn(
-                "text-[11px] font-medium tracking-wide",
-                isTransparent ? "text-cream/90" : "text-charcoal/80"
-              )}>
-                Hey, {user.user_metadata?.full_name?.split(' ')[0] || "there"}
-              </span>
               <Link
                 href="/profile"
                 className={cn(
-                  "inline-flex h-8 w-8 overflow-hidden items-center justify-center rounded-full transition-colors",
-                  !user.user_metadata?.avatar_url && (isTransparent ? "border border-cream/50 text-cream hover:bg-cream/10" : "border border-charcoal/20 text-charcoal hover:bg-charcoal/5")
+                  "inline-flex items-center justify-center transition-colors",
+                  user.user_metadata?.avatar_url ? "h-8 w-8 overflow-hidden rounded-full" : (isTransparent ? "text-cream" : "text-charcoal")
                 )}
                 aria-label="Profile"
               >
                 {user.user_metadata?.avatar_url ? (
                   <img src={user.user_metadata.avatar_url} alt="Profile" className="h-full w-full object-cover" />
                 ) : (
-                  <User className="h-4 w-4" />
+                  <User className="h-6 w-6" />
                 )}
               </Link>
             </div>
           ) : (
-            <button
-              type="button"
+            <Link
+              href="/login"
               className={cn(
-                "inline-flex h-8 w-8 items-center justify-center rounded-full border transition-colors lg:hidden",
-                isTransparent
-                  ? "border-cream/50 text-cream hover:bg-cream/10"
-                  : "border-charcoal/20 text-charcoal hover:bg-charcoal/5"
+                "inline-flex items-center justify-center transition-colors lg:hidden",
+                isTransparent ? "text-cream" : "text-charcoal"
               )}
-              aria-label="Profile placeholder"
+              aria-label="Login"
             >
-              <User className="h-4 w-4" />
-            </button>
+              <User className="h-6 w-6" />
+            </Link>
           )}
 
           <div onClick={() => setMobileOpen(false)}>
@@ -243,6 +235,22 @@ export function Navbar() {
             >
               <div className="flex h-full flex-col">
                 <div className="flex-1 overflow-y-auto px-5 py-5">
+                  
+                  {user && (
+                    <div className="flex items-center gap-3 mb-6 px-2 pb-6 border-b border-beige-200">
+                      <div className="h-10 w-10 overflow-hidden rounded-full border border-charcoal/20 bg-cream flex items-center justify-center text-charcoal">
+                        {user.user_metadata?.avatar_url ? (
+                          <img src={user.user_metadata.avatar_url} alt="Profile" className="h-full w-full object-cover" />
+                        ) : (
+                          <User className="h-5 w-5" />
+                        )}
+                      </div>
+                      <span className="text-sm font-semibold tracking-wide text-charcoal">
+                        Hey, {user.user_metadata?.full_name?.split(' ')[0] || "there"}
+                      </span>
+                    </div>
+                  )}
+
                   <ul className="space-y-1">
                     {siteConfig.navLinks.map((link) => (
                       <li key={link.href}>
