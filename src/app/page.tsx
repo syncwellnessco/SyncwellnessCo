@@ -12,15 +12,14 @@ import { FreeResourceSection } from "@/components/home/free-resource-section";
 import { FAQSection } from "@/components/home/faq-section";
 import { FinalCTASection } from "@/components/home/final-cta-section";
 
-import { getBlogPosts } from "@/lib/content-store";
-import { seedBlogs } from "@/data/seed-blogs";
+import { getAllBlogPosts } from "@/lib/blogs";
 import { getAllPrograms } from "@/lib/programs";
 
+export const dynamic = 'force-dynamic';
+
 export default async function HomePage() {
-  let blogs = await getBlogPosts();
-  if (!blogs || blogs.length === 0) {
-    blogs = seedBlogs;
-  }
+  const blogs = await getAllBlogPosts({ publishedOnly: true });
+  const latestBlogs = blogs.slice(0, 4);
 
   const allPrograms = await getAllPrograms({ publishedOnly: true });
 
@@ -35,7 +34,7 @@ export default async function HomePage() {
         <AboutCoachSection />
         <TestimonialsSection />
         <VideoTestimonialsSection />
-        <BlogSection blogs={blogs} />
+        <BlogSection blogs={latestBlogs} />
         <FreeResourceSection />
         <FinalCTASection />
         <FAQSection />

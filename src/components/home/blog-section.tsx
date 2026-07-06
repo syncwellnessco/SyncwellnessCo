@@ -12,12 +12,10 @@ type BlogSectionProps = {
 };
 
 export function BlogSection({ blogs }: BlogSectionProps) {
-  const featuredBlogs = blogs.filter(post => post.featured);
-  
-  if (featuredBlogs.length === 0) return null;
+  if (!blogs || blogs.length === 0) return null;
 
   return (
-    <section className="bg-[#EBE3DB] py-20 lg:py-32" id="blog">
+    <section className="bg-[#EBE3DB] py-10 lg:py-16" id="blog">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
           eyebrow="From the Blog"
@@ -25,36 +23,41 @@ export function BlogSection({ blogs }: BlogSectionProps) {
           description="Practical reads on hormones, nutrition, and living well — curated for women like you."
         />
 
-        <div className="mt-12 grid gap-8 sm:mt-16 sm:grid-cols-2 lg:grid-cols-3">
-          {featuredBlogs.map((post, index) => (
+        <div className="mt-8 grid gap-6 sm:mt-10 sm:grid-cols-2 lg:grid-cols-4">
+          {blogs.map((post, index) => (
             <motion.article
               key={post.id}
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.08 }}
-              className="flex flex-col overflow-hidden rounded-none bg-[#FAF8F5] shadow-sm transition-transform hover:-translate-y-1"
+              className="flex flex-col overflow-hidden rounded-none bg-[#FAF8F5] shadow-sm transition-transform"
             >
-              <div className="relative aspect-[4/3] overflow-hidden">
-                <Image
-                  src={post.image}
-                  alt={post.title}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                />
-              </div>
-              <div className="flex flex-1 flex-col items-center justify-center p-6 sm:p-8 text-center">
-                <h3 className="font-display text-2xl lg:text-[1.65rem] text-charcoal leading-tight mb-4">
-                  {post.title}
-                </h3>
-                <span className="font-display italic text-[#8C6D40] text-[1.15rem]">
-                  {post.category}
-                </span>
-              </div>
+              <Link href={`/resources/blogs/${post.id}`} className="group flex-1 flex flex-col">
+                {post.image && (
+                  <div className="relative aspect-[4/3] overflow-hidden">
+                    <Image
+                      src={post.image}
+                      alt={post.title}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      sizes="(max-width: 768px) 100vw, 25vw"
+                      unoptimized
+                    />
+                  </div>
+                )}
+                <div className="flex flex-1 flex-col items-center justify-center p-4 sm:p-5 text-center">
+                  <h3 className="font-display text-lg lg:text-xl text-charcoal leading-tight mb-2 group-hover:text-[#8C6D40] transition-colors">
+                    {post.title}
+                  </h3>
+                  <span className="font-display italic text-[#8C6D40] text-base">
+                    {post.category}
+                  </span>
+                </div>
+              </Link>
               <Link 
-                href={`/blog/${post.id}`} 
-                className="block w-full bg-[#8C6D40] py-4 text-center text-[11px] font-semibold uppercase tracking-[0.15em] text-white transition-colors hover:bg-[#B8955F]"
+                href={`/resources/blogs/${post.id}`} 
+                className="block w-full bg-[#8C6D40] py-3 text-center text-[10px] font-semibold uppercase tracking-[0.15em] text-white transition-colors hover:bg-[#B8955F]"
               >
                 Read More
               </Link>
@@ -64,8 +67,8 @@ export function BlogSection({ blogs }: BlogSectionProps) {
 
         <div className="mt-6 text-center sm:mt-8">
           <Link
-            href="/blog"
-            className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.12em] text-charcoal transition-colors hover:text-gold"
+            href="/resources/blogs"
+            className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-charcoal transition-colors hover:text-gold"
           >
             View All Articles
             <ArrowRight className="h-4 w-4" />

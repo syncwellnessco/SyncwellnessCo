@@ -22,6 +22,7 @@ export default function ProfilePage() {
   
   const [allPrograms, setAllPrograms] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [imgError, setImgError] = useState(false);
 
   useEffect(() => {
     if (user === undefined) return; // Still loading
@@ -76,8 +77,13 @@ export default function ProfilePage() {
             {/* Left Column - Profile Info */}
             <div className="lg:col-span-4 flex flex-col pt-4">
               <div className="mb-10 relative w-full aspect-square max-w-[280px] rounded-sm overflow-hidden border border-[#EBE3DB] shadow-sm">
-                {avatarUrl ? (
-                  <img src={avatarUrl} alt={fullName} className="w-full h-full object-cover" />
+                {avatarUrl && !imgError ? (
+                  <img 
+                    src={avatarUrl} 
+                    alt={fullName} 
+                    className="w-full h-full object-cover" 
+                    onError={() => setImgError(true)}
+                  />
                 ) : (
                   <div className="w-full h-full bg-[#FAF8F5] flex items-center justify-center">
                     <User className="w-24 h-24 text-[#DCD3C6]" />

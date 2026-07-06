@@ -61,7 +61,11 @@ const DataDisplay = ({ data }: { data: any }) => {
               <span className="text-[10px] uppercase font-bold text-[#8C6D40] block mb-1">{k.replace(/([A-Z])/g, ' $1').trim()}</span>
               {typeof v === 'object' ? <DataDisplay data={v} /> : (
                 String(v).startsWith('http') ? (
-                  <a href={String(v)} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline break-all text-xs">{String(v)}</a>
+                  String(v).match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) || String(v).includes('res.cloudinary.com/daw1tscqr/image') ? (
+                    <img src={String(v)} alt="" className="w-full max-w-[200px] rounded-sm border border-[#EBE3DB]" />
+                  ) : (
+                    <a href={String(v)} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline break-all text-xs">{String(v)}</a>
+                  )
                 ) : (
                   <span className="text-sm text-charcoal/80">{String(v)}</span>
                 )
@@ -82,6 +86,9 @@ const ArrayMediaEditor = ({ label, value, onChange }: { label: string, value: st
       <div className="space-y-2 mb-2">
         {(value || []).map((url, i) => (
           <div key={i} className="flex gap-2 items-center text-xs bg-[#FAF8F5] p-2 rounded border border-[#EBE3DB]">
+            {(url.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) || url.includes('res.cloudinary.com/daw1tscqr/image')) ? (
+              <img src={url} alt="" className="h-10 w-16 object-cover rounded-sm border border-[#EBE3DB]" />
+            ) : null}
             <span className="truncate flex-1">{url}</span>
             <button type="button" onClick={() => onChange(value.filter((_, idx) => idx !== i))} className="text-red-500 hover:text-red-700"><MinusCircle className="w-4 h-4" /></button>
           </div>
@@ -130,6 +137,9 @@ const ObjectArrayEditor = ({
                      <div className="space-y-2">
                        {item[f.key] ? (
                          <div className="flex gap-2 items-center text-xs bg-[#FAF8F5] p-2 rounded border border-[#EBE3DB]">
+                           {(item[f.key].match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) || item[f.key].includes('res.cloudinary.com/daw1tscqr/image')) ? (
+                             <img src={item[f.key]} alt="" className="h-10 w-16 object-cover rounded-sm border border-[#EBE3DB]" />
+                           ) : null}
                            <span className="truncate flex-1">{item[f.key]}</span>
                            <button type="button" onClick={() => update(i, f.key, '')} className="text-red-500"><MinusCircle className="w-4 h-4" /></button>
                          </div>
@@ -587,6 +597,9 @@ export function ProgramsManager() {
                         <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Banner Image URL</label>
                         {editForm.hero?.bannerImage ? (
                           <div className="flex gap-2 items-center text-xs bg-[#FAF8F5] p-2 rounded border border-[#EBE3DB]">
+                            {(editForm.hero.bannerImage.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) || editForm.hero.bannerImage.includes('res.cloudinary.com/daw1tscqr/image')) ? (
+                              <img src={editForm.hero.bannerImage} alt="" className="h-10 w-16 object-cover rounded-sm border border-[#EBE3DB]" />
+                            ) : null}
                             <span className="truncate flex-1">{editForm.hero.bannerImage}</span>
                             <button type="button" onClick={() => updateNested(['hero', 'bannerImage'], '')} className="text-red-500"><MinusCircle className="w-4 h-4" /></button>
                           </div>

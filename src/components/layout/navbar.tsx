@@ -17,6 +17,7 @@ export function Navbar() {
   const isHome = pathname === "/";
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [imgError, setImgError] = useState(false);
   const { user, logout } = useUserStore();
   const supabase = createClient();
 
@@ -64,12 +65,17 @@ export function Navbar() {
                 href="/profile"
                 className={cn(
                   "inline-flex items-center justify-center transition-colors",
-                  user.user_metadata?.avatar_url ? "h-8 w-8 overflow-hidden rounded-full" : (isTransparent ? "text-cream" : "text-charcoal")
+                  user.user_metadata?.avatar_url && !imgError ? "h-8 w-8 overflow-hidden rounded-full" : (isTransparent ? "text-cream" : "text-charcoal")
                 )}
                 aria-label="Profile"
               >
-                {user.user_metadata?.avatar_url ? (
-                  <img src={user.user_metadata.avatar_url} alt="Profile" className="h-full w-full object-cover" />
+                {user.user_metadata?.avatar_url && !imgError ? (
+                  <img 
+                    src={user.user_metadata.avatar_url} 
+                    alt="Profile" 
+                    className="h-full w-full object-cover" 
+                    onError={() => setImgError(true)}
+                  />
                 ) : (
                   <User className="h-6 w-6" />
                 )}
@@ -148,25 +154,31 @@ export function Navbar() {
                   </Link>
                 )}
                 <div className="flex items-center gap-2">
-                  <span className={cn(
-                    "text-xs font-medium tracking-wide",
-                    isTransparent ? "text-cream/90" : "text-charcoal/80"
-                  )}>
-                    Hey, {user.user_metadata?.full_name?.split(' ')[0] || "there"}
-                  </span>
-                  <Link
-                    href="/profile"
-                    className={cn(
-                      "inline-flex h-8 w-8 overflow-hidden items-center justify-center rounded-full transition-colors",
-                      !user.user_metadata?.avatar_url && (isTransparent ? "border border-cream/50 text-cream hover:bg-cream/10" : "border border-charcoal/20 text-charcoal hover:bg-charcoal/5")
-                    )}
-                    aria-label="Profile"
-                  >
-                    {user.user_metadata?.avatar_url ? (
-                      <img src={user.user_metadata.avatar_url} alt="Profile" className="h-full w-full object-cover" />
-                    ) : (
-                      <User className="h-4 w-4" />
-                    )}
+                  <Link href="/profile" className="flex items-center gap-2 group cursor-pointer transition-opacity hover:opacity-80">
+                    <div
+                      className={cn(
+                        "inline-flex overflow-hidden items-center justify-center transition-colors",
+                        user.user_metadata?.avatar_url && !imgError ? "h-8 w-8 rounded-full" : (isTransparent ? "text-cream hover:text-cream/80" : "text-charcoal hover:text-charcoal/80")
+                      )}
+                      aria-label="Profile"
+                    >
+                      {user.user_metadata?.avatar_url && !imgError ? (
+                        <img 
+                          src={user.user_metadata.avatar_url} 
+                          alt="Profile" 
+                          className="h-full w-full object-cover"
+                          onError={() => setImgError(true)}
+                        />
+                      ) : (
+                        <User className="h-5 w-5" />
+                      )}
+                    </div>
+                    <span className={cn(
+                      "text-xs font-medium tracking-wide transition-colors",
+                      isTransparent ? "text-cream/90 group-hover:text-cream" : "text-charcoal/80 group-hover:text-charcoal"
+                    )}>
+                      Hey, {user.user_metadata?.full_name?.split(' ')[0] || "there"}
+                    </span>
                   </Link>
                 </div>
               </div>
@@ -239,8 +251,13 @@ export function Navbar() {
                   {user && (
                     <div className="flex items-center gap-3 mb-6 px-2 pb-6 border-b border-beige-200">
                       <div className="h-10 w-10 overflow-hidden rounded-full border border-charcoal/20 bg-cream flex items-center justify-center text-charcoal">
-                        {user.user_metadata?.avatar_url ? (
-                          <img src={user.user_metadata.avatar_url} alt="Profile" className="h-full w-full object-cover" />
+                        {user.user_metadata?.avatar_url && !imgError ? (
+                          <img 
+                            src={user.user_metadata.avatar_url} 
+                            alt="Profile" 
+                            className="h-full w-full object-cover" 
+                            onError={() => setImgError(true)}
+                          />
                         ) : (
                           <User className="h-5 w-5" />
                         )}

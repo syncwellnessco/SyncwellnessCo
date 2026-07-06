@@ -180,24 +180,33 @@ export default function TestimonialsPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {reviews.map((r) => (
                       <article key={r.id} className="overflow-hidden rounded-2xl border border-[#EBE3DB] bg-white shadow-sm flex flex-col hover:shadow-md transition-shadow">
-                        {(r.after_image || r.before_image) && (
-                          <div className="relative flex aspect-[16/10] bg-charcoal overflow-hidden group">
-                            {r.before_image && (
-                              <img src={r.before_image} alt={`${r.name} before`} className={cn("object-cover h-full", r.after_image ? "w-1/2 border-r border-black/20" : "w-full")} />
-                            )}
-                            {r.after_image && (
-                              <img src={r.after_image} alt={`${r.name} after`} className={cn("object-cover h-full", r.before_image ? "w-1/2" : "w-full")} />
-                            )}
-                            <span className="absolute left-3 top-3 rounded-full bg-charcoal/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-cream backdrop-blur-sm shadow-sm border border-white/10">
-                              {getProgramName(r.program_id)}
-                            </span>
-                            {r.before_image && r.after_image && (
-                              <div className="absolute inset-x-0 bottom-0 p-2 flex gap-1 justify-center bg-gradient-to-t from-black/60 to-transparent">
-                                <span className="bg-black/50 text-white text-[9px] px-3 py-0.5 rounded backdrop-blur">BEFORE & AFTER</span>
-                              </div>
-                            )}
-                          </div>
-                        )}
+                        <div className="relative flex aspect-[16/10] bg-charcoal overflow-hidden group border-b border-[#EBE3DB]">
+                          {r.before_image || r.after_image ? (
+                            <>
+                              {r.before_image && (
+                                <img src={r.before_image} alt={`${r.name} before`} className={cn("object-cover h-full", r.after_image ? "w-1/2 border-r border-black/20" : "w-full")} />
+                              )}
+                              {r.after_image && (
+                                <img src={r.after_image} alt={`${r.name} after`} className={cn("object-cover h-full", r.before_image ? "w-1/2" : "w-full")} />
+                              )}
+                              {r.before_image && r.after_image && (
+                                <div className="absolute inset-x-0 bottom-0 p-2 flex gap-1 justify-center bg-gradient-to-t from-black/60 to-transparent">
+                                  <span className="bg-black/50 text-white text-[9px] px-3 py-0.5 rounded backdrop-blur">BEFORE & AFTER</span>
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            <div className="w-full h-full flex flex-col items-center justify-center bg-[#FAF8F5]">
+                               <div className="h-16 w-16 rounded-full bg-[#8C6D40]/10 flex items-center justify-center mb-3">
+                                 <Star className="h-6 w-6 text-[#8C6D40] opacity-50" />
+                               </div>
+                               <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#8C6D40] opacity-60">Verified Experience</span>
+                            </div>
+                          )}
+                          <span className="absolute left-3 top-3 rounded-full bg-charcoal/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-cream backdrop-blur-sm shadow-sm border border-white/10">
+                            {getProgramName(r.program_id)}
+                          </span>
+                        </div>
 
                         <div className="p-6 flex-1 flex flex-col">
                           <div className="flex items-center gap-3 mb-4">

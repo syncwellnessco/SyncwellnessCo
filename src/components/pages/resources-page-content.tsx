@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 
 export function ResourcesPageContent() {
   const [submitted, setSubmitted] = useState(false);
+  const [duplicateError, setDuplicateError] = useState(false);
   const [loading, setLoading] = useState(false);
   const { user } = useUserStore();
   const router = useRouter();
@@ -39,6 +40,9 @@ export function ResourcesPageContent() {
       if (res.ok) {
         setSubmitted(true);
         toast.success("Ebook request successful!");
+      } else if (res.status === 409) {
+        setDuplicateError(true);
+        toast.error("Duplicate request detected.");
       } else {
         const errorData = await res.json().catch(() => ({}));
         toast.error(errorData.error || "There was an error processing your request.");
@@ -140,6 +144,14 @@ export function ResourcesPageContent() {
                     <p className="text-charcoal text-sm mb-3">Your free eBook download link is on its way.</p>
                     <p className="text-charcoal/70 text-xs italic">
                       (Note: Please check your spam or promotions folder if you don't receive it within a few minutes!)
+                    </p>
+                  </div>
+                ) : duplicateError ? (
+                  <div className="bg-[#FAF8F5] p-8 border border-[#EBE3DB] rounded-sm text-center">
+                    <p className="text-[#8C6D40] font-display text-2xl mb-2">Check your inbox!</p>
+                    <p className="text-charcoal text-sm mb-3">Sorry, we have already sent you the eBook. Please contact support if you didn't receive it.</p>
+                    <p className="text-charcoal/70 text-xs italic">
+                      (Note: Don't forget to check your spam or promotions folder!)
                     </p>
                   </div>
                 ) : (

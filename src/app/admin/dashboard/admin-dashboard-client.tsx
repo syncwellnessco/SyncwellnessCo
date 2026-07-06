@@ -7,6 +7,7 @@ import { EnquiriesManager } from "./enquiries-manager";
 import { EbooksManager } from "./ebooks-manager";
 import { ReviewsManager } from "./reviews-manager";
 import { VideoTestimonialsManager } from "./video-testimonials-manager";
+import { BlogsManager } from "./blogs-manager";
 import { OverviewTab } from "./overview-tab";
 
 export function AdminDashboardClient() {
@@ -29,6 +30,7 @@ export function AdminDashboardClient() {
         {activeTab === "programs" && <ProgramsManager />}
         {activeTab === "reviews" && <ReviewsManager />}
         {activeTab === "videos" && <VideoTestimonialsManager />}
+        {activeTab === "blogs" && <BlogsManager />}
       </div>
     </div>
   );

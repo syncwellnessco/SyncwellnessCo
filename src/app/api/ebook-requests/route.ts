@@ -68,9 +68,12 @@ export async function POST(request: NextRequest) {
       ])
       .select();
 
-    if (error) {
-      return NextResponse.json({ error: `Database Error: ${error.message}` }, { status: 400 });
+    if (error || !data || data.length === 0) {
+      return NextResponse.json({ error: `Database Error: ${error?.message || "Unknown error"}` }, { status: 400 });
     }
+
+    const recordId = data[0].id;
+    let finalStatus = "sent";
 
     // 3. Add to MailerLite
     if (process.env.MAILERLITE_API_KEY) {
@@ -92,14 +95,22 @@ export async function POST(request: NextRequest) {
         });
         
         if (!mlRes.ok) {
-           console.error("MailerLite Error:", await mlRes.text());
+           const mlError = await mlRes.text();
+           console.error("MailerLite Error:", mlError);
+           finalStatus = `failed: ${mlError.substring(0, 50)}`;
         }
-      } catch(e) {
+      } catch(e: any) {
         console.error("MailerLite exception", e);
+        finalStatus = `failed: Exception ${e.message?.substring(0, 50)}`;
       }
+    } else {
+      finalStatus = "failed: No MAILERLITE_API_KEY configured";
     }
 
-    return NextResponse.json({ success: true, data }, { status: 201 });
+    // Update status in database
+    await supabase.from("ebook_requests").update({ status: finalStatus }).eq("id", recordId);
+
+    return NextResponse.json({ success: true, data: { ...data[0], status: finalStatus } }, { status: 201 });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }

@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { PageHero } from "@/components/layout/page-hero";
 import { getBlogPost } from "@/lib/blogs";
+import { BlogEditButton } from "@/components/admin/blog-edit-button";
 
 type BlogDetailContentProps = {
   id: string;
@@ -15,43 +15,114 @@ export async function BlogDetailContent({ id }: BlogDetailContentProps) {
     notFound();
   }
 
-  return (
-    <>
-      <PageHero eyebrow={post.category} title={post.title} description={post.excerpt} />
+  let htmlContent = post.content;
+  if (post.content && post.content.startsWith('{') && post.content.includes('"blocks"')) {
+    try {
+      const parsed = JSON.parse(post.content);
+      if (parsed.blocks) {
+        htmlContent = parsed.blocks.map((b: any) => {
+          if (b.type === 'header') return `<h${b.data.level || 2}>${b.data.text || ''}</h${b.data.level || 2}>`;
+          if (b.type === 'list') {
+            const tag = b.data.style === 'ordered' ? 'ol' : 'ul';
+            const items = b.data.items.map((i: string) => `<li>${i}</li>`).join('');
+            return `<${tag}>${items}</${tag}>`;
+          }
+          if (b.type === 'image') return `<img src="${b.data.file?.url}" alt="${b.data.caption || ''}" />`;
+          if (b.type === 'quote') return `<blockquote>${b.data.text || ''}</blockquote>`;
+          return `<p>${b.data?.text || ''}</p>`;
+        }).join('');
+      }
+    } catch(e) {}
+  }
 
-      <article className="py-12 sm:py-16">
+  return (
+      <article className="pt-16 pb-8 sm:pt-20 sm:pb-10 bg-cream min-h-[calc(100vh-400px)]">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-8 text-center">
+            {post.category && (
+              <span className="mb-4 inline-block text-[10px] font-semibold uppercase tracking-[0.2em] text-[#8C6D40]">
+                {post.category}
+              </span>
+            )}
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl text-charcoal mb-6 leading-tight">
+              {post.title}
+            </h1>
+            {post.excerpt && (
+              <p className="text-base sm:text-lg text-charcoal/80 max-w-2xl mx-auto leading-relaxed">
+                {post.excerpt}
+              </p>
+            )}
+          </div>
           {post.image && (
-            <div className="relative mb-8 aspect-[16/9] overflow-hidden rounded-2xl">
-              <Image
-                src={post.image}
-                alt={post.title}
-                fill
-                className="object-cover"
-                sizes="768px"
-                priority
-              />
+            <div className="mb-6">
+              <div className="relative aspect-[16/9] overflow-hidden rounded-xl mb-4">
+                <Image
+                  src={post.image}
+                  alt={post.title}
+                  fill
+                  className="object-cover"
+                  sizes="768px"
+                  priority
+                  unoptimized
+                />
+              </div>
+              <div className="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-[#EBE3DB]">
+                <p className="text-[10px] uppercase tracking-widest font-semibold text-charcoal/50">
+                  Written By <span className="text-charcoal">{post.author}</span>
+                </p>
+                {post.tags && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {post.tags.split(',').map((tag) => {
+                      const trimmedTag = tag.trim();
+                      if (!trimmedTag) return null;
+                      return (
+                        <span key={trimmedTag} className="text-charcoal/50 text-[9px] uppercase tracking-widest font-medium px-2 py-1 rounded bg-[#FAF8F5]">
+                          {trimmedTag}
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
           )}
-          <p className="text-sm text-charcoal">By {post.author}</p>
-          <div className="prose prose-sage mt-6 max-w-none">
-            {post.content.split("\n\n").map((paragraph) => (
-              <p
-                key={paragraph.slice(0, 40)}
-                className="mb-4 text-base leading-relaxed text-charcoal"
-              >
-                {paragraph}
+
+          {!post.image && (
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-8 pb-6 border-b border-[#EBE3DB]">
+              <p className="text-[10px] uppercase tracking-widest font-semibold text-charcoal/50">
+                Written By <span className="text-charcoal">{post.author}</span>
               </p>
-            ))}
+              {post.tags && (
+                <div className="flex flex-wrap gap-1.5">
+                  {post.tags.split(',').map((tag) => {
+                    const trimmedTag = tag.trim();
+                    if (!trimmedTag) return null;
+                    return (
+                      <span key={trimmedTag} className="text-charcoal/50 text-[9px] uppercase tracking-widest font-medium px-2 py-1 rounded bg-[#FAF8F5]">
+                        {trimmedTag}
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+          <div 
+            className="prose prose-sage max-w-none prose-p:text-base prose-p:leading-relaxed prose-p:text-charcoal/90 prose-p:mb-6 prose-headings:font-display prose-headings:text-charcoal prose-headings:mt-10 prose-headings:mb-4 prose-a:text-[#8C6D40] prose-a:no-underline hover:prose-a:underline prose-li:text-charcoal/90 prose-strong:text-charcoal prose-img:rounded-md prose-img:border prose-img:border-[#EBE3DB]"
+            dangerouslySetInnerHTML={{ __html: htmlContent }}
+          />
+          
+          <div className="mt-16 pt-8 border-t border-[#EBE3DB]">
+            <Link
+              href="/resources/blogs"
+              className="inline-flex items-center text-[11px] uppercase tracking-widest font-semibold text-[#8C6D40] hover:text-[#B8955F] transition-colors"
+            >
+              ← Back to Journal
+            </Link>
           </div>
-          <Link
-            href="/blog"
-            className="mt-10 inline-block text-sm font-semibold text-charcoal hover:text-gold"
-          >
-            ← Back to Blog
-          </Link>
         </div>
-      </article>
-    </>
+      <BlogEditButton />
+    </article>
   );
 }

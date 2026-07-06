@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { PageShell } from "@/components/layout/page-shell";
 import { BlogPageContent } from "@/components/pages/blog-page-content";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Blog",
   description: "Wellness insights on hormones, gut health, and sustainable nutrition.",

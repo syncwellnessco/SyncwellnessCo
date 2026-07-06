@@ -101,12 +101,21 @@ export function EbooksManager() {
                     {new Date(req.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-4 py-4">
-                    <span className={`text-[10px] px-2 py-1 uppercase tracking-wider font-bold rounded-sm ${req.status === 'pending' ? 'bg-[#8C6D40]/10 text-[#8C6D40]' : 'bg-green-100 text-green-700'}`}>
-                      {req.status}
+                    <span className={`text-[10px] px-2 py-1 uppercase tracking-wider font-bold rounded-sm ${
+                      req.status === 'pending' ? 'bg-[#8C6D40]/10 text-[#8C6D40]' : 
+                      req.status === 'sent' ? 'bg-green-100 text-green-700' : 
+                      'bg-red-100 text-red-700'
+                    }`}>
+                      {req.status.startsWith('failed') ? 'FAILED' : req.status}
                     </span>
+                    {req.status.startsWith('failed') && (
+                      <div className="mt-1.5 text-[10px] text-red-600/80 max-w-[180px] leading-tight" title={req.status}>
+                        Reason: {req.status.replace('failed: ', '')}
+                      </div>
+                    )}
                   </td>
                   <td className="px-4 py-4 text-right">
-                    {req.status === 'pending' && (
+                    {req.status !== 'sent' && (
                       <Button 
                         onClick={() => markAsSent(req.id)}
                         variant="outline" 

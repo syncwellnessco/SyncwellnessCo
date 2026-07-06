@@ -8,6 +8,7 @@ export type BlogPost = {
   author: string;
   published: boolean;
   featured?: boolean;
+  tags?: string;
   createdAt: string;
   updatedAt: string;
 };

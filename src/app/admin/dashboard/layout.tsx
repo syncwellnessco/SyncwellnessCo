@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { BookOpen, Calendar, LayoutDashboard, Mail, MessageSquare, Users, ExternalLink } from "lucide-react";
 import { useUserStore } from "@/store/user-store";
 import { Spinner } from "@/components/ui/spinner";
+import { AdminPresence } from "@/components/admin/AdminPresence";
+import { Suspense } from "react";
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const { user } = useUserStore();
@@ -59,9 +61,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               <Calendar className="h-5 w-5 text-charcoal/50" />
               <span className="text-sm font-medium">Programs</span>
             </Link>
-            <Link href="/blog" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
-              <Users className="h-5 w-5 text-charcoal/50" />
-              <span className="text-sm font-medium">Blog</span>
+            <Link href="/admin/dashboard?tab=blogs" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
+              <BookOpen className="h-5 w-5 text-charcoal/50" />
+              <span className="text-sm font-medium">Blogs</span>
             </Link>
             <Link href="/admin/dashboard?tab=reviews" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
               <MessageSquare className="h-5 w-5 text-charcoal/50" />
@@ -79,6 +81,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               <span className="text-sm font-medium">View Website</span>
             </Link>
           </div>
+          
+          <Suspense fallback={null}>
+            <AdminPresence />
+          </Suspense>
         </div>
       </aside>
 
