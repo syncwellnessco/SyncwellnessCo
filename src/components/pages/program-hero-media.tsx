@@ -9,9 +9,10 @@ interface ProgramHeroMediaProps {
   videoUrl?: string;
   imageUrl?: string;
   title: string;
+  hideVideoOnMobile?: boolean;
 }
 
-export function ProgramHeroMedia({ videoUrl, imageUrl, title }: ProgramHeroMediaProps) {
+export function ProgramHeroMedia({ videoUrl, imageUrl, title, hideVideoOnMobile }: ProgramHeroMediaProps) {
   const [isMuted, setIsMuted] = useState(true);
   const [activeModal, setActiveModal] = useState<'video' | 'image' | null>(null);
 
@@ -19,7 +20,10 @@ export function ProgramHeroMedia({ videoUrl, imageUrl, title }: ProgramHeroMedia
     <div className="relative flex flex-col gap-8 w-full max-w-lg mx-auto lg:ml-auto">
       {videoUrl && (
         <div 
-          className="relative w-full aspect-video rounded-3xl overflow-hidden shadow-2xl ring-1 ring-white/10 group cursor-pointer"
+          className={cn(
+            "relative w-full aspect-video rounded-3xl overflow-hidden shadow-2xl ring-1 ring-white/10 group cursor-pointer",
+            hideVideoOnMobile && "hidden lg:block"
+          )}
           onClick={() => setActiveModal('video')}
         >
           <video 

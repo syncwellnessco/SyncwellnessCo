@@ -43,25 +43,30 @@ export async function ProgramsPageContent() {
       {/* My Programs */}
       <MyProgramsSection allPrograms={programs} />
 
-      {/* Featured Programs */}
-      {featuredPrograms.map((featured, fIdx) => (
-        <section key={featured.id} className="relative bg-cream py-12 lg:py-16 border-b border-beige-200">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-              
-              <div className="flex flex-col justify-center order-2 lg:order-2">
-                <div className="mb-6">
-                  <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-charcoal mb-2">
-                    #{fIdx + 1} Featured Program
-                  </span>
-                </div>
+      {featuredPrograms.map((featured, fIdx) => {
+        const titleWords = featured.title.trim().split(/\s+/);
+        const hasMultipleWords = titleWords.length > 1;
+        const lastWord = hasMultipleWords ? titleWords[titleWords.length - 1] : featured.title;
+        const remainingTitle = hasMultipleWords ? titleWords.slice(0, -1).join(" ") : "";
+
+        return (
+          <section key={featured.id} className="relative bg-cream py-12 lg:py-16 border-b border-beige-200">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
                 
-                <h2 className="font-display text-4xl lg:text-5xl font-medium leading-[1.15] text-charcoal mb-6">
-                  {featured.title}{" "}
-                  <span className="box-decoration-clone bg-[#EBE3DB] px-3 py-1">
-                    Masterclass
-                  </span>
-                </h2>
+                <div className="flex flex-col justify-center order-2 lg:order-2">
+                  <div className="mb-6">
+                    <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-charcoal mb-2">
+                      #{fIdx + 1} Featured Program
+                    </span>
+                  </div>
+                  
+                  <h2 className="font-display text-4xl lg:text-5xl font-medium leading-[1.15] text-charcoal mb-6">
+                    {remainingTitle ? `${remainingTitle} ` : ""}
+                    <span className="box-decoration-clone bg-[#EBE3DB] px-3 py-1">
+                      {lastWord}
+                    </span>
+                  </h2>
                 
                 <p className="text-lg leading-relaxed text-charcoal mb-8 max-w-lg">
                   {featured.description}
@@ -117,7 +122,8 @@ export async function ProgramsPageContent() {
             </div>
           </div>
         </section>
-      ))}
+      );
+      })}
 
       {/* Other Programs */}
       <section className="py-12 lg:py-16 bg-[#FAF9F7]">

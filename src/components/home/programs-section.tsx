@@ -108,6 +108,7 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
                     videoUrl={featured.hero?.introVideo} 
                     imageUrl={featured.hero?.bannerImage} 
                     title={featured.title} 
+                    hideVideoOnMobile={true}
                   />
                 </div>
               </div>
