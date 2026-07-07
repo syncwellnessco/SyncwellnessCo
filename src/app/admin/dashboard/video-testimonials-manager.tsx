@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, X, Trash2, Video, Upload } from "lucide-react";
 import toast from "react-hot-toast";
@@ -19,41 +19,50 @@ interface VideoTestimonial {
   created_at: string;
 }
 
-const CloudinaryVideoBtn = ({ onUpload, onRemove, value }: { onUpload: (u: string, pId: string) => void, onRemove: () => void, value: string }) => (
-  <div className="flex flex-col gap-2">
-    <div className="flex justify-between items-baseline">
-      <span className="text-sm font-medium text-charcoal/80">Video File</span>
-      <span className="text-[10px] text-charcoal/50 font-medium">Aspect ratio: 9:16 vertical</span>
-    </div>
-    {value ? (
-      <div className="relative w-full aspect-[9/16] max-h-96 rounded-md overflow-hidden border border-[#EBE3DB] bg-black">
-        <video src={value} controls className="w-full h-full object-contain" />
-        <button type="button" onClick={onRemove} className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full hover:bg-black/70 transition-colors z-10">
-          <X className="h-4 w-4" />
-        </button>
+const CloudinaryVideoBtn = memo(({ onUpload, onRemove, value }: { onUpload: (u: string, pId: string) => void, onRemove: () => void, value: string }) => {
+  const options = useMemo(() => ({
+    clientAllowedFormats: ["mp4", "mov", "webm", "avi"],
+    folder: 'syncwellness/videos',
+    multiple: false
+  }), []);
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex justify-between items-baseline">
+        <span className="text-sm font-medium text-charcoal/80">Video File</span>
+        <span className="text-[10px] text-charcoal/50 font-medium">Aspect ratio: 9:16 vertical</span>
       </div>
-    ) : (
-      <CldUploadWidget 
-        uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_VIDEOS || process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "syncwellness"}
-        options={{ clientAllowedFormats: ["mp4", "mov", "webm", "avi"], folder: 'syncwellness/videos' }}
-        onSuccess={(res: any) => {
-          if (res?.info?.secure_url) {
-             const optimizedUrl = optimizeCloudinaryUrl(res.info.secure_url);
-             onUpload(optimizedUrl, res.info.public_id);
-          }
-        }}
-      >
-        {({ open }) => (
-          <button type="button" onClick={() => open()} className="w-full aspect-[9/16] max-h-96 border-2 border-dashed border-[#EBE3DB] rounded-md flex flex-col items-center justify-center text-charcoal/50 hover:bg-[#FAF8F5] hover:border-[#8C6D40] transition-colors bg-[#FAF8F5]">
-            <Upload className="h-6 w-6 mb-2" />
-            <span className="text-xs">Click to upload video</span>
-            <span className="text-[10px] text-charcoal/40 mt-1">9:16 vertical format (e.g. Reels)</span>
+      {value ? (
+        <div className="relative w-full aspect-[9/16] max-h-96 rounded-md overflow-hidden border border-[#EBE3DB] bg-black">
+          <video src={value} controls className="w-full h-full object-contain" />
+          <button type="button" onClick={(e) => { e.preventDefault(); onRemove(); }} className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full hover:bg-black/70 transition-colors z-10">
+            <X className="h-4 w-4" />
           </button>
-        )}
-      </CldUploadWidget>
-    )}
-  </div>
-);
+        </div>
+      ) : (
+        <CldUploadWidget 
+          uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_VIDEOS || process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "syncwellness"}
+          options={options}
+          onSuccess={(res: any) => {
+            if (res?.info?.secure_url) {
+               const optimizedUrl = optimizeCloudinaryUrl(res.info.secure_url);
+               onUpload(optimizedUrl, res.info.public_id);
+            }
+          }}
+        >
+          {({ open }) => (
+            <button type="button" onClick={(e) => { e.preventDefault(); open(); }} className="w-full aspect-[9/16] max-h-96 border-2 border-dashed border-[#EBE3DB] rounded-md flex flex-col items-center justify-center text-charcoal/50 hover:bg-[#FAF8F5] hover:border-[#8C6D40] transition-colors bg-[#FAF8F5]">
+              <Upload className="h-6 w-6 mb-2" />
+              <span className="text-xs">Click to upload video</span>
+              <span className="text-[10px] text-charcoal/40 mt-1">9:16 vertical format (e.g. Reels)</span>
+            </button>
+          )}
+        </CldUploadWidget>
+      )}
+    </div>
+  );
+});
+CloudinaryVideoBtn.displayName = "CloudinaryVideoBtn";
 
 export function VideoTestimonialsManager() {
   const [videos, setVideos] = useState<VideoTestimonial[]>([]);
@@ -88,6 +97,21 @@ export function VideoTestimonialsManager() {
     return p ? p.title : "Program";
   };
 
+  const handleVideoUpload = useCallback((url: string, pId: string) => {
+    setForm(prev => ({ ...prev, video_url: url, public_id: pId }));
+  }, []);
+
+  const handleRemoveVideo = useCallback(async () => {
+    let publicId = "";
+    setForm(prev => {
+      publicId = prev.public_id;
+      return { ...prev, video_url: "", public_id: "" };
+    });
+    if (publicId) {
+      await deleteCloudinaryFile(publicId, 'video');
+    }
+  }, []);
+
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.video_url) {
@@ -107,7 +131,9 @@ export function VideoTestimonialsManager() {
       });
       if (res.ok) {
         toast.success(isEditing ? "Video testimonial updated" : "Video testimonial added");
-        closeModal();
+        setIsAddModalOpen(false);
+        setEditingId(null);
+        setForm({ video_url: "", public_id: "", caption: "", name: "", program_id: "", featured_on_home: true });
         fetchVideos();
       } else {
         const errorData = await res.json();
@@ -140,16 +166,12 @@ export function VideoTestimonialsManager() {
   };
 
   const closeModal = () => {
+    if (form.public_id) {
+      deleteCloudinaryFile(form.public_id, 'video');
+    }
     setIsAddModalOpen(false);
     setEditingId(null);
     setForm({ video_url: "", public_id: "", caption: "", name: "", program_id: "", featured_on_home: true });
-  };
-
-  const handleRemoveVideo = async () => {
-    if (form.public_id) {
-      await deleteCloudinaryFile(form.public_id, 'video');
-    }
-    setForm({...form, video_url: "", public_id: ""});
   };
 
   const updateStatus = async (id: string, updates: Partial<VideoTestimonial>) => {
@@ -248,7 +270,7 @@ export function VideoTestimonialsManager() {
                 <div className="w-full sm:w-1/2 flex flex-col gap-6 pr-0 sm:pr-8 sm:border-r border-[#EBE3DB]">
                   <CloudinaryVideoBtn 
                     value={form.video_url} 
-                    onUpload={(u, pId) => setForm({...form, video_url: u, public_id: pId})} 
+                    onUpload={handleVideoUpload} 
                     onRemove={handleRemoveVideo}
                   />
                 </div>
