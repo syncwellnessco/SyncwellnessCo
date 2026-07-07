@@ -15,7 +15,7 @@ export function BlogSection({ blogs }: BlogSectionProps) {
   if (!blogs || blogs.length === 0) return null;
 
   return (
-    <section className="bg-[#EBE3DB] py-10 lg:py-16" id="blog">
+    <section className="bg-[#EBE3DB] py-6 sm:py-10" id="blog">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
           eyebrow="From the Blog"

@@ -8,7 +8,7 @@ export function HowWeHelpSection() {
     "https://res.cloudinary.com/daw1tscqr/video/upload/v1780733233/female-hormone-specialist-certification-curriculum-papers_pm0ohz.mp4";
 
   return (
-    <section className="relative overflow-hidden bg-charcoal py-8 sm:py-16">
+    <section className="relative overflow-hidden bg-charcoal py-6 sm:py-10">
       <video
         className="absolute inset-0 h-full w-full object-cover"
         autoPlay

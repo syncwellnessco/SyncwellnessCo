@@ -87,7 +87,7 @@ export function VideoTestimonialsSection() {
   }
 
   return (
-    <section className="bg-sage-100/40 pt-2 pb-12 sm:pt-4 sm:pb-16 overflow-hidden">
+    <section className="bg-sage-100/40 pt-2 pb-6 sm:pt-4 sm:pb-10 overflow-hidden">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-4">
         <SectionHeading
           eyebrow="Video Stories"

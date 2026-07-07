@@ -16,7 +16,7 @@ export function FAQSection() {
 
   return (
     <section
-      className="bg-cream bg-cover bg-center py-8 sm:py-16"
+      className="bg-cream bg-cover bg-center py-6 sm:py-10"
       id="faq"
       style={{ backgroundImage: `url(${faqBackgroundSrc})` }}
     >

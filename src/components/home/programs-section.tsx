@@ -20,7 +20,7 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
 
   return (
     <section
-      className="py-24 relative overflow-hidden bg-[#FAF9F7]"
+      className="py-6 sm:py-10 relative overflow-hidden bg-[#FAF9F7]"
       id="programs"
     >
       <div className="absolute top-0 right-0 h-[600px] w-[600px] rounded-full bg-gold/5 blur-[100px] mix-blend-multiply pointer-events-none" />

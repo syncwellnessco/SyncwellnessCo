@@ -89,7 +89,7 @@ export function TestimonialsSection() {
 
   return (
     <section
-      className="bg-background pt-1 pb-2 sm:pt-2 sm:pb-4"
+      className="bg-background pt-6 pb-2 sm:pt-10 sm:pb-4"
       id="testimonials"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

@@ -26,7 +26,7 @@ export function StrugglesSection() {
 
   return (
     <section
-      className="relative overflow-hidden bg-cream bg-cover bg-center pt-4 pb-12 sm:pt-8 sm:pb-20"
+      className="relative overflow-hidden bg-cream bg-cover bg-center pt-4 pb-8 sm:pt-6 sm:pb-12"
       style={{ backgroundImage: `url(${backgroundSrc})` }}
     >
       <div className="absolute inset-0 bg-cream/85" />

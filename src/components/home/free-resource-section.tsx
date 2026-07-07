@@ -7,7 +7,7 @@ import { SectionHeading } from "@/components/ui/section-heading";
 export function FreeResourceSection() {
 
   return (
-    <section className="bg-cream py-8 sm:py-16" id="resources">
+    <section className="bg-cream py-6 sm:py-10" id="resources">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="overflow-hidden rounded-sm border border-[#EBE3DB] bg-[#FAF8F5]">
           <div className="grid lg:grid-cols-2">

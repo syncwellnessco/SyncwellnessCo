@@ -14,7 +14,7 @@ export function AboutCoachSection() {
 
   return (
     <section
-      className="relative overflow-hidden bg-beige-100/40 bg-cover bg-center py-8 sm:py-16"
+      className="relative overflow-hidden bg-beige-100/40 bg-cover bg-center py-6 sm:py-10"
       style={{ backgroundImage: `url(${coachBackgroundSrc})` }}
     >
       <div className="absolute inset-0 bg-cream/30" />

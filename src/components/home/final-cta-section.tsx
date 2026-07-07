@@ -9,7 +9,7 @@ export function FinalCTASection() {
     "https://res.cloudinary.com/daw1tscqr/video/upload/v1780735738/certified-functional-hormone-specialist_e844gt.mp4";
 
   return (
-    <section className="relative overflow-hidden bg-charcoal py-10 sm:py-16">
+    <section className="relative overflow-hidden bg-charcoal py-6 sm:py-10">
       <video
         className="absolute inset-0 h-full w-full object-cover"
         autoPlay
