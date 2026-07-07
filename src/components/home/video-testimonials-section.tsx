@@ -51,6 +51,17 @@ export function VideoTestimonialsSection() {
     });
   }, []);
 
+  useEffect(() => {
+    if (activeVideo) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [activeVideo]);
+
   const getProgramName = (id: string) => {
     const p = programs.find(x => x.id === id);
     return p ? p.title : "";

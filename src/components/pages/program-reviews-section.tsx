@@ -7,6 +7,8 @@ import toast from "react-hot-toast";
 import { CldUploadWidget } from "next-cloudinary";
 import { optimizeCloudinaryUrl, deleteCloudinaryFile } from "@/lib/cloudinary-utils";
 import useEmblaCarousel from "embla-carousel-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface Review {
   id: string;
@@ -117,6 +119,17 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
       })
       .catch(() => setLoading(false));
   }, [programId]);
+
+  useEffect(() => {
+    if (activeReview) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [activeReview]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -356,57 +369,116 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
       )}
 
       {/* Review Read Modal */}
-      {activeReview && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-charcoal/80 backdrop-blur-sm overflow-y-auto" onClick={() => setActiveReview(null)}>
-          <div className="bg-white rounded-md w-full max-w-2xl shadow-2xl relative my-8" onClick={e => e.stopPropagation()}>
-            <button onClick={() => setActiveReview(null)} className="absolute top-4 right-4 text-charcoal/50 hover:text-charcoal z-10 bg-white/80 rounded-full p-1">
-              <X className="h-6 w-6" />
-            </button>
-            <div className="p-8">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="h-12 w-12 rounded-full bg-[#8C6D40]/20 flex items-center justify-center font-display font-bold text-[#8C6D40] text-xl">
-                  {activeReview.name.charAt(0).toUpperCase()}
-                </div>
-                <div>
-                  <h4 className="font-semibold text-lg text-charcoal">{activeReview.name}</h4>
-                  <div className="flex text-[#8C6D40]">
-                    {[...Array(5)].map((_, i) => <Star key={i} className={`h-4 w-4 ${i < (activeReview.rating || 5) ? 'fill-current' : 'text-gray-300'}`} />)}
+      <AnimatePresence>
+        {activeReview && (() => {
+          const hasBefore = !!activeReview.before_image;
+          const hasAfter = !!activeReview.after_image;
+          const hasImages = hasBefore || hasAfter;
+          
+          return (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-charcoal/70 backdrop-blur-sm overflow-y-auto"
+              onClick={() => setActiveReview(null)}
+            >
+              <motion.div
+                initial={{ scale: 0.96, opacity: 0, y: 15 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.96, opacity: 0, y: 15 }}
+                transition={{ duration: 0.3 }}
+                className={cn(
+                  "relative w-full overflow-hidden rounded-md bg-[#FAF9F7] shadow-2xl border border-beige-200 flex flex-col md:flex-row my-8",
+                  hasImages ? "max-w-4xl" : "max-w-xl"
+                )}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Close Button */}
+                <button
+                  type="button"
+                  onClick={() => setActiveReview(null)}
+                  className="absolute top-4 right-4 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-charcoal/10 text-charcoal hover:bg-charcoal/20 transition-colors shadow-sm"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+
+                {/* Left Side: Images */}
+                {hasImages && (
+                  <div className="relative w-full h-[300px] md:h-auto md:w-[460px] lg:w-[500px] bg-beige-100 flex overflow-hidden md:min-h-[460px] shrink-0 border-b md:border-b-0 md:border-r border-beige-200">
+                    {hasBefore && (
+                      <div className={cn("relative h-full", hasAfter ? "w-1/2 border-r border-beige-200/50" : "w-full")}>
+                        <img
+                          src={activeReview.before_image!}
+                          alt="Before"
+                          className="absolute inset-0 w-full h-full object-cover"
+                        />
+                        <span className="absolute bottom-4 left-4 bg-black/75 text-white text-[9px] uppercase font-bold tracking-widest px-2.5 py-1.5 rounded-sm backdrop-blur-md z-10 shadow-sm">
+                          Before
+                        </span>
+                      </div>
+                    )}
+                    {hasAfter && (
+                      <div className={cn("relative h-full", hasBefore ? "w-1/2" : "w-full")}>
+                        <img
+                          src={activeReview.after_image!}
+                          alt="After"
+                          className="absolute inset-0 w-full h-full object-cover"
+                        />
+                        <span className="absolute bottom-4 right-4 bg-black/75 text-white text-[9px] uppercase font-bold tracking-widest px-2.5 py-1.5 rounded-sm backdrop-blur-md z-10 shadow-sm">
+                          After
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Right Side: Content */}
+                <div className="w-full md:flex-1 p-6 sm:p-8 md:p-10 flex flex-col justify-center bg-[#FAF9F7] text-charcoal">
+                  <div className="flex-1 flex flex-col justify-center">
+                    {/* Star Rating */}
+                    <div className="flex text-[#8C6D40] mb-4">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`h-4.5 w-4.5 ${
+                            i < (activeReview.rating || 5) ? "fill-current" : "text-gray-300"
+                          }`}
+                        />
+                      ))}
+                    </div>
+
+                    {/* Testimonial Quote */}
+                    <div className="relative mb-6">
+                      <span className="absolute -top-4 -left-3 font-serif text-5xl text-[#8C6D40]/10 pointer-events-none select-none">
+                        “
+                      </span>
+                      <p className="text-charcoal/90 text-sm sm:text-base leading-relaxed italic relative z-10 font-serif whitespace-pre-wrap">
+                        "{activeReview.testimonial}"
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Client Profile */}
+                  <div className="flex items-center gap-3 pt-5 border-t border-beige-200/60 mt-auto">
+                    <div className="h-10 w-10 rounded-full bg-[#8C6D40]/10 flex items-center justify-center font-display font-semibold text-[#8C6D40] text-sm shrink-0">
+                      {activeReview.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-charcoal text-sm">
+                        {activeReview.name}
+                      </h4>
+                      <span className="text-[10px] text-charcoal/50 uppercase tracking-widest font-semibold">
+                        Verified Client
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <p className="text-charcoal/90 text-base md:text-lg leading-relaxed italic mb-8 whitespace-pre-wrap">"{activeReview.testimonial}"</p>
-              
-              <div className="relative rounded-sm overflow-hidden w-full aspect-[1.6] flex bg-black/5 ring-1 ring-black/10">
-                <div className="relative h-full w-1/2 bg-charcoal/5 flex items-center justify-center">
-                  {activeReview.before_image ? (
-                    <img src={activeReview.before_image} alt="Before" className="absolute inset-0 w-full h-full object-cover" />
-                  ) : (
-                    <div className="flex flex-col items-center gap-2">
-                      <Star className="h-8 w-8 text-charcoal/20" />
-                      <span className="text-charcoal/40 text-xs font-bold uppercase tracking-widest">No Image</span>
-                    </div>
-                  )}
-                  <span className="absolute bottom-3 left-3 bg-black/70 text-white text-[10px] uppercase font-bold tracking-widest px-3 py-1.5 rounded-sm backdrop-blur-md z-10">Before</span>
-                </div>
-                
-
-                
-                <div className="relative h-full w-1/2 bg-charcoal/5 flex items-center justify-center">
-                  {activeReview.after_image ? (
-                    <img src={activeReview.after_image} alt="After" className="absolute inset-0 w-full h-full object-cover" />
-                  ) : (
-                    <div className="flex flex-col items-center gap-2">
-                      <Star className="h-8 w-8 text-charcoal/20" />
-                      <span className="text-charcoal/40 text-xs font-bold uppercase tracking-widest">No Image</span>
-                    </div>
-                  )}
-                  <span className="absolute bottom-3 right-3 bg-black/70 text-white text-[10px] uppercase font-bold tracking-widest px-3 py-1.5 rounded-sm backdrop-blur-md z-10">After</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+              </motion.div>
+            </motion.div>
+          );
+        })()}
+      </AnimatePresence>
     </div>
   );
 }

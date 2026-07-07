@@ -298,15 +298,22 @@ export function VideoTestimonialsManager() {
                     <p className="text-[9px] text-charcoal/50 mb-2">{new Date(video.created_at).toLocaleDateString()}</p>
                   </div>
                   <div className="flex flex-col gap-2 border-t border-[#EBE3DB] pt-2">
-                    <label className="flex items-center gap-1.5 cursor-pointer text-[10px] font-semibold text-charcoal">
-                      <input 
-                        type="checkbox" 
-                        checked={video.featured_on_home}
-                        onChange={e => updateStatus(video.id, { featured_on_home: e.target.checked })}
-                        className="rounded text-[#8C6D40] focus:ring-[#8C6D40] h-3.5 w-3.5"
-                      />
-                      Feature on Home
-                    </label>
+                    <div className="flex items-center justify-between gap-1.5 text-[10px] font-semibold text-charcoal">
+                      <span>Feature on Home</span>
+                      <button
+                        type="button"
+                        onClick={() => updateStatus(video.id, { featured_on_home: !video.featured_on_home })}
+                        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                          video.featured_on_home ? "bg-[#8C6D40]" : "bg-gray-200"
+                        }`}
+                      >
+                        <span
+                          className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                            video.featured_on_home ? "translate-x-4" : "translate-x-0"
+                          }`}
+                        />
+                      </button>
+                    </div>
                     <div className="flex items-center gap-1 justify-end">
                       <Button onClick={() => openEditModal(video)} variant="ghost" size="sm" className="h-7 w-7 rounded-md p-0 text-charcoal hover:bg-[#EBE3DB]" title="Edit">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
@@ -353,16 +360,21 @@ export function VideoTestimonialsManager() {
                     <label className="block text-sm font-medium mb-1">Caption</label>
                     <textarea value={form.caption} onChange={e => setForm({...form, caption: e.target.value})} className="w-full p-2.5 border border-[#EBE3DB] rounded resize-none" rows={4} placeholder="e.g., Sarah's 3-month progress..." />
                   </div>
-                  <div>
-                    <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-charcoal">
-                      <input 
-                        type="checkbox" 
-                        checked={form.featured_on_home}
-                        onChange={e => setForm({...form, featured_on_home: e.target.checked})}
-                        className="rounded text-[#8C6D40] focus:ring-[#8C6D40]"
+                  <div className="flex items-center justify-between gap-2 text-sm font-medium text-charcoal">
+                    <span>Feature on Home Page instantly</span>
+                    <button
+                      type="button"
+                      onClick={() => setForm({...form, featured_on_home: !form.featured_on_home})}
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                        form.featured_on_home ? "bg-[#8C6D40]" : "bg-gray-200"
+                      }`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                          form.featured_on_home ? "translate-x-5" : "translate-x-0"
+                        }`}
                       />
-                      Feature on Home Page instantly
-                    </label>
+                    </button>
                   </div>
                   <div className="pt-4">
                     <Button type="submit" disabled={submitting} className="w-full h-12 bg-[#8C6D40] hover:bg-[#B8955F] text-white">
