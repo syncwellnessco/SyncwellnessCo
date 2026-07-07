@@ -154,7 +154,7 @@ export function Navbar() {
                   </Link>
                 )}
                 <div className="flex items-center gap-2">
-                  <Link href="/profile" className="flex items-center gap-2 group cursor-pointer transition-opacity hover:opacity-80">
+                  <Link prefetch={false} href="/profile" className="flex items-center gap-2 group cursor-pointer transition-opacity hover:opacity-80">
                     <div
                       className={cn(
                         "inline-flex overflow-hidden items-center justify-center transition-colors",

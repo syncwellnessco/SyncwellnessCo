@@ -83,22 +83,22 @@ export function Footer() {
             <h4 className="font-display text-base text-cream">Legal</h4>
             <ul className="mt-4 space-y-2">
               <li>
-                <Link href="/privacy" className="text-sm text-cream/60 transition-colors hover:text-cream">
+                <Link prefetch={false} href="/privacy" className="text-sm text-cream/60 transition-colors hover:text-cream">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="/terms" className="text-sm text-cream/60 transition-colors hover:text-cream">
+                <Link prefetch={false} href="/terms" className="text-sm text-cream/60 transition-colors hover:text-cream">
                   Terms & Conditions
                 </Link>
               </li>
               <li>
-                <Link href="/refund" className="text-sm text-cream/60 transition-colors hover:text-cream">
+                <Link prefetch={false} href="/refund" className="text-sm text-cream/60 transition-colors hover:text-cream">
                   Refund Policy
                 </Link>
               </li>
               <li>
-                <Link href="/disclaimer" className="text-sm text-cream/60 transition-colors hover:text-cream">
+                <Link prefetch={false} href="/disclaimer" className="text-sm text-cream/60 transition-colors hover:text-cream">
                   Disclaimer
                 </Link>
               </li>

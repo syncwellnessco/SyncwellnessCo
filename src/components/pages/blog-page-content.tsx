@@ -31,7 +31,7 @@ export async function BlogPageContent() {
                 key={post.id}
                 className="flex flex-col overflow-hidden rounded-none bg-[#FAF8F5] shadow-sm transition-transform"
               >
-                <Link href={`/resources/blogs/${post.slug || post.id}`} className="group flex-1 flex flex-col">
+                <Link prefetch={false} href={`/resources/blogs/${post.slug || post.id}`} className="group flex-1 flex flex-col">
                   {post.image && (
                     <div className="relative aspect-[4/3] overflow-hidden">
                       <Image
@@ -53,7 +53,7 @@ export async function BlogPageContent() {
                     </span>
                   </div>
                 </Link>
-                <Link 
+                <Link prefetch={false} 
                   href={`/resources/blogs/${post.slug || post.id}`} 
                   className="block w-full bg-[#8C6D40] py-4 text-center text-[11px] font-semibold uppercase tracking-[0.15em] text-white transition-colors hover:bg-[#B8955F]"
                 >

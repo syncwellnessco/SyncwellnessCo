@@ -136,7 +136,7 @@ export default function ProfilePage() {
                         <h3 className="font-display text-2xl font-normal text-charcoal mb-3">{program.name}</h3>
                         <p className="text-sm text-charcoal mb-6 line-clamp-2 leading-relaxed">{program.description}</p>
                         
-                        <Link 
+                        <Link prefetch={false} 
                           href={`/programs/${program.slug || program.id}/course`}
                           className="text-[#8C6D40] hover:text-[#B8955F] uppercase tracking-[0.15em] text-[11px] font-semibold flex items-center gap-2 mt-auto self-start"
                         >
@@ -155,13 +155,13 @@ export default function ProfilePage() {
                   </p>
                   
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
-                    <Link 
+                    <Link prefetch={false} 
                       href="/programs"
                       className="bg-[#8C6D40] text-white hover:bg-[#B8955F] uppercase tracking-[0.15em] text-[11px] font-semibold py-4 px-8 transition-colors rounded-sm w-full sm:w-auto"
                     >
                       EXPLORE PROGRAMMES
                     </Link>
-                    <Link 
+                    <Link prefetch={false} 
                       href="/blog"
                       className="bg-transparent border border-[#DCD3C6] text-charcoal hover:bg-white uppercase tracking-[0.15em] text-[11px] font-semibold py-4 px-8 transition-colors rounded-sm w-full sm:w-auto"
                     >

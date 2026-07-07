@@ -176,7 +176,7 @@ function SignupContent() {
 
           <div className="mt-8 text-center text-[13px] text-charcoal">
             Already have an account?{" "}
-            <Link href={`/login?redirect=${encodeURIComponent(redirectUrl)}`} className="font-semibold text-[#8C6D40] hover:text-[#B8955F] transition-colors underline underline-offset-4">
+            <Link prefetch={false} href={`/login?redirect=${encodeURIComponent(redirectUrl)}`} className="font-semibold text-[#8C6D40] hover:text-[#B8955F] transition-colors underline underline-offset-4">
               Sign in
             </Link>
           </div>

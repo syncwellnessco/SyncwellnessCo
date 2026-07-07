@@ -69,7 +69,7 @@ export async function ProgramsPageContent() {
                 <div className="flex items-center justify-between mt-auto pt-4 border-t border-beige-200">
                   <span className="text-xs font-semibold uppercase tracking-wider text-[#8C6D40]">{featured.duration}</span>
                   <Button asChild size="lg" className="bg-[#8C6D40] text-white hover:bg-[#B8955F] uppercase tracking-[0.15em] text-[10px] font-bold h-12 px-8 rounded-sm border-0 transition-colors">
-                    <Link href={`/programs/${featured.slug || featured.id}`}>Explore Program</Link>
+                    <Link prefetch={false} href={`/programs/${featured.slug || featured.id}`}>Explore Program</Link>
                   </Button>
                 </div>
               </div>
@@ -153,7 +153,7 @@ export async function ProgramsPageContent() {
                     {program.pricing?.price ? `$${program.pricing.price}` : "Free"}
                   </span>
                   <Button asChild variant="ghost" className="group/btn text-[#8C6D40] hover:text-[#B8955F] hover:bg-transparent px-0 font-semibold tracking-wide uppercase text-xs">
-                    <Link href={`/programs/${program.slug || program.id}`}>
+                    <Link prefetch={false} href={`/programs/${program.slug || program.id}`}>
                       View Details
                       <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
                     </Link>

@@ -71,7 +71,7 @@ export function OverviewTab() {
         <div className="bg-white border border-[#EBE3DB] rounded-md shadow-sm flex flex-col h-full">
           <div className="p-4 border-b border-[#EBE3DB] flex justify-between items-center bg-[#FAF8F5]">
             <h3 className="font-semibold text-charcoal">Recent Enquiries</h3>
-            <Link href="?tab=enquiries" className="text-xs text-[#8C6D40] hover:underline flex items-center gap-1">
+            <Link prefetch={false} href="?tab=enquiries" className="text-xs text-[#8C6D40] hover:underline flex items-center gap-1">
               View All <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
@@ -96,7 +96,7 @@ export function OverviewTab() {
         <div className="bg-white border border-[#EBE3DB] rounded-md shadow-sm flex flex-col h-full">
           <div className="p-4 border-b border-[#EBE3DB] flex justify-between items-center bg-[#FAF8F5]">
             <h3 className="font-semibold text-charcoal">Ebook Requests</h3>
-            <Link href="?tab=ebooks" className="text-xs text-[#8C6D40] hover:underline flex items-center gap-1">
+            <Link prefetch={false} href="?tab=ebooks" className="text-xs text-[#8C6D40] hover:underline flex items-center gap-1">
               View All <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
@@ -121,7 +121,7 @@ export function OverviewTab() {
         <div className="bg-white border border-[#EBE3DB] rounded-md shadow-sm flex flex-col h-full">
           <div className="p-4 border-b border-[#EBE3DB] flex justify-between items-center bg-[#FAF8F5]">
             <h3 className="font-semibold text-charcoal">Pending Reviews</h3>
-            <Link href="?tab=reviews" className="text-xs text-[#8C6D40] hover:underline flex items-center gap-1">
+            <Link prefetch={false} href="?tab=reviews" className="text-xs text-[#8C6D40] hover:underline flex items-center gap-1">
               View All <ArrowRight className="h-3 w-3" />
             </Link>
           </div>

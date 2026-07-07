@@ -74,7 +74,7 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
                   <div className="flex items-center justify-between mt-auto pt-6 border-t border-white/10">
                     <span className="text-[11px] font-bold tracking-widest uppercase text-cream">{featured.duration}</span>
                     <Button asChild size="lg" className="bg-gold text-charcoal hover:bg-gold/90 text-[10px] font-bold tracking-[0.15em] uppercase h-12 px-8 rounded-sm">
-                      <Link href={`/programs/${featured.slug || featured.id}`}>View Details</Link>
+                      <Link prefetch={false} href={`/programs/${featured.slug || featured.id}`}>View Details</Link>
                     </Button>
                   </div>
                 </div>
@@ -116,7 +116,7 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
                   {program.pricing?.price ? `$${program.pricing.price}` : "Free"}
                 </span>
                 <Button asChild variant="ghost" className="group/btn text-charcoal hover:text-gold hover:bg-transparent px-0">
-                  <Link href={`/programs/${program.slug || program.id}`}>
+                  <Link prefetch={false} href={`/programs/${program.slug || program.id}`}>
                     Explore
                     <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
                   </Link>
@@ -128,7 +128,7 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
         
         <div className="mt-12 text-center">
           <Button asChild variant="outline" size="lg" className="rounded-full border-charcoal/20 bg-transparent text-charcoal hover:bg-charcoal/5 px-8">
-            <Link href="/programs">View All Programs</Link>
+            <Link prefetch={false} href="/programs">View All Programs</Link>
           </Button>
         </div>
       </div>
