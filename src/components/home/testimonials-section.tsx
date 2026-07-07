@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
@@ -71,9 +71,25 @@ export function TestimonialsSection() {
     };
   }, [emblaApi, onSelect]);
 
+  const dragStartRef = useRef<{ x: number, y: number } | null>(null);
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    dragStartRef.current = { x: e.clientX, y: e.clientY };
+  };
+
+  const handlePointerUp = (e: React.PointerEvent, callback: () => void) => {
+    if (!dragStartRef.current) return;
+    const diffX = Math.abs(e.clientX - dragStartRef.current.x);
+    const diffY = Math.abs(e.clientY - dragStartRef.current.y);
+    if (diffX < 5 && diffY < 5) {
+      callback();
+    }
+    dragStartRef.current = null;
+  };
+
   return (
     <section
-      className="bg-background pt-1 pb-8 sm:pt-2 sm:pb-14"
+      className="bg-background pt-1 pb-2 sm:pt-2 sm:pb-4"
       id="testimonials"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -111,19 +127,20 @@ export function TestimonialsSection() {
         ) : reviews.length === 0 ? (
           <div className="text-center py-20 text-charcoal/60">No featured reviews yet.</div>
         ) : (
-          <div className="relative mt-10 sm:mt-12 overflow-hidden w-full flex items-center group py-4">
-            <div className="flex gap-4 sm:gap-5 w-max animate-marquee group-hover:[animation-play-state:paused]">
+          <div className="relative mt-10 sm:mt-12 w-full py-4">
+            <MarqueeCarousel speed={1.5}>
               {[...reviews, ...reviews, ...reviews].map((r, index) => (
                 <div
                   key={`${r.id}-${index}`}
-                  className="w-[85vw] sm:w-[360px] shrink-0 h-full"
+                  className="w-[85vw] sm:w-[360px] shrink-0 h-full select-none"
                 >
                   <article 
                     className="bg-white rounded-md border border-beige-200 shadow-sm cursor-pointer hover:shadow-xl transition-all duration-500 hover:-translate-y-1 hover:border-[#8C6D40]/30 group/card flex flex-col h-full overflow-hidden"
-                    onClick={() => setActiveReview(r)}
+                    onPointerDown={handlePointerDown}
+                    onPointerUp={(e) => handlePointerUp(e, () => setActiveReview(r))}
                   >
                     {/* Images Top Half */}
-                    <div className="relative w-full aspect-[16/10] bg-charcoal/5 flex overflow-hidden border-b border-beige-100 shrink-0">
+                    <div className="relative w-full aspect-[16/10] bg-charcoal/5 flex overflow-hidden border-b border-beige-100 shrink-0 pointer-events-none">
                       {r.before_image || r.after_image ? (
                         <>
                           {r.before_image && (
@@ -156,14 +173,14 @@ export function TestimonialsSection() {
                     </div>
                     
                     {/* Content Bottom Half */}
-                    <div className="p-4 sm:p-6 flex flex-col flex-1 bg-white">
+                    <div className="p-4 sm:p-6 flex flex-col flex-1 bg-white pointer-events-none">
                       <div className="flex-1 mb-4 sm:mb-5">
                         <p className="text-charcoal/80 text-xs sm:text-[13px] leading-relaxed italic line-clamp-4 relative z-10">
                           "{r.testimonial}"
                         </p>
                       </div>
                       
-                      <div className="flex items-center gap-2.5 sm:gap-3 pt-3 sm:pt-4 border-t border-beige-100 mt-auto">
+                      <div className="flex items-center gap-2.5 sm:gap-3 pt-3 sm:pt-4 border-t border-beige-100 mt-auto font-sans">
                         <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-[#8C6D40]/10 flex items-center justify-center font-display font-semibold text-[#8C6D40] text-sm shrink-0">
                           {r.name.charAt(0).toUpperCase()}
                         </div>
@@ -178,27 +195,9 @@ export function TestimonialsSection() {
                   </article>
                 </div>
               ))}
-            </div>
-            <style jsx>{`
-              @keyframes marquee {
-                0% { transform: translateX(0%); }
-                100% { transform: translateX(-33.333333%); }
-              }
-              .animate-marquee {
-                animation: marquee 20s linear infinite;
-              }
-            `}</style>
+            </MarqueeCarousel>
           </div>
         )}
-          
-        <div className="mt-12 flex justify-center">
-          <a 
-            href="/testimonials" 
-            className="inline-flex h-12 items-center justify-center rounded-sm bg-[#8C6D40] px-8 text-xs font-semibold uppercase tracking-[0.15em] text-white transition-colors hover:bg-[#B8955F]"
-          >
-            Show More Testimonials
-          </a>
-        </div>
       </div>
       
       {/* Review Read Modal */}
@@ -254,5 +253,128 @@ export function TestimonialsSection() {
         </div>
       )}
     </section>
+  );
+}
+
+interface MarqueeCarouselProps {
+  children: React.ReactNode;
+  speed?: number;
+}
+
+function MarqueeCarousel({ children, speed = 1 }: MarqueeCarouselProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isDownRef = useRef(false);
+  const startXRef = useRef(0);
+  const scrollLeftRef = useRef(0);
+  const isHoveredRef = useRef(false);
+  const scrollPosRef = useRef(0);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    let animationFrameId: number;
+    let initialized = false;
+
+    const scroll = () => {
+      if (container.scrollWidth === 0) {
+        animationFrameId = requestAnimationFrame(scroll);
+        return;
+      }
+
+      if (!initialized) {
+        scrollPosRef.current = container.scrollWidth / 3;
+        container.scrollLeft = scrollPosRef.current;
+        initialized = true;
+      }
+
+      if (isDownRef.current) {
+        scrollPosRef.current = container.scrollLeft;
+      } else if (!isHoveredRef.current) {
+        scrollPosRef.current += speed;
+        
+        const oneThird = container.scrollWidth / 3;
+        if (scrollPosRef.current >= oneThird * 2) {
+          scrollPosRef.current -= oneThird;
+        } else if (scrollPosRef.current <= oneThird) {
+          scrollPosRef.current += oneThird;
+        }
+        
+        container.scrollLeft = scrollPosRef.current;
+      }
+      animationFrameId = requestAnimationFrame(scroll);
+    };
+
+    animationFrameId = requestAnimationFrame(scroll);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [speed]);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    const container = containerRef.current;
+    if (!container) return;
+    isDownRef.current = true;
+    startXRef.current = e.pageX - container.offsetLeft;
+    scrollLeftRef.current = container.scrollLeft;
+  };
+
+  const handleMouseLeave = () => {
+    isDownRef.current = false;
+    isHoveredRef.current = false;
+  };
+
+  const handleMouseEnter = () => {
+    isHoveredRef.current = true;
+  };
+
+  const handleMouseUp = () => {
+    isDownRef.current = false;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDownRef.current) return;
+    e.preventDefault();
+    const container = containerRef.current;
+    if (!container) return;
+    const x = e.pageX - container.offsetLeft;
+    const walk = (x - startXRef.current) * 1.5;
+    container.scrollLeft = scrollLeftRef.current - walk;
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const container = containerRef.current;
+    if (!container) return;
+    isDownRef.current = true;
+    startXRef.current = e.touches[0].pageX - container.offsetLeft;
+    scrollLeftRef.current = container.scrollLeft;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDownRef.current) return;
+    const container = containerRef.current;
+    if (!container) return;
+    const x = e.touches[0].pageX - container.offsetLeft;
+    const walk = (x - startXRef.current) * 1.5;
+    container.scrollLeft = scrollLeftRef.current - walk;
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      onMouseDown={handleMouseDown}
+      onMouseLeave={handleMouseLeave}
+      onMouseEnter={handleMouseEnter}
+      onMouseUp={handleMouseUp}
+      onMouseMove={handleMouseMove}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleMouseUp}
+      onTouchMove={handleTouchMove}
+      className="overflow-x-auto scrollbar-none flex select-none w-full gap-4 sm:gap-5 py-4 cursor-grab active:cursor-grabbing"
+      style={{ WebkitOverflowScrolling: "touch" }}
+    >
+      {children}
+    </div>
   );
 }

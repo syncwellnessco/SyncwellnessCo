@@ -24,6 +24,21 @@ export function VideoTestimonialsSection() {
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const dragStartRef = useRef<{ x: number, y: number } | null>(null);
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    dragStartRef.current = { x: e.clientX, y: e.clientY };
+  };
+
+  const handlePointerUp = (e: React.PointerEvent, callback: () => void) => {
+    if (!dragStartRef.current) return;
+    const diffX = Math.abs(e.clientX - dragStartRef.current.x);
+    const diffY = Math.abs(e.clientY - dragStartRef.current.y);
+    if (diffX < 5 && diffY < 5) {
+      callback();
+    }
+    dragStartRef.current = null;
+  };
 
   useEffect(() => {
     Promise.all([
@@ -72,7 +87,7 @@ export function VideoTestimonialsSection() {
   }
 
   return (
-    <section className="bg-sage-100/40 py-6 sm:py-8 overflow-hidden">
+    <section className="bg-sage-100/40 pt-2 pb-12 sm:pt-4 sm:pb-16 overflow-hidden">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-4">
         <SectionHeading
           eyebrow="Video Stories"
@@ -82,40 +97,41 @@ export function VideoTestimonialsSection() {
       </div>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="relative overflow-hidden w-full flex items-center group py-2">
-          <div className="flex gap-4 sm:gap-6 w-max animate-marquee-reverse group-hover:[animation-play-state:paused]">
+        <div className="relative w-full py-2">
+          <MarqueeCarousel speed={1.5} reverse>
             {Array.from({ length: Math.max(12, videos.length * 4) }).map((_, i) => {
               const video = videos[i % videos.length];
               return (
                 <div
                   key={`${video.id}-${i}`}
-                  className="w-[calc(50vw-1.25rem)] sm:w-[280px] shrink-0"
+                  className="w-[calc(50vw-1.25rem)] sm:w-[280px] shrink-0 select-none"
                 >
                   <article
                     className="group cursor-pointer overflow-hidden rounded-2xl border border-beige-200 bg-cream shadow-sm transition-all duration-500 hover:shadow-xl hover:-translate-y-1 relative aspect-[9/16] bg-black"
-                    onClick={() => setActiveVideo(video)}
+                    onPointerDown={handlePointerDown}
+                    onPointerUp={(e) => handlePointerUp(e, () => setActiveVideo(video))}
                     role="button"
                     tabIndex={0}
                   >
                     <video 
                       src={video.video_url} 
-                      className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500 group-hover:scale-105"
+                      className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500 group-hover:scale-105 pointer-events-none"
                       preload="metadata"
                       muted
                       playsInline
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none" />
                     
 
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
                     
-                    <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                       <div className="flex h-10 w-10 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-md shadow-lg transition-transform group-hover:scale-110 border border-white/30">
                         <Play className="ml-0.5 sm:ml-1 h-4 w-4 sm:h-6 sm:w-6 fill-white text-white" />
                       </div>
                     </div>
 
-                    <div className="absolute bottom-0 inset-x-0 p-3 sm:p-5 z-10">
+                    <div className="absolute bottom-0 inset-x-0 p-3 sm:p-5 z-10 pointer-events-none">
                       <div className="mb-1 sm:mb-1.5">
                         <h4 className="text-white font-bold text-xs sm:text-base mb-0.5 leading-tight drop-shadow-md">{video.name}</h4>
                         {getProgramName(video.program_id) && (
@@ -132,16 +148,16 @@ export function VideoTestimonialsSection() {
                 </div>
               );
             })}
-          </div>
-          <style jsx>{`
-            @keyframes marquee-reverse {
-              0% { transform: translateX(calc(-50% - 12px)); }
-              100% { transform: translateX(0%); }
-            }
-            .animate-marquee-reverse {
-              animation: marquee-reverse 30s linear infinite;
-            }
-          `}</style>
+          </MarqueeCarousel>
+        </div>
+
+        <div className="mt-6 sm:mt-8 flex justify-center">
+          <a 
+            href="/testimonials" 
+            className="inline-flex h-12 items-center justify-center rounded-sm bg-[#8C6D40] px-8 text-xs font-semibold uppercase tracking-[0.15em] text-white transition-colors hover:bg-[#B8955F]"
+          >
+            Show More Testimonials
+          </a>
         </div>
       </div>
 
@@ -249,5 +265,133 @@ export function VideoTestimonialsSection() {
         )}
       </AnimatePresence>
     </section>
+  );
+}
+
+interface MarqueeCarouselProps {
+  children: React.ReactNode;
+  speed?: number;
+  reverse?: boolean;
+}
+
+function MarqueeCarousel({ children, speed = 1, reverse = false }: MarqueeCarouselProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isDownRef = useRef(false);
+  const startXRef = useRef(0);
+  const scrollLeftRef = useRef(0);
+  const isHoveredRef = useRef(false);
+  const scrollPosRef = useRef(0);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    let animationFrameId: number;
+    let initialized = false;
+
+    const scroll = () => {
+      if (container.scrollWidth === 0) {
+        animationFrameId = requestAnimationFrame(scroll);
+        return;
+      }
+
+      if (!initialized) {
+        scrollPosRef.current = container.scrollWidth / 3;
+        container.scrollLeft = scrollPosRef.current;
+        initialized = true;
+      }
+
+      if (isDownRef.current) {
+        scrollPosRef.current = container.scrollLeft;
+      } else if (!isHoveredRef.current) {
+        if (reverse) {
+          scrollPosRef.current -= speed;
+        } else {
+          scrollPosRef.current += speed;
+        }
+        
+        const oneThird = container.scrollWidth / 3;
+        if (scrollPosRef.current >= oneThird * 2) {
+          scrollPosRef.current -= oneThird;
+        } else if (scrollPosRef.current <= oneThird) {
+          scrollPosRef.current += oneThird;
+        }
+        
+        container.scrollLeft = scrollPosRef.current;
+      }
+      animationFrameId = requestAnimationFrame(scroll);
+    };
+
+    animationFrameId = requestAnimationFrame(scroll);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [speed, reverse]);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    const container = containerRef.current;
+    if (!container) return;
+    isDownRef.current = true;
+    startXRef.current = e.pageX - container.offsetLeft;
+    scrollLeftRef.current = container.scrollLeft;
+  };
+
+  const handleMouseLeave = () => {
+    isDownRef.current = false;
+    isHoveredRef.current = false;
+  };
+
+  const handleMouseEnter = () => {
+    isHoveredRef.current = true;
+  };
+
+  const handleMouseUp = () => {
+    isDownRef.current = false;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDownRef.current) return;
+    e.preventDefault();
+    const container = containerRef.current;
+    if (!container) return;
+    const x = e.pageX - container.offsetLeft;
+    const walk = (x - startXRef.current) * 1.5;
+    container.scrollLeft = scrollLeftRef.current - walk;
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const container = containerRef.current;
+    if (!container) return;
+    isDownRef.current = true;
+    startXRef.current = e.touches[0].pageX - container.offsetLeft;
+    scrollLeftRef.current = container.scrollLeft;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDownRef.current) return;
+    const container = containerRef.current;
+    if (!container) return;
+    const x = e.touches[0].pageX - container.offsetLeft;
+    const walk = (x - startXRef.current) * 1.5;
+    container.scrollLeft = scrollLeftRef.current - walk;
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      onMouseDown={handleMouseDown}
+      onMouseLeave={handleMouseLeave}
+      onMouseEnter={handleMouseEnter}
+      onMouseUp={handleMouseUp}
+      onMouseMove={handleMouseMove}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleMouseUp}
+      onTouchMove={handleTouchMove}
+      className="overflow-x-auto scrollbar-none flex select-none w-full gap-4 sm:gap-6 py-4 cursor-grab active:cursor-grabbing"
+      style={{ WebkitOverflowScrolling: "touch" }}
+    >
+      {children}
+    </div>
   );
 }

@@ -64,6 +64,52 @@ const CloudinaryVideoBtn = memo(({ onUpload, onRemove, value }: { onUpload: (u: 
 });
 CloudinaryVideoBtn.displayName = "CloudinaryVideoBtn";
 
+const getVideoThumbnailUrl = (url: string) => {
+  if (!url) return "";
+  if (url.includes('/video/upload/')) {
+    const baseUrl = url.split('?')[0];
+    const lastDot = baseUrl.lastIndexOf('.');
+    if (lastDot !== -1) {
+      const jpgUrl = baseUrl.substring(0, lastDot) + '.jpg';
+      return jpgUrl.replace('/video/upload/', '/video/upload/c_fill,w_300,h_533,so_1/');
+    }
+  }
+  return "";
+};
+
+const VideoCardThumbnail = ({ url, name, onPlay }: { url: string, name: string, onPlay: () => void }) => {
+  const [hasError, setHasError] = useState(false);
+  const thumbnail = getVideoThumbnailUrl(url);
+
+  return (
+    <div 
+      onClick={onPlay} 
+      className="absolute inset-0 cursor-pointer flex items-center justify-center"
+    >
+      {thumbnail && !hasError ? (
+        <img 
+          src={thumbnail} 
+          alt={name} 
+          onError={() => setHasError(true)}
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+          loading="lazy"
+        />
+      ) : (
+        <div className="w-full h-full flex flex-col items-center justify-center bg-charcoal/90 text-white/40">
+          <Video className="h-6 w-6 mb-1 text-white/50" />
+          <span className="text-[9px] text-white/30 uppercase tracking-wider font-bold truncate max-w-[90%] px-1">{name}</span>
+        </div>
+      )}
+      {/* Dark overlay with play button */}
+      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/35 transition-colors flex items-center justify-center">
+        <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center shadow-lg transform transition-transform group-hover:scale-110">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="ml-0.5 fill-white text-white"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export function VideoTestimonialsManager() {
   const [videos, setVideos] = useState<VideoTestimonial[]>([]);
   const [programs, setPrograms] = useState<any[]>([]);
@@ -73,6 +119,7 @@ export function VideoTestimonialsManager() {
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({ video_url: "", public_id: "", caption: "", name: "", program_id: "", featured_on_home: true });
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
 
   const fetchVideos = () => {
     fetch("/api/videos").then(res => res.json()).then(data => {
@@ -217,46 +264,62 @@ export function VideoTestimonialsManager() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
         {videos.length === 0 ? (
           <div className="col-span-full py-12 text-center text-charcoal/50 border border-dashed border-[#EBE3DB] rounded-md">
             No video testimonials found.
           </div>
         ) : (
-          videos.map(video => (
-            <div key={video.id} className="bg-white border border-[#EBE3DB] rounded-lg overflow-hidden shadow-sm flex flex-col">
-              <div className="aspect-[9/16] bg-black relative">
-                <video src={`${video.video_url}#t=0.001`} className="w-full h-full object-cover" controls preload="metadata" />
-              </div>
-              <div className="p-4 flex-1 flex flex-col justify-between">
-                <div>
-                  <h4 className="font-semibold text-charcoal">{video.name}</h4>
-                  <p className="text-[10px] uppercase tracking-wider text-[#8C6D40] mb-2">{getProgramName(video.program_id)}</p>
-                  <p className="text-sm font-medium text-charcoal/80 mb-2 line-clamp-2" title={video.caption}>{video.caption || "No caption"}</p>
-                  <p className="text-[10px] text-charcoal/50 mb-4">{new Date(video.created_at).toLocaleDateString()}</p>
-                </div>
-                <div className="flex flex-col gap-3 border-t border-[#EBE3DB] pt-3">
-                  <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-charcoal">
-                    <input 
-                      type="checkbox" 
-                      checked={video.featured_on_home}
-                      onChange={e => updateStatus(video.id, { featured_on_home: e.target.checked })}
-                      className="rounded text-[#8C6D40] focus:ring-[#8C6D40]"
+          videos.map(video => {
+            return (
+              <div key={video.id} className="bg-white border border-[#EBE3DB] rounded-lg overflow-hidden shadow-sm flex flex-col">
+                <div className="aspect-[9/16] bg-black relative overflow-hidden group">
+                  {playingVideoId === video.id ? (
+                    <video 
+                      src={video.video_url} 
+                      className="w-full h-full object-cover" 
+                      controls 
+                      autoPlay 
+                      preload="auto" 
                     />
-                    Feature on Home
-                  </label>
-                  <div className="flex items-center gap-1 justify-end">
-                    <Button onClick={() => openEditModal(video)} variant="ghost" size="sm" className="h-8 w-8 rounded-md p-0 text-charcoal hover:bg-[#EBE3DB]" title="Edit">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
-                    </Button>
-                    <Button onClick={() => setDeleteConfirmId(video.id)} variant="ghost" size="sm" className="h-8 w-8 rounded-md p-0 text-red-500 hover:text-red-600 hover:bg-red-50" title="Delete">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                  ) : (
+                    <VideoCardThumbnail 
+                      url={video.video_url} 
+                      name={video.name} 
+                      onPlay={() => setPlayingVideoId(video.id)} 
+                    />
+                  )}
+                </div>
+                <div className="p-3 flex-1 flex flex-col justify-between">
+                  <div>
+                    <h4 className="font-semibold text-charcoal text-sm truncate" title={video.name}>{video.name}</h4>
+                    <p className="text-[9px] uppercase tracking-wider text-[#8C6D40] mb-1 truncate" title={getProgramName(video.program_id)}>{getProgramName(video.program_id)}</p>
+                    <p className="text-xs font-medium text-charcoal/80 mb-1 line-clamp-2" title={video.caption}>{video.caption || "No caption"}</p>
+                    <p className="text-[9px] text-charcoal/50 mb-2">{new Date(video.created_at).toLocaleDateString()}</p>
+                  </div>
+                  <div className="flex flex-col gap-2 border-t border-[#EBE3DB] pt-2">
+                    <label className="flex items-center gap-1.5 cursor-pointer text-[10px] font-semibold text-charcoal">
+                      <input 
+                        type="checkbox" 
+                        checked={video.featured_on_home}
+                        onChange={e => updateStatus(video.id, { featured_on_home: e.target.checked })}
+                        className="rounded text-[#8C6D40] focus:ring-[#8C6D40] h-3.5 w-3.5"
+                      />
+                      Feature on Home
+                    </label>
+                    <div className="flex items-center gap-1 justify-end">
+                      <Button onClick={() => openEditModal(video)} variant="ghost" size="sm" className="h-7 w-7 rounded-md p-0 text-charcoal hover:bg-[#EBE3DB]" title="Edit">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                      </Button>
+                      <Button onClick={() => setDeleteConfirmId(video.id)} variant="ghost" size="sm" className="h-7 w-7 rounded-md p-0 text-red-500 hover:text-red-600 hover:bg-red-50" title="Delete">
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 
