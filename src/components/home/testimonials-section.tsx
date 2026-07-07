@@ -5,7 +5,7 @@ import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import { motion } from "framer-motion";
-import { Star, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { Star, ChevronLeft, ChevronRight, Loader2, X } from "lucide-react";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { cn } from "@/lib/utils";
 
@@ -17,24 +17,6 @@ interface Review {
   before_image: string | null;
   after_image: string | null;
   rating: number;
-}
-
-function StarRating({ rating }: { rating: number }) {
-  return (
-    <div className="flex gap-0.5" aria-label={`${rating} out of 5 stars`}>
-      {Array.from({ length: 5 }).map((_, i) => (
-        <Star
-          key={i}
-          className={cn(
-            "h-4 w-4",
-            i < rating
-              ? "fill-amber-400 text-amber-400"
-              : "fill-beige-200 text-beige-200",
-          )}
-        />
-      ))}
-    </div>
-  );
 }
 
 export function TestimonialsSection() {
@@ -49,7 +31,7 @@ export function TestimonialsSection() {
     ],
   );
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [activeReview, setActiveReview] = useState<Review | null>(null);
   
   const [reviews, setReviews] = useState<Review[]>([]);
   const [programs, setPrograms] = useState<any[]>([]);
@@ -78,8 +60,6 @@ export function TestimonialsSection() {
     const p = programs.find(x => x.id === id);
     return p ? p.title : "Program";
   };
-
-  const shouldTruncate = (message: string) => message.length > 145;
 
   useEffect(() => {
     if (!emblaApi) return;
@@ -136,66 +116,63 @@ export function TestimonialsSection() {
               {[...reviews, ...reviews, ...reviews].map((r, index) => (
                 <div
                   key={`${r.id}-${index}`}
-                  className="w-[300px] sm:w-[360px] shrink-0 h-full"
+                  className="w-[85vw] sm:w-[360px] shrink-0 h-full"
                 >
-                  <article className="overflow-hidden rounded-2xl border border-beige-200 bg-cream shadow-sm flex flex-col h-full hover:shadow-xl hover:-translate-y-1 transition-all duration-500 cursor-pointer">
-                    <div className="relative flex aspect-[16/10] bg-charcoal overflow-hidden group/img border-b border-[#EBE3DB]">
+                  <article 
+                    className="bg-white rounded-md border border-beige-200 shadow-sm cursor-pointer hover:shadow-xl transition-all duration-500 hover:-translate-y-1 hover:border-[#8C6D40]/30 group/card flex flex-col h-full overflow-hidden"
+                    onClick={() => setActiveReview(r)}
+                  >
+                    {/* Images Top Half */}
+                    <div className="relative w-full aspect-[16/10] bg-charcoal/5 flex overflow-hidden border-b border-beige-100 shrink-0">
                       {r.before_image || r.after_image ? (
                         <>
                           {r.before_image && (
-                            <img
-                              src={r.before_image}
-                              alt={`${r.name} before`}
-                              className={cn("object-cover h-full", r.after_image ? "w-1/2 border-r border-black/20" : "w-full")}
-                            />
+                            <div className={`relative h-full ${r.after_image ? "w-1/2" : "w-full"}`}>
+                              <img src={r.before_image} alt="Before" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-105" />
+                              <span className="absolute bottom-2 left-2 bg-black/60 text-white text-[8px] sm:text-[9px] uppercase font-bold tracking-widest px-2 py-1 rounded-sm backdrop-blur-sm z-10">Before</span>
+                            </div>
                           )}
                           {r.after_image && (
-                            <img
-                              src={r.after_image}
-                              alt={`${r.name} after`}
-                              className={cn("object-cover h-full", r.before_image ? "w-1/2" : "w-full")}
-                            />
-                          )}
-                          {r.before_image && r.after_image && (
-                            <div className="absolute inset-x-0 bottom-0 p-2 flex gap-1 justify-center bg-gradient-to-t from-black/60 to-transparent">
-                              <span className="bg-black/50 text-white text-[9px] px-3 py-0.5 rounded backdrop-blur">BEFORE & AFTER</span>
+                            <div className={`relative h-full ${r.before_image ? "w-1/2" : "w-full"}`}>
+                              <img src={r.after_image} alt="After" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-105" />
+                              <span className="absolute bottom-2 right-2 bg-black/60 text-white text-[8px] sm:text-[9px] uppercase font-bold tracking-widest px-2 py-1 rounded-sm backdrop-blur-sm z-10">After</span>
                             </div>
                           )}
                         </>
                       ) : (
-                        <div className="w-full h-full flex flex-col items-center justify-center bg-[#FAF8F5]">
-                           <div className="h-16 w-16 rounded-full bg-[#8C6D40]/10 flex items-center justify-center mb-3">
-                             <Star className="h-6 w-6 text-[#8C6D40] opacity-50" />
-                           </div>
-                           <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#8C6D40] opacity-60">Verified Experience</span>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#FAF8F5]">
+                          <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-[#8C6D40]/10 flex items-center justify-center mb-2">
+                            <Star className="h-4 w-4 sm:h-5 sm:w-5 text-[#8C6D40] opacity-50" />
+                          </div>
+                          <span className="text-[8px] sm:text-[9px] font-semibold uppercase tracking-[0.15em] text-[#8C6D40] opacity-60">Verified Experience</span>
                         </div>
                       )}
                       
-                      <span className="absolute left-3 top-3 rounded-full bg-charcoal/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-cream backdrop-blur-sm shadow-sm border border-white/10">
-                        {getProgramName(r.program_id)}
-                      </span>
+                      {getProgramName(r.program_id) && (
+                        <span className="absolute top-3 left-3 bg-white/90 text-charcoal text-[8px] sm:text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded-sm backdrop-blur-md shadow-sm z-10">
+                          {getProgramName(r.program_id)}
+                        </span>
+                      )}
                     </div>
-
-                    <div className="p-5 flex-1 flex flex-col">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="h-10 w-10 rounded-full bg-[#8C6D40]/20 flex items-center justify-center font-display font-semibold text-[#8C6D40] text-lg shrink-0">
+                    
+                    {/* Content Bottom Half */}
+                    <div className="p-4 sm:p-6 flex flex-col flex-1 bg-white">
+                      <div className="flex-1 mb-4 sm:mb-5">
+                        <p className="text-charcoal/80 text-xs sm:text-[13px] leading-relaxed italic line-clamp-4 relative z-10">
+                          "{r.testimonial}"
+                        </p>
+                      </div>
+                      
+                      <div className="flex items-center gap-2.5 sm:gap-3 pt-3 sm:pt-4 border-t border-beige-100 mt-auto">
+                        <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-[#8C6D40]/10 flex items-center justify-center font-display font-semibold text-[#8C6D40] text-sm shrink-0">
                           {r.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-charcoal truncate max-w-[200px]">
-                            {r.name}
-                          </p>
-                          <StarRating rating={r.rating || 5} />
+                          <h4 className="font-semibold text-charcoal text-xs sm:text-[13px] truncate max-w-[120px] sm:max-w-[160px]">{r.name}</h4>
+                          <div className="flex text-[#8C6D40] mt-0.5">
+                            {[...Array(5)].map((_, i) => <Star key={i} className={`h-2.5 w-2.5 ${i < (r.rating || 5) ? 'fill-current' : 'text-gray-300'}`} />)}
+                          </div>
                         </div>
-                      </div>
-
-                      <div className="flex-1">
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-charcoal mb-2">
-                          Client Experience
-                        </p>
-                        <p className="text-[13px] leading-relaxed text-charcoal sm:text-sm italic line-clamp-5">
-                          "{r.testimonial}"
-                        </p>
                       </div>
                     </div>
                   </article>
@@ -223,6 +200,59 @@ export function TestimonialsSection() {
           </a>
         </div>
       </div>
+      
+      {/* Review Read Modal */}
+      {activeReview && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-charcoal/80 backdrop-blur-sm overflow-y-auto" onClick={() => setActiveReview(null)}>
+          <div className="bg-white rounded-md w-full max-w-2xl shadow-2xl relative my-8" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setActiveReview(null)} className="absolute top-4 right-4 text-charcoal/50 hover:text-charcoal z-10 bg-white/80 rounded-full p-1">
+              <X className="h-6 w-6" />
+            </button>
+            <div className="p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="h-12 w-12 rounded-full bg-[#8C6D40]/20 flex items-center justify-center font-display font-bold text-[#8C6D40] text-xl">
+                  {activeReview.name.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <h4 className="font-semibold text-lg text-charcoal">{activeReview.name}</h4>
+                  <div className="flex text-[#8C6D40]">
+                    {[...Array(5)].map((_, i) => <Star key={i} className={`h-4 w-4 ${i < (activeReview.rating || 5) ? 'fill-current' : 'text-gray-300'}`} />)}
+                  </div>
+                </div>
+              </div>
+              <p className="text-charcoal/90 text-base md:text-lg leading-relaxed italic mb-8 whitespace-pre-wrap">"{activeReview.testimonial}"</p>
+              
+              <div className="relative rounded-sm overflow-hidden w-full aspect-[1.6] flex bg-black/5 ring-1 ring-black/10">
+                <div className="relative h-full w-1/2 bg-charcoal/5 flex items-center justify-center">
+                  {activeReview.before_image ? (
+                    <img src={activeReview.before_image} alt="Before" className="absolute inset-0 w-full h-full object-cover" />
+                  ) : (
+                    <div className="flex flex-col items-center gap-2">
+                      <Star className="h-8 w-8 text-charcoal/20" />
+                      <span className="text-charcoal/40 text-xs font-bold uppercase tracking-widest">No Image</span>
+                    </div>
+                  )}
+                  <span className="absolute bottom-3 left-3 bg-black/70 text-white text-[10px] uppercase font-bold tracking-widest px-3 py-1.5 rounded-sm backdrop-blur-md z-10">Before</span>
+                </div>
+                
+
+                
+                <div className="relative h-full w-1/2 bg-charcoal/5 flex items-center justify-center">
+                  {activeReview.after_image ? (
+                    <img src={activeReview.after_image} alt="After" className="absolute inset-0 w-full h-full object-cover" />
+                  ) : (
+                    <div className="flex flex-col items-center gap-2">
+                      <Star className="h-8 w-8 text-charcoal/20" />
+                      <span className="text-charcoal/40 text-xs font-bold uppercase tracking-widest">No Image</span>
+                    </div>
+                  )}
+                  <span className="absolute bottom-3 right-3 bg-black/70 text-white text-[10px] uppercase font-bold tracking-widest px-3 py-1.5 rounded-sm backdrop-blur-md z-10">After</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

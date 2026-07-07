@@ -32,9 +32,12 @@ export default function TestimonialsPage() {
   const [programs, setPrograms] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeVideo, setActiveVideo] = useState<VideoTestimonial | null>(null);
+  const [activeReview, setActiveReview] = useState<Review | null>(null);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoLimit, setVideoLimit] = useState(8);
+  const [reviewLimit, setReviewLimit] = useState(6);
 
   useEffect(() => {
     Promise.all([
@@ -129,8 +132,8 @@ export default function TestimonialsPage() {
                     <p className="mt-3 text-lg text-charcoal/60">Watch their journeys unfold in their own words.</p>
                   </div>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    {videos.map((video) => (
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+                    {videos.slice(0, videoLimit).map((video) => (
                       <article
                         key={video.id}
                         className="group cursor-pointer overflow-hidden rounded-2xl border border-beige-200 bg-cream shadow-sm transition-shadow hover:shadow-lg relative aspect-[9/16] bg-black"
@@ -145,32 +148,40 @@ export default function TestimonialsPage() {
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
                         
-
-
                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
                         
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-md shadow-lg transition-transform group-hover:scale-110 border border-white/30">
-                            <Play className="ml-1 h-6 w-6 fill-white text-white" />
+                          <div className="flex h-10 w-10 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-md shadow-lg transition-transform group-hover:scale-110 border border-white/30">
+                            <Play className="ml-0.5 sm:ml-1 h-4 w-4 sm:h-6 sm:w-6 fill-white text-white" />
                           </div>
                         </div>
 
-                        <div className="absolute bottom-0 inset-x-0 p-5 z-10">
-                          <div className="mb-1.5">
-                            <h4 className="text-white font-bold text-base mb-0.5 leading-tight drop-shadow-md">{video.name}</h4>
+                        <div className="absolute bottom-0 inset-x-0 p-3 sm:p-5 z-10">
+                          <div className="mb-1 sm:mb-1.5">
+                            <h4 className="text-white font-bold text-xs sm:text-base mb-0.5 leading-tight drop-shadow-md">{video.name}</h4>
                             {getProgramName(video.program_id) && (
-                              <span className="text-[#D4AF37] text-[9px] font-bold uppercase tracking-widest block drop-shadow-md">
+                              <span className="text-[#D4AF37] text-[8px] sm:text-[9px] font-bold uppercase tracking-widest block drop-shadow-md">
                                 {getProgramName(video.program_id)}
                               </span>
                             )}
                           </div>
-                          <p className="text-white/90 font-medium text-xs line-clamp-2 leading-relaxed drop-shadow-md">
+                          <p className="text-white/90 font-medium text-[10px] sm:text-xs line-clamp-2 leading-relaxed drop-shadow-md">
                             {video.caption}
                           </p>
                         </div>
                       </article>
                     ))}
                   </div>
+                  {videos.length > videoLimit && (
+                    <div className="mt-8 flex justify-center">
+                      <button 
+                        onClick={() => setVideoLimit(prev => prev + 8)}
+                        className="inline-flex h-10 items-center justify-center rounded-sm border border-charcoal/20 bg-transparent px-6 text-xs font-semibold uppercase tracking-[0.15em] text-charcoal transition-colors hover:bg-charcoal/5"
+                      >
+                        Load More Videos
+                      </button>
+                    </div>
+                  )}
                 </section>
               )}
 
@@ -182,61 +193,79 @@ export default function TestimonialsPage() {
                     <p className="mt-3 text-lg text-charcoal/60">Read what our amazing clients have to say about their experience.</p>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {reviews.map((r) => (
-                      <article key={r.id} className="overflow-hidden rounded-2xl border border-[#EBE3DB] bg-white shadow-sm flex flex-col hover:shadow-md transition-shadow">
-                        <div className="relative flex aspect-[16/10] bg-charcoal overflow-hidden group border-b border-[#EBE3DB]">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                    {reviews.slice(0, reviewLimit).map((r) => (
+                      <article 
+                        key={r.id}
+                        className="bg-white rounded-md border border-[#EBE3DB] shadow-sm cursor-pointer hover:shadow-xl transition-all duration-500 hover:-translate-y-1 hover:border-[#8C6D40]/30 group/card flex flex-col h-full overflow-hidden"
+                        onClick={() => setActiveReview(r)}
+                      >
+                        {/* Images Top Half */}
+                        <div className="relative w-full aspect-[16/10] bg-charcoal/5 flex overflow-hidden border-b border-[#EBE3DB] shrink-0">
                           {r.before_image || r.after_image ? (
                             <>
                               {r.before_image && (
-                                <img src={r.before_image} alt={`${r.name} before`} className={cn("object-cover h-full", r.after_image ? "w-1/2 border-r border-black/20" : "w-full")} />
+                                <div className={`relative h-full ${r.after_image ? "w-1/2" : "w-full"}`}>
+                                  <img src={r.before_image} alt="Before" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-105" />
+                                  <span className="absolute bottom-2 left-2 bg-black/60 text-white text-[8px] sm:text-[9px] uppercase font-bold tracking-widest px-2 py-1 rounded-sm backdrop-blur-sm z-10">Before</span>
+                                </div>
                               )}
                               {r.after_image && (
-                                <img src={r.after_image} alt={`${r.name} after`} className={cn("object-cover h-full", r.before_image ? "w-1/2" : "w-full")} />
-                              )}
-                              {r.before_image && r.after_image && (
-                                <div className="absolute inset-x-0 bottom-0 p-2 flex gap-1 justify-center bg-gradient-to-t from-black/60 to-transparent">
-                                  <span className="bg-black/50 text-white text-[9px] px-3 py-0.5 rounded backdrop-blur">BEFORE & AFTER</span>
+                                <div className={`relative h-full ${r.before_image ? "w-1/2" : "w-full"}`}>
+                                  <img src={r.after_image} alt="After" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-105" />
+                                  <span className="absolute bottom-2 right-2 bg-black/60 text-white text-[8px] sm:text-[9px] uppercase font-bold tracking-widest px-2 py-1 rounded-sm backdrop-blur-sm z-10">After</span>
                                 </div>
                               )}
                             </>
                           ) : (
-                            <div className="w-full h-full flex flex-col items-center justify-center bg-[#FAF8F5]">
-                               <div className="h-16 w-16 rounded-full bg-[#8C6D40]/10 flex items-center justify-center mb-3">
-                                 <Star className="h-6 w-6 text-[#8C6D40] opacity-50" />
-                               </div>
-                               <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#8C6D40] opacity-60">Verified Experience</span>
+                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#FAF8F5]">
+                              <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-[#8C6D40]/10 flex items-center justify-center mb-2">
+                                <Star className="h-4 w-4 sm:h-5 sm:w-5 text-[#8C6D40] opacity-50" />
+                              </div>
+                              <span className="text-[8px] sm:text-[9px] font-semibold uppercase tracking-[0.15em] text-[#8C6D40] opacity-60">Verified Experience</span>
                             </div>
                           )}
-                          <span className="absolute left-3 top-3 rounded-full bg-charcoal/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-cream backdrop-blur-sm shadow-sm border border-white/10">
-                            {getProgramName(r.program_id)}
-                          </span>
+                          
+                          {getProgramName(r.program_id) && (
+                            <span className="absolute top-3 left-3 bg-white/90 text-charcoal text-[8px] sm:text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded-sm backdrop-blur-md shadow-sm z-10">
+                              {getProgramName(r.program_id)}
+                            </span>
+                          )}
                         </div>
-
-                        <div className="p-6 flex-1 flex flex-col">
-                          <div className="flex items-center gap-3 mb-4">
-                            <div className="h-10 w-10 rounded-full bg-[#8C6D40]/20 flex items-center justify-center font-display font-semibold text-[#8C6D40] text-lg shrink-0">
+                        
+                        {/* Content Bottom Half */}
+                        <div className="p-4 sm:p-6 flex flex-col flex-1 bg-white">
+                          <div className="flex-1 mb-4 sm:mb-5">
+                            <p className="text-charcoal/80 text-xs sm:text-[13px] leading-relaxed italic line-clamp-4 relative z-10">
+                              "{r.testimonial}"
+                            </p>
+                          </div>
+                          
+                          <div className="flex items-center gap-2.5 sm:gap-3 pt-3 sm:pt-4 border-t border-[#EBE3DB]/50 mt-auto">
+                            <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-[#8C6D40]/10 flex items-center justify-center font-display font-semibold text-[#8C6D40] text-sm shrink-0">
                               {r.name.charAt(0).toUpperCase()}
                             </div>
                             <div>
-                              <p className="font-semibold text-charcoal">{r.name}</p>
-                              <div className="flex gap-0.5 mt-1">
-                                {[...Array(5)].map((_, i) => (
-                                  <Star key={i} className={`h-3.5 w-3.5 ${i < (r.rating || 5) ? 'fill-[#8C6D40] text-[#8C6D40]' : 'fill-[#EBE3DB] text-[#EBE3DB]'}`} />
-                                ))}
+                              <h4 className="font-semibold text-charcoal text-xs sm:text-[13px] truncate max-w-[120px] sm:max-w-[160px]">{r.name}</h4>
+                              <div className="flex text-[#8C6D40] mt-0.5">
+                                {[...Array(5)].map((_, i) => <Star key={i} className={`h-2.5 w-2.5 ${i < (r.rating || 5) ? 'fill-current' : 'text-gray-300'}`} />)}
                               </div>
                             </div>
-                          </div>
-
-                          <div className="flex-1 mt-2">
-                            <p className="text-sm leading-relaxed text-charcoal italic bg-[#FAF8F5] p-4 rounded border border-[#EBE3DB]">
-                              "{r.testimonial}"
-                            </p>
                           </div>
                         </div>
                       </article>
                     ))}
                   </div>
+                  {reviews.length > reviewLimit && (
+                    <div className="mt-8 flex justify-center">
+                      <button 
+                        onClick={() => setReviewLimit(prev => prev + 6)}
+                        className="inline-flex h-10 items-center justify-center rounded-sm border border-charcoal/20 bg-transparent px-6 text-xs font-semibold uppercase tracking-[0.15em] text-charcoal transition-colors hover:bg-charcoal/5"
+                      >
+                        Load More Reviews
+                      </button>
+                    </div>
+                  )}
                 </section>
               )}
 
@@ -349,6 +378,57 @@ export default function TestimonialsPage() {
           </motion.div>
         )}
       </AnimatePresence>
+      
+      {/* Review Read Modal */}
+      {activeReview && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-charcoal/80 backdrop-blur-sm overflow-y-auto" onClick={() => setActiveReview(null)}>
+          <div className="bg-white rounded-md w-full max-w-2xl shadow-2xl relative my-8" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setActiveReview(null)} className="absolute top-4 right-4 text-charcoal/50 hover:text-charcoal z-10 bg-white/80 rounded-full p-1">
+              <X className="h-6 w-6" />
+            </button>
+            <div className="p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="h-12 w-12 rounded-full bg-[#8C6D40]/20 flex items-center justify-center font-display font-bold text-[#8C6D40] text-xl">
+                  {activeReview.name.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <h4 className="font-semibold text-lg text-charcoal">{activeReview.name}</h4>
+                  <div className="flex text-[#8C6D40]">
+                    {[...Array(5)].map((_, i) => <Star key={i} className={`h-4 w-4 ${i < (activeReview.rating || 5) ? 'fill-current' : 'text-gray-300'}`} />)}
+                  </div>
+                </div>
+              </div>
+              <p className="text-charcoal/90 text-base md:text-lg leading-relaxed italic mb-8 whitespace-pre-wrap">"{activeReview.testimonial}"</p>
+              
+              <div className="relative rounded-sm overflow-hidden w-full aspect-[1.6] flex bg-black/5 ring-1 ring-black/10">
+                <div className="relative h-full w-1/2 bg-charcoal/5 flex items-center justify-center">
+                  {activeReview.before_image ? (
+                    <img src={activeReview.before_image} alt="Before" className="absolute inset-0 w-full h-full object-cover" />
+                  ) : (
+                    <div className="flex flex-col items-center gap-2">
+                      <Star className="h-8 w-8 text-charcoal/20" />
+                      <span className="text-charcoal/40 text-xs font-bold uppercase tracking-widest">No Image</span>
+                    </div>
+                  )}
+                  <span className="absolute bottom-3 left-3 bg-black/70 text-white text-[10px] uppercase font-bold tracking-widest px-3 py-1.5 rounded-sm backdrop-blur-md z-10">Before</span>
+                </div>
+                
+                <div className="relative h-full w-1/2 bg-charcoal/5 flex items-center justify-center">
+                  {activeReview.after_image ? (
+                    <img src={activeReview.after_image} alt="After" className="absolute inset-0 w-full h-full object-cover" />
+                  ) : (
+                    <div className="flex flex-col items-center gap-2">
+                      <Star className="h-8 w-8 text-charcoal/20" />
+                      <span className="text-charcoal/40 text-xs font-bold uppercase tracking-widest">No Image</span>
+                    </div>
+                  )}
+                  <span className="absolute bottom-3 right-3 bg-black/70 text-white text-[10px] uppercase font-bold tracking-widest px-3 py-1.5 rounded-sm backdrop-blur-md z-10">After</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </PageShell>
   );
 }

@@ -89,7 +89,7 @@ export function VideoTestimonialsSection() {
               return (
                 <div
                   key={`${video.id}-${i}`}
-                  className="w-[240px] sm:w-[280px] shrink-0"
+                  className="w-[calc(50vw-1.25rem)] sm:w-[280px] shrink-0"
                 >
                   <article
                     className="group cursor-pointer overflow-hidden rounded-2xl border border-beige-200 bg-cream shadow-sm transition-all duration-500 hover:shadow-xl hover:-translate-y-1 relative aspect-[9/16] bg-black"
@@ -107,25 +107,24 @@ export function VideoTestimonialsSection() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
                     
 
-
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
                     
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-md shadow-lg transition-transform group-hover:scale-110 border border-white/30">
-                        <Play className="ml-1 h-6 w-6 fill-white text-white" />
+                      <div className="flex h-10 w-10 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-md shadow-lg transition-transform group-hover:scale-110 border border-white/30">
+                        <Play className="ml-0.5 sm:ml-1 h-4 w-4 sm:h-6 sm:w-6 fill-white text-white" />
                       </div>
                     </div>
 
-                    <div className="absolute bottom-0 inset-x-0 p-5 z-10">
-                      <div className="mb-1.5">
-                        <h4 className="text-white font-bold text-base mb-0.5 leading-tight drop-shadow-md">{video.name}</h4>
+                    <div className="absolute bottom-0 inset-x-0 p-3 sm:p-5 z-10">
+                      <div className="mb-1 sm:mb-1.5">
+                        <h4 className="text-white font-bold text-xs sm:text-base mb-0.5 leading-tight drop-shadow-md">{video.name}</h4>
                         {getProgramName(video.program_id) && (
-                          <span className="text-[#D4AF37] text-[9px] font-bold uppercase tracking-widest block drop-shadow-md">
+                          <span className="text-[#D4AF37] text-[8px] sm:text-[9px] font-bold uppercase tracking-widest block drop-shadow-md">
                             {getProgramName(video.program_id)}
                           </span>
                         )}
                       </div>
-                      <p className="text-white/90 font-medium text-xs line-clamp-2 leading-relaxed drop-shadow-md">
+                      <p className="text-white/90 font-medium text-[10px] sm:text-xs line-clamp-2 leading-relaxed drop-shadow-md">
                         {video.caption}
                       </p>
                     </div>

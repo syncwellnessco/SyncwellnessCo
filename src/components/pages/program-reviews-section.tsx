@@ -184,7 +184,7 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
                       <span className="absolute bottom-2 left-2 bg-black/60 text-white text-[9px] uppercase font-bold tracking-widest px-2 py-1 rounded-sm backdrop-blur-sm z-10">Before</span>
                     </div>
                     
-                    <div className="w-[1.5px] h-full bg-white relative z-10 shadow-[0_0_10px_rgba(0,0,0,0.3)]"></div>
+
                     
                     <div className="relative h-full w-1/2 bg-charcoal/5 flex items-center justify-center">
                       {r.after_image ? (
@@ -306,7 +306,7 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
                   <span className="absolute bottom-3 left-3 bg-black/70 text-white text-[10px] uppercase font-bold tracking-widest px-3 py-1.5 rounded-sm backdrop-blur-md z-10">Before</span>
                 </div>
                 
-                <div className="w-[1.5px] h-full bg-white relative z-10 shadow-[0_0_15px_rgba(0,0,0,0.3)]"></div>
+
                 
                 <div className="relative h-full w-1/2 bg-charcoal/5 flex items-center justify-center">
                   {activeReview.after_image ? (

@@ -28,7 +28,7 @@ const CloudinaryBtn = ({ label, onUpload, onRemove, value }: { label: string, on
     {value ? (
       <div className="relative w-full aspect-[4/5] rounded-md overflow-hidden border border-[#EBE3DB]">
         <img src={value} alt="Preview" className="w-full h-full object-cover" />
-        <button type="button" onClick={onRemove} className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full hover:bg-black/70 transition-colors">
+        <button type="button" onClick={(e) => { e.preventDefault(); onRemove(); }} className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full hover:bg-black/70 transition-colors">
           <X className="h-4 w-4" />
         </button>
       </div>
@@ -44,7 +44,7 @@ const CloudinaryBtn = ({ label, onUpload, onRemove, value }: { label: string, on
         }}
       >
         {({ open }) => (
-          <button type="button" onClick={() => open()} className="w-full aspect-[4/5] border-2 border-dashed border-[#EBE3DB] rounded-md flex flex-col items-center justify-center text-charcoal/50 hover:bg-[#FAF8F5] hover:border-[#8C6D40] transition-colors">
+          <button type="button" onClick={(e) => { e.preventDefault(); open(); }} className="w-full aspect-[4/5] border-2 border-dashed border-[#EBE3DB] rounded-md flex flex-col items-center justify-center text-charcoal/50 hover:bg-[#FAF8F5] hover:border-[#8C6D40] transition-colors">
             <Upload className="h-6 w-6 mb-2" />
             <span className="text-xs">Click to upload</span>
           </button>
@@ -182,6 +182,8 @@ export function ReviewsManager() {
   };
 
   const closeModal = () => {
+    if (form.beforePublicId) deleteCloudinaryFile(form.beforePublicId, 'image');
+    if (form.afterPublicId) deleteCloudinaryFile(form.afterPublicId, 'image');
     setIsAddModalOpen(false);
     setEditingId(null);
     setForm({ name: "", testimonial: "", programId: "", beforeImage: "", beforePublicId: "", afterImage: "", afterPublicId: "", rating: 5 });
@@ -276,19 +278,19 @@ export function ReviewsManager() {
                   <CloudinaryBtn 
                     label="Before Image" 
                     value={form.beforeImage} 
-                    onUpload={(u, pId) => setForm({...form, beforeImage: u, beforePublicId: pId})}
+                    onUpload={(u, pId) => setForm(prev => ({...prev, beforeImage: u, beforePublicId: pId}))}
                     onRemove={async () => {
                       if (form.beforePublicId) await deleteCloudinaryFile(form.beforePublicId, 'image');
-                      setForm({...form, beforeImage: "", beforePublicId: ""})
+                      setForm(prev => ({...prev, beforeImage: "", beforePublicId: ""}))
                     }}
                   />
                   <CloudinaryBtn 
                     label="After Image" 
                     value={form.afterImage} 
-                    onUpload={(u, pId) => setForm({...form, afterImage: u, afterPublicId: pId})}
+                    onUpload={(u, pId) => setForm(prev => ({...prev, afterImage: u, afterPublicId: pId}))}
                     onRemove={async () => {
                       if (form.afterPublicId) await deleteCloudinaryFile(form.afterPublicId, 'image');
-                      setForm({...form, afterImage: "", afterPublicId: ""})
+                      setForm(prev => ({...prev, afterImage: "", afterPublicId: ""}))
                     }}
                   />
                 </div>
@@ -297,14 +299,14 @@ export function ReviewsManager() {
                 <div className="w-full md:w-2/3 space-y-5">
                   <div>
                     <label className="block text-sm font-medium mb-1">Select Program</label>
-                    <select value={form.programId} onChange={e => setForm({...form, programId: e.target.value})} required className="w-full p-2.5 border border-[#EBE3DB] rounded bg-white">
+                    <select value={form.programId} onChange={e => setForm(prev => ({...prev, programId: e.target.value}))} required className="w-full p-2.5 border border-[#EBE3DB] rounded bg-white">
                       <option value="">-- Choose Program --</option>
                       {programs.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
                     </select>
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">Name</label>
-                    <input type="text" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required className="w-full p-2.5 border border-[#EBE3DB] rounded" />
+                    <input type="text" value={form.name} onChange={e => setForm(prev => ({...prev, name: e.target.value}))} required className="w-full p-2.5 border border-[#EBE3DB] rounded" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-2">Rating</label>
@@ -313,7 +315,7 @@ export function ReviewsManager() {
                         <button
                           key={star}
                           type="button"
-                          onClick={() => setForm({...form, rating: star})}
+                          onClick={() => setForm(prev => ({...prev, rating: star}))}
                           className={`transition-colors ${star <= form.rating ? 'text-gold' : 'text-gray-300 hover:text-gold/50'}`}
                         >
                           <Star className="h-8 w-8 fill-current" />
@@ -323,7 +325,7 @@ export function ReviewsManager() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">Review Text</label>
-                    <textarea value={form.testimonial} onChange={e => setForm({...form, testimonial: e.target.value})} required rows={6} className="w-full p-2.5 border border-[#EBE3DB] rounded resize-none" />
+                    <textarea value={form.testimonial} onChange={e => setForm(prev => ({...prev, testimonial: e.target.value}))} required rows={6} className="w-full p-2.5 border border-[#EBE3DB] rounded resize-none" />
                   </div>
                   
                   <div className="pt-4">
