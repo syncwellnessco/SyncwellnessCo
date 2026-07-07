@@ -62,12 +62,6 @@ export function BookingButton({ programId, programName, pricing, className, chil
 
   const redirectUrl = `/login?redirect=${encodeURIComponent(pathname)}`;
 
-  const handlePrefetch = () => {
-    if (!user) {
-      router.prefetch(redirectUrl);
-    }
-  };
-
   const handleClick = () => {
     if (!user) {
       router.push(redirectUrl);
@@ -83,8 +77,6 @@ export function BookingButton({ programId, programName, pricing, className, chil
       <Button 
         className={className} 
         onClick={handleClick} 
-        onMouseEnter={handlePrefetch}
-        onTouchStart={handlePrefetch}
         disabled={loading}
       >
         {loading ? <Spinner className="h-4 w-4" /> : (children || "Join Program")}

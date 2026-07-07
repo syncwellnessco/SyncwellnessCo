@@ -186,12 +186,12 @@ export function ResourcesPageContent() {
                           id="countryCode" 
                           name="countryCode"
                           className="w-full bg-transparent border-0 border-b border-[#DCD3C6] py-3 px-0 text-charcoal focus:ring-0 focus:border-[#A8895C] text-[15px] transition-colors appearance-none cursor-pointer"
-                          defaultValue="+91"
+                          defaultValue="+61"
                         >
+                          <option value="+61">AU (+61)</option>
                           <option value="+91">IN (+91)</option>
                           <option value="+1">US (+1)</option>
                           <option value="+44">UK (+44)</option>
-                          <option value="+61">AU (+61)</option>
                           <option value="+971">UAE (+971)</option>
                           <option value="+1">CA (+1)</option>
                           <option value="+65">SG (+65)</option>

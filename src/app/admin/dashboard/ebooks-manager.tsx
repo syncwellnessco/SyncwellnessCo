@@ -87,7 +87,7 @@ export function EbooksManager() {
                     </div>
                     {(req.phone_number) && (
                       <div className="flex items-center gap-2 text-xs text-charcoal/60">
-                        <span className="font-mono">{req.country_code || '+91'} {req.phone_number}</span>
+                        <span className="font-mono">{req.country_code || '+61'} {req.phone_number}</span>
                       </div>
                     )}
                   </td>

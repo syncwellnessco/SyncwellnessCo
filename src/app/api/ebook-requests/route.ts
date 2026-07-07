@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
             email,
             fields: {
               name: name || "",
-              phone: phoneNumber ? `${countryCode || '+91'}${phoneNumber}` : ""
+              phone: phoneNumber ? `${countryCode || '+61'}${phoneNumber}` : ""
             },
             groups: process.env.MAILERLITE_GROUP_ID ? [process.env.MAILERLITE_GROUP_ID] : []
           }),
