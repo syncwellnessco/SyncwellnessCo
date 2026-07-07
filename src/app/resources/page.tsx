@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { ArrowRight, BookOpen } from "lucide-react";
 import { getAllBlogPosts } from "@/lib/blogs";
 

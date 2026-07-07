@@ -1,8 +1,9 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/ui/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
-import { Check, Star, ArrowRight, PlayCircle } from "lucide-react";
+import { Check, Star, ArrowRight } from "lucide-react";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Button } from "@/components/ui/button";
 import { GlassBadge } from "@/components/ui/glass-badge";
@@ -43,10 +44,24 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
               transition={{ delay: fIdx * 0.1 }}
               className="lg:col-span-12 relative overflow-hidden rounded-3xl bg-gradient-to-br from-espresso to-charcoal border border-white/10 shadow-2xl"
             >
-              <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
+              {/* Blurred background image to extract organic colors */}
+              {featured.hero?.bannerImage && (
+                <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-3xl">
+                  <Image
+                    src={featured.hero.bannerImage}
+                    alt=""
+                    fill
+                    className="object-cover opacity-15 blur-3xl scale-110"
+                    unoptimized
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-espresso via-transparent to-espresso/60 mix-blend-multiply" />
+                </div>
+              )}
+              
+              <div className="absolute inset-0 opacity-5 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] z-0 pointer-events-none" />
               
               <div className="relative z-10 grid gap-6 lg:gap-8 lg:grid-cols-2 p-5 sm:p-6 lg:p-8">
-                <div className="flex flex-col justify-center">
+                <div className="flex flex-col justify-center order-2 lg:order-1">
                   <div className="mb-4 flex flex-wrap gap-3">
                     <GlassBadge className="px-4 py-1.5 text-[11px] uppercase tracking-widest font-bold border-[#D4AF37]/30 bg-[#D4AF37]/10 text-[#D4AF37] shadow-sm">
                       <Star className="mr-1.5 h-3.5 w-3.5 fill-current" />
@@ -71,15 +86,24 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
                     ))}
                   </ul>
                   
-                  <div className="flex items-center justify-between mt-auto pt-6 border-t border-white/10">
-                    <span className="text-[11px] font-bold tracking-widest uppercase text-cream">{featured.duration}</span>
-                    <Button asChild size="lg" className="bg-gold text-charcoal hover:bg-gold/90 text-[10px] font-bold tracking-[0.15em] uppercase h-12 px-8 rounded-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-auto pt-6 border-t border-white/10 gap-4">
+                    <div className="flex flex-row flex-nowrap items-center gap-1.5">
+                      <span className="text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.1em] sm:tracking-[0.15em] bg-white/10 border border-white/20 text-cream px-2 py-1 sm:px-3 sm:py-1.5 rounded-full shadow-sm whitespace-nowrap">
+                        {featured.duration}
+                      </span>
+                      {featured.format && (
+                        <span className="text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.1em] sm:tracking-[0.15em] bg-white/10 border border-white/20 text-cream px-2 py-1 sm:px-3 sm:py-1.5 rounded-full shadow-sm whitespace-nowrap">
+                          {featured.format}
+                        </span>
+                      )}
+                    </div>
+                    <Button asChild size="lg" className="w-full sm:w-auto justify-center text-center bg-gold text-charcoal hover:bg-gold/90 text-[10px] font-bold tracking-[0.15em] uppercase h-12 px-8 rounded-sm">
                       <Link prefetch={false} href={`/programs/${featured.slug || featured.id}`}>View Details</Link>
                     </Button>
                   </div>
                 </div>
                 
-                <div className="relative hidden lg:block my-auto">
+                <div className="relative w-full order-1 lg:order-2 my-auto">
                   <ProgramHeroMedia 
                     videoUrl={featured.hero?.introVideo} 
                     imageUrl={featured.hero?.bannerImage} 
@@ -99,28 +123,56 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
               transition={{ delay: index * 0.1 }}
               className="lg:col-span-6 group relative flex flex-col rounded-3xl border border-beige-200 bg-white p-5 sm:p-6 shadow-sm transition-all hover:shadow-xl hover:-translate-y-1 duration-300"
             >
-              <div className="mb-6 flex gap-3">
-                <GlassBadge variant="light">{program.duration}</GlassBadge>
-              </div>
+              {program.hero?.bannerImage && (
+                <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-2xl mb-6 shadow-md border border-beige-100">
+                  <Image
+                    src={program.hero.bannerImage}
+                    alt={program.title}
+                    fill
+                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    unoptimized
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-charcoal/40 to-transparent pointer-events-none" />
+                  
+                  {/* Overlaid Badges Container - Forced Inline & Smaller on Mobile */}
+                  <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10 flex flex-row flex-nowrap items-center gap-1.5 max-w-[calc(100%-1.5rem)]">
+                    <span className="text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.1em] sm:tracking-[0.15em] bg-white/95 backdrop-blur-md text-[#8C6D40] border border-[#A8895C]/20 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full shadow-sm whitespace-nowrap">
+                      {program.duration}
+                    </span>
+                    {program.format && (
+                      <span className="text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.1em] sm:tracking-[0.15em] bg-white/95 backdrop-blur-md text-[#8C6D40] border border-[#A8895C]/20 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full shadow-sm whitespace-nowrap">
+                        {program.format}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
               
-              <h3 className="font-display text-2xl font-semibold text-charcoal sm:text-3xl mb-4 group-hover:text-gold transition-colors">
-                {program.title}
-              </h3>
-              
-              <p className="flex-1 text-base leading-relaxed text-charcoal mb-8">
-                {program.description}
-              </p>
-              
-              <div className="flex items-center justify-between border-t border-beige-100 pt-6 mt-auto">
-                <span className="font-medium text-sage-800">
-                  {program.pricing?.price ? `$${program.pricing.price}` : "Free"}
+              <div className="flex flex-1 flex-col">
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#8C6D40] mb-2 block">
+                  {program.category || "Signature Program"}
                 </span>
-                <Button asChild variant="ghost" className="group/btn text-charcoal hover:text-gold hover:bg-transparent px-0">
-                  <Link prefetch={false} href={`/programs/${program.slug || program.id}`}>
-                    Explore
-                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
-                  </Link>
-                </Button>
+                
+                <h3 className="font-display text-2xl font-semibold text-charcoal sm:text-3xl mb-4 group-hover:text-[#8C6D40] transition-colors">
+                  {program.title}
+                </h3>
+                
+                <p className="flex-1 text-base leading-relaxed text-charcoal/80 mb-8 line-clamp-3">
+                  {program.description}
+                </p>
+                
+                <div className="flex items-center justify-between border-t border-beige-100 pt-6 mt-auto">
+                  <span className="font-semibold text-lg text-charcoal">
+                    {program.pricing?.price ? `$${program.pricing.price}` : "Free"}
+                  </span>
+                  <Button asChild variant="ghost" className="group/btn text-[#8C6D40] hover:text-[#B8955F] hover:bg-transparent px-0 font-bold uppercase tracking-wider text-xs">
+                    <Link prefetch={false} href={`/programs/${program.slug || program.id}`}>
+                      Explore
+                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </motion.div>
           ))}

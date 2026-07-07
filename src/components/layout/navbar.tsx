@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, User, X } from "lucide-react";
@@ -249,19 +249,7 @@ export function Navbar() {
                 <div className="flex-1 overflow-y-auto px-5 py-5">
                   
                   {user && (
-                    <div className="flex items-center gap-3 mb-6 px-2 pb-6 border-b border-beige-200">
-                      <div className="h-10 w-10 overflow-hidden rounded-full border border-charcoal/20 bg-cream flex items-center justify-center text-charcoal">
-                        {user.user_metadata?.avatar_url && !imgError ? (
-                          <img 
-                            src={user.user_metadata.avatar_url} 
-                            alt="Profile" 
-                            className="h-full w-full object-cover" 
-                            onError={() => setImgError(true)}
-                          />
-                        ) : (
-                          <User className="h-5 w-5" />
-                        )}
-                      </div>
+                    <div className="mb-6 px-2 pb-6 border-b border-beige-200">
                       <span className="text-sm font-semibold tracking-wide text-charcoal">
                         Hey, {user.user_metadata?.full_name?.split(' ')[0] || "there"}
                       </span>

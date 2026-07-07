@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { ArrowRight, PlayCircle } from "lucide-react";
 import { useUserStore } from "@/store/user-store";
 import { SectionHeading } from "@/components/ui/section-heading";

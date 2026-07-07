@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Check } from "lucide-react";
 import { heroContent, heroTrustBadges } from "@/data/home-content";

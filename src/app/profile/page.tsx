@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { User, LogOut, BookOpen, ArrowRight, PlayCircle } from "lucide-react";
 import { useUserStore } from "@/store/user-store";
 import { Spinner } from "@/components/ui/spinner";

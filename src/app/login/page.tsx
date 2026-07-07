@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, Suspense } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight, Mail, Lock, AlertCircle } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";

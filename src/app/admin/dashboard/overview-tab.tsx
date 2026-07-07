@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Users, BookOpen, MessageSquare, Star, ArrowRight } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { Button } from "@/components/ui/button";
 
 export function OverviewTab() {

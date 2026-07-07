@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode, useEffect, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { useRouter } from "next/navigation";
 import { BookOpen, Calendar, LayoutDashboard, Mail, MessageSquare, Users, ExternalLink } from "lucide-react";
 import { useUserStore } from "@/store/user-store";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, Suspense } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Spinner } from "@/components/ui/spinner";
 import { createClient } from "@/lib/supabase-client";

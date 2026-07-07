@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { Check, Star, CheckCircle2 } from "lucide-react";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";

@@ -4,7 +4,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { PageHero } from "@/components/layout/page-hero";
 import { faqs } from "@/data/faqs";
 
