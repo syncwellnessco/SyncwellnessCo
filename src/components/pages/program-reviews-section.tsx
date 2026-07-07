@@ -158,7 +158,7 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
   };
 
   return (
-    <div className="py-16 mt-16 border-t border-beige-200">
+    <div className="py-8 mt-10 border-t border-beige-200">
       <div className="mx-auto max-w-4xl px-4">
         <div className="flex flex-col gap-4 mb-8">
           <div className="flex items-center justify-between gap-4">
@@ -213,7 +213,7 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
         {loading ? (
           <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-[#8C6D40]" /></div>
         ) : reviews.length === 0 ? (
-          <div className="text-center py-16 bg-[#FAF9F7] rounded-2xl border border-beige-100">
+          <div className="text-center py-10 bg-[#FAF9F7] rounded-2xl border border-beige-100">
             <Star className="h-12 w-12 text-[#8C6D40]/30 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-charcoal mb-2">No reviews yet</h3>
             <p className="text-charcoal/60 mb-6">Be the first to share your experience!</p>

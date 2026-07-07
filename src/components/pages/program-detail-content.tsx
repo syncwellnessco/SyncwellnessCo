@@ -10,6 +10,7 @@ import { HighlightCard } from "@/components/ui/highlight-card";
 import { BookingButton } from "@/components/ui/booking-button";
 import { ProgramHeroMedia } from "@/components/pages/program-hero-media";
 import { ProgramReviewsSection } from "@/components/pages/program-reviews-section";
+import { ProgramVideoTestimonials } from "@/components/pages/program-video-testimonials";
 
 type ProgramDetailContentProps = {
   slug: string;
@@ -269,6 +270,9 @@ export async function ProgramDetailContent({ slug }: ProgramDetailContentProps) 
 
       {/* Program Reviews */}
       <ProgramReviewsSection programId={program.id} />
+
+      {/* Program Video Testimonials */}
+      <ProgramVideoTestimonials programId={program.id} programTitle={program.title} />
 
       {/* Final CTA */}
       <section className="py-12 lg:py-16 bg-[#EBE3DB]/40 text-center">

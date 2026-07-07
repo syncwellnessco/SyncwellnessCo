@@ -23,6 +23,11 @@ export async function GET(request: Request) {
   if (featured === 'true') {
     query = query.eq('featured_on_home', true);
   }
+  
+  const programId = searchParams.get('program_id');
+  if (programId) {
+    query = query.eq('program_id', programId);
+  }
 
   const { data, error } = await query;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
