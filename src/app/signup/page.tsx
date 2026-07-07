@@ -89,9 +89,9 @@ function SignupContent() {
       </div>
 
       {/* Right side form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 lg:p-16">
-        <div className="w-full max-w-md">
-          <div className="lg:hidden mb-10 flex justify-center">
+      <div className="w-full lg:w-1/2 flex items-start lg:items-center justify-center px-6 pt-10 pb-12 sm:px-12 sm:pt-12 lg:px-16 lg:py-12">
+        <div className="w-full max-w-md mt-4 lg:mt-0">
+          <div className="lg:hidden mb-6 flex justify-center">
             <Logo variant="default" />
           </div>
           
