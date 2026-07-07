@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, memo, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, X, Trash2, Eye, Star, Upload } from "lucide-react";
 import toast from "react-hot-toast";
@@ -22,37 +22,42 @@ interface Review {
   created_at: string;
 }
 
-const CloudinaryBtn = ({ label, onUpload, onRemove, value }: { label: string, onUpload: (u: string, pId: string) => void, onRemove: () => void, value: string }) => (
-  <div className="flex flex-col gap-2">
-    <span className="text-sm font-medium text-charcoal/80">{label}</span>
-    {value ? (
-      <div className="relative w-full aspect-[4/5] rounded-md overflow-hidden border border-[#EBE3DB]">
-        <img src={value} alt="Preview" className="w-full h-full object-cover" />
-        <button type="button" onClick={(e) => { e.preventDefault(); onRemove(); }} className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full hover:bg-black/70 transition-colors">
-          <X className="h-4 w-4" />
-        </button>
-      </div>
-    ) : (
-      <CldUploadWidget 
-        uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_REVIEWS || process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "syncwellness"}
-        options={{ folder: 'syncwellness/reviews' }}
-        onSuccess={(res: any) => {
-          if (res?.info?.secure_url) {
-            const optimizedUrl = optimizeCloudinaryUrl(res.info.secure_url);
-            onUpload(optimizedUrl, res.info.public_id);
-          }
-        }}
-      >
-        {({ open }) => (
-          <button type="button" onClick={(e) => { e.preventDefault(); open(); }} className="w-full aspect-[4/5] border-2 border-dashed border-[#EBE3DB] rounded-md flex flex-col items-center justify-center text-charcoal/50 hover:bg-[#FAF8F5] hover:border-[#8C6D40] transition-colors">
-            <Upload className="h-6 w-6 mb-2" />
-            <span className="text-xs">Click to upload</span>
+const SingleImageUploader = memo(({ label, value, onUpload, onRemove, id }: { label: string, value: string, onUpload: (url: string, pId: string) => void, onRemove: () => void, id: string }) => {
+  const options = useMemo(() => ({ folder: 'syncwellness/reviews', multiple: false, tags: [id] }), [id]);
+
+  return (
+    <div className="flex flex-col gap-2">
+      <span className="text-sm font-medium text-charcoal/80">{label}</span>
+      {!value ? (
+        <CldUploadWidget 
+          uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_REVIEWS || process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "syncwellness"}
+          options={options}
+          onSuccess={(res: any) => {
+            if (res?.info?.secure_url) {
+              const optimizedUrl = optimizeCloudinaryUrl(res.info.secure_url);
+              onUpload(optimizedUrl, res.info.public_id);
+            }
+          }}
+        >
+          {({ open }) => (
+            <button type="button" onClick={(e) => { e.preventDefault(); open(); }} className="w-full aspect-[4/5] border-2 border-dashed border-[#EBE3DB] rounded-md flex flex-col items-center justify-center text-charcoal/50 hover:bg-[#FAF8F5] hover:border-[#8C6D40] transition-colors">
+              <Upload className="h-6 w-6 mb-2" />
+              <span className="text-xs">Click to upload</span>
+            </button>
+          )}
+        </CldUploadWidget>
+      ) : (
+        <div className="relative w-full aspect-[4/5] rounded-md overflow-hidden border border-[#EBE3DB]">
+          <img src={value} alt="Preview" className="w-full h-full object-cover" />
+          <button type="button" onClick={(e) => { e.preventDefault(); onRemove(); }} className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full hover:bg-black/70 transition-colors z-10">
+            <X className="h-4 w-4" />
           </button>
-        )}
-      </CldUploadWidget>
-    )}
-  </div>
-);
+        </div>
+      )}
+    </div>
+  );
+});
+SingleImageUploader.displayName = "SingleImageUploader";
 
 export function ReviewsManager() {
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -68,6 +73,7 @@ export function ReviewsManager() {
   // Add Form
   const [form, setForm] = useState({ name: "", testimonial: "", programId: "", beforeImage: "", beforePublicId: "", afterImage: "", afterPublicId: "", rating: 5 });
   const [submitting, setSubmitting] = useState(false);
+  const uploadTargetRef = useRef<'before' | 'after' | null>(null);
 
   const fetchReviews = () => {
     fetch("/api/reviews").then(res => res.json()).then(data => setReviews(Array.isArray(data) ? data : []));
@@ -150,7 +156,10 @@ export function ReviewsManager() {
       });
       if (res.ok) {
         toast.success(isEditing ? "Review updated" : "Review added");
-        closeModal();
+        // Successfully saved, so don't delete images. Just reset and close.
+        setIsAddModalOpen(false);
+        setEditingId(null);
+        setForm({ name: "", testimonial: "", programId: "", beforeImage: "", beforePublicId: "", afterImage: "", afterPublicId: "", rating: 5 });
         fetchReviews();
       } else {
         const err = await res.json();
@@ -190,6 +199,24 @@ export function ReviewsManager() {
   };
 
   if (loading) return <Skeleton className="h-64 w-full" />;
+
+  const handleBeforeUpload = useCallback((url: string, pId: string) => {
+    setForm(prev => ({...prev, beforeImage: url, beforePublicId: pId}));
+  }, []);
+
+  const handleBeforeRemove = useCallback(async () => {
+    if (form.beforePublicId) await deleteCloudinaryFile(form.beforePublicId, 'image');
+    setForm(prev => ({...prev, beforeImage: "", beforePublicId: ""}));
+  }, [form.beforePublicId]);
+
+  const handleAfterUpload = useCallback((url: string, pId: string) => {
+    setForm(prev => ({...prev, afterImage: url, afterPublicId: pId}));
+  }, []);
+
+  const handleAfterRemove = useCallback(async () => {
+    if (form.afterPublicId) await deleteCloudinaryFile(form.afterPublicId, 'image');
+    setForm(prev => ({...prev, afterImage: "", afterPublicId: ""}));
+  }, [form.afterPublicId]);
 
   return (
     <div>
@@ -275,23 +302,19 @@ export function ReviewsManager() {
                 
                 {/* Left Side: Images */}
                 <div className="w-full md:w-1/3 flex flex-col gap-6 border-r border-[#EBE3DB] pr-8">
-                  <CloudinaryBtn 
-                    label="Before Image" 
-                    value={form.beforeImage} 
-                    onUpload={(u, pId) => setForm(prev => ({...prev, beforeImage: u, beforePublicId: pId}))}
-                    onRemove={async () => {
-                      if (form.beforePublicId) await deleteCloudinaryFile(form.beforePublicId, 'image');
-                      setForm(prev => ({...prev, beforeImage: "", beforePublicId: ""}))
-                    }}
+                  <SingleImageUploader
+                    label="Before Image"
+                    id="beforeImageUpload"
+                    value={form.beforeImage}
+                    onUpload={handleBeforeUpload}
+                    onRemove={handleBeforeRemove}
                   />
-                  <CloudinaryBtn 
-                    label="After Image" 
-                    value={form.afterImage} 
-                    onUpload={(u, pId) => setForm(prev => ({...prev, afterImage: u, afterPublicId: pId}))}
-                    onRemove={async () => {
-                      if (form.afterPublicId) await deleteCloudinaryFile(form.afterPublicId, 'image');
-                      setForm(prev => ({...prev, afterImage: "", afterPublicId: ""}))
-                    }}
+                  <SingleImageUploader
+                    label="After Image"
+                    id="afterImageUpload"
+                    value={form.afterImage}
+                    onUpload={handleAfterUpload}
+                    onRemove={handleAfterRemove}
                   />
                 </div>
 
