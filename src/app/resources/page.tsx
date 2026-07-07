@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, BookOpen } from "lucide-react";
-import { Navbar } from "@/components/layout/navbar";
-import { Footer } from "@/components/layout/footer";
 import { getAllBlogPosts } from "@/lib/blogs";
 
 export const metadata: Metadata = {
@@ -18,8 +16,7 @@ export default async function ResourcesHubPage() {
 
   return (
     <>
-      <Navbar />
-      <main className="min-h-screen bg-cream pt-32 pb-24 border-t border-[#EBE3DB]">
+      <main className="min-h-screen bg-cream pt-[88px] lg:pt-32 pb-24 border-t border-[#EBE3DB]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <h1 className="font-display text-4xl lg:text-5xl font-normal text-charcoal mb-4">
@@ -128,7 +125,6 @@ export default async function ResourcesHubPage() {
         </div>
       </section>
 
-      <Footer />
     </>
   );
 }

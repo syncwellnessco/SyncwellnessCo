@@ -12,8 +12,7 @@ import { createClient } from "@/lib/supabase-client";
 import { Button } from "@/components/ui/button";
 import { getProgramsAction } from "@/app/actions/programs";
 
-import { Navbar } from "@/components/layout/navbar";
-import { Footer } from "@/components/layout/footer";
+
 
 export default function ProfilePage() {
   const { user, purchasedPrograms } = useUserStore();
@@ -67,9 +66,7 @@ export default function ProfilePage() {
   const avatarUrl = user.user_metadata?.avatar_url || null;
 
   return (
-    <>
-      <Navbar />
-      <div className="min-h-screen bg-cream pt-24 lg:pt-32 pb-24 border-t border-[#EBE3DB]">
+      <div className="min-h-screen bg-cream pt-[88px] lg:pt-32 pb-24 border-t border-[#EBE3DB]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           
           <div className="grid lg:grid-cols-12 gap-12 lg:gap-20 items-start">
@@ -175,7 +172,5 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
-      <Footer />
-    </>
   );
 }

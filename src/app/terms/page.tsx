@@ -6,7 +6,7 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <article className="pt-32 pb-20 bg-cream min-h-screen">
+    <article className="pt-[88px] lg:pt-32 pb-20 bg-cream min-h-screen">
       <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
         <span className="mb-4 inline-block text-[11px] font-semibold uppercase tracking-[0.2em] text-[#8C6D40]">
           Legal

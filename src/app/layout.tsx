@@ -3,6 +3,7 @@ import { Cormorant_Garamond, Open_Sans } from "next/font/google";
 import "./globals.css";
 import { JsonLd } from "@/components/seo/json-ld";
 import { SiteLoader } from "@/components/layout/site-loader";
+import { PublicLayout } from "@/components/layout/public-layout";
 import { siteConfig } from "@/data/site";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { Toaster } from "react-hot-toast";
@@ -82,7 +83,9 @@ export default function RootLayout({
               },
             }}
           />
-          <SiteLoader>{children}</SiteLoader>
+          <SiteLoader>
+            <PublicLayout>{children}</PublicLayout>
+          </SiteLoader>
         </AuthProvider>
       </body>
     </html>

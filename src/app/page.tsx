@@ -26,22 +26,18 @@ export default async function HomePage() {
   const allPrograms = await getAllPrograms({ publishedOnly: true });
 
   return (
-    <>
-      <Navbar />
-      <main>
-        <HeroSection />
-        <StrugglesSection />
-        <HowWeHelpSection />
-        <ProgramsSection programs={allPrograms} />
-        <AboutCoachSection />
-        <TestimonialsSection />
-        <VideoTestimonialsSection />
-        <BlogSection blogs={latestBlogs} />
-        <FreeResourceSection />
-        <FinalCTASection />
-        <FAQSection />
-      </main>
-      <Footer />
-    </>
+    <main>
+      <HeroSection />
+      <StrugglesSection />
+      <HowWeHelpSection />
+      <ProgramsSection programs={allPrograms} />
+      <AboutCoachSection />
+      <TestimonialsSection />
+      <VideoTestimonialsSection />
+      <BlogSection blogs={latestBlogs} />
+      <FreeResourceSection />
+      <FinalCTASection />
+      <FAQSection />
+    </main>
   );
 }
