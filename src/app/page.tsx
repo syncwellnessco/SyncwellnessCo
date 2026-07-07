@@ -7,8 +7,8 @@ import nextDynamic from 'next/dynamic';
 
 const ProgramsSection = nextDynamic(() => import("@/components/home/programs-section").then(mod => mod.ProgramsSection));
 const AboutCoachSection = nextDynamic(() => import("@/components/home/about-coach-section").then(mod => mod.AboutCoachSection));
-const TestimonialsSection = nextDynamic(() => import("@/components/home/testimonials-section").then(mod => mod.TestimonialsSection), { ssr: false });
-const VideoTestimonialsSection = nextDynamic(() => import("@/components/home/video-testimonials-section").then(mod => mod.VideoTestimonialsSection), { ssr: false });
+const TestimonialsSection = nextDynamic(() => import("@/components/home/testimonials-section").then(mod => mod.TestimonialsSection));
+const VideoTestimonialsSection = nextDynamic(() => import("@/components/home/video-testimonials-section").then(mod => mod.VideoTestimonialsSection));
 const BlogSection = nextDynamic(() => import("@/components/home/blog-section").then(mod => mod.BlogSection));
 const FreeResourceSection = nextDynamic(() => import("@/components/home/free-resource-section").then(mod => mod.FreeResourceSection));
 const FAQSection = nextDynamic(() => import("@/components/home/faq-section").then(mod => mod.FAQSection));
