@@ -90,6 +90,31 @@ export function ReviewsManager() {
     });
   }, []);
 
+  // NOTE: these hooks were previously declared AFTER the `if (loading) return ...`
+  // early-return below. That's a Rules-of-Hooks violation: while `loading` is
+  // true, React never calls these four useCallback hooks, then the instant
+  // `loading` flips to false, React suddenly sees 4 new hooks it didn't see
+  // before and throws a hook-count-mismatch error. That error is what was
+  // tearing down and remounting the whole component (wiping `form`,
+  // `editingId`, upload state, etc). Moving them above the early return fixes it.
+  const handleBeforeUpload = useCallback((url: string, pId: string) => {
+    setForm(prev => ({...prev, beforeImage: url, beforePublicId: pId}));
+  }, []);
+
+  const handleBeforeRemove = useCallback(async () => {
+    if (form.beforePublicId) await deleteCloudinaryFile(form.beforePublicId, 'image');
+    setForm(prev => ({...prev, beforeImage: "", beforePublicId: ""}));
+  }, [form.beforePublicId]);
+
+  const handleAfterUpload = useCallback((url: string, pId: string) => {
+    setForm(prev => ({...prev, afterImage: url, afterPublicId: pId}));
+  }, []);
+
+  const handleAfterRemove = useCallback(async () => {
+    if (form.afterPublicId) await deleteCloudinaryFile(form.afterPublicId, 'image');
+    setForm(prev => ({...prev, afterImage: "", afterPublicId: ""}));
+  }, [form.afterPublicId]);
+
   const getProgramName = (id: string) => {
     const p = programs.find(x => x.id === id);
     return p ? p.title : "Unknown Program";
@@ -199,24 +224,6 @@ export function ReviewsManager() {
   };
 
   if (loading) return <Skeleton className="h-64 w-full" />;
-
-  const handleBeforeUpload = useCallback((url: string, pId: string) => {
-    setForm(prev => ({...prev, beforeImage: url, beforePublicId: pId}));
-  }, []);
-
-  const handleBeforeRemove = useCallback(async () => {
-    if (form.beforePublicId) await deleteCloudinaryFile(form.beforePublicId, 'image');
-    setForm(prev => ({...prev, beforeImage: "", beforePublicId: ""}));
-  }, [form.beforePublicId]);
-
-  const handleAfterUpload = useCallback((url: string, pId: string) => {
-    setForm(prev => ({...prev, afterImage: url, afterPublicId: pId}));
-  }, []);
-
-  const handleAfterRemove = useCallback(async () => {
-    if (form.afterPublicId) await deleteCloudinaryFile(form.afterPublicId, 'image');
-    setForm(prev => ({...prev, afterImage: "", afterPublicId: ""}));
-  }, [form.afterPublicId]);
 
   return (
     <div>
