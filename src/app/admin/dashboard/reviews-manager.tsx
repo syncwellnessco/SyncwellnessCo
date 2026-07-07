@@ -23,11 +23,21 @@ interface Review {
 }
 
 const SingleImageUploader = memo(({ label, value, onUpload, onRemove, id }: { label: string, value: string, onUpload: (url: string, pId: string) => void, onRemove: () => void, id: string }) => {
-  const options = useMemo(() => ({ folder: 'syncwellness/reviews', multiple: false, tags: [id] }), [id]);
+  const options = useMemo(() => ({
+    folder: 'syncwellness/reviews',
+    multiple: false,
+    tags: [id],
+    cropping: true,
+    croppingAspectRatio: 0.8, // 4:5 vertical aspect ratio
+    showSkipCropButton: false
+  }), [id]);
 
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-sm font-medium text-charcoal/80">{label}</span>
+      <div className="flex justify-between items-baseline">
+        <span className="text-sm font-medium text-charcoal/80">{label}</span>
+        <span className="text-[10px] text-charcoal/50 font-medium">Aspect ratio: 4:5 vertical</span>
+      </div>
       {!value ? (
         <CldUploadWidget 
           uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_REVIEWS || process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "syncwellness"}
@@ -40,9 +50,10 @@ const SingleImageUploader = memo(({ label, value, onUpload, onRemove, id }: { la
           }}
         >
           {({ open }) => (
-            <button type="button" onClick={(e) => { e.preventDefault(); open(); }} className="w-full aspect-[4/5] border-2 border-dashed border-[#EBE3DB] rounded-md flex flex-col items-center justify-center text-charcoal/50 hover:bg-[#FAF8F5] hover:border-[#8C6D40] transition-colors">
+            <button type="button" onClick={(e) => { e.preventDefault(); open(); }} className="w-full aspect-[4/5] border-2 border-dashed border-[#EBE3DB] rounded-md flex flex-col items-center justify-center text-charcoal/50 hover:bg-[#FAF8F5] hover:border-[#8C6D40] transition-colors bg-[#FAF8F5]">
               <Upload className="h-6 w-6 mb-2" />
               <span className="text-xs">Click to upload</span>
+              <span className="text-[10px] text-charcoal/40 mt-1">4:5 vertical format only</span>
             </button>
           )}
         </CldUploadWidget>
@@ -402,10 +413,16 @@ export function ReviewsManager() {
                     <h4 className="text-xs uppercase tracking-wider text-charcoal/50 mb-2">Images</h4>
                     <div className="flex gap-4">
                       {viewReview.before_image && (
-                        <div className="w-40 rounded overflow-hidden border"><img src={viewReview.before_image} alt="Before" className="w-full h-auto" /><div className="bg-charcoal text-white text-center text-xs py-1">Before</div></div>
+                        <div className="w-40 aspect-[4/5] rounded overflow-hidden border relative bg-charcoal/5">
+                          <img src={viewReview.before_image} alt="Before" className="w-full h-full object-cover" />
+                          <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-center text-xs py-1">Before</div>
+                        </div>
                       )}
                       {viewReview.after_image && (
-                        <div className="w-40 rounded overflow-hidden border"><img src={viewReview.after_image} alt="After" className="w-full h-auto" /><div className="bg-charcoal text-white text-center text-xs py-1">After</div></div>
+                        <div className="w-40 aspect-[4/5] rounded overflow-hidden border relative bg-charcoal/5">
+                          <img src={viewReview.after_image} alt="After" className="w-full h-full object-cover" />
+                          <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-center text-xs py-1">After</div>
+                        </div>
                       )}
                     </div>
                   </div>

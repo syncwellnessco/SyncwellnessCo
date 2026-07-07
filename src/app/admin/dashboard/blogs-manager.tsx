@@ -127,7 +127,10 @@ export function BlogsManager() {
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Left Side: Cover Image */}
             <div className="w-full lg:w-1/3 space-y-2">
-              <Label className="text-sm font-medium">Cover Image</Label>
+              <div className="flex justify-between items-baseline">
+                <Label className="text-sm font-medium">Cover Image</Label>
+                <span className="text-[10px] text-charcoal/50 font-medium">Aspect ratio: 3:2 landscape</span>
+              </div>
               <CldUploadWidget 
                 uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_BLOGS || "syncwellness_blogs"}
                 onSuccess={(result: any) => {
@@ -171,6 +174,7 @@ export function BlogsManager() {
                       >
                         <ImageIcon className="h-8 w-8 mb-2 opacity-50" />
                         <span className="font-medium text-sm">Upload Cover Image</span>
+                        <span className="text-[10px] text-charcoal/40 mt-1">3:2 landscape recommended</span>
                       </button>
                     )}
                   </div>

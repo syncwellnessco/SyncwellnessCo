@@ -83,7 +83,10 @@ const DataDisplay = ({ data }: { data: any }) => {
 const ArrayMediaEditor = ({ label, value, onChange }: { label: string, value: string[], onChange: (val: string[]) => void }) => {
   return (
     <div>
-      <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">{label}</label>
+      <div className="flex justify-between items-baseline mb-1">
+        <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40]">{label}</label>
+        <span className="text-[9px] text-charcoal/50">Aspect ratio: 16:9 landscape recommended</span>
+      </div>
       <div className="space-y-2 mb-2">
         {(value || []).map((url, i) => (
           <div key={i} className="flex gap-2 items-center text-xs bg-[#FAF8F5] p-2 rounded border border-[#EBE3DB]">
@@ -136,6 +139,9 @@ const ObjectArrayEditor = ({
                      <textarea value={item[f.key] || ''} onChange={e => update(i, f.key, e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2 rounded-sm focus:border-[#8C6D40] focus:outline-none min-h-[80px]" />
                   ) : f.type === 'image' ? (
                      <div className="space-y-2">
+                       <div className="flex justify-between items-baseline">
+                         <span className="text-[9px] text-charcoal/50">Aspect ratio: 16:9 landscape recommended</span>
+                       </div>
                        {item[f.key] ? (
                          <div className="flex gap-2 items-center text-xs bg-[#FAF8F5] p-2 rounded border border-[#EBE3DB]">
                            {(item[f.key].match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) || item[f.key].includes('res.cloudinary.com/daw1tscqr/image')) ? (
@@ -636,7 +642,8 @@ export function ProgramsManager() {
                       <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Banner Image Box */}
                         <div className="border-2 border-dashed border-[#8C6D40]/30 p-8 rounded-lg bg-[#FAF8F5] flex flex-col items-center justify-center text-center transition-colors hover:border-[#8C6D40]/60 hover:bg-[#8C6D40]/5">
-                          <label className="block text-xs uppercase font-bold tracking-widest text-[#8C6D40] mb-4">Banner Image</label>
+                          <label className="block text-xs uppercase font-bold tracking-widest text-[#8C6D40] mb-1">Banner Image</label>
+                          <span className="text-[10px] text-charcoal/50 font-medium mb-3">Aspect ratio: 16:9 landscape</span>
                           {editForm.hero?.bannerImage ? (
                             <div className="flex flex-col items-center gap-3 w-full">
                               {(editForm.hero.bannerImage.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) || editForm.hero.bannerImage.includes('res.cloudinary.com/daw1tscqr/image')) ? (
@@ -649,7 +656,7 @@ export function ProgramsManager() {
                             </div>
                           ) : (
                             <>
-                              <p className="text-[11px] text-charcoal/50 mb-4 max-w-[200px]">Upload a high-quality, wide image to feature at the top of the program page.</p>
+                              <p className="text-[11px] text-charcoal/50 mb-4 max-w-[200px]">Upload a high-quality, wide image (16:9) to feature at the top of the program page.</p>
                               <CloudinaryUploader label="Upload Image" onUpload={(url) => updateNested(['hero', 'bannerImage'], url)} />
                             </>
                           )}
@@ -657,7 +664,8 @@ export function ProgramsManager() {
 
                         {/* Intro Video Box */}
                         <div className="border-2 border-dashed border-[#8C6D40]/30 p-8 rounded-lg bg-[#FAF8F5] flex flex-col items-center justify-center text-center transition-colors hover:border-[#8C6D40]/60 hover:bg-[#8C6D40]/5">
-                          <label className="block text-xs uppercase font-bold tracking-widest text-[#8C6D40] mb-4">Intro Video (Optional)</label>
+                          <label className="block text-xs uppercase font-bold tracking-widest text-[#8C6D40] mb-1">Intro Video (Optional)</label>
+                          <span className="text-[10px] text-charcoal/50 font-medium mb-3">Aspect ratio: 16:9 landscape</span>
                           {editForm.hero?.introVideo ? (
                             <div className="flex flex-col items-center gap-3 w-full">
                               <video src={editForm.hero.introVideo} className="h-32 w-auto object-cover rounded-md border border-[#EBE3DB] shadow-sm bg-black" controls />
@@ -668,7 +676,7 @@ export function ProgramsManager() {
                             </div>
                           ) : (
                             <>
-                              <p className="text-[11px] text-charcoal/50 mb-4 max-w-[200px]">Upload an introductory video message for potential clients.</p>
+                              <p className="text-[11px] text-charcoal/50 mb-4 max-w-[200px]">Upload an introductory video message (16:9 landscape).</p>
                               <CloudinaryUploader label="Upload Video" onUpload={(url) => updateNested(['hero', 'introVideo'], url)} />
                             </>
                           )}

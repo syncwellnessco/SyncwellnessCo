@@ -21,7 +21,10 @@ interface VideoTestimonial {
 
 const CloudinaryVideoBtn = ({ onUpload, onRemove, value }: { onUpload: (u: string, pId: string) => void, onRemove: () => void, value: string }) => (
   <div className="flex flex-col gap-2">
-    <span className="text-sm font-medium text-charcoal/80">Video File</span>
+    <div className="flex justify-between items-baseline">
+      <span className="text-sm font-medium text-charcoal/80">Video File</span>
+      <span className="text-[10px] text-charcoal/50 font-medium">Aspect ratio: 9:16 vertical</span>
+    </div>
     {value ? (
       <div className="relative w-full aspect-[9/16] max-h-96 rounded-md overflow-hidden border border-[#EBE3DB] bg-black">
         <video src={value} controls className="w-full h-full object-contain" />
@@ -41,9 +44,10 @@ const CloudinaryVideoBtn = ({ onUpload, onRemove, value }: { onUpload: (u: strin
         }}
       >
         {({ open }) => (
-          <button type="button" onClick={() => open()} className="w-full aspect-[9/16] max-h-96 border-2 border-dashed border-[#EBE3DB] rounded-md flex flex-col items-center justify-center text-charcoal/50 hover:bg-[#FAF8F5] hover:border-[#8C6D40] transition-colors">
+          <button type="button" onClick={() => open()} className="w-full aspect-[9/16] max-h-96 border-2 border-dashed border-[#EBE3DB] rounded-md flex flex-col items-center justify-center text-charcoal/50 hover:bg-[#FAF8F5] hover:border-[#8C6D40] transition-colors bg-[#FAF8F5]">
             <Upload className="h-6 w-6 mb-2" />
             <span className="text-xs">Click to upload video</span>
+            <span className="text-[10px] text-charcoal/40 mt-1">9:16 vertical format (e.g. Reels)</span>
           </button>
         )}
       </CldUploadWidget>
