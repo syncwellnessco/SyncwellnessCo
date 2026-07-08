@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <PageShell>
+    <PageShell className="bg-[#FAF8F5]">
       <AboutPageContent />
     </PageShell>
   );

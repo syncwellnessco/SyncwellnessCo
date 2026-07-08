@@ -44,7 +44,7 @@ export function ContactPageContent() {
   };
 
   return (
-    <article className="pt-24 pb-16 bg-cream min-h-screen">
+    <article className="pb-16 bg-cream min-h-screen">
       
       {/* Top Section */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
@@ -64,6 +64,7 @@ export function ContactPageContent() {
                 src="https://images.unsplash.com/photo-1542435503-956c469947f6?auto=format&fit=crop&q=80" 
                 alt="Typing on laptop"
                 fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover"
               />
             </div>

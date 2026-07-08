@@ -11,7 +11,7 @@ export function AboutPageContent() {
     <article className="bg-[#FAF8F5] min-h-screen">
       
       {/* Hero / Founder Section */}
-      <section className="pt-32 pb-20 lg:pt-40 lg:pb-32 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+      <section className="pt-12 pb-20 lg:pt-16 lg:pb-32 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
         <div className="block">
           
           <div className="relative float-right ml-6 mb-6 md:ml-12 md:mb-8 w-[200px] sm:w-[280px] md:w-[380px] aspect-[4/5] overflow-hidden bg-[#EBE3DB] shadow-lg rounded-sm mt-2">
@@ -19,6 +19,7 @@ export function AboutPageContent() {
               src={coachImageSrc}
               alt={`${aboutContent.aboutCoach.name} — ${aboutContent.aboutCoach.title}`}
               fill
+              sizes="(max-width: 640px) 200px, (max-width: 768px) 280px, 380px"
               className="object-cover object-top"
               priority
             />

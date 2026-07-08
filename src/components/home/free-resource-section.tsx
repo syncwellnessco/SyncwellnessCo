@@ -43,7 +43,7 @@ export function FreeResourceSection() {
               <div className="mt-8">
                 <Link
                   href="/resources/ebook"
-                  className="bg-[#8C6D40] text-white hover:bg-[#B8955F] uppercase tracking-[0.15em] text-[11px] font-semibold py-4 px-12 transition-colors flex items-center justify-center sm:justify-start w-fit"
+                  className="bg-[#8C6D40] text-white hover:bg-[#B8955F] uppercase tracking-[0.15em] text-[11px] font-semibold py-4 px-12 transition-colors flex items-center justify-center sm:justify-start w-full sm:w-fit"
                 >
                   KNOW MORE <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>

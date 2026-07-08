@@ -1,9 +1,14 @@
+import { cn } from "@/lib/utils";
+
 type PageShellProps = {
   children: React.ReactNode;
+  className?: string;
 };
 
-export function PageShell({ children }: PageShellProps) {
+export function PageShell({ children, className }: PageShellProps) {
   return (
-    <main className="min-h-screen bg-cream pt-[72px] lg:pt-24">{children}</main>
+    <main className={cn("min-h-screen pt-[72px] lg:pt-24", className || "bg-cream")}>
+      {children}
+    </main>
   );
 }
