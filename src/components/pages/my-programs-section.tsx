@@ -1,10 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { ArrowRight, PlayCircle } from "lucide-react";
 import { useUserStore } from "@/store/user-store";
 import { SectionHeading } from "@/components/ui/section-heading";
-import { Button } from "@/components/ui/button";
+import { InteractiveLink } from "@/components/ui/interactive-link";
 
 export function MyProgramsSection({ allPrograms }: { allPrograms: any[] }) {
   const { user, purchasedPrograms } = useUserStore();
@@ -42,11 +41,13 @@ export function MyProgramsSection({ allPrograms }: { allPrograms: any[] }) {
               <div className="p-6">
                 <h3 className="font-display text-xl font-semibold text-charcoal mb-2">{program.name}</h3>
                 <p className="text-sm text-charcoal mb-6 line-clamp-2">{program.description}</p>
-                <Button asChild className="w-full bg-charcoal text-white hover:bg-charcoal/90">
-                  <Link href={`/programs/${program.slug || program.id}/course`}>
-                    Access Course <ArrowRight className="ml-2 w-4 h-4" />
-                  </Link>
-                </Button>
+                <InteractiveLink 
+                  href={`/programs/${program.slug || program.id}/course`}
+                  variant="default"
+                  className="w-full"
+                >
+                  Access Course <ArrowRight className="ml-2 w-4 h-4" />
+                </InteractiveLink>
               </div>
             </div>
           ))}

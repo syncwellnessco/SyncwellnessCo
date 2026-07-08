@@ -21,7 +21,7 @@ export default async function ProgramDetailPage({ params }: PageProps) {
   const { slug } = await params;
 
   return (
-    <PageShell>
+    <PageShell noPadding>
       <ProgramDetailContent slug={slug} />
     </PageShell>
   );

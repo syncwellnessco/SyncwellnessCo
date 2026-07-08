@@ -28,7 +28,7 @@ export async function ProgramDetailContent({ slug }: ProgramDetailContentProps) 
     <article className="pb-0">
       {/* Hero Section */}
       <section 
-        className="relative min-h-[70vh] flex items-center bg-cover bg-center overflow-hidden pt-24 pb-12"
+        className="relative min-h-[70vh] flex items-center bg-cover bg-center overflow-hidden pt-32 sm:pt-36 lg:pt-40 pb-12"
         style={{ backgroundImage: `url(https://res.cloudinary.com/daw1tscqr/image/upload/v1780733233/shadow-background_wbrsm4.jpg)` }}
       >
         <div className="absolute inset-0 bg-[#4A5D5E]/70 mix-blend-multiply" />

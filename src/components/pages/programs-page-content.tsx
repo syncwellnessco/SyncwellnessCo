@@ -5,6 +5,7 @@ import { SectionHeading } from "@/components/ui/section-heading";
 import { Button } from "@/components/ui/button";
 import { getAllPrograms } from "@/lib/programs";
 import { MyProgramsSection } from "@/components/pages/my-programs-section";
+import { InteractiveLink } from "@/components/ui/interactive-link";
 import { cn } from "@/lib/utils";
 
 export async function ProgramsPageContent() {
@@ -83,9 +84,13 @@ export async function ProgramsPageContent() {
                       </span>
                     )}
                   </div>
-                  <Button asChild size="lg" className="w-full sm:w-auto justify-center text-center bg-[#8C6D40] text-white hover:bg-[#B8955F] uppercase tracking-[0.15em] text-[10px] font-bold h-12 px-8 rounded-sm border-0 transition-colors">
-                    <Link href={`/programs/${featured.slug || featured.id}`}>Explore Program</Link>
-                  </Button>
+                  <InteractiveLink
+                    href={`/programs/${featured.slug || featured.id}`}
+                    variant="raw"
+                    className="w-full sm:w-auto justify-center text-center bg-[#8C6D40] text-white hover:bg-[#B8955F] uppercase tracking-[0.15em] text-[10px] font-bold h-12 px-8 rounded-sm border-0 transition-colors inline-flex items-center"
+                  >
+                    Explore Program
+                  </InteractiveLink>
                 </div>
               </div>
               

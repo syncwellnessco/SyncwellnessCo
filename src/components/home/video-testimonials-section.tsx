@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Pause, Volume2, VolumeX, X, Loader2 } from "lucide-react";
+import { Play, Pause, Volume2, VolumeX, X, Loader2, ArrowRight } from "lucide-react";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { useRef } from "react";
+import { InteractiveLink } from "@/components/ui/interactive-link";
 
 interface VideoTestimonial {
   id: string;
@@ -98,7 +99,7 @@ export function VideoTestimonialsSection() {
   }
 
   return (
-    <section className="bg-sage-100/40 pt-2 pb-6 sm:pt-4 sm:pb-10 overflow-hidden">
+    <section className="bg-sage-100/40 pt-2 pb-5 sm:pt-4 sm:pb-6 overflow-hidden">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-4">
         <SectionHeading
           eyebrow="Video Stories"
@@ -162,13 +163,14 @@ export function VideoTestimonialsSection() {
           </MarqueeCarousel>
         </div>
 
-        <div className="mt-6 sm:mt-8 flex justify-center">
-          <a 
-            href="/testimonials" 
-            className="inline-flex h-12 items-center justify-center rounded-sm bg-[#8C6D40] px-8 text-xs font-semibold uppercase tracking-[0.15em] text-white transition-colors hover:bg-[#B8955F]"
+        <div className="mt-5 sm:mt-6 text-center">
+          <InteractiveLink
+            href="/testimonials"
+            className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-charcoal transition-colors hover:text-[#8C6D40]"
           >
             Show More Testimonials
-          </a>
+            <ArrowRight className="h-4 w-4" />
+          </InteractiveLink>
         </div>
       </div>
 

@@ -6,6 +6,7 @@ import { useCalendlyEventListener, PopupModal } from "react-calendly";
 import { useRouter, usePathname } from "next/navigation";
 import { useUserStore } from "@/store/user-store";
 import { Spinner } from "@/components/ui/spinner";
+import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
 
 interface BookingButtonProps {
@@ -64,6 +65,7 @@ export function BookingButton({ programId, programName, pricing, className, chil
 
   const handleClick = () => {
     if (!user) {
+      setLoading(true);
       router.push(redirectUrl);
       return;
     }
@@ -75,11 +77,14 @@ export function BookingButton({ programId, programName, pricing, className, chil
   return (
     <>
       <Button 
-        className={className} 
+        className={cn("relative overflow-hidden select-none", className)} 
         onClick={handleClick} 
         disabled={loading}
       >
-        {loading ? <Spinner className="h-4 w-4" /> : (children || "Join Program")}
+        <span className={cn("inline-flex items-center justify-center gap-2 w-full h-full transition-opacity", loading && "opacity-75")}>
+          {children || "Join Program"}
+        </span>
+        {loading && <span className="shimmer-bg-light" />}
       </Button>
       <PopupModal
         url="https://calendly.com/your-calendly-link" // Ensure user updates this

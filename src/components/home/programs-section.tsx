@@ -8,6 +8,7 @@ import { SectionHeading } from "@/components/ui/section-heading";
 import { Button } from "@/components/ui/button";
 import { GlassBadge } from "@/components/ui/glass-badge";
 import { ProgramHeroMedia } from "@/components/pages/program-hero-media";
+import { InteractiveLink } from "@/components/ui/interactive-link";
 import type { Program } from "@/types/program";
 
 export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
@@ -48,11 +49,11 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
               {featured.hero?.bannerImage && (
                 <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-3xl">
                   <Image
-                    src={featured.hero.bannerImage}
-                    alt=""
-                    fill
-                    className="object-cover opacity-15 blur-3xl scale-110"
-                    unoptimized
+                     src={featured.hero.bannerImage}
+                     alt=""
+                     fill
+                     className="object-cover opacity-15 blur-3xl scale-110"
+                     unoptimized
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-espresso via-transparent to-espresso/60 mix-blend-multiply" />
                 </div>
@@ -97,9 +98,13 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
                         </span>
                       )}
                     </div>
-                    <Button asChild size="lg" className="w-full sm:w-auto justify-center text-center bg-gold text-charcoal hover:bg-gold/90 text-[10px] font-bold tracking-[0.15em] uppercase h-12 px-8 rounded-sm">
-                      <Link href={`/programs/${featured.slug || featured.id}`}>View Details</Link>
-                    </Button>
+                    <InteractiveLink
+                      href={`/programs/${featured.slug || featured.id}`}
+                      variant="raw"
+                      className="w-full sm:w-auto justify-center text-center bg-gold text-charcoal hover:bg-gold/90 text-[10px] font-bold tracking-[0.15em] uppercase h-12 px-8 rounded-sm inline-flex items-center"
+                    >
+                      Explore Program
+                    </InteractiveLink>
                   </div>
                 </div>
                 
@@ -180,9 +185,13 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
         </div>
         
         <div className="mt-12 text-center">
-          <Button asChild variant="outline" size="lg" className="rounded-full border-charcoal/20 bg-transparent text-charcoal hover:bg-charcoal/5 px-8">
-            <Link href="/programs">View All Programs</Link>
-          </Button>
+          <InteractiveLink
+            href="/programs"
+            className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-charcoal transition-colors hover:text-[#8C6D40]"
+          >
+            View All Programs
+            <ArrowRight className="h-4 w-4" />
+          </InteractiveLink>
         </div>
       </div>
     </section>
