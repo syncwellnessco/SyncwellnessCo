@@ -49,7 +49,7 @@ export function AdminPresence() {
         const uniqueAdmins = Array.from(new Map(admins.map(a => [a.id, a])).values());
         setOnlineAdmins(uniqueAdmins);
       })
-      .subscribe(async (status) => {
+      .subscribe(async (status: string) => {
         if (status === 'SUBSCRIBED') {
           await channel.track({
             id: user.id,

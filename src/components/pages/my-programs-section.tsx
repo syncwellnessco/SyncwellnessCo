@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "@/components/ui/link";
+import Link from "next/link";
 import { ArrowRight, PlayCircle } from "lucide-react";
 import { useUserStore } from "@/store/user-store";
 import { SectionHeading } from "@/components/ui/section-heading";
@@ -43,7 +43,7 @@ export function MyProgramsSection({ allPrograms }: { allPrograms: any[] }) {
                 <h3 className="font-display text-xl font-semibold text-charcoal mb-2">{program.name}</h3>
                 <p className="text-sm text-charcoal mb-6 line-clamp-2">{program.description}</p>
                 <Button asChild className="w-full bg-charcoal text-white hover:bg-charcoal/90">
-                  <Link prefetch={false} href={`/programs/${program.slug || program.id}/course`}>
+                  <Link href={`/programs/${program.slug || program.id}/course`}>
                     Access Course <ArrowRight className="ml-2 w-4 h-4" />
                   </Link>
                 </Button>

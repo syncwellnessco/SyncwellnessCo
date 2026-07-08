@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "@/components/ui/link";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, HeartPulse, UsersRound } from "lucide-react";
 

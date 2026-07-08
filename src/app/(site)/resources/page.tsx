@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "@/components/ui/link";
+import Link from "next/link";
 import { ArrowRight, BookOpen } from "lucide-react";
 import { getAllBlogPosts } from "@/lib/blogs";
 
@@ -29,7 +29,7 @@ export default async function ResourcesHubPage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* The Hormone Balance eBook Card */}
-            <Link prefetch={false} href="/resources/ebook" className="group flex flex-col bg-white border border-[#EBE3DB] rounded-sm overflow-hidden hover:shadow-md transition-all">
+            <Link href="/resources/ebook" className="group flex flex-col bg-white border border-[#EBE3DB] rounded-sm overflow-hidden hover:shadow-md transition-all">
               <div className="bg-[#FAF8F5] aspect-[4/3] flex items-center justify-center p-8 border-b border-[#EBE3DB] relative overflow-hidden">
                 <img 
                   src="https://res.cloudinary.com/daw1tscqr/image/upload/e_trim/v1783333186/NehaEbookMockup_3pjf7_1280_ip08ks.png" 
@@ -76,7 +76,7 @@ export default async function ResourcesHubPage() {
               </span>
               <h2 className="font-display text-3xl lg:text-4xl text-charcoal">Latest Articles</h2>
             </div>
-            <Link prefetch={false} 
+            <Link 
               href="/resources/blogs" 
               className="hidden sm:flex items-center gap-2 text-charcoal text-[11px] font-semibold uppercase tracking-[0.15em] hover:text-[#8C6D40] transition-colors"
             >
@@ -86,7 +86,7 @@ export default async function ResourcesHubPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {latestBlogs.map(blog => (
-              <Link prefetch={false} 
+              <Link 
                 key={blog.id} 
                 href={`/resources/blogs/${blog.slug || blog.id}`}
                 className="group flex flex-col bg-[#FAF8F5] border border-[#EBE3DB] rounded-sm overflow-hidden hover:-translate-y-1 transition-transform"
@@ -115,7 +115,7 @@ export default async function ResourcesHubPage() {
           </div>
           
           <div className="mt-8 sm:hidden flex justify-center">
-            <Link prefetch={false} 
+            <Link 
               href="/resources/blogs" 
               className="flex items-center gap-2 text-charcoal text-[11px] font-semibold uppercase tracking-[0.15em] border border-charcoal/20 px-6 py-3 rounded-sm hover:border-charcoal hover:bg-charcoal hover:text-white transition-all"
             >

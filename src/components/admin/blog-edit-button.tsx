@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "@/components/ui/link";
+import Link from "next/link";
 import { Edit } from "lucide-react";
 import { createClient } from "@/lib/supabase-client";
 
@@ -20,7 +20,7 @@ export function BlogEditButton() {
   if (!isAdmin) return null;
 
   return (
-    <Link prefetch={false} 
+    <Link 
       href="/admin/dashboard?tab=blogs"
       className="fixed bottom-6 right-6 flex items-center gap-2 bg-[#8C6D40] hover:bg-[#B8955F] text-white text-[11px] uppercase tracking-widest font-semibold px-6 py-3 rounded-sm shadow-lg transition-colors z-50"
     >

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, Suspense } from "react";
-import Link from "@/components/ui/link";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight, Mail, Lock, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
@@ -169,7 +169,7 @@ function LoginContent() {
 
           <div className="mt-8 text-center text-[13px] text-charcoal">
             Don't have an account?{" "}
-            <Link prefetch={false} href={`/signup?redirect=${encodeURIComponent(redirectUrl)}`} className="font-semibold text-[#8C6D40] hover:text-[#B8955F] transition-colors underline underline-offset-4">
+            <Link href={`/signup?redirect=${encodeURIComponent(redirectUrl)}`} className="font-semibold text-[#8C6D40] hover:text-[#B8955F] transition-colors underline underline-offset-4">
               Sign up
             </Link>
           </div>

@@ -1,5 +1,3 @@
-import { Navbar } from "@/components/layout/navbar";
-import { Footer } from "@/components/layout/footer";
 import { HeroSection } from "@/components/home/hero-section";
 import { StrugglesSection } from "@/components/home/struggles-section";
 import { HowWeHelpSection } from "@/components/home/how-we-help-section";

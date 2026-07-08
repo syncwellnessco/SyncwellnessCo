@@ -45,7 +45,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       subscription.unsubscribe();
       window.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [setUser, setPurchasedPrograms, supabase.auth]);
+  }, [setUser, setPurchasedPrograms]);
 
   const fetchUserPrograms = async (userId: string) => {
     // In a real application, you would fetch from your database

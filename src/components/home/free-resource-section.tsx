@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "@/components/ui/link";
+import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { SectionHeading } from "@/components/ui/section-heading";
 

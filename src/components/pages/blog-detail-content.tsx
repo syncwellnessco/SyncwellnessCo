@@ -1,4 +1,4 @@
-import Link from "@/components/ui/link";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { getBlogPost } from "@/lib/blogs";

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "@/components/ui/link";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { SectionHeading } from "@/components/ui/section-heading";
@@ -33,7 +33,7 @@ export function BlogSection({ blogs }: BlogSectionProps) {
               transition={{ delay: index * 0.08 }}
               className="flex flex-col overflow-hidden rounded-none bg-[#FAF8F5] shadow-sm transition-transform"
             >
-              <Link prefetch={false} href={`/resources/blogs/${post.slug || post.id}`} className="group flex-1 flex flex-col">
+              <Link href={`/resources/blogs/${post.slug || post.id}`} className="group flex-1 flex flex-col">
                 {post.image && (
                   <div className="relative aspect-[4/3] overflow-hidden">
                     <Image
@@ -55,7 +55,7 @@ export function BlogSection({ blogs }: BlogSectionProps) {
                   </span>
                 </div>
               </Link>
-              <Link prefetch={false} 
+              <Link 
                 href={`/resources/blogs/${post.slug || post.id}`} 
                 className="block w-full bg-[#8C6D40] py-3 text-center text-[10px] font-semibold uppercase tracking-[0.15em] text-white transition-colors hover:bg-[#B8955F]"
               >

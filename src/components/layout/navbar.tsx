@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "@/components/ui/link";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, User, X } from "lucide-react";
@@ -48,7 +48,7 @@ export function Navbar() {
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
+        "fixed top-0 left-0 right-0 z-50 transition-[background-color,box-shadow,border-color] duration-200",
         mobileOpen
           ? "bg-[#f4f2f0] border-b border-[#EBE3DB]"
           : heroNav
@@ -154,7 +154,7 @@ export function Navbar() {
                   </Link>
                 )}
                 <div className="flex items-center gap-2">
-                  <Link prefetch={false} href="/profile" className="flex items-center gap-2 group cursor-pointer transition-opacity hover:opacity-80">
+                  <Link href="/profile" className="flex items-center gap-2 group cursor-pointer transition-opacity hover:opacity-80">
                     <div
                       className={cn(
                         "inline-flex overflow-hidden items-center justify-center transition-colors",

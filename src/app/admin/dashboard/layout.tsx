@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode, useEffect, useState } from "react";
-import Link from "@/components/ui/link";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BookOpen, Calendar, LayoutDashboard, Mail, MessageSquare, Users, ExternalLink } from "lucide-react";
 import { useUserStore } from "@/store/user-store";
@@ -51,7 +51,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           <p className="text-charcoal/80 text-[15px] mb-10 leading-relaxed">
             The Admin Dashboard requires a larger screen for the best content management experience. Please access this page from a desktop device.
           </p>
-          <Link prefetch={false} href="/" className="inline-flex items-center justify-center w-full px-6 py-4 bg-[#8C6D40] text-white text-[11px] font-semibold uppercase tracking-[0.15em] hover:bg-[#B8955F] transition-colors">
+          <Link href="/" className="inline-flex items-center justify-center w-full px-6 py-4 bg-[#8C6D40] text-white text-[11px] font-semibold uppercase tracking-[0.15em] hover:bg-[#B8955F] transition-colors">
             RETURN TO WEBSITE
           </Link>
         </div>
@@ -64,38 +64,38 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           <div className="p-6 h-full flex flex-col">
             <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-[#8C6D40] mb-6">Admin Panel</h2>
             <nav className="space-y-2 flex-1">
-              <Link prefetch={false} href="/admin/dashboard" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
+              <Link href="/admin/dashboard" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
                 <LayoutDashboard className="h-5 w-5 text-charcoal/50" />
                 <span className="text-sm font-medium">Overview</span>
               </Link>
-              <Link prefetch={false} href="/admin/dashboard?tab=enquiries" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
+              <Link href="/admin/dashboard?tab=enquiries" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
                 <MessageSquare className="h-5 w-5 text-charcoal/50" />
                 <span className="text-sm font-medium">Enquiries</span>
               </Link>
-              <Link prefetch={false} href="/admin/dashboard?tab=ebooks" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
+              <Link href="/admin/dashboard?tab=ebooks" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
                 <BookOpen className="h-5 w-5 text-charcoal/50" />
                 <span className="text-sm font-medium">Ebook Requests</span>
               </Link>
-              <Link prefetch={false} href="/admin/dashboard?tab=programs" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
+              <Link href="/admin/dashboard?tab=programs" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
                 <Calendar className="h-5 w-5 text-charcoal/50" />
                 <span className="text-sm font-medium">Programs</span>
               </Link>
-              <Link prefetch={false} href="/admin/dashboard?tab=blogs" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
+              <Link href="/admin/dashboard?tab=blogs" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
                 <BookOpen className="h-5 w-5 text-charcoal/50" />
                 <span className="text-sm font-medium">Blogs</span>
               </Link>
-              <Link prefetch={false} href="/admin/dashboard?tab=reviews" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
+              <Link href="/admin/dashboard?tab=reviews" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
                 <MessageSquare className="h-5 w-5 text-charcoal/50" />
                 <span className="text-sm font-medium">Reviews</span>
               </Link>
-              <Link prefetch={false} href="/admin/dashboard?tab=videos" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
+              <Link href="/admin/dashboard?tab=videos" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
                 <MessageSquare className="h-5 w-5 text-charcoal/50" />
                 <span className="text-sm font-medium">Video Testimonials</span>
               </Link>
             </nav>
             
             <div className="mt-8 pt-6 border-t border-[#EBE3DB]">
-              <Link prefetch={false} href="/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal/70 hover:text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
+              <Link href="/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal/70 hover:text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
                 <ExternalLink className="h-4 w-4" />
                 <span className="text-sm font-medium">View Website</span>
               </Link>
