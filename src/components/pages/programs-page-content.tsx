@@ -209,9 +209,34 @@ export async function ProgramsPageContent() {
                   </div>
                   
                   <div className="flex items-center justify-between border-t border-beige-200 pt-6 mt-auto">
-                    <span className="font-semibold text-lg text-slate-800">
-                      {program.pricing?.price ? `$${program.pricing.price} AUD` : "Free"}
-                    </span>
+                    {(() => {
+                      const listPrice = program.pricing?.price ? Number(program.pricing.price) : null;
+                      const salePrice = program.pricing?.salePrice ? Number(program.pricing.salePrice) : null;
+                      const hasDiscount = salePrice !== null && listPrice !== null && listPrice > salePrice;
+                      const displayPrice = hasDiscount ? salePrice : (listPrice || 0);
+                      const originalPrice = listPrice || 0;
+
+                      if (hasDiscount) {
+                        return (
+                          <div className="flex items-baseline gap-2">
+                            <span className="font-light text-sm text-slate-400 line-through">
+                              ${originalPrice} AUD
+                            </span>
+                            <span className="font-bold text-lg text-slate-800">
+                              ${displayPrice} AUD
+                            </span>
+                            <span className="bg-black text-white text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-none">
+                              SAVE ${originalPrice - displayPrice}
+                            </span>
+                          </div>
+                        );
+                      }
+                      return (
+                        <span className="font-semibold text-lg text-slate-800">
+                          {displayPrice > 0 ? `$${displayPrice} AUD` : "Free"}
+                        </span>
+                      );
+                    })()}
                     <Button asChild variant="ghost" className="group/btn text-[#8C6D40] hover:text-[#B8955F] hover:bg-transparent px-0 font-semibold tracking-wide uppercase text-xs">
                       <Link href={`/programs/${program.slug || program.id}`}>
                         View Details
