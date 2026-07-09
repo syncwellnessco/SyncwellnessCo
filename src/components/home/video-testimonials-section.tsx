@@ -6,6 +6,7 @@ import { Play, Pause, Volume2, VolumeX, X, Loader2, ArrowRight } from "lucide-re
 import { SectionHeading } from "@/components/ui/section-heading";
 import { useRef } from "react";
 import { InteractiveLink } from "@/components/ui/interactive-link";
+import { cn } from "@/lib/utils";
 
 interface VideoTestimonial {
   id: string;
@@ -24,7 +25,10 @@ export function VideoTestimonialsSection() {
   const [activeVideo, setActiveVideo] = useState<VideoTestimonial | null>(null);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
+  const [userExpanded, setUserExpanded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  const isExpanded = !isPlaying || userExpanded;
   const dragStartRef = useRef<{ x: number, y: number } | null>(null);
 
   const handlePointerDown = (e: React.PointerEvent) => {
@@ -55,6 +59,8 @@ export function VideoTestimonialsSection() {
   useEffect(() => {
     if (activeVideo) {
       document.body.style.overflow = "hidden";
+      setIsPlaying(true);
+      setUserExpanded(false);
     } else {
       document.body.style.overflow = "";
     }
@@ -99,7 +105,7 @@ export function VideoTestimonialsSection() {
   }
 
   return (
-    <section className="bg-sage-100/40 pt-2 pb-5 sm:pt-4 sm:pb-6 overflow-hidden">
+    <section className="bg-sage-100/40 pt-6 pb-7 sm:pt-10 sm:pb-9 overflow-hidden">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-4">
         <SectionHeading
           eyebrow="Video Stories"
@@ -109,7 +115,7 @@ export function VideoTestimonialsSection() {
       </div>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="relative w-full py-2">
+        <div className="relative w-full">
           <MarqueeCarousel speed={1.5} reverse>
             {Array.from({ length: Math.max(12, videos.length * 4) }).map((_, i) => {
               const video = videos[i % videos.length];
@@ -163,7 +169,7 @@ export function VideoTestimonialsSection() {
           </MarqueeCarousel>
         </div>
 
-        <div className="mt-5 sm:mt-6 text-center">
+        <div className="mt-6 sm:mt-8 text-center">
           <InteractiveLink
             href="/testimonials"
             className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-charcoal transition-colors hover:text-[#8C6D40]"
@@ -243,8 +249,27 @@ export function VideoTestimonialsSection() {
                       </div>
                     )}
                     <h4 className="text-white font-display font-semibold text-xl drop-shadow-md leading-tight shrink-0 mb-2">{activeVideo.name}</h4>
-                    <div className="overflow-y-auto pr-2" style={{ maxHeight: '150px' }}>
-                      <p className="text-white/90 text-sm drop-shadow-md leading-relaxed">{activeVideo.caption}</p>
+                    <div 
+                      className="cursor-pointer mt-1 pointer-events-auto"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setUserExpanded(!userExpanded);
+                      }}
+                    >
+                      <div className={cn(
+                        "transition-all duration-300",
+                        isExpanded ? "max-h-[120px] overflow-y-auto pr-2" : "line-clamp-2"
+                      )}>
+                        <p className="text-white/90 text-sm drop-shadow-md leading-relaxed">
+                          {activeVideo.caption}
+                        </p>
+                      </div>
+                      
+                      {activeVideo.caption.length > 80 && (
+                        <span className="mt-2 inline-flex items-center text-[10px] font-bold text-white uppercase tracking-[0.12em] bg-white/10 hover:bg-white/20 px-2 py-1 rounded-sm border border-white/20 transition-colors">
+                          {isExpanded ? "Read Less" : "Read More"}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -401,7 +426,7 @@ function MarqueeCarousel({ children, speed = 1, reverse = false }: MarqueeCarous
       onTouchStart={handleTouchStart}
       onTouchEnd={handleMouseUp}
       onTouchMove={handleTouchMove}
-      className="overflow-x-auto scrollbar-none flex select-none w-full gap-4 sm:gap-6 py-4 cursor-grab active:cursor-grabbing"
+      className="overflow-x-auto scrollbar-none flex select-none w-full gap-4 sm:gap-6 pt-3 pb-1 cursor-grab active:cursor-grabbing"
       style={{ WebkitOverflowScrolling: "touch" }}
     >
       {children}

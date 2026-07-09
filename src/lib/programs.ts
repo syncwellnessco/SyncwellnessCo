@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase-server";
+import { publicSupabase } from "@/lib/supabase-server";
 import type { Program } from "@/types/program";
 
 function mapDbToProgram(row: any): Program {
@@ -16,7 +16,7 @@ export async function getAllPrograms(options?: {
   publishedOnly?: boolean;
 }): Promise<Program[]> {
   try {
-    const supabase = await createClient();
+    const supabase = publicSupabase;
     let query = supabase.from("programs").select("*").order("featured_rank", { ascending: true });
     
     if (options?.publishedOnly) {

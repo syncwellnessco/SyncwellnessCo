@@ -15,7 +15,7 @@ const FinalCTASection = nextDynamic(() => import("@/components/home/final-cta-se
 import { getAllBlogPosts } from "@/lib/blogs";
 import { getAllPrograms } from "@/lib/programs";
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export default async function HomePage() {
   const blogs = await getAllBlogPosts({ publishedOnly: true });

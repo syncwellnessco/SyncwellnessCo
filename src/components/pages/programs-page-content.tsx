@@ -139,10 +139,10 @@ export async function ProgramsPageContent() {
             {others.map((program) => (
               <article
                 key={program.id}
-                className="group relative flex flex-col bg-white border border-beige-200 p-6 sm:p-8 rounded-3xl transition-all hover:shadow-xl duration-300 overflow-hidden"
+                className="group relative flex flex-col bg-white border border-beige-200 p-6 sm:p-8 rounded-xl transition-all hover:shadow-xl duration-300 overflow-hidden"
               >
                 {program.hero?.bannerImage && (
-                  <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-2xl mb-6 shadow-md border border-beige-100">
+                  <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-lg mb-6 shadow-md border border-beige-100">
                     <Image
                       src={program.hero.bannerImage}
                       alt={program.title}

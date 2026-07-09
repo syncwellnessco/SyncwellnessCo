@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: "Free resources, eBooks, and diet plans to help balance your hormones naturally.",
 };
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export default async function ResourcesHubPage() {
   const blogs = await getAllBlogPosts({ publishedOnly: true });

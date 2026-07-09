@@ -22,7 +22,7 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
 
   return (
     <section
-      className="py-6 sm:py-10 relative overflow-hidden bg-[#FAF9F7]"
+      className="pt-6 pb-6 sm:pt-10 sm:pb-8 relative overflow-hidden bg-[#FAF9F7]"
       id="programs"
     >
       <div className="absolute top-0 right-0 h-[600px] w-[600px] rounded-full bg-gold/5 blur-[100px] mix-blend-multiply pointer-events-none" />
@@ -43,11 +43,11 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: fIdx * 0.1 }}
-              className="lg:col-span-12 relative overflow-hidden rounded-3xl bg-gradient-to-br from-espresso to-charcoal border border-white/10 shadow-2xl"
+              className="lg:col-span-12 relative overflow-hidden rounded-xl bg-gradient-to-br from-espresso to-charcoal border border-white/10 shadow-2xl"
             >
               {/* Blurred background image to extract organic colors */}
               {featured.hero?.bannerImage && (
-                <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-3xl">
+                <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-xl">
                   <Image
                      src={featured.hero.bannerImage}
                      alt=""
@@ -127,10 +127,10 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              className="lg:col-span-6 group relative flex flex-col rounded-3xl border border-beige-200 bg-white p-5 sm:p-6 shadow-sm transition-all hover:shadow-xl hover:-translate-y-1 duration-300"
+              className="lg:col-span-6 group relative flex flex-col rounded-xl border border-beige-200 bg-white p-5 sm:p-6 shadow-sm transition-all hover:shadow-xl hover:-translate-y-1 duration-300"
             >
               {program.hero?.bannerImage && (
-                <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-2xl mb-6 shadow-md border border-beige-100">
+                <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-lg mb-6 shadow-md border border-beige-100">
                   <Image
                     src={program.hero.bannerImage}
                     alt={program.title}
@@ -184,7 +184,7 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
           ))}
         </div>
         
-        <div className="mt-12 text-center">
+        <div className="mt-6 sm:mt-8 text-center">
           <InteractiveLink
             href="/programs"
             className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-charcoal transition-colors hover:text-[#8C6D40]"

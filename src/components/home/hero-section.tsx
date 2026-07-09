@@ -71,10 +71,10 @@ export function HeroSection() {
               </p>
               <Link
                 href="/programs"
-                className="group mt-6 inline-flex items-center gap-2 rounded-full bg-cream px-6 py-3 text-sm font-semibold uppercase tracking-[0.11em] text-charcoal transition-all hover:bg-beige-100 hover:shadow-lg"
+                className="group mt-8 inline-flex items-center gap-2.5 rounded-full bg-[#8C6D40] px-8 py-3.5 text-xs font-bold uppercase tracking-[0.16em] text-white shadow-xl shadow-black/25 transition-all duration-300 hover:bg-[#A38253] hover:shadow-2xl hover:shadow-[#8C6D40]/30 hover:-translate-y-0.5 active:translate-y-0"
               >
                 Get Started
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
             </motion.div>
           </div>
@@ -93,6 +93,15 @@ export function HeroSection() {
             <p className="mt-1.5 text-sm leading-relaxed text-cream/80">
               {heroContent.marketingSubline}
             </p>
+            <div className="mt-4">
+              <Link
+                href="/programs"
+                className="group inline-flex items-center gap-2 rounded-full bg-[#8C6D40] px-6 py-3 text-[10px] font-bold uppercase tracking-[0.14em] text-white shadow-lg transition-all duration-300 hover:bg-[#A38253] active:scale-95"
+              >
+                Get Started
+                <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
+              </Link>
+            </div>
           </motion.div>
         </div>
       </div>

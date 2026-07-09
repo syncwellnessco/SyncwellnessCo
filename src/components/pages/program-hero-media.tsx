@@ -21,7 +21,7 @@ export function ProgramHeroMedia({ videoUrl, imageUrl, title, hideVideoOnMobile 
       {videoUrl && (
         <div 
           className={cn(
-            "relative w-full aspect-video rounded-3xl overflow-hidden shadow-2xl ring-1 ring-white/10 group cursor-pointer",
+            "relative w-full aspect-video rounded-lg overflow-hidden shadow-2xl ring-1 ring-white/10 group cursor-pointer",
             hideVideoOnMobile && "hidden lg:block"
           )}
           onClick={() => setActiveModal('video')}
@@ -53,7 +53,7 @@ export function ProgramHeroMedia({ videoUrl, imageUrl, title, hideVideoOnMobile 
 
       {imageUrl && (
         <div 
-          className="relative w-full aspect-video rounded-3xl overflow-hidden shadow-2xl ring-1 ring-white/10 group cursor-pointer"
+          className="relative w-full aspect-video rounded-lg overflow-hidden shadow-2xl ring-1 ring-white/10 group cursor-pointer"
           onClick={() => setActiveModal('image')}
         >
           <img src={imageUrl} alt={title} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
@@ -62,7 +62,7 @@ export function ProgramHeroMedia({ videoUrl, imageUrl, title, hideVideoOnMobile 
       )}
 
       {!videoUrl && !imageUrl && (
-        <div className="relative w-full aspect-video rounded-3xl overflow-hidden shadow-2xl ring-1 ring-white/10 bg-charcoal/50 flex items-center justify-center">
+        <div className="relative w-full aspect-video rounded-lg overflow-hidden shadow-2xl ring-1 ring-white/10 bg-charcoal/50 flex items-center justify-center">
           <span className="text-white/50 font-display">No media</span>
         </div>
       )}
