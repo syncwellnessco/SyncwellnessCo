@@ -24,6 +24,12 @@ export async function ProgramDetailContent({ slug }: ProgramDetailContentProps) 
     notFound();
   }
 
+  const listPrice = program.pricing?.price ? Number(program.pricing.price) : null;
+  const salePrice = program.pricing?.salePrice ? Number(program.pricing.salePrice) : null;
+  const hasDiscount = salePrice !== null && listPrice !== null && listPrice > salePrice;
+  const displayPrice = hasDiscount ? salePrice : (listPrice || 0);
+  const originalPrice = listPrice || 0;
+
   return (
     <article className="pb-0">
       {/* Hero Section */}
@@ -62,17 +68,40 @@ export async function ProgramDetailContent({ slug }: ProgramDetailContentProps) 
 
               <div className="mt-12 flex flex-col sm:flex-row items-start sm:items-center gap-6">
                 <BookingButton 
-                  programId={program.slug || program.id} 
+                  programId={program.id} 
+                  programSlug={program.slug || program.id}
                   programName={program.title} 
+                  theme="dark"
                   className="w-full sm:w-auto bg-[#8C6D40] text-white hover:bg-white hover:text-charcoal uppercase tracking-[0.15em] text-[11px] font-bold h-14 px-10 rounded-none border-0 transition-all duration-300"
                 >
                   {program.hero?.ctaText || "Join Program"}
                 </BookingButton>
                 
                 {program.pricing && (
-                  <p className="text-sm text-white/70 italic">
-                    Investment: {program.pricing.price ? `$${program.pricing.price}` : "Free"}
-                  </p>
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex items-baseline gap-3">
+                      {hasDiscount ? (
+                        <>
+                          <span className="text-white/60 line-through font-light text-base">
+                            ${originalPrice} AUD
+                          </span>
+                          <span className="text-white font-bold text-2xl sm:text-3xl">
+                            ${displayPrice} AUD
+                          </span>
+                          <span className="bg-black text-white text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-none self-center">
+                            SAVE ${originalPrice - displayPrice}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-white font-bold text-2xl sm:text-3xl">
+                          ${displayPrice} AUD
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-[10px] text-white/60 font-light tracking-wide">
+                      Note: Special pricing valid today only, subject to change.
+                    </span>
+                  </div>
                 )}
               </div>
             </div>
@@ -285,16 +314,39 @@ export async function ProgramDetailContent({ slug }: ProgramDetailContentProps) 
           </p>
           <div className="flex flex-col sm:flex-row justify-center items-center gap-6">
             <BookingButton 
-              programId={program.slug || program.id} 
+              programId={program.id} 
+              programSlug={program.slug || program.id}
               programName={program.title} 
+              theme="light"
               className="bg-[#8C6D40] text-white hover:bg-charcoal uppercase tracking-[0.2em] text-[11px] font-bold h-16 px-12 rounded-none border-0 transition-all duration-300 w-full sm:w-auto"
             >
               {program.hero?.ctaText || "Join Program"}
             </BookingButton>
             {program.pricing && (
-              <span className="text-charcoal/60 italic font-display text-xl">
-                or starting at {program.pricing.price ? `$${program.pricing.price}` : "Free"}
-              </span>
+              <div className="flex flex-col items-center sm:items-start gap-1.5">
+                <div className="flex items-baseline gap-3">
+                  {hasDiscount ? (
+                    <>
+                      <span className="text-charcoal/60 line-through font-light text-lg">
+                        ${originalPrice} AUD
+                      </span>
+                      <span className="text-charcoal font-bold text-2xl sm:text-3xl">
+                        ${displayPrice} AUD
+                      </span>
+                      <span className="bg-black text-white text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-none self-center">
+                        SAVE ${originalPrice - displayPrice}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-charcoal font-bold text-2xl sm:text-3xl">
+                      ${displayPrice} AUD
+                    </span>
+                  )}
+                </div>
+                <span className="text-[10px] text-charcoal/60 font-light tracking-wide">
+                  Note: Special pricing valid today only, subject to change.
+                </span>
+              </div>
             )}
           </div>
         </div>

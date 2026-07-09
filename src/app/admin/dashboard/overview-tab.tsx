@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, BookOpen, MessageSquare, Star, ArrowRight } from "lucide-react";
+import { Users, BookOpen, MessageSquare, Star, ArrowRight, DollarSign } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+
 
 export function OverviewTab() {
   const [data, setData] = useState<any>(null);
@@ -13,19 +14,21 @@ export function OverviewTab() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [enquiriesRes, ebooksRes, programsRes, reviewsRes] = await Promise.all([
+        const [enquiriesRes, ebooksRes, programsRes, reviewsRes, purchasesRes] = await Promise.all([
           fetch("/api/enquiries").then(res => res.json()),
           fetch("/api/ebook-requests").then(res => res.json()),
           fetch("/api/programs").then(res => res.json()),
-          fetch("/api/reviews").then(res => res.json())
+          fetch("/api/reviews").then(res => res.json()),
+          fetch("/api/purchases").then(res => res.json())
         ]);
 
         const enquiries = Array.isArray(enquiriesRes) ? enquiriesRes : [];
         const ebooks = Array.isArray(ebooksRes) ? ebooksRes : [];
         const programs = Array.isArray(programsRes) ? programsRes : [];
         const reviews = Array.isArray(reviewsRes) ? reviewsRes : [];
+        const purchases = Array.isArray(purchasesRes) ? purchasesRes : [];
 
-        setData({ enquiries, ebooks, programs, reviews });
+        setData({ enquiries, ebooks, programs, reviews, purchases });
       } catch (e) {
         console.error("Failed to load overview data", e);
       } finally {
@@ -34,6 +37,7 @@ export function OverviewTab() {
     };
     fetchData();
   }, []);
+
 
   if (loading) {
     return (
@@ -53,11 +57,16 @@ export function OverviewTab() {
   const pendingEbooks = data?.ebooks.filter((e: any) => e.status === 'pending') || [];
   const activePrograms = data?.programs.filter((p: any) => p.status === 'published') || [];
   const pendingReviews = data?.reviews.filter((r: any) => r.status === 'pending') || [];
+  const purchases = data?.purchases || [];
+  const totalRevenue = purchases
+    .filter((p: any) => p.status === "completed" || p.status === "succeeded")
+    .reduce((sum: number, p: any) => sum + (p.amount / 100), 0);
 
   return (
     <div className="space-y-8">
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <StatCard title="Revenue" count={`$${totalRevenue.toFixed(0)}`} icon={<DollarSign className="h-5 w-5" />} color="bg-emerald-50 text-emerald-700" />
         <StatCard title="New Enquiries" count={newEnquiries.length} icon={<MessageSquare className="h-5 w-5" />} color="bg-blue-50 text-blue-700" />
         <StatCard title="Pending Ebooks" count={pendingEbooks.length} icon={<BookOpen className="h-5 w-5" />} color="bg-purple-50 text-purple-700" />
         <StatCard title="Active Programs" count={activePrograms.length} icon={<Users className="h-5 w-5" />} color="bg-green-50 text-green-700" />
@@ -67,6 +76,34 @@ export function OverviewTab() {
       {/* Lists */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
+        {/* Recent Purchases */}
+        <div className="bg-white border border-[#EBE3DB] rounded-md shadow-sm flex flex-col h-full">
+          <div className="p-4 border-b border-[#EBE3DB] flex justify-between items-center bg-[#FAF8F5]">
+            <h3 className="font-semibold text-charcoal">Recent Purchases</h3>
+            <Link href="?tab=purchases" className="text-xs text-[#8C6D40] hover:underline flex items-center gap-1">
+              View All <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
+          <div className="p-0 flex-1">
+            {purchases.length === 0 ? (
+              <div className="p-6 text-center text-sm text-charcoal/50">No purchases yet.</div>
+            ) : (
+              <div className="divide-y divide-[#EBE3DB]">
+                {purchases.slice(0, 4).map((p: any) => (
+                  <div key={p.id} className="p-4 hover:bg-gray-50 transition-colors">
+                    <p className="font-medium text-sm text-charcoal truncate">{p.name || "Guest Checkout"}</p>
+                    <p className="text-xs text-charcoal/60 truncate mt-1">Bought: <span className="font-mono text-[11px] uppercase">{p.program_id}</span></p>
+                    <div className="flex justify-between items-center mt-2 text-[10px]">
+                      <span className="text-[#8C6D40] font-semibold">${(p.amount / 100).toFixed(2)}</span>
+                      <span className="text-charcoal/40">{new Date(p.createdAt).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Recent Enquiries */}
         <div className="bg-white border border-[#EBE3DB] rounded-md shadow-sm flex flex-col h-full">
           <div className="p-4 border-b border-[#EBE3DB] flex justify-between items-center bg-[#FAF8F5]">
@@ -117,42 +154,12 @@ export function OverviewTab() {
           </div>
         </div>
 
-        {/* Pending Reviews */}
-        <div className="bg-white border border-[#EBE3DB] rounded-md shadow-sm flex flex-col h-full">
-          <div className="p-4 border-b border-[#EBE3DB] flex justify-between items-center bg-[#FAF8F5]">
-            <h3 className="font-semibold text-charcoal">Pending Reviews</h3>
-            <Link href="?tab=reviews" className="text-xs text-[#8C6D40] hover:underline flex items-center gap-1">
-              View All <ArrowRight className="h-3 w-3" />
-            </Link>
-          </div>
-          <div className="p-0 flex-1">
-            {pendingReviews.length === 0 ? (
-              <div className="p-6 text-center text-sm text-charcoal/50">No reviews pending approval.</div>
-            ) : (
-              <div className="divide-y divide-[#EBE3DB]">
-                {pendingReviews.slice(0, 4).map((rev: any) => (
-                  <div key={rev.id} className="p-4 hover:bg-gray-50 transition-colors">
-                    <div className="flex items-center justify-between mb-1">
-                      <p className="font-medium text-sm text-charcoal truncate pr-2">{rev.name}</p>
-                      <div className="flex text-gold">
-                        {[...Array(rev.rating || 5)].map((_, i) => <Star key={i} className="h-2 w-2 fill-current" />)}
-                      </div>
-                    </div>
-                    <p className="text-xs text-charcoal/60 line-clamp-2 italic">"{rev.testimonial}"</p>
-                    <p className="text-[10px] text-charcoal/40 mt-2">{new Date(rev.created_at).toLocaleDateString()}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
       </div>
     </div>
   );
 }
 
-function StatCard({ title, count, icon, color }: { title: string, count: number, icon: React.ReactNode, color: string }) {
+function StatCard({ title, count, icon, color }: { title: string, count: number | string, icon: React.ReactNode, color: string }) {
   return (
     <div className="bg-white p-5 rounded-md border border-[#EBE3DB] shadow-sm flex items-center gap-4">
       <div className={`p-3 rounded-full ${color}`}>
@@ -165,3 +172,4 @@ function StatCard({ title, count, icon, color }: { title: string, count: number,
     </div>
   );
 }
+

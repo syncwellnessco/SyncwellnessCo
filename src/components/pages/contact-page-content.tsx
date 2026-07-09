@@ -85,7 +85,7 @@ export function ContactPageContent() {
                     id="name" 
                     required 
                     placeholder="*Name"
-                    className="w-full bg-transparent border-0 border-b border-[#DCD3C6] py-3 px-0 text-charcoal placeholder:text-slate-400 focus:ring-0 focus:border-[#A8895C] text-[15px] transition-colors"
+                    className="w-full bg-transparent border-0 border-b border-[#DCD3C6] py-3 px-3 text-charcoal placeholder:text-slate-400 focus:ring-0 focus:border-[#A8895C] text-[15px] transition-colors"
                   />
                 </div>
                 
@@ -95,7 +95,7 @@ export function ContactPageContent() {
                     id="email" 
                     required 
                     placeholder="*Email"
-                    className="w-full bg-transparent border-0 border-b border-[#DCD3C6] py-3 px-0 text-charcoal placeholder:text-slate-400 focus:ring-0 focus:border-[#A8895C] text-[15px] transition-colors"
+                    className="w-full bg-transparent border-0 border-b border-[#DCD3C6] py-3 px-3 text-charcoal placeholder:text-slate-400 focus:ring-0 focus:border-[#A8895C] text-[15px] transition-colors"
                   />
                 </div>
                 
@@ -104,7 +104,7 @@ export function ContactPageContent() {
                     type="text" 
                     id="business" 
                     placeholder="Business Name (if applicable)"
-                    className="w-full bg-transparent border-0 border-b border-[#DCD3C6] py-3 px-0 text-charcoal placeholder:text-slate-400 focus:ring-0 focus:border-[#A8895C] text-[15px] transition-colors"
+                    className="w-full bg-transparent border-0 border-b border-[#DCD3C6] py-3 px-3 text-charcoal placeholder:text-slate-400 focus:ring-0 focus:border-[#A8895C] text-[15px] transition-colors"
                   />
                 </div>
                 
@@ -123,7 +123,7 @@ export function ContactPageContent() {
                     type="text" 
                     id="source" 
                     placeholder="How did you hear about us? Instagram, Facebook, Referral, Other"
-                    className="w-full bg-transparent border-0 border-b border-[#DCD3C6] py-3 px-0 text-charcoal placeholder:text-slate-400 focus:ring-0 focus:border-[#A8895C] text-[13px] transition-colors"
+                    className="w-full bg-transparent border-0 border-b border-[#DCD3C6] py-3 px-3 text-charcoal placeholder:text-slate-400 focus:ring-0 focus:border-[#A8895C] text-[13px] transition-colors"
                   />
                 </div>
 

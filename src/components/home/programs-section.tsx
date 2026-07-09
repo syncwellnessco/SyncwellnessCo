@@ -170,7 +170,7 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
                 
                 <div className="flex items-center justify-between border-t border-beige-100 pt-6 mt-auto">
                   <span className="font-semibold text-lg text-charcoal">
-                    {program.pricing?.price ? `$${program.pricing.price}` : "Free"}
+                    {program.pricing?.price ? `$${program.pricing.price} AUD` : "Free"}
                   </span>
                   <Button asChild variant="ghost" className="group/btn text-[#8C6D40] hover:text-[#B8955F] hover:bg-transparent px-0 font-bold uppercase tracking-wider text-xs">
                     <Link href={`/programs/${program.slug || program.id}`}>

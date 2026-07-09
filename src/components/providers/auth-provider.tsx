@@ -48,11 +48,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [setUser, setPurchasedPrograms]);
 
   const fetchUserPrograms = async (userId: string) => {
-    // In a real application, you would fetch from your database
-    // For now, this is a placeholder where you'd query 'user_programs' or 'purchases'
-    // const { data } = await supabase.from('purchases').select('program_id').eq('user_id', userId);
-    // setPurchasedPrograms(data.map(p => p.program_id));
+    try {
+      const { data, error } = await supabase
+        .from('purchases')
+        .select('program_id')
+        .eq('user_id', userId);
+
+      if (error) {
+        console.warn('Could not fetch user purchases from database:', error.message);
+        return;
+      }
+
+      if (data) {
+        setPurchasedPrograms(data.map((p: any) => p.program_id));
+      }
+    } catch (err) {
+      console.warn('Error fetching user purchases:', err);
+    }
   };
 
   return <>{children}</>;
 }
+

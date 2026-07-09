@@ -2,96 +2,81 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { useCalendlyEventListener, PopupModal } from "react-calendly";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useUserStore } from "@/store/user-store";
-import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
-import toast from "react-hot-toast";
 
 interface BookingButtonProps {
   programId: string;
+  programSlug?: string;
   programName: string;
   pricing?: string;
   className?: string;
   children?: React.ReactNode;
+  theme?: "light" | "dark";
 }
 
-export function BookingButton({ programId, programName, pricing, className, children }: BookingButtonProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export function BookingButton({ 
+  programId, 
+  programSlug, 
+  programName, 
+  pricing, 
+  className, 
+  children,
+  theme = "light"
+}: BookingButtonProps) {
   const [isClient, setIsClient] = useState(false);
   const router = useRouter();
-  const pathname = usePathname();
-  const { user } = useUserStore();
+  const { user, purchasedPrograms } = useUserStore();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  useCalendlyEventListener({
-    onEventScheduled: async (e) => {
-      // Event scheduled, close modal and initiate stripe checkout
-      setIsOpen(false);
-      setLoading(true);
-      toast.loading("Preparing checkout...", { id: "checkout" });
-      
-      try {
-        const res = await fetch("/api/checkout", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ programId, programName }),
-        });
-        
-        const data = await res.json();
-        if (data.url) {
-          toast.success("Redirecting to Stripe...", { id: "checkout" });
-          window.location.href = data.url;
-        } else {
-          toast.error("Checkout failed.", { id: "checkout" });
-          setLoading(false);
-        }
-      } catch (err) {
-        toast.error("Error creating checkout session", { id: "checkout" });
-        console.error("Error creating checkout session", err);
-        setLoading(false);
-      }
-    },
-  });
-
-  const redirectUrl = `/login?redirect=${encodeURIComponent(pathname)}`;
+  const isPurchased = isClient && purchasedPrograms.includes(programId);
 
   const handleClick = () => {
-    if (!user) {
-      setLoading(true);
-      router.push(redirectUrl);
-      return;
-    }
-    setIsOpen(true);
+    setLoading(true);
+    // Redirect directly to the checkout page with the program ID
+    router.push(`/checkout?programId=${encodeURIComponent(programSlug || programId)}`);
   };
 
-  if (!isClient) return <Button className={className}>{children || "Join Program"}</Button>;
+  const handleAccessCourse = () => {
+    router.push(`/programs/${programSlug || programId}/course`);
+  };
+
+  if (!isClient) {
+    return <Button className={className}>{children || "Join Program"}</Button>;
+  }
+
+  if (isPurchased) {
+    return (
+      <div className="flex flex-col gap-2 w-full sm:w-auto items-stretch">
+        <Button 
+          className={cn("relative overflow-hidden select-none w-full", className)} 
+          onClick={handleAccessCourse}
+        >
+          Access Course
+        </Button>
+        <span className="text-[9px] font-bold uppercase tracking-[0.15em] px-3 py-2 rounded-none shadow-sm bg-emerald-600 text-white flex items-center justify-center gap-1.5 mt-1 w-full text-center">
+          ✓ ALREADY A MEMBER
+        </span>
+      </div>
+    );
+  }
 
   return (
-    <>
-      <Button 
-        className={cn("relative overflow-hidden select-none", className)} 
-        onClick={handleClick} 
-        disabled={loading}
-      >
-        <span className={cn("inline-flex items-center justify-center gap-2 w-full h-full transition-opacity", loading && "opacity-75")}>
-          {children || "Join Program"}
-        </span>
-        {loading && <span className="shimmer-bg-light" />}
-      </Button>
-      <PopupModal
-        url="https://calendly.com/your-calendly-link" // Ensure user updates this
-        onModalClose={() => setIsOpen(false)}
-        open={isOpen}
-        rootElement={document.getElementById("root") || document.body}
-      />
-    </>
+    <Button 
+      className={cn("relative overflow-hidden select-none", className)} 
+      onClick={handleClick} 
+      disabled={loading}
+    >
+      <span className={cn("inline-flex items-center justify-center gap-2 w-full h-full transition-opacity", loading && "opacity-75")}>
+        {children || "Join Program"}
+      </span>
+      {loading && <span className="shimmer-bg-light" />}
+    </Button>
   );
 }
+

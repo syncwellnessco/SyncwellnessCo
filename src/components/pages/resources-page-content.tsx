@@ -164,7 +164,7 @@ export function ResourcesPageContent() {
                           name="name"
                           required 
                           placeholder="*First Name"
-                          className="w-full bg-transparent border-0 border-b border-[#DCD3C6] py-3 px-0 text-charcoal placeholder:text-slate-400 focus:ring-0 focus:border-[#A8895C] text-[15px] transition-colors"
+                          className="w-full bg-transparent border-0 border-b border-[#DCD3C6] py-3 px-3 text-charcoal placeholder:text-slate-400 focus:ring-0 focus:border-[#A8895C] text-[15px] transition-colors"
                         />
                       </div>
                       
@@ -175,7 +175,7 @@ export function ResourcesPageContent() {
                           name="email"
                           required 
                           placeholder="*Email Address"
-                          className="w-full bg-transparent border-0 border-b border-[#DCD3C6] py-3 px-0 text-charcoal placeholder:text-slate-400 focus:ring-0 focus:border-[#A8895C] text-[15px] transition-colors"
+                          className="w-full bg-transparent border-0 border-b border-[#DCD3C6] py-3 px-3 text-charcoal placeholder:text-slate-400 focus:ring-0 focus:border-[#A8895C] text-[15px] transition-colors"
                         />
                       </div>
                     </div>
@@ -204,7 +204,7 @@ export function ResourcesPageContent() {
                           name="phoneNumber"
                           required 
                           placeholder="*Phone Number"
-                          className="w-full bg-transparent border-0 border-b border-[#DCD3C6] py-3 px-0 text-charcoal placeholder:text-slate-400 focus:ring-0 focus:border-[#A8895C] text-[15px] transition-colors"
+                          className="w-full bg-transparent border-0 border-b border-[#DCD3C6] py-3 px-3 text-charcoal placeholder:text-slate-400 focus:ring-0 focus:border-[#A8895C] text-[15px] transition-colors"
                         />
                       </div>
                     </div>

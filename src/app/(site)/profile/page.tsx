@@ -116,8 +116,14 @@ export default function ProfilePage() {
                 <div className="flex flex-col gap-8">
                   {myProgramsData.map((program) => (
                     <div key={program.id} className="group relative flex flex-col sm:flex-row gap-6 bg-[#FAF8F5] border border-[#EBE3DB] p-6 rounded-sm transition-all hover:shadow-sm">
-                      <div className="w-full sm:w-48 aspect-video sm:aspect-square bg-[#F4EFEA] relative flex-shrink-0 border border-[#EBE3DB]">
-                         {program.videoUrl ? (
+                      <div className="w-full sm:w-48 aspect-video sm:aspect-square bg-[#F4EFEA] relative flex-shrink-0 border border-[#EBE3DB] overflow-hidden">
+                         {program.hero?.bannerImage ? (
+                           <img 
+                             src={program.hero.bannerImage} 
+                             alt={program.title || program.name} 
+                             className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                           />
+                         ) : program.videoUrl ? (
                            <>
                              <video src={program.videoUrl} className="absolute inset-0 w-full h-full object-cover opacity-60" />
                              <PlayCircle className="w-10 h-10 text-[#8C6D40] absolute inset-0 m-auto z-10 group-hover:scale-110 transition-transform" />
@@ -130,8 +136,9 @@ export default function ProfilePage() {
                       </div>
                       
                       <div className="flex flex-col justify-center flex-1">
-                        <h3 className="font-display text-2xl font-normal text-charcoal mb-3">{program.name}</h3>
-                        <p className="text-sm text-charcoal mb-6 line-clamp-2 leading-relaxed">{program.description}</p>
+                        <h3 className="font-display text-2xl font-normal text-charcoal mb-3">{program.title || program.name}</h3>
+                        <p className="text-sm text-charcoal mb-6 line-clamp-2 leading-relaxed">{program.shortDescription || program.description}</p>
+
                         
                         <Link 
                           href={`/programs/${program.slug || program.id}/course`}

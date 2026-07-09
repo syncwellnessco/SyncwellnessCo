@@ -689,8 +689,9 @@ export function ProgramsManager() {
                       </div>
                       <div>
                         <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">CTA Link</label>
-                        <input type="text" value={editForm.hero?.ctaLink || ''} onChange={e => updateNested(['hero', 'ctaLink'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40]" placeholder="e.g. https://calendly.com/your-link" />
+                        <input type="text" value={editForm.hero?.ctaLink || ''} onChange={e => updateNested(['hero', 'ctaLink'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40]" placeholder="e.g. /checkout?programId=hormone-harmony" />
                       </div>
+
                     </div>
                   )}
 

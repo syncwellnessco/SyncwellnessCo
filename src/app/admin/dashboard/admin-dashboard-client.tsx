@@ -9,6 +9,7 @@ import { ReviewsManager } from "./reviews-manager";
 import { VideoTestimonialsManager } from "./video-testimonials-manager";
 import { BlogsManager } from "./blogs-manager";
 import { OverviewTab } from "./overview-tab";
+import { PurchasesManager } from "./purchases-manager";
 
 export function AdminDashboardClient() {
   const searchParams = useSearchParams();
@@ -25,6 +26,7 @@ export function AdminDashboardClient() {
       <div className="bg-white p-6 rounded-md shadow-sm border border-[#EBE3DB] min-h-[500px]">
         {activeTab === "overview" && <OverviewTab />}
 
+        {activeTab === "purchases" && <PurchasesManager />}
         {activeTab === "enquiries" && <EnquiriesManager />}
         {activeTab === "ebooks" && <EbooksManager />}
         {activeTab === "programs" && <ProgramsManager />}
@@ -35,3 +37,4 @@ export function AdminDashboardClient() {
     </div>
   );
 }
+

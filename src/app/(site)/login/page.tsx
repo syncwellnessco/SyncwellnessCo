@@ -85,12 +85,8 @@ function LoginContent() {
       </div>
 
       {/* Right side form */}
-      <div className="w-full lg:w-1/2 flex items-start lg:items-center justify-center px-6 pt-10 pb-12 sm:px-12 sm:pt-12 lg:px-16 lg:py-12">
+      <div className="w-full lg:w-1/2 flex items-start lg:items-center justify-center px-6 pt-24 pb-12 sm:px-12 sm:pt-24 lg:px-16 lg:py-12">
         <div className="w-full max-w-md mt-4 lg:mt-0">
-          <div className="lg:hidden mb-6 flex justify-center">
-            <Logo variant="default" />
-          </div>
-          
           <h2 className="font-display text-3xl font-semibold text-charcoal mb-2">Sign in to your account</h2>
           <p className="text-charcoal mb-8">Access your programs and profile</p>
 
@@ -128,7 +124,7 @@ function LoginContent() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-transparent border-0 border-b border-[#DCD3C6] py-3 px-0 text-charcoal placeholder:text-slate-400 focus:ring-0 focus:border-[#A8895C] text-[15px] transition-colors"
+                className="w-full bg-transparent border-0 border-b border-[#DCD3C6] py-3 px-3 text-charcoal placeholder:text-slate-400 focus:ring-0 focus:border-[#A8895C] text-[15px] transition-colors"
                 placeholder="*Email Address"
               />
             </div>
@@ -139,7 +135,7 @@ function LoginContent() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-transparent border-0 border-b border-[#DCD3C6] py-3 pr-10 pl-0 text-charcoal placeholder:text-slate-400 focus:ring-0 focus:border-[#A8895C] text-[15px] transition-colors"
+                className="w-full bg-transparent border-0 border-b border-[#DCD3C6] py-3 pr-10 pl-3 text-charcoal placeholder:text-slate-400 focus:ring-0 focus:border-[#A8895C] text-[15px] transition-colors"
                 placeholder="*Password"
               />
               <button

@@ -18,7 +18,7 @@ export async function ProgramsPageContent() {
     <article className="pb-12">
       {/* Hero */}
       <section 
-        className="relative overflow-hidden bg-cover bg-center pt-24 pb-12 sm:pt-32 sm:pb-16"
+        className="relative overflow-hidden bg-cover bg-center pt-16 pb-16 sm:pt-24 sm:pb-24 lg:pt-28 lg:pb-28"
         style={{ backgroundImage: `url(https://res.cloudinary.com/daw1tscqr/image/upload/v1780733233/shadow-background_wbrsm4.jpg)` }}
       >
         <div className="absolute inset-0 bg-[#4A5D5E]/60 mix-blend-multiply" />
@@ -210,7 +210,7 @@ export async function ProgramsPageContent() {
                   
                   <div className="flex items-center justify-between border-t border-beige-200 pt-6 mt-auto">
                     <span className="font-semibold text-lg text-slate-800">
-                      {program.pricing?.price ? `$${program.pricing.price}` : "Free"}
+                      {program.pricing?.price ? `$${program.pricing.price} AUD` : "Free"}
                     </span>
                     <Button asChild variant="ghost" className="group/btn text-[#8C6D40] hover:text-[#B8955F] hover:bg-transparent px-0 font-semibold tracking-wide uppercase text-xs">
                       <Link href={`/programs/${program.slug || program.id}`}>

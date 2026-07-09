@@ -3,11 +3,12 @@
 import { ReactNode, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { BookOpen, Calendar, LayoutDashboard, Mail, MessageSquare, Users, ExternalLink } from "lucide-react";
+import { BookOpen, Calendar, LayoutDashboard, Mail, MessageSquare, Users, ExternalLink, CreditCard } from "lucide-react";
 import { useUserStore } from "@/store/user-store";
 import { Spinner } from "@/components/ui/spinner";
 import { AdminPresence } from "@/components/admin/AdminPresence";
 import { Suspense } from "react";
+
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const { user } = useUserStore();
@@ -68,10 +69,15 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 <LayoutDashboard className="h-5 w-5 text-charcoal/50" />
                 <span className="text-sm font-medium">Overview</span>
               </Link>
+              <Link href="/admin/dashboard?tab=purchases" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
+                <CreditCard className="h-5 w-5 text-charcoal/50" />
+                <span className="text-sm font-medium">Purchases</span>
+              </Link>
               <Link href="/admin/dashboard?tab=enquiries" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
                 <MessageSquare className="h-5 w-5 text-charcoal/50" />
                 <span className="text-sm font-medium">Enquiries</span>
               </Link>
+
               <Link href="/admin/dashboard?tab=ebooks" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
                 <BookOpen className="h-5 w-5 text-charcoal/50" />
                 <span className="text-sm font-medium">Ebook Requests</span>

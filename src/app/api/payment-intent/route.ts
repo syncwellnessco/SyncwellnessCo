@@ -31,27 +31,11 @@ export async function POST(req: Request) {
     const amountInCents = Math.round(price * 100);
     const currency = 'aud';
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-
-    // Create a Stripe Checkout Session
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      customer_email: email || undefined,
-      line_items: [
-        {
-          price_data: {
-            currency: currency,
-            product_data: {
-              name: program.title,
-              description: program.shortDescription || 'SyncWellnessCo Coaching Program',
-              images: program.hero?.bannerImage ? [program.hero.bannerImage] : [],
-            },
-            unit_amount: amountInCents,
-          },
-          quantity: 1,
-        },
-      ],
-      mode: 'payment',
+    // Create the PaymentIntent with metadata
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amountInCents,
+      currency: currency,
+      receipt_email: email || undefined,
       metadata: {
         programId: program.id,
         programSlug: program.slug || '',
@@ -61,13 +45,16 @@ export async function POST(req: Request) {
         phone: phone || '',
         userId: userId || '',
       },
-      success_url: `${siteUrl}/success?programId=${program.id}&email=${encodeURIComponent(email || '')}&title=${encodeURIComponent(program.title)}&amount=${price}&currency=${currency.toUpperCase()}&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${siteUrl}/programs/${program.slug || program.id}`,
     });
 
-    return NextResponse.json({ url: session.url });
+    return NextResponse.json({
+      clientSecret: paymentIntent.client_secret,
+      amount: price,
+      currency: currency.toUpperCase(),
+      programTitle: program.title,
+    });
   } catch (err: any) {
-    console.error('Checkout Session creation error:', err);
+    console.error('PaymentIntent creation error:', err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
