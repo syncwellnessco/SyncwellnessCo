@@ -26,10 +26,18 @@ export function Navbar() {
   const isTransparent = heroNav && !mobileOpen;
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 24);
+    const handleScroll = () => {
+      const heroEl = document.getElementById("hero-section");
+      const threshold = heroEl ? heroEl.offsetHeight - 64 : 350;
+      setIsScrolled(window.scrollY > threshold);
+    };
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("resize", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
   }, []);
 
   useEffect(() => {

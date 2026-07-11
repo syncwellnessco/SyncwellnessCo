@@ -112,7 +112,7 @@ export function TestimonialsSection() {
 
         <div className="mt-8 grid grid-cols-3 gap-3 sm:gap-6">
           {[
-            { value: "100+", label: "Women Helped" },
+            { value: "500+", label: "Women Helped" },
             { value: "95%", label: "Happy Clients" },
             { value: "5★", label: "Average Rating" },
           ].map((item, index) => (

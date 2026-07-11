@@ -9,7 +9,7 @@ import { useUserStore } from "@/store/user-store";
 export function HeroSection() {
   const { user } = useUserStore();
   return (
-    <section className="relative w-full">
+    <section id="hero-section" className="relative w-full">
       {/* 16:9 full-bleed hero video */}
       <div className="relative aspect-[4/5] w-full sm:aspect-video sm:min-h-0 sm:max-h-[92vh]">
         {heroContent.videoUrl ? (
