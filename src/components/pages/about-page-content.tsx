@@ -15,12 +15,12 @@ export function AboutPageContent() {
       <section className="pt-12 pb-20 lg:pt-16 lg:pb-32 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
         <div className="block">
           
-          <div className="relative float-right ml-6 mb-6 md:ml-12 md:mb-8 w-[200px] sm:w-[280px] md:w-[380px] aspect-[4/5] overflow-hidden bg-[#EBE3DB] shadow-lg rounded-sm mt-2">
+          <div className="relative float-none md:float-right mx-auto mb-8 md:ml-12 md:mb-8 w-full max-w-[340px] md:max-w-none md:w-[380px] aspect-[4/5] overflow-hidden bg-[#EBE3DB] shadow-lg rounded-sm mt-2">
             <Image
               src={coachImageSrc}
               alt={`${aboutContent.aboutCoach.name} — ${aboutContent.aboutCoach.title}`}
               fill
-              sizes="(max-width: 640px) 200px, (max-width: 768px) 280px, 380px"
+              sizes="(max-width: 768px) 340px, 380px"
               className="object-cover object-top"
               priority
             />
@@ -33,10 +33,12 @@ export function AboutPageContent() {
             <h1 className="font-display text-4xl md:text-5xl lg:text-6xl text-charcoal mb-4">
               {aboutContent.aboutCoach.name}
             </h1>
-            <h2 className="text-[11px] md:text-xs uppercase tracking-[0.1em] font-bold text-charcoal/60 mb-10 leading-relaxed">
-              {aboutContent.aboutCoach.title} <br className="hidden md:block" />
-              <span className="md:hidden"> &bull; </span>
-              {aboutContent.certifications.join(" | ")}
+            <h2 className="text-xs sm:text-sm md:text-xs uppercase tracking-[0.1em] font-bold text-charcoal/60 mb-8 md:mb-10 leading-relaxed">
+              {aboutContent.aboutCoach.title}
+              <br className="hidden md:block" />
+              <span className="mx-2 md:hidden text-charcoal/30">&bull;</span>
+              <span className="hidden md:inline">&nbsp;</span>
+              {aboutContent.certifications.join(" • ")}
             </h2>
             
             <div className="space-y-6 text-[15px] md:text-base leading-relaxed text-charcoal/80">
