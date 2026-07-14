@@ -5,7 +5,8 @@ import { PageHero } from "@/components/layout/page-hero";
 import { getAllBlogPosts } from "@/lib/blogs";
 
 export async function BlogPageContent() {
-  const posts = await getAllBlogPosts({ publishedOnly: true });
+  const allPosts = await getAllBlogPosts({ publishedOnly: true });
+  const posts = allPosts.filter(p => p.category !== "Podcast" && p.category !== "News Article");
 
   return (
     <>

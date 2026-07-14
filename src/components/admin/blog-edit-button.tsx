@@ -21,7 +21,7 @@ export function BlogEditButton() {
 
   return (
     <Link 
-      href="/admin/dashboard?tab=blogs"
+      href="/admin/dashboard?tab=resources"
       className="fixed bottom-6 right-6 flex items-center gap-2 bg-[#8C6D40] hover:bg-[#B8955F] text-white text-[11px] uppercase tracking-widest font-semibold px-6 py-3 rounded-sm shadow-lg transition-colors z-50"
     >
       <Edit className="h-4 w-4" /> Edit Article

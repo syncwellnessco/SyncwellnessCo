@@ -7,7 +7,7 @@ import { EnquiriesManager } from "./enquiries-manager";
 import { EbooksManager } from "./ebooks-manager";
 import { ReviewsManager } from "./reviews-manager";
 import { VideoTestimonialsManager } from "./video-testimonials-manager";
-import { BlogsManager } from "./blogs-manager";
+import { ResourcesManager } from "./resources-manager";
 import { OverviewTab } from "./overview-tab";
 import { PurchasesManager } from "./purchases-manager";
 import { QuizManager } from "./quiz-manager";
@@ -34,7 +34,7 @@ export function AdminDashboardClient() {
         {activeTab === "programs" && <ProgramsManager />}
         {activeTab === "reviews" && <ReviewsManager />}
         {activeTab === "videos" && <VideoTestimonialsManager />}
-        {activeTab === "blogs" && <BlogsManager />}
+        {(activeTab === "resources" || activeTab === "blogs") && <ResourcesManager />}
       </div>
     </div>
   );

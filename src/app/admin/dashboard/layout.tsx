@@ -61,7 +61,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       {/* Desktop Dashboard */}
       <div className="hidden lg:flex min-h-screen bg-[#FAF8F5]">
         {/* Sidebar */}
-        <aside className="w-64 bg-white border-r border-[#EBE3DB] fixed h-screen overflow-y-auto shadow-sm">
+        <aside className="w-64 bg-white border-r border-[#EBE3DB] fixed h-screen overflow-hidden shadow-sm">
           <div className="p-6 h-full flex flex-col">
             <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-[#8C6D40] mb-6">Admin Panel</h2>
             <nav className="space-y-2 flex-1">
@@ -90,9 +90,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 <Calendar className="h-5 w-5 text-charcoal/50" />
                 <span className="text-sm font-medium">Programs</span>
               </Link>
-              <Link href="/admin/dashboard?tab=blogs" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
+              <Link href="/admin/dashboard?tab=resources" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
                 <BookOpen className="h-5 w-5 text-charcoal/50" />
-                <span className="text-sm font-medium">Blogs</span>
+                <span className="text-sm font-medium">Resources</span>
               </Link>
               <Link href="/admin/dashboard?tab=reviews" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
                 <MessageSquare className="h-5 w-5 text-charcoal/50" />
@@ -104,18 +104,26 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               </Link>
             </nav>
             
-            <div className="mt-8 pt-6 border-t border-[#EBE3DB]">
-              <Link href="/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal/70 hover:text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
-                <ExternalLink className="h-4 w-4" />
-                <span className="text-sm font-medium">View Website</span>
+            <div className="mt-auto pt-6 border-t border-[#EBE3DB]">
+              <Link 
+                href="/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="flex items-center justify-center gap-2 px-4 py-2.5 border border-[#8C6D40] text-[#8C6D40] hover:bg-[#8C6D40] hover:text-white transition-colors text-xs font-bold uppercase tracking-wider rounded-sm shadow-sm"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                View Website
               </Link>
             </div>
             
-            <Suspense fallback={null}>
-              <AdminPresence />
-            </Suspense>
+            <div className="mt-4">
+              <Suspense fallback={null}>
+                <AdminPresence />
+              </Suspense>
+            </div>
           </div>
         </aside>
+
 
         {/* Main Content */}
         <main className="ml-64 flex-1 p-8 lg:p-12">

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, BookOpen } from "lucide-react";
 import { getAllBlogPosts } from "@/lib/blogs";
+import { ExpandableGrid } from "@/components/resources/expandable-resources-grid";
 
 import { IMAGES } from "@/data/images";
 
@@ -13,120 +14,139 @@ export const metadata: Metadata = {
 export const revalidate = 60;
 
 export default async function ResourcesHubPage() {
-  const blogs = await getAllBlogPosts({ publishedOnly: true });
-  const latestBlogs = blogs.slice(0, 4);
+  const allPosts = await getAllBlogPosts({ publishedOnly: true });
+
+  // Categorize resources
+  const podcasts = allPosts.filter(p => p.category === "Podcast");
+  const mediaArticles = allPosts.filter(p => p.category === "News Article");
+  const latestBlogs = allPosts.filter(p => p.category !== "Podcast" && p.category !== "News Article");
 
   return (
     <>
-      <main className="min-h-screen bg-cream pt-[88px] lg:pt-32 pb-24 border-t border-[#EBE3DB]">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <h1 className="font-display text-4xl lg:text-5xl font-normal text-charcoal mb-4">
-              Free Resources
+      {/* Hero Section */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#F5EFE9] via-[#FAF8F5] to-cream pt-[96px] lg:pt-28 pb-10 border-b border-[#EBE3DB]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(140,109,64,0.06),transparent_45%)]"></div>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center max-w-3xl mx-auto">
+            <span className="text-[#8C6D40] text-xs font-bold uppercase tracking-[0.3em] block mb-3">
+              Wellness Vault
+            </span>
+            <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-light text-charcoal mb-4 leading-[1.15]">
+              Empowering Resources for <span className="italic font-normal text-[#8C6D40]">Hormonal Harmony</span>
             </h1>
-            <p className="text-charcoal/70 text-[15px] leading-relaxed">
-              Explore our library of free guides, eBooks, and tools designed to help you on your journey to hormonal balance and vibrant health.
+            <div className="w-16 h-[1.5px] bg-[#8C6D40] mx-auto mb-4"></div>
+            <p className="text-charcoal/80 text-[15px] sm:text-base leading-relaxed max-w-2xl mx-auto">
+              A curated collection of guides, video episodes, articles, and press features designed to support you on your journey.
             </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* The Hormone Balance eBook Card */}
-            <Link href="/resources/ebook" className="group flex flex-col bg-white border border-[#EBE3DB] rounded-sm overflow-hidden hover:shadow-md transition-all">
-              <div className="bg-[#FAF8F5] aspect-[4/3] flex items-center justify-center p-8 border-b border-[#EBE3DB] relative overflow-hidden">
-                <img 
-                  src={IMAGES.ebookMockupPng} 
-                  alt="Hormone Balance eBook" 
-                  className="w-full h-full object-contain drop-shadow-xl group-hover:scale-105 transition-transform duration-500"
-                />
-              </div>
-              <div className="p-6 flex flex-col flex-1">
-                <div className="flex items-center gap-2 mb-3">
-                  <BookOpen className="w-4 h-4 text-[#8C6D40]" />
-                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#8C6D40]">eBook</span>
-                </div>
-                <h3 className="font-display text-2xl text-charcoal mb-3">The Hormone Balance Guide</h3>
-                <p className="text-charcoal/70 text-sm mb-6 flex-1">
-                  A simple, protein-based reset that helps balance hormones, control hunger, and kickstart fat loss without dieting or intense workouts.
-                </p>
-                <div className="text-[#8C6D40] text-[11px] font-semibold uppercase tracking-[0.15em] flex items-center gap-2">
-                  Get Access Now <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </div>
-            </Link>
-
-            {/* Future Resources Placeholder */}
-            <div className="flex flex-col bg-[#FAF8F5] border border-dashed border-[#DCD3C6] rounded-sm p-8 items-center justify-center text-center opacity-70">
-              <div className="w-12 h-12 rounded-full bg-[#EBE3DB] flex items-center justify-center mb-4">
-                <span className="text-charcoal text-xl">✨</span>
-              </div>
-              <h3 className="font-display text-xl text-charcoal mb-2">More Coming Soon</h3>
-              <p className="text-charcoal/60 text-sm">
-                Diet plans, meal templates, and wellness checklists are in the works!
-              </p>
-            </div>
-          </div>
-        </div>
-      </main>
-
-      {/* Latest Blogs Section */}
-      <section className="py-20 bg-white border-t border-[#EBE3DB]">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-end mb-10">
-            <div>
-              <span className="text-[#8C6D40] text-[10px] font-bold uppercase tracking-[0.2em] block mb-3">
-                Wellness Journal
-              </span>
-              <h2 className="font-display text-3xl lg:text-4xl text-charcoal">Latest Articles</h2>
-            </div>
-            <Link 
-              href="/resources/blogs" 
-              className="hidden sm:flex items-center gap-2 text-charcoal text-[11px] font-semibold uppercase tracking-[0.15em] hover:text-[#8C6D40] transition-colors"
-            >
-              View More <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {latestBlogs.map(blog => (
-              <Link 
-                key={blog.id} 
-                href={`/resources/blogs/${blog.slug || blog.id}`}
-                className="group flex flex-col bg-[#FAF8F5] border border-[#EBE3DB] rounded-sm overflow-hidden hover:-translate-y-1 transition-transform"
-              >
-                {blog.image ? (
-                  <div className="relative aspect-[4/3] overflow-hidden">
-                    <img 
-                      src={blog.image} 
-                      alt={blog.title} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                    />
-                  </div>
-                ) : (
-                  <div className="relative aspect-[4/3] bg-sage-50 border-b border-[#EBE3DB]" />
-                )}
-                <div className="p-6 flex flex-col flex-1">
-                  <span className="text-[#8C6D40] text-[10px] font-bold uppercase tracking-[0.15em] mb-2">
-                    {blog.category}
-                  </span>
-                  <h3 className="font-display text-lg text-charcoal leading-tight line-clamp-2">
-                    {blog.title}
-                  </h3>
-                </div>
-              </Link>
-            ))}
-          </div>
-          
-          <div className="mt-8 sm:hidden flex justify-center">
-            <Link 
-              href="/resources/blogs" 
-              className="flex items-center gap-2 text-charcoal text-[11px] font-semibold uppercase tracking-[0.15em] border border-charcoal/20 px-6 py-3 rounded-sm hover:border-charcoal hover:bg-charcoal hover:text-white transition-all"
-            >
-              View All Articles <ArrowRight className="w-4 h-4" />
-            </Link>
           </div>
         </div>
       </section>
 
+      {/* Spotlight eBook Section */}
+      <section className="py-12 bg-cream relative">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="relative bg-white border border-[#EBE3DB] p-6 sm:p-8 lg:p-10 shadow-lg hover:shadow-xl transition-shadow duration-500 rounded-none overflow-hidden group">
+            {/* Background decoration */}
+            <div className="absolute top-0 right-0 w-96 h-96 bg-[radial-gradient(circle,rgba(140,109,64,0.04),transparent_60%)] -mr-32 -mt-32"></div>
+            
+            <div className="grid lg:grid-cols-12 gap-8 items-center relative z-10">
+              {/* eBook Mockup Column */}
+              <div className="lg:col-span-5 flex justify-center">
+                <div className="relative max-w-[280px] w-full aspect-[3/4] bg-[#FAF8F5] p-4 border border-[#EBE3DB] shadow-md group-hover:-translate-y-1 transition-transform duration-500 flex items-center justify-center">
+                  <img 
+                    src={IMAGES.ebookMockupPng} 
+                    alt="Hormone Balance eBook" 
+                    className="w-full h-full object-contain drop-shadow-xl"
+                  />
+                </div>
+              </div>
+
+              {/* Content Column */}
+              <div className="lg:col-span-7 space-y-4">
+                <div className="inline-flex items-center gap-2 px-2.5 py-0.5 bg-[#8C6D40]/5 border border-[#8C6D40]/10 rounded-sm">
+                  <BookOpen className="w-3.5 h-3.5 text-[#8C6D40]" />
+                  <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#8C6D40]">Featured eBook</span>
+                </div>
+                <h2 className="font-display text-2xl sm:text-3xl text-charcoal leading-tight">
+                  The Hormone Balance Guide
+                </h2>
+                <p className="text-charcoal/80 text-sm leading-relaxed">
+                  Discover a simple, protein-focused blueprint designed to naturally reset your hormones, curb cravings, and jumpstart healthy weight management—completely free of calorie restriction or exhausting workouts.
+                </p>
+                <div className="pt-2">
+                  <Link 
+                    href="/resources/ebook" 
+                    className="inline-flex items-center gap-2.5 px-6 py-3 bg-[#8C6D40] text-white text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-[#B8955F] transition-all duration-300 shadow-sm group"
+                  >
+                    Get Free Access 
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Podcasts Section */}
+      {podcasts.length > 0 && (
+        <section className="py-12 bg-[#FAF8F5]">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="max-w-2xl mb-8 text-center sm:text-left">
+              <span className="text-[#8C6D40] text-[10px] font-bold uppercase tracking-[0.2em] block mb-1">
+                Podcast & Video
+              </span>
+              <h2 className="font-display text-2xl sm:text-3xl font-light text-charcoal">
+                Watch <span className="italic font-normal text-[#8C6D40]">The Podcast</span>
+              </h2>
+            </div>
+
+            <ExpandableGrid items={podcasts} type="podcast" />
+          </div>
+        </section>
+      )}
+
+      {/* Media & Press Section */}
+      {mediaArticles.length > 0 && (
+        <section className="py-12 bg-white">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="max-w-2xl mb-8 text-center sm:text-left">
+              <span className="text-[#8C6D40] text-[10px] font-bold uppercase tracking-[0.2em] block mb-1">
+                In The News
+              </span>
+              <h2 className="font-display text-2xl sm:text-3xl font-light text-charcoal">
+                Featured In & <span className="italic font-normal text-[#8C6D40]">Press</span>
+              </h2>
+            </div>
+
+            <ExpandableGrid items={mediaArticles} type="media" />
+          </div>
+        </section>
+      )}
+
+      {/* Latest Blogs Section */}
+      <section className="py-12 bg-cream">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row justify-between items-center sm:items-end mb-8 gap-4">
+            <div className="text-center sm:text-left">
+              <span className="text-[#8C6D40] text-[10px] font-bold uppercase tracking-[0.2em] block mb-1">
+                Wellness Journal
+              </span>
+              <h2 className="font-display text-2xl sm:text-3xl font-light text-charcoal">
+                Latest <span className="italic font-normal text-[#8C6D40]">Articles</span>
+              </h2>
+            </div>
+            <Link 
+              href="/resources/blogs" 
+              className="inline-flex items-center gap-2 px-5 py-2.5 border border-charcoal/20 text-charcoal text-[10px] font-bold uppercase tracking-[0.15em] hover:bg-charcoal hover:text-white transition-all duration-300"
+            >
+              View All Articles <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          <ExpandableGrid items={latestBlogs} type="blog" />
+        </div>
+      </section>
     </>
   );
 }
