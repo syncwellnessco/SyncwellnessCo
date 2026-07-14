@@ -3,9 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { aboutContent, brandContent } from "@/data/about-content";
+import { IMAGES } from "@/data/images";
 
 export function AboutPageContent() {
-  const coachImageSrc = "/neha_arora_coach.png";
+  const coachImageSrc = IMAGES.coachProfile;
 
   return (
     <article className="bg-[#FAF8F5] min-h-screen">

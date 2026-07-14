@@ -1,20 +1,21 @@
+import { IMAGES } from "./images";
+
 export const heroContent = {
-  marketingLine: "Your hormone reset starts now.",
-  marketingSubline: "Don't fight your body — heal it naturally.",
-  videoUrl: "https://res.cloudinary.com/daw1tscqr/video/upload/v1780400995/hero_banner_video_1_h4obp3.mp4", // Add Cloudinary URL here, e.g. https://res.cloudinary.com/.../video/upload/hero.mp4
-  image:
-    "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=1920&h=1080&fit=crop&q=85",
+  marketingLine: "Lose Fat Without Fighting Your Body.",
+  marketingSubline: "Personalized women's coaching that supports hormone health, gut healing, strength, and lasting fat loss",
+  videoUrl: IMAGES.heroVideo,
+  image: IMAGES.heroDefaultImage,
   imageAlt:
-    "Women's wellness and hormone health coaching — SyncWellnessCo",
+    "Women's hormone balance, gut health, and fat loss coaching — SyncWellnessCo",
   desktopCta: "Get Started",
   mobileMemberCta: "Member",
   mobileStartCta: "Start Now",
 };
 
 export const heroTrustBadges = [
+  "Fat Loss",
   "Hormone Health",
   "Gut Health",
-  "Sustainable Fat Loss",
 ];
 
 export const transformationPillars = [

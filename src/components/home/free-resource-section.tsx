@@ -4,6 +4,8 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { SectionHeading } from "@/components/ui/section-heading";
 
+import { IMAGES } from "@/data/images";
+
 export function FreeResourceSection() {
 
   return (
@@ -52,7 +54,7 @@ export function FreeResourceSection() {
 
             <div className="relative flex items-center justify-center p-5 sm:p-12">
               <img
-                src="https://res.cloudinary.com/daw1tscqr/image/upload/e_trim/v1783333186/NehaEbookMockup_3pjf7_1280_ip08ks.png"
+                src={IMAGES.ebookMockupPng}
                 alt="Free Hormone Balance eBook"
                 className="w-full max-w-sm drop-shadow-2xl object-contain hover:scale-105 transition-transform duration-700"
               />

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { IMAGES } from "@/data/images";
 import { struggles } from "@/data/home-content";
 
 /* ── Pill component for each struggle tag ── */
@@ -21,8 +22,7 @@ const row2 = [...struggles.slice(5), ...struggles.slice(0, 2)];
 const row3 = [...struggles.slice(2, 7)];
 
 export function StrugglesSection() {
-  const backgroundSrc =
-    "https://res.cloudinary.com/daw1tscqr/image/upload/v1780733233/shadow-background_wbrsm4.jpg";
+  const backgroundSrc = IMAGES.shadowBackground;
 
   return (
     <section

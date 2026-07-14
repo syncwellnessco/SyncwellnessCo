@@ -3,6 +3,8 @@ import Link from "next/link";
 import { ArrowRight, BookOpen } from "lucide-react";
 import { getAllBlogPosts } from "@/lib/blogs";
 
+import { IMAGES } from "@/data/images";
+
 export const metadata: Metadata = {
   title: "Resources | SyncwellnessCo",
   description: "Free resources, eBooks, and diet plans to help balance your hormones naturally.",
@@ -32,7 +34,7 @@ export default async function ResourcesHubPage() {
             <Link href="/resources/ebook" className="group flex flex-col bg-white border border-[#EBE3DB] rounded-sm overflow-hidden hover:shadow-md transition-all">
               <div className="bg-[#FAF8F5] aspect-[4/3] flex items-center justify-center p-8 border-b border-[#EBE3DB] relative overflow-hidden">
                 <img 
-                  src="https://res.cloudinary.com/daw1tscqr/image/upload/e_trim/v1783333186/NehaEbookMockup_3pjf7_1280_ip08ks.png" 
+                  src={IMAGES.ebookMockupPng} 
                   alt="Hormone Balance eBook" 
                   className="w-full h-full object-contain drop-shadow-xl group-hover:scale-105 transition-transform duration-500"
                 />

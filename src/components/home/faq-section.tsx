@@ -8,11 +8,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { IMAGES } from "@/data/images";
 import { faqs } from "@/data/faqs";
 
 export function FAQSection() {
-  const faqBackgroundSrc =
-    "https://res.cloudinary.com/daw1tscqr/image/upload/v1780733233/shadow-background_wbrsm4.jpg";
+  const faqBackgroundSrc = IMAGES.shadowBackground;
 
   return (
     <section

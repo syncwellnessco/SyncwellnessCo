@@ -23,26 +23,26 @@ const openSans = Open_Sans({
 
 export const metadata: Metadata = {
   title: {
-    default: `${siteConfig.name} | Women's Health & Hormone Coaching`,
+    default: `${siteConfig.name} | Hormone Balance, Gut Health & Weight Loss Coaching`,
     template: `%s | ${siteConfig.name}`,
   },
   description:
-    "Certified Women's Health Coach helping busy women balance hormones, heal their gut, and lose weight naturally. Sustainable hormone-focused wellness programs.",
+    "Certified Women's Health Coach helping busy women balance hormones, heal their gut, and lose weight naturally. Sustainable, biology-based wellness programs.",
   keywords: siteConfig.seoKeywords,
   authors: [{ name: siteConfig.name }],
   openGraph: {
     type: "website",
     locale: "en_US",
     siteName: siteConfig.name,
-    title: `${siteConfig.name} | Women's Health & Hormone Coaching`,
+    title: `${siteConfig.name} | Hormone Balance, Gut Health & Weight Loss Coaching`,
     description:
       "Helping women balance hormones, heal their gut & lose weight naturally — without extreme dieting.",
   },
   twitter: {
     card: "summary_large_image",
-    title: `${siteConfig.name} | Women's Health Coaching`,
+    title: `${siteConfig.name} | Hormone & Weight Loss Coaching`,
     description:
-      "Sustainable hormone-focused wellness programs for busy women.",
+      "Sustainable hormone, gut health, and fat loss coaching programs for women.",
   },
   robots: {
     index: true,

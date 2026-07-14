@@ -7,6 +7,7 @@ import { getAllPrograms } from "@/lib/programs";
 import { MyProgramsSection } from "@/components/pages/my-programs-section";
 import { InteractiveLink } from "@/components/ui/interactive-link";
 import { cn } from "@/lib/utils";
+import { IMAGES } from "@/data/images";
 
 export async function ProgramsPageContent() {
   const programs = await getAllPrograms({ publishedOnly: true });
@@ -19,7 +20,7 @@ export async function ProgramsPageContent() {
       {/* Hero */}
       <section 
         className="relative overflow-hidden bg-cover bg-center pt-16 pb-16 sm:pt-24 sm:pb-24 lg:pt-28 lg:pb-28"
-        style={{ backgroundImage: `url(https://res.cloudinary.com/daw1tscqr/image/upload/v1780733233/shadow-background_wbrsm4.jpg)` }}
+        style={{ backgroundImage: `url(${IMAGES.shadowBackground})` }}
       >
         <div className="absolute inset-0 bg-[#4A5D5E]/60 mix-blend-multiply" />
         <div className="absolute inset-0 bg-slate-900/10" />

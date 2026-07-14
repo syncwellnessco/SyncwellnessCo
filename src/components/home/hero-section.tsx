@@ -110,7 +110,7 @@ export function HeroSection() {
       <div className="relative bg-charcoal">
         <div className="mx-auto max-w-7xl px-4 py-5 sm:flex sm:items-center sm:justify-between sm:gap-5 sm:px-6 sm:py-4 lg:px-8">
           <p className="whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.16em] text-[#8C6D40] sm:text-xs">
-            Trusted by 100+ women worldwide
+            Trusted by 500+ women worldwide
           </p>
           <ul className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-3 sm:mt-0 sm:flex-nowrap sm:gap-5 lg:gap-6">
             {heroTrustBadges.map((badge, i) => (

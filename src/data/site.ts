@@ -1,10 +1,10 @@
 export const siteConfig = {
   name: "SyncWellnessCo",
-  tagline: "Women's Hormone & Weight Loss Coaching",
+  tagline: "Women's Hormone, Gut Health & Weight Loss Coaching",
   founder: "Neha",
-  founderTitle: "Women's Hormone & Weight Loss Coach",
+  founderTitle: "Women's Hormone, Gut Health & Weight Loss Coach",
   founderTagline:
-    "Helping women over 30 balance hormones, lose weight naturally, boost metabolism, and reclaim their energy through sustainable lifestyle changes",
+    "Helping women balance hormones, heal their gut, lose weight naturally, and reclaim their energy through sustainable lifestyle changes",
   email: "nehahealthcoach758@gmail.com",
   businessHours: "9:00 AM – 5:00 PM (Sydney/Melbourne Time)",
   social: {
@@ -26,10 +26,13 @@ export const siteConfig = {
     "Women's Health Coach",
     "Hormone Balance Coach",
     "Gut Health Coach",
-    "Women's Wellness Coach",
+    "Women's Weight Loss Coaching",
+    "Female Fat Loss Coach",
     "Hormone Health Coaching",
     "Sustainable Fat Loss For Women",
+    "Gut Health Optimization",
+    "Bloating and Digestion Solutions",
     "Holistic Women's Health",
-    "Hormone Friendly Nutrition",
+    "Metabolism Reset Coach",
   ],
 };

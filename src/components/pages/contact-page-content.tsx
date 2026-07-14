@@ -5,6 +5,7 @@ import Image from "next/image";
 import toast from "react-hot-toast";
 import { Spinner } from "@/components/ui/spinner";
 import { siteConfig } from "@/data/site";
+import { IMAGES } from "@/data/images";
 
 export function ContactPageContent() {
   const [submitted, setSubmitted] = useState(false);
@@ -61,7 +62,7 @@ export function ContactPageContent() {
             
             <div className="relative w-full aspect-[4/3] rounded-sm overflow-hidden shadow-sm">
               <Image 
-                src="https://images.unsplash.com/photo-1542435503-956c469947f6?auto=format&fit=crop&q=80" 
+                src={IMAGES.contactPageOffice} 
                 alt="Typing on laptop"
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
@@ -174,7 +175,7 @@ export function ContactPageContent() {
             {/* Founder Image */}
             <div className="order-1 lg:order-2 relative w-full aspect-square max-w-md mx-auto rounded-sm overflow-hidden shadow-sm border border-[#EBE3DB]">
               <Image 
-                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80" 
+                src={IMAGES.contactPageProfile} 
                 alt="Founder Portrait"
                 fill
                 className="object-cover"

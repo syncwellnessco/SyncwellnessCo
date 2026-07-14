@@ -3,12 +3,12 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { SectionHeading } from "@/components/ui/section-heading";
+import { IMAGES } from "@/data/images";
 import { coachHighlights } from "@/data/home-content";
 
 export function AboutCoachSection() {
-  const coachImageSrc = "/neha_arora_coach.png";
-  const coachBackgroundSrc =
-    "https://res.cloudinary.com/daw1tscqr/image/upload/v1780733233/shadow-background_wbrsm4.jpg";
+  const coachImageSrc = IMAGES.coachProfile;
+  const coachBackgroundSrc = IMAGES.shadowBackground;
 
 
 

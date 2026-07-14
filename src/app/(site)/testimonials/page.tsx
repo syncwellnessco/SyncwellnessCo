@@ -7,6 +7,7 @@ import { PageShell } from "@/components/layout/page-shell";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useRef } from "react";
+import { IMAGES } from "@/data/images";
 
 interface Review {
   id: string;
@@ -107,7 +108,7 @@ export default function TestimonialsPage() {
                   <p className="text-xs uppercase tracking-wider text-charcoal/60">Report higher energy</p>
                 </div>
                 <div>
-                  <h3 className="font-display text-3xl text-charcoal mb-1">100+</h3>
+                  <h3 className="font-display text-3xl text-charcoal mb-1">500+</h3>
                   <p className="text-xs uppercase tracking-wider text-charcoal/60">Women Transformed</p>
                 </div>
               </div>
@@ -116,7 +117,7 @@ export default function TestimonialsPage() {
             {/* Image Content */}
             <div className="relative w-full aspect-[4/5] lg:aspect-square rounded-none overflow-hidden shadow-sm border border-[#EBE3DB]">
               <img 
-                src="https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&q=80" 
+                src={IMAGES.testimonialsPageHero} 
                 alt="Happy woman smiling"
                 className="w-full h-full object-cover"
               />

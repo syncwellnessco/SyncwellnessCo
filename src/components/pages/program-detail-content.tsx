@@ -11,6 +11,7 @@ import { BookingButton } from "@/components/ui/booking-button";
 import { ProgramHeroMedia } from "@/components/pages/program-hero-media";
 import { ProgramReviewsSection } from "@/components/pages/program-reviews-section";
 import { ProgramVideoTestimonials } from "@/components/pages/program-video-testimonials";
+import { IMAGES } from "@/data/images";
 
 type ProgramDetailContentProps = {
   slug: string;
@@ -35,7 +36,7 @@ export async function ProgramDetailContent({ slug }: ProgramDetailContentProps) 
       {/* Hero Section */}
       <section 
         className="relative min-h-[70vh] flex items-center bg-cover bg-center overflow-hidden pt-32 sm:pt-36 lg:pt-40 pb-12"
-        style={{ backgroundImage: `url(https://res.cloudinary.com/daw1tscqr/image/upload/v1780733233/shadow-background_wbrsm4.jpg)` }}
+        style={{ backgroundImage: `url(${IMAGES.shadowBackground})` }}
       >
         <div className="absolute inset-0 bg-[#4A5D5E]/70 mix-blend-multiply" />
         <div className="absolute inset-0 bg-slate-900/20" />
@@ -227,7 +228,7 @@ export async function ProgramDetailContent({ slug }: ProgramDetailContentProps) 
       {program.structure?.weeks && program.structure.weeks.length > 0 && (
         <section 
           className="relative py-12 lg:py-16 bg-cover bg-center overflow-hidden"
-          style={{ backgroundImage: `url(https://res.cloudinary.com/daw1tscqr/image/upload/v1780733233/shadow-background_wbrsm4.jpg)` }}
+          style={{ backgroundImage: `url(${IMAGES.shadowBackground})` }}
         >
           <div className="absolute inset-0 bg-[#4A5D5E]/90 mix-blend-multiply" />
           <div className="absolute inset-0 bg-charcoal/60" />

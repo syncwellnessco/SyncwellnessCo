@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { GlassBadge } from "@/components/ui/glass-badge";
 import { ProgramHeroMedia } from "@/components/pages/program-hero-media";
 import { InteractiveLink } from "@/components/ui/interactive-link";
+import { IMAGES } from "@/data/images";
 import type { Program } from "@/types/program";
 
 export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
@@ -59,7 +60,7 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
                 </div>
               )}
               
-              <div className="absolute inset-0 opacity-5 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] z-0 pointer-events-none" />
+              <div className="absolute inset-0 opacity-5 z-0 pointer-events-none" style={{ backgroundImage: `url('${IMAGES.cubePattern}')` }} />
               
               <div className="relative z-10 grid gap-6 lg:gap-8 lg:grid-cols-2 p-5 sm:p-6 lg:p-8">
                 <div className="flex flex-col justify-center order-2 lg:order-1">
