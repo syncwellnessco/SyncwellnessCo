@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Blog } from "@/types/dashboard";
-import { Plus, Edit, Trash, Image as ImageIcon, Video, Newspaper, BookOpen, ExternalLink } from "lucide-react";
+import { Plus, Edit, Trash, Image as ImageIcon, Video, Newspaper, BookOpen, ExternalLink, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -39,12 +39,32 @@ export function ResourcesManager() {
     fetchResources();
   }, []);
 
+  useEffect(() => {
+    if (isEditing) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isEditing]);
+
+  const closeModal = async () => {
+    if (uploadedImageId) {
+      await deleteCloudinaryFile(uploadedImageId, 'image');
+      setUploadedImageId(null);
+    }
+    setIsEditing(false);
+    setFormData({});
+  };
+
   const fetchResources = async () => {
     try {
       const { data, error } = await supabase.from('blogs').select('*').order('created_at', { ascending: false });
       if (error) throw error;
       setResources(data || []);
-    } catch (e: any) {
+    } catch {
       toast.error("Failed to load resources");
     } finally {
       setLoading(false);
@@ -107,7 +127,7 @@ export function ResourcesManager() {
       if (error) throw error;
       toast.success("Resource deleted");
       fetchResources();
-    } catch (e: any) {
+    } catch {
       toast.error("Failed to delete resource");
     }
   };
@@ -155,8 +175,8 @@ export function ResourcesManager() {
       setUploadedImageId(null);
       setIsEditing(false);
       fetchResources();
-    } catch (e: any) {
-      toast.error(e.message || "Failed to save resource");
+    } catch (e) {
+      toast.error((e as Error)?.message || "Failed to save resource");
       if (uploadedImageId) {
         await deleteCloudinaryFile(uploadedImageId, 'image');
         setUploadedImageId(null);
@@ -172,226 +192,6 @@ export function ResourcesManager() {
         <div className="space-y-2">
           {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 w-full" />)}
         </div>
-      </div>
-    );
-  }
-
-  if (isEditing) {
-    return (
-      <div className="bg-white p-6 rounded-md border border-[#EBE3DB] shadow-sm">
-        <h2 className="text-2xl font-display text-charcoal mb-6">
-          {formData.id ? "Edit" : "Create"} {subTab === "blogs" ? "Blog" : subTab === "podcasts" ? "Podcast" : "Media Article"}
-        </h2>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="flex flex-col lg:flex-row gap-6">
-            {/* Left Side: Cover Image */}
-            {subTab !== "podcasts" && (
-              <div className={`w-full ${subTab === "media" ? "lg:w-[180px] lg:shrink-0" : "lg:w-1/3"} space-y-2`}>
-                <div className="flex flex-col space-y-0.5">
-                  <Label className="text-sm font-medium">Cover Image / Logo</Label>
-                  <span className="text-[10px] text-charcoal/50 font-medium">
-                    {subTab === "media" ? "Aspect ratio: 4:5 portrait" : "Aspect ratio: 3:2 landscape"}
-                  </span>
-                </div>
-                <CldUploadWidget 
-                  uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_BLOGS || "syncwellness_blogs"}
-                  onSuccess={(result: any) => {
-                    setFormData(prev => ({ ...prev, image_url: result.info.secure_url }));
-                    setUploadedImageId(result.info.public_id);
-                    document.body.style.overflow = '';
-                  }}
-                >
-                  {({ open }) => (
-                    <div className={`w-full ${subTab === "media" ? "max-w-[160px] aspect-[4/5]" : "aspect-[3/2]"} max-h-[260px]`}>
-                      {formData.image_url ? (
-                        <div className="relative w-full h-full rounded-md overflow-hidden border border-[#EBE3DB] group">
-                          <img src={formData.image_url} alt="Cover" className="w-full h-full object-cover" />
-                          <div className="absolute inset-0 bg-charcoal/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                            <Button type="button" size="sm" onClick={(e) => { e.preventDefault(); open(); }} variant="secondary">
-                              Change
-                            </Button>
-                            <Button 
-                              type="button"
-                              size="sm"
-                              variant="outline"
-                              className="bg-red-50 text-red-600 border-red-200 hover:bg-red-100" 
-                              onClick={async (e) => { 
-                                e.preventDefault(); 
-                                if (uploadedImageId) {
-                                  await deleteCloudinaryFile(uploadedImageId, 'image');
-                                  setUploadedImageId(null);
-                                }
-                                setFormData(prev => ({ ...prev, image_url: '' })); 
-                              }}
-                            >
-                              Remove
-                            </Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <button 
-                          type="button" 
-                          onClick={(e) => { e.preventDefault(); open(); }} 
-                          className="w-full h-full flex flex-col items-center justify-center border-2 border-dashed border-[#EBE3DB] rounded-md bg-[#FAF8F5] hover:bg-[#EBE3DB]/40 hover:border-[#8C6D40] transition-colors text-charcoal/50 hover:text-charcoal"
-                        >
-                          <ImageIcon className="h-8 w-8 mb-2 opacity-50" />
-                          <span className="font-medium text-sm">Upload Image</span>
-                          <span className="text-[10px] text-charcoal/40 mt-1">
-                            {subTab === "media" ? "4:5 portrait recommended" : "3:2 landscape recommended"}
-                          </span>
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </CldUploadWidget>
-              </div>
-            )}
-
-
-            {/* Right Side: Inputs */}
-            <div className={`w-full ${subTab === "podcasts" ? "lg:w-full" : subTab === "media" ? "lg:flex-1" : "lg:w-2/3"} space-y-5`}>
-              <div className="space-y-2">
-                <Label>Title</Label>
-                <Input 
-                  value={formData.title || ""}
-                  onChange={(e) => setFormData({...formData, title: e.target.value})}
-                  required
-                  className="text-lg font-medium h-12 border-[#EBE3DB] focus:border-[#8C6D40]"
-                  placeholder={`Enter ${subTab === "blogs" ? "blog" : subTab === "podcasts" ? "podcast" : "article"} title...`}
-                />
-              </div>
-
-
-              {subTab === "blogs" && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <div className="space-y-2">
-                    <Label>Category</Label>
-                    <Input 
-                      value={formData.category || ""}
-                      onChange={(e) => setFormData({...formData, category: e.target.value})}
-                      placeholder="e.g. Wellness"
-                      className="border-[#EBE3DB] focus:border-[#8C6D40]"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Tags (Comma separated)</Label>
-                    <Input 
-                      value={formData.tags || ""}
-                      onChange={(e) => setFormData({...formData, tags: e.target.value})}
-                      placeholder="e.g. fitness, hormones, diet"
-                      className="border-[#EBE3DB] focus:border-[#8C6D40]"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {subTab === "podcasts" && (
-                <div className="space-y-2">
-                  <Label>YouTube Podcast Link</Label>
-                  <Input 
-                    value={formData.content || ""}
-                    onChange={async (e) => {
-                      const url = e.target.value;
-                      setFormData(prev => ({ ...prev, content: url }));
-                      
-                      const videoId = getYouTubeId(url);
-                      if (videoId) {
-                        try {
-                          const res = await fetch(`https://noembed.com/embed?url=${encodeURIComponent(url)}`);
-                          const data = await res.json();
-                          if (data && data.title) {
-                            setFormData(prev => ({
-                              ...prev,
-                              title: prev.title || data.title,
-                              image_url: prev.image_url || data.thumbnail_url,
-                              excerpt: prev.excerpt || `Watch this episode on YouTube.`
-                            }));
-                          }
-                        } catch (err) {
-                          console.error("Failed to fetch YouTube oEmbed info", err);
-                        }
-                      }
-                    }}
-                    required
-                    placeholder="https://www.youtube.com/watch?v=..."
-                    className="border-[#EBE3DB] focus:border-[#8C6D40]"
-                  />
-                </div>
-              )}
-
-              {subTab === "media" && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <div className="space-y-2">
-                    <Label>Article Link (URL)</Label>
-                    <Input 
-                      value={formData.content || ""}
-                      onChange={(e) => setFormData({...formData, content: e.target.value})}
-                      required
-                      placeholder="https://vogue.com/article/..."
-                      className="border-[#EBE3DB] focus:border-[#8C6D40]"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Source / Publisher</Label>
-                    <Input 
-                      value={formData.author || ""}
-                      onChange={(e) => setFormData({...formData, author: e.target.value})}
-                      required
-                      placeholder="e.g. Vogue, Daily Mail, etc."
-                      className="border-[#EBE3DB] focus:border-[#8C6D40]"
-                    />
-                  </div>
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <Label>Short Description / Excerpt</Label>
-                <Textarea 
-                  rows={3}
-                  value={formData.excerpt || ""}
-                  onChange={(e) => setFormData({...formData, excerpt: e.target.value})}
-                  placeholder="A brief 1-2 sentence description..."
-                  className="border-[#EBE3DB] focus:border-[#8C6D40]"
-                />
-              </div>
-            </div>
-          </div>
-
-          {subTab === "blogs" && (
-            <div className="space-y-2">
-              <Label>Blog Content (Tiptap)</Label>
-              <Editor 
-                data={formData.content || ""} 
-                onChange={(val) => setFormData({...formData, content: val})} 
-              />
-            </div>
-          )}
-
-          <div className="flex items-center gap-2">
-            <input 
-              type="checkbox" 
-              id="published" 
-              checked={formData.published !== false} 
-              onChange={(e) => setFormData({...formData, published: e.target.checked})}
-            />
-            <Label htmlFor="published">Publish immediately</Label>
-          </div>
-
-          <div className="flex gap-4 pt-4 border-t border-[#EBE3DB]">
-            <Button type="button" variant="outline" onClick={async () => {
-              if (uploadedImageId) {
-                await deleteCloudinaryFile(uploadedImageId, 'image');
-                setUploadedImageId(null);
-              }
-              setIsEditing(false);
-            }}>
-              Cancel
-            </Button>
-            <Button type="submit" className="bg-[#8C6D40] hover:bg-[#B8955F] text-white">
-              {formData.id ? "Update" : "Publish"}
-            </Button>
-          </div>
-        </form>
       </div>
     );
   }
@@ -433,7 +233,7 @@ export function ResourcesManager() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {currentList.length === 0 ? (
           <div className="col-span-full py-12 text-center text-charcoal/50 border border-dashed border-[#EBE3DB] rounded-lg bg-white">
-            No items found. Click "Add" to create one.
+            No items found. Click &quot;Add&quot; to create one.
           </div>
         ) : (
           currentList.map((resource) => (
@@ -490,6 +290,226 @@ export function ResourcesManager() {
           ))
         )}
       </div>
+
+      {/* Add / Edit Modal */}
+      {isEditing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/60 backdrop-blur-sm">
+          <div className="bg-white rounded-md w-full max-w-4xl shadow-xl relative max-h-[90vh] overflow-y-auto">
+            <button type="button" onClick={closeModal} className="absolute top-4 right-4 text-charcoal/50 hover:text-charcoal transition-colors">
+              <X className="h-5 w-5" />
+            </button>
+            <div className="p-8">
+              <h3 className="font-display text-2xl text-charcoal mb-6 border-b pb-4">
+                {formData.id ? "Edit" : "Create"} {subTab === "blogs" ? "Blog" : subTab === "podcasts" ? "Podcast" : "Media Article"}
+              </h3>
+              
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="flex flex-col lg:flex-row gap-6">
+                  {/* Left Side: Cover Image */}
+                  {subTab !== "podcasts" && (
+                    <div className={`w-full ${subTab === "media" ? "lg:w-[180px] lg:shrink-0" : "lg:w-1/3"} space-y-2`}>
+                      <div className="flex flex-col space-y-0.5">
+                        <Label className="text-sm font-medium">Cover Image / Logo</Label>
+                        <span className="text-[10px] text-charcoal/50 font-medium">
+                          {subTab === "media" ? "Aspect ratio: 4:5 portrait" : "Aspect ratio: 3:2 landscape"}
+                        </span>
+                      </div>
+                      <CldUploadWidget 
+                        uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_BLOGS || "syncwellness_blogs"}
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        onSuccess={(result: any) => {
+                          setFormData(prev => ({ ...prev, image_url: result.info.secure_url }));
+                          setUploadedImageId(result.info.public_id);
+                          document.body.style.overflow = '';
+                        }}
+                      >
+                        {({ open }) => (
+                          <div className={`w-full ${subTab === "media" ? "max-w-[160px] aspect-[4/5]" : "aspect-[3/2]"} max-h-[260px]`}>
+                            {formData.image_url ? (
+                              <div className="relative w-full h-full rounded-md overflow-hidden border border-[#EBE3DB] group">
+                                <img src={formData.image_url} alt="Cover" className="w-full h-full object-cover" />
+                                <div className="absolute inset-0 bg-charcoal/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                  <Button type="button" size="sm" onClick={(e) => { e.preventDefault(); open(); }} variant="secondary">
+                                    Change
+                                  </Button>
+                                  <Button 
+                                    type="button"
+                                    size="sm"
+                                    variant="outline"
+                                    className="bg-red-50 text-red-600 border-red-200 hover:bg-red-100" 
+                                    onClick={async (e) => { 
+                                      e.preventDefault(); 
+                                      if (uploadedImageId) {
+                                        await deleteCloudinaryFile(uploadedImageId, 'image');
+                                        setUploadedImageId(null);
+                                      }
+                                      setFormData(prev => ({ ...prev, image_url: '' })); 
+                                    }}
+                                  >
+                                    Remove
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (
+                              <button 
+                                type="button" 
+                                onClick={(e) => { e.preventDefault(); open(); }} 
+                                className="w-full h-full flex flex-col items-center justify-center border-2 border-dashed border-[#EBE3DB] rounded-md bg-[#FAF8F5] hover:bg-[#EBE3DB]/40 hover:border-[#8C6D40] transition-colors text-charcoal/50 hover:text-charcoal"
+                              >
+                                <ImageIcon className="h-8 w-8 mb-2 opacity-50" />
+                                <span className="font-medium text-sm">Upload Image</span>
+                                <span className="text-[10px] text-charcoal/40 mt-1">
+                                  {subTab === "media" ? "4:5 portrait recommended" : "3:2 landscape recommended"}
+                                </span>
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </CldUploadWidget>
+                    </div>
+                  )}
+
+                  {/* Right Side: Inputs */}
+                  <div className={`w-full ${subTab === "podcasts" ? "lg:w-full" : subTab === "media" ? "lg:flex-1" : "lg:w-2/3"} space-y-5`}>
+                    <div className="space-y-2">
+                      <Label>Title</Label>
+                      <Input 
+                        value={formData.title || ""}
+                        onChange={(e) => setFormData({...formData, title: e.target.value})}
+                        required
+                        className="text-lg font-medium h-12 border-[#EBE3DB] focus:border-[#8C6D40]"
+                        placeholder={`Enter ${subTab === "blogs" ? "blog" : subTab === "podcasts" ? "podcast" : "article"} title...`}
+                      />
+                    </div>
+
+                    {subTab === "blogs" && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div className="space-y-2">
+                          <Label>Category</Label>
+                          <Input 
+                            value={formData.category || ""}
+                            onChange={(e) => setFormData({...formData, category: e.target.value})}
+                            placeholder="e.g. Wellness"
+                            className="border-[#EBE3DB] focus:border-[#8C6D40]"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Tags (Comma separated)</Label>
+                          <Input 
+                            value={formData.tags || ""}
+                            onChange={(e) => setFormData({...formData, tags: e.target.value})}
+                            placeholder="e.g. fitness, hormones, diet"
+                            className="border-[#EBE3DB] focus:border-[#8C6D40]"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {subTab === "podcasts" && (
+                      <div className="space-y-2">
+                        <Label>YouTube Podcast Link</Label>
+                        <Input 
+                          value={formData.content || ""}
+                          onChange={async (e) => {
+                            const url = e.target.value;
+                            setFormData(prev => ({ ...prev, content: url }));
+                            
+                            const videoId = getYouTubeId(url);
+                            if (videoId) {
+                              try {
+                                const res = await fetch(`https://noembed.com/embed?url=${encodeURIComponent(url)}`);
+                                const data = await res.json();
+                                if (data && data.title) {
+                                  setFormData(prev => ({
+                                    ...prev,
+                                    title: prev.title || data.title,
+                                    image_url: prev.image_url || data.thumbnail_url,
+                                    excerpt: prev.excerpt || `Watch this episode on YouTube.`
+                                  }));
+                                }
+                              } catch (err) {
+                                console.error("Failed to fetch YouTube oEmbed info", err);
+                              }
+                            }
+                          }}
+                          required
+                          placeholder="https://www.youtube.com/watch?v=..."
+                          className="border-[#EBE3DB] focus:border-[#8C6D40]"
+                        />
+                      </div>
+                    )}
+
+                    {subTab === "media" && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div className="space-y-2">
+                          <Label>Article Link (URL)</Label>
+                          <Input 
+                            value={formData.content || ""}
+                            onChange={(e) => setFormData({...formData, content: e.target.value})}
+                            required
+                            placeholder="https://vogue.com/article/..."
+                            className="border-[#EBE3DB] focus:border-[#8C6D40]"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Source / Publisher</Label>
+                          <Input 
+                            value={formData.author || ""}
+                            onChange={(e) => setFormData({...formData, author: e.target.value})}
+                            required
+                            placeholder="e.g. Vogue, Daily Mail, etc."
+                            className="border-[#EBE3DB] focus:border-[#8C6D40]"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="space-y-2">
+                      <Label>Short Description / Excerpt</Label>
+                      <Textarea 
+                        rows={3}
+                        value={formData.excerpt || ""}
+                        onChange={(e) => setFormData({...formData, excerpt: e.target.value})}
+                        placeholder="A brief 1-2 sentence description..."
+                        className="border-[#EBE3DB] focus:border-[#8C6D40]"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {subTab === "blogs" && (
+                  <div className="space-y-2">
+                    <Label>Blog Content (Tiptap)</Label>
+                    <Editor 
+                      data={formData.content || ""} 
+                      onChange={(val) => setFormData({...formData, content: val})} 
+                    />
+                  </div>
+                )}
+
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="checkbox" 
+                    id="published" 
+                    checked={formData.published !== false} 
+                    onChange={(e) => setFormData({...formData, published: e.target.checked})}
+                  />
+                  <Label htmlFor="published">Publish immediately</Label>
+                </div>
+
+                <div className="flex gap-4 pt-4 border-t border-[#EBE3DB]">
+                  <Button type="button" variant="outline" onClick={closeModal}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" className="bg-[#8C6D40] hover:bg-[#B8955F] text-white">
+                    {formData.id ? "Update" : "Publish"}
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

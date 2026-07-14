@@ -21,10 +21,10 @@ type ExpandableGridProps = {
 };
 
 export function ExpandableGrid({ items, type }: ExpandableGridProps) {
-  const [visibleCount, setVisibleCount] = useState(type === "blog" ? 8 : 4); // Default to 8 blogs (2 rows of 4) or 4 podcasts/press (2 rows of 2 on mobile)
+  const [visibleCount, setVisibleCount] = useState(4); // Default to 4 items (1 row of 4 for blogs, or 4 for podcasts/press)
 
   const showMore = () => {
-    setVisibleCount(prev => prev + 8);
+    setVisibleCount(prev => prev + 4);
   };
 
   const getYouTubeId = (url: string) => {

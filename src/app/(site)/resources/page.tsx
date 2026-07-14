@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description: "Free resources, eBooks, and diet plans to help balance your hormones naturally.",
 };
 
-export const revalidate = 60;
+export const revalidate = 0;
 
 export default async function ResourcesHubPage() {
   const allPosts = await getAllBlogPosts({ publishedOnly: true });
@@ -127,24 +127,25 @@ export default async function ResourcesHubPage() {
       {/* Latest Blogs Section */}
       <section className="py-12 bg-cream">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row justify-between items-center sm:items-end mb-8 gap-4">
-            <div className="text-center sm:text-left">
-              <span className="text-[#8C6D40] text-[10px] font-bold uppercase tracking-[0.2em] block mb-1">
-                Wellness Journal
-              </span>
-              <h2 className="font-display text-2xl sm:text-3xl font-light text-charcoal">
-                Latest <span className="italic font-normal text-[#8C6D40]">Articles</span>
-              </h2>
-            </div>
-            <Link 
-              href="/resources/blogs" 
-              className="inline-flex items-center gap-2 px-5 py-2.5 border border-charcoal/20 text-charcoal text-[10px] font-bold uppercase tracking-[0.15em] hover:bg-charcoal hover:text-white transition-all duration-300"
-            >
-              View All Articles <ArrowRight className="w-4 h-4" />
-            </Link>
+          <div className="mb-8 text-center sm:text-left">
+            <span className="text-[#8C6D40] text-[10px] font-bold uppercase tracking-[0.2em] block mb-1">
+              Wellness Journal
+            </span>
+            <h2 className="font-display text-2xl sm:text-3xl font-light text-charcoal">
+              Latest <span className="italic font-normal text-[#8C6D40]">Articles</span>
+            </h2>
           </div>
 
           <ExpandableGrid items={latestBlogs} type="blog" />
+
+          <div className="mt-10 text-center">
+            <Link 
+              href="/resources/blogs" 
+              className="inline-flex items-center gap-2 text-charcoal hover:text-[#8C6D40] text-[11px] font-bold uppercase tracking-[0.2em] transition-colors duration-300 group"
+            >
+              View All Articles <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
         </div>
       </section>
     </>
