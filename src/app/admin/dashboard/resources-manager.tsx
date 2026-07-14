@@ -186,8 +186,8 @@ export function ResourcesManager() {
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Left Side: Cover Image */}
             {subTab !== "podcasts" && (
-              <div className="w-full lg:w-1/3 space-y-2">
-                <div className="flex justify-between items-baseline">
+              <div className={`w-full ${subTab === "media" ? "lg:w-[180px] lg:shrink-0" : "lg:w-1/3"} space-y-2`}>
+                <div className="flex flex-col space-y-0.5">
                   <Label className="text-sm font-medium">Cover Image / Logo</Label>
                   <span className="text-[10px] text-charcoal/50 font-medium">
                     {subTab === "media" ? "Aspect ratio: 4:5 portrait" : "Aspect ratio: 3:2 landscape"}
@@ -249,7 +249,7 @@ export function ResourcesManager() {
 
 
             {/* Right Side: Inputs */}
-            <div className={`w-full ${subTab === "podcasts" ? "lg:w-full" : "lg:w-2/3"} space-y-5`}>
+            <div className={`w-full ${subTab === "podcasts" ? "lg:w-full" : subTab === "media" ? "lg:flex-1" : "lg:w-2/3"} space-y-5`}>
               <div className="space-y-2">
                 <Label>Title</Label>
                 <Input 
@@ -260,6 +260,7 @@ export function ResourcesManager() {
                   placeholder={`Enter ${subTab === "blogs" ? "blog" : subTab === "podcasts" ? "podcast" : "article"} title...`}
                 />
               </div>
+
 
               {subTab === "blogs" && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
