@@ -33,23 +33,6 @@ export function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-b from-charcoal/55 via-charcoal/25 to-charcoal/85" />
         <div className="absolute inset-0 bg-gradient-to-r from-charcoal/40 via-transparent to-transparent" />
 
-        {/* Mobile: Login + Join on top of image */}
-        {!user && (
-          <div className="absolute top-[4.25rem] left-0 right-0 z-10 flex gap-2 px-4 sm:top-20 sm:gap-3 sm:px-6 lg:hidden">
-            <Link
-              href="/login"
-              className="flex-1 rounded-full border border-cream/50 bg-charcoal/30 py-2.5 text-center text-[11px] font-semibold uppercase tracking-[0.14em] text-cream backdrop-blur-sm transition-colors hover:bg-charcoal/50"
-            >
-              Login
-            </Link>
-            <Link
-              href="/signup"
-              className="flex-1 rounded-full bg-cream py-2.5 text-center text-[11px] font-semibold uppercase tracking-[0.14em] text-charcoal transition-colors hover:bg-cream/90"
-            >
-              Join
-            </Link>
-          </div>
-        )}
 
         {/* Desktop: marketing line + Get Started */}
         <div className="absolute inset-0 hidden flex-col justify-end lg:flex">
