@@ -27,18 +27,30 @@ export function Navbar() {
 
   useEffect(() => {
     const handleScroll = () => {
+      if (window.scrollY <= 10) {
+        setIsScrolled(false);
+        return;
+      }
       const heroEl = document.getElementById("hero-section");
-      const threshold = heroEl ? heroEl.offsetHeight - 64 : 350;
+      const threshold = heroEl ? Math.max(heroEl.offsetHeight - 64, 100) : 350;
       setIsScrolled(window.scrollY > threshold);
     };
+
+    const handleResize = () => {
+      handleScroll();
+      if (window.innerWidth >= 1024) {
+        setMobileOpen(false);
+      }
+    };
+
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("resize", handleScroll, { passive: true });
+    window.addEventListener("resize", handleResize, { passive: true });
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleScroll);
+      window.removeEventListener("resize", handleResize);
     };
-  }, []);
+  }, [pathname]);
 
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";

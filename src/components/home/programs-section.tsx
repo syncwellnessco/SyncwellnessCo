@@ -131,7 +131,7 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
               className="lg:col-span-6 group relative flex flex-col rounded-xl border border-beige-200 bg-white p-5 sm:p-6 shadow-sm transition-all hover:shadow-xl hover:-translate-y-1 duration-300"
             >
               {program.hero?.bannerImage && (
-                <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-lg mb-6 shadow-md border border-beige-100">
+                <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-lg mb-4 shadow-md border border-beige-100">
                   <Image
                     src={program.hero.bannerImage}
                     alt={program.title}
@@ -141,22 +141,21 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
                     unoptimized
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-charcoal/40 to-transparent pointer-events-none" />
-                  
-                  {/* Overlaid Badges Container - Forced Inline & Smaller on Mobile */}
-                  <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10 flex flex-row flex-nowrap items-center gap-1.5 max-w-[calc(100%-1.5rem)]">
-                    <span className="text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.1em] sm:tracking-[0.15em] bg-white/95 backdrop-blur-md text-[#8C6D40] border border-[#A8895C]/20 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full shadow-sm whitespace-nowrap">
-                      {program.duration}
-                    </span>
-                    {program.format && (
-                      <span className="text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.1em] sm:tracking-[0.15em] bg-white/95 backdrop-blur-md text-[#8C6D40] border border-[#A8895C]/20 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full shadow-sm whitespace-nowrap">
-                        {program.format}
-                      </span>
-                    )}
-                  </div>
                 </div>
               )}
               
               <div className="flex flex-1 flex-col">
+                <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                  <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-wider bg-beige-100 text-charcoal/70 px-2 py-0.5 rounded-full border border-beige-200">
+                    {program.duration}
+                  </span>
+                  {program.format && (
+                    <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-wider bg-beige-100 text-charcoal/70 px-2 py-0.5 rounded-full border border-beige-200">
+                      {program.format}
+                    </span>
+                  )}
+                </div>
+
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#8C6D40] mb-2 block">
                   {program.category || "Signature Program"}
                 </span>
@@ -165,39 +164,11 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
                   {program.title}
                 </h3>
                 
-                <p className="flex-1 text-base leading-relaxed text-charcoal/80 mb-8 line-clamp-3">
+                <p className="text-base leading-relaxed text-charcoal/80 mb-3 line-clamp-3">
                   {program.description}
                 </p>
                 
-                <div className="flex items-center justify-between border-t border-beige-100 pt-6 mt-auto">
-                  {(() => {
-                    const listPrice = program.pricing?.price ? Number(program.pricing.price) : null;
-                    const salePrice = program.pricing?.salePrice ? Number(program.pricing.salePrice) : null;
-                    const hasDiscount = salePrice !== null && listPrice !== null && listPrice > salePrice;
-                    const displayPrice = hasDiscount ? salePrice : (listPrice || 0);
-                    const originalPrice = listPrice || 0;
-
-                    if (hasDiscount) {
-                      return (
-                        <div className="flex items-baseline gap-2">
-                          <span className="font-light text-sm text-charcoal/40 line-through">
-                            ${originalPrice} AUD
-                          </span>
-                          <span className="font-bold text-lg text-charcoal">
-                            ${displayPrice} AUD
-                          </span>
-                          <span className="bg-black text-white text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-none">
-                            SAVE ${originalPrice - displayPrice}
-                          </span>
-                        </div>
-                      );
-                    }
-                    return (
-                      <span className="font-semibold text-lg text-charcoal">
-                        {displayPrice > 0 ? `$${displayPrice} AUD` : "Free"}
-                      </span>
-                    );
-                  })()}
+                <div className="flex items-center justify-end border-t border-beige-100 pt-3.5 mt-auto">
                   <Button asChild variant="ghost" className="group/btn text-[#8C6D40] hover:text-[#B8955F] hover:bg-transparent px-0 font-bold uppercase tracking-wider text-xs">
                     <Link href={`/programs/${program.slug || program.id}`}>
                       Explore

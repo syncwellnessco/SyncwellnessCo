@@ -143,7 +143,7 @@ export async function ProgramsPageContent() {
                 className="group relative flex flex-col bg-white border border-beige-200 p-6 sm:p-8 rounded-xl transition-all hover:shadow-xl duration-300 overflow-hidden"
               >
                 {program.hero?.bannerImage && (
-                  <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-lg mb-6 shadow-md border border-beige-100">
+                  <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-lg mb-4 shadow-md border border-beige-100">
                     <Image
                       src={program.hero.bannerImage}
                       alt={program.title}
@@ -153,35 +153,21 @@ export async function ProgramsPageContent() {
                       unoptimized
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-charcoal/40 to-transparent pointer-events-none" />
-                    
-                    {/* Overlaid Badges Container - Forced Inline & Smaller on Mobile */}
-                    <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10 flex flex-row flex-nowrap items-center gap-1.5 max-w-[calc(100%-1.5rem)]">
-                      <span className="text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.15em] bg-white/95 backdrop-blur-md text-[#8C6D40] border border-[#A8895C]/20 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full shadow-sm whitespace-nowrap">
-                        {program.duration}
-                      </span>
-                      {program.format && (
-                        <span className="text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.15em] bg-white/95 backdrop-blur-md text-[#8C6D40] border border-[#A8895C]/20 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full shadow-sm whitespace-nowrap">
-                          {program.format}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                )}
-                
-                {!program.hero?.bannerImage && (
-                  <div className="mb-6 flex flex-row flex-nowrap items-center gap-1.5">
-                    <span className="text-[8px] sm:text-[10px] font-semibold uppercase tracking-[0.15em] text-[#8C6D40] border border-[#A8895C]/30 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full whitespace-nowrap">
-                      {program.duration}
-                    </span>
-                    {program.format && (
-                      <span className="text-[8px] sm:text-[10px] font-semibold uppercase tracking-[0.15em] text-[#8C6D40] border border-[#A8895C]/30 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full whitespace-nowrap">
-                        {program.format}
-                      </span>
-                    )}
                   </div>
                 )}
                 
                 <div className="flex flex-1 flex-col">
+                  <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                    <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-wider bg-beige-100 text-charcoal/70 px-2 py-0.5 rounded-full border border-beige-200">
+                      {program.duration}
+                    </span>
+                    {program.format && (
+                      <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-wider bg-beige-100 text-charcoal/70 px-2 py-0.5 rounded-full border border-beige-200">
+                        {program.format}
+                      </span>
+                    )}
+                  </div>
+                  
                   <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#8C6D40] mb-2 block">
                     {program.category || "Signature Program"}
                   </span>
