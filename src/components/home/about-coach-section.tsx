@@ -7,7 +7,7 @@ import { IMAGES } from "@/data/images";
 import { coachHighlights } from "@/data/home-content";
 
 export function AboutCoachSection() {
-  const coachImageSrc = IMAGES.coachProfile;
+  const coachImageSrc = IMAGES.homeAboutProfile;
   const coachBackgroundSrc = IMAGES.shadowBackground;
 
 
@@ -77,7 +77,5 @@ export function AboutCoachSection() {
         </div>
       </div>
     </section>
-  );
-}
   );
 }

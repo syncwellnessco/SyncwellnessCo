@@ -6,7 +6,7 @@ import { aboutContent, brandContent } from "@/data/about-content";
 import { IMAGES } from "@/data/images";
 
 export function AboutPageContent() {
-  const coachImageSrc = IMAGES.coachProfile;
+  const coachImageSrc = IMAGES.aboutPageProfile;
 
   return (
     <article className="bg-[#FAF8F5] min-h-screen">
@@ -203,5 +203,4 @@ export function AboutPageContent() {
 
     </article>
   );
-}
 }
