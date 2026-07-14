@@ -87,13 +87,13 @@ export function ExpandableGrid({ items, type }: ExpandableGridProps) {
   if (type === "podcast") {
     return (
       <div className="space-y-8">
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {visibleItems.map(podcast => {
             const videoId = getYouTubeId(podcast.content);
             return (
               <div 
                 key={podcast.id} 
-                className="flex flex-col bg-white border border-[#EBE3DB] shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden"
+                className="flex flex-col bg-white border border-[#EBE3DB] shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden max-w-md mx-auto sm:max-w-none w-full"
               >
                 <div className="relative aspect-video bg-charcoal overflow-hidden border-b border-[#EBE3DB]">
                   {videoId ? (
@@ -113,19 +113,19 @@ export function ExpandableGrid({ items, type }: ExpandableGridProps) {
                     />
                   ) : (
                     <div className="w-full h-full bg-[#FAF8F5] flex items-center justify-center text-charcoal/20">
-                      <Video className="w-8 h-8 md:w-12 md:h-12" />
+                      <Video className="w-12 h-12" />
                     </div>
                   )}
                 </div>
-                <div className="p-3 md:p-5 flex flex-col flex-1 space-y-2 md:space-y-3">
-                  <span className="text-[#8C6D40] text-[9px] md:text-[10px] font-bold uppercase tracking-[0.15em]">
+                <div className="p-4 md:p-5 flex flex-col flex-1 space-y-3">
+                  <span className="text-[#8C6D40] text-[10px] font-bold uppercase tracking-[0.15em]">
                     YouTube Episode
                   </span>
-                  <h3 className="font-display text-xs sm:text-sm md:text-lg text-charcoal leading-snug line-clamp-2">
+                  <h3 className="font-display text-base sm:text-lg text-charcoal leading-snug line-clamp-2">
                     {podcast.title}
                   </h3>
                   {podcast.excerpt && (
-                    <p className="text-charcoal/70 text-[10px] sm:text-xs md:text-sm line-clamp-2 leading-relaxed flex-1">
+                    <p className="text-charcoal/70 text-xs sm:text-sm line-clamp-2 leading-relaxed flex-1">
                       {podcast.excerpt}
                     </p>
                   )}
@@ -133,15 +133,16 @@ export function ExpandableGrid({ items, type }: ExpandableGridProps) {
                     href={podcast.content} 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="inline-flex items-center gap-1 text-[#8C6D40] text-[9px] sm:text-[10px] md:text-[11px] font-bold uppercase tracking-[0.15em] hover:text-[#B8955F] transition-colors pt-1 border-t border-[#FAF8F5] w-fit"
+                    className="inline-flex items-center gap-1.5 text-[#8C6D40] text-[11px] font-bold uppercase tracking-[0.15em] hover:text-[#B8955F] transition-colors pt-1 border-t border-[#FAF8F5] w-fit"
                   >
-                    Watch <ExternalLink className="w-2.5 h-2.5 md:w-3.5 md:h-3.5" />
+                    Watch <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                 </div>
               </div>
             );
           })}
         </div>
+
 
         {hasMore && (
           <div className="flex justify-center pt-4">
