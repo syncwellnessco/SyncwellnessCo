@@ -13,7 +13,7 @@ export const IMAGES = {
 
   // Hero Assets
   heroDefaultImage: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=1920&h=1080&fit=crop&q=85",
-  heroVideo: "https://res.cloudinary.com/daw1tscqr/video/upload/v1780400995/hero_banner_video_1_h4obp3.mp4",
+  heroVideo: "https://res.cloudinary.com/daw1tscqr/video/upload/ac_none,q_auto/v1784024313/Homepage_Cover_Video_elkg6e.mp4",
 
   // Testimonials Assets
   testimonialsPageHero: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&q=80",
