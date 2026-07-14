@@ -66,18 +66,8 @@ export function HeroSection() {
               <h1 className="font-display text-[2.5rem] leading-[1.05] text-cream xl:text-[3.1rem] 2xl:text-[3.35rem] lg:whitespace-nowrap drop-shadow-md">
                 {heroContent.marketingLine}
               </h1>
-              <p className="mt-3 text-lg italic text-cream/85 sm:text-xl xl:text-2xl max-w-2xl drop-shadow-sm">
-                {heroContent.marketingSubline.split("hormone health,").map((part, i, arr) => (
-                  <span key={i}>
-                    {part}
-                    {i < arr.length - 1 && (
-                      <>
-                        hormone health,
-                        <br className="hidden lg:inline" />
-                      </>
-                    )}
-                  </span>
-                ))}
+              <p className="mt-3 text-lg italic text-cream/85 sm:text-xl xl:text-2xl max-w-3xl drop-shadow-sm">
+                {heroContent.marketingSubline}
               </p>
               <Link
                 href="/programs"
@@ -97,16 +87,16 @@ export function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15 }}
           >
-            <h1 className="font-display text-[4.4vw] leading-none text-cream sm:text-[1.8rem] md:text-[2rem] whitespace-nowrap drop-shadow-md">
+            <h1 className="font-display text-2xl sm:text-[1.8rem] md:text-[2rem] leading-tight text-cream drop-shadow-md">
               {heroContent.marketingLine}
             </h1>
-            <p className="mt-2 text-[11px] leading-relaxed text-cream/80 sm:text-[13px] md:text-sm max-w-md text-balance drop-shadow-sm">
+            <p className="mt-2 text-xs leading-relaxed text-cream/80 sm:text-sm md:text-base max-w-md text-balance drop-shadow-sm">
               {heroContent.marketingSubline}
             </p>
             <div className="mt-4">
               <Link
                 href="/programs"
-                className="group inline-flex items-center gap-2 rounded-full bg-[#8C6D40] px-6 py-3 text-[10px] font-bold uppercase tracking-[0.14em] text-white shadow-lg transition-all duration-300 hover:bg-[#A38253] active:scale-95"
+                className="group inline-flex items-center gap-2 rounded-full bg-[#8C6D40] px-6 py-3 text-[11px] sm:text-xs font-bold uppercase tracking-[0.14em] text-white shadow-lg transition-all duration-300 hover:bg-[#A38253] active:scale-95"
               >
                 Get Started
                 <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
