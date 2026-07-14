@@ -145,17 +145,6 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
               )}
               
               <div className="flex flex-1 flex-col">
-                <div className="flex flex-wrap items-center gap-1.5 mb-3">
-                  <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-wider bg-beige-100 text-charcoal/70 px-2 py-0.5 rounded-full border border-beige-200">
-                    {program.duration}
-                  </span>
-                  {program.format && (
-                    <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-wider bg-beige-100 text-charcoal/70 px-2 py-0.5 rounded-full border border-beige-200">
-                      {program.format}
-                    </span>
-                  )}
-                </div>
-
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#8C6D40] mb-2 block">
                   {program.category || "Signature Program"}
                 </span>
@@ -164,11 +153,21 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
                   {program.title}
                 </h3>
                 
-                <p className="text-base leading-relaxed text-charcoal/80 mb-3 line-clamp-3">
+                <p className="text-base leading-relaxed text-charcoal/80 mb-6 line-clamp-3">
                   {program.description}
                 </p>
                 
-                <div className="flex items-center justify-end border-t border-beige-100 pt-3.5 mt-auto">
+                <div className="flex items-center justify-between border-t border-beige-100 pt-4 mt-auto">
+                  <div className="flex flex-row flex-nowrap items-center gap-1.5">
+                    <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-wider bg-[#FAF9F7] text-charcoal/70 px-2.5 py-1 rounded-full border border-beige-200/80 whitespace-nowrap">
+                      {program.duration}
+                    </span>
+                    {program.format && (
+                      <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-wider bg-[#FAF9F7] text-charcoal/70 px-2.5 py-1 rounded-full border border-beige-200/80 whitespace-nowrap">
+                        {program.format}
+                      </span>
+                    )}
+                  </div>
                   <Button asChild variant="ghost" className="group/btn text-[#8C6D40] hover:text-[#B8955F] hover:bg-transparent px-0 font-bold uppercase tracking-wider text-xs">
                     <Link href={`/programs/${program.slug || program.id}`}>
                       Explore
