@@ -3,7 +3,7 @@
 import { ReactNode, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { BookOpen, Calendar, LayoutDashboard, Mail, MessageSquare, Users, ExternalLink, CreditCard } from "lucide-react";
+import { BookOpen, Calendar, LayoutDashboard, Mail, MessageSquare, Users, ExternalLink, CreditCard, ClipboardList } from "lucide-react";
 import { useUserStore } from "@/store/user-store";
 import { Spinner } from "@/components/ui/spinner";
 import { AdminPresence } from "@/components/admin/AdminPresence";
@@ -81,6 +81,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               <Link href="/admin/dashboard?tab=ebooks" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
                 <BookOpen className="h-5 w-5 text-charcoal/50" />
                 <span className="text-sm font-medium">Ebook Requests</span>
+              </Link>
+              <Link href="/admin/dashboard?tab=quiz" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
+                <ClipboardList className="h-5 w-5 text-charcoal/50" />
+                <span className="text-sm font-medium">Quiz Responses</span>
               </Link>
               <Link href="/admin/dashboard?tab=programs" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
                 <Calendar className="h-5 w-5 text-charcoal/50" />

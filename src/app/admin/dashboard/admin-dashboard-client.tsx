@@ -10,6 +10,7 @@ import { VideoTestimonialsManager } from "./video-testimonials-manager";
 import { BlogsManager } from "./blogs-manager";
 import { OverviewTab } from "./overview-tab";
 import { PurchasesManager } from "./purchases-manager";
+import { QuizManager } from "./quiz-manager";
 
 export function AdminDashboardClient() {
   const searchParams = useSearchParams();
@@ -29,6 +30,7 @@ export function AdminDashboardClient() {
         {activeTab === "purchases" && <PurchasesManager />}
         {activeTab === "enquiries" && <EnquiriesManager />}
         {activeTab === "ebooks" && <EbooksManager />}
+        {activeTab === "quiz" && <QuizManager />}
         {activeTab === "programs" && <ProgramsManager />}
         {activeTab === "reviews" && <ReviewsManager />}
         {activeTab === "videos" && <VideoTestimonialsManager />}

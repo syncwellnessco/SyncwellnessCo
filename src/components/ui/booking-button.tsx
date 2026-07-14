@@ -14,6 +14,7 @@ interface BookingButtonProps {
   className?: string;
   children?: React.ReactNode;
   theme?: "light" | "dark";
+  showMemberStatus?: boolean;
 }
 
 export function BookingButton({ 
@@ -23,7 +24,8 @@ export function BookingButton({
   pricing, 
   className, 
   children,
-  theme = "light"
+  theme = "light",
+  showMemberStatus = true
 }: BookingButtonProps) {
   const [isClient, setIsClient] = useState(false);
   const router = useRouter();
@@ -51,19 +53,30 @@ export function BookingButton({
   }
 
   if (isPurchased) {
-    return (
-      <div className="flex flex-col gap-2 w-full sm:w-auto items-stretch">
+    if (showMemberStatus) {
+      return (
+        <div className="flex flex-col gap-2 w-full sm:w-auto items-stretch">
+          <Button 
+            className={cn("relative overflow-hidden select-none w-full", className)} 
+            onClick={handleAccessCourse}
+          >
+            Access Course
+          </Button>
+          <span className="text-[9px] font-bold uppercase tracking-[0.15em] px-3 py-2 rounded-none shadow-sm bg-emerald-600 text-white flex items-center justify-center gap-1.5 mt-1 w-full text-center">
+            ✓ ALREADY A MEMBER
+          </span>
+        </div>
+      );
+    } else {
+      return (
         <Button 
-          className={cn("relative overflow-hidden select-none w-full", className)} 
+          className={cn("relative overflow-hidden select-none", className)} 
           onClick={handleAccessCourse}
         >
           Access Course
         </Button>
-        <span className="text-[9px] font-bold uppercase tracking-[0.15em] px-3 py-2 rounded-none shadow-sm bg-emerald-600 text-white flex items-center justify-center gap-1.5 mt-1 w-full text-center">
-          ✓ ALREADY A MEMBER
-        </span>
-      </div>
-    );
+      );
+    }
   }
 
   return (

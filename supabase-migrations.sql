@@ -62,3 +62,30 @@ CREATE POLICY "Programs are viewable by everyone" ON programs
 
 -- You can add further policies to allow admin insert/update if using Auth,
 -- but typically if using Service Role Key on the Next.js backend, RLS is bypassed.
+
+-- 4. Create Quiz Responses Table
+CREATE TABLE IF NOT EXISTS quiz_responses (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone_number TEXT,
+  country_code TEXT,
+  answers JSONB NOT NULL,
+  score INTEGER NOT NULL,
+  classification TEXT NOT NULL,
+  program_id TEXT,
+  program_title TEXT,
+  createdat TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
+-- Row Level Security (RLS) setup for quiz responses
+ALTER TABLE quiz_responses ENABLE ROW LEVEL SECURITY;
+
+-- Allow anyone to submit/insert quiz responses
+CREATE POLICY "Enable insert for all users" ON quiz_responses
+  FOR INSERT WITH CHECK (true);
+
+-- Allow authenticated users to view quiz responses (for admin panel)
+CREATE POLICY "Enable read access for authenticated users" ON quiz_responses
+  FOR SELECT TO authenticated USING (true);
+

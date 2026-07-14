@@ -58,16 +58,26 @@ export function HeroSection() {
               initial={{ opacity: 0, y: 28 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-              className="max-w-2xl"
+              className="max-w-2xl lg:max-w-none"
             >
               <p className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-cream/70">
                 Women&apos;s Health Coaching
               </p>
-              <h1 className="font-display text-[2.5rem] leading-[1.02] text-cream xl:text-[3.1rem] 2xl:text-[3.35rem]">
+              <h1 className="font-display text-[2.5rem] leading-[1.05] text-cream xl:text-[3.1rem] 2xl:text-[3.35rem] lg:whitespace-nowrap drop-shadow-md">
                 {heroContent.marketingLine}
               </h1>
-              <p className="mt-2 text-lg italic text-cream/85 sm:text-xl xl:text-2xl">
-                {heroContent.marketingSubline}
+              <p className="mt-3 text-lg italic text-cream/85 sm:text-xl xl:text-2xl max-w-2xl drop-shadow-sm">
+                {heroContent.marketingSubline.split("hormone health,").map((part, i, arr) => (
+                  <span key={i}>
+                    {part}
+                    {i < arr.length - 1 && (
+                      <>
+                        hormone health,
+                        <br className="hidden lg:inline" />
+                      </>
+                    )}
+                  </span>
+                ))}
               </p>
               <Link
                 href="/programs"
@@ -81,16 +91,16 @@ export function HeroSection() {
         </div>
 
         {/* Mobile: compact tagline at bottom */}
-        <div className="absolute inset-x-0 bottom-0 z-10 px-4 pb-6 pt-20 lg:hidden">
+        <div className="absolute inset-x-0 bottom-0 z-10 px-5 pb-8 pt-20 lg:hidden">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15 }}
           >
-            <h1 className="font-display text-[1.7rem] leading-tight text-cream sm:text-[2rem]">
+            <h1 className="font-display text-[4.4vw] leading-none text-cream sm:text-[1.8rem] md:text-[2rem] whitespace-nowrap drop-shadow-md">
               {heroContent.marketingLine}
             </h1>
-            <p className="mt-1.5 text-sm leading-relaxed text-cream/80">
+            <p className="mt-2 text-[11px] leading-relaxed text-cream/80 sm:text-[13px] md:text-sm max-w-md text-balance drop-shadow-sm">
               {heroContent.marketingSubline}
             </p>
             <div className="mt-4">

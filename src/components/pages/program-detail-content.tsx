@@ -12,6 +12,7 @@ import { ProgramHeroMedia } from "@/components/pages/program-hero-media";
 import { ProgramReviewsSection } from "@/components/pages/program-reviews-section";
 import { ProgramVideoTestimonials } from "@/components/pages/program-video-testimonials";
 import { IMAGES } from "@/data/images";
+import { ProgramQuiz } from "@/components/pages/program-quiz";
 
 type ProgramDetailContentProps = {
   slug: string;
@@ -134,6 +135,15 @@ export async function ProgramDetailContent({ slug }: ProgramDetailContentProps) 
           </div>
         </div>
       </section>
+
+      {/* Program Quiz Section (Conditional) */}
+      {program.quiz?.enabled && (
+        <ProgramQuiz 
+          programId={program.id} 
+          programSlug={program.slug || program.id} 
+          programTitle={program.title} 
+        />
+      )}
 
       {/* Is This For You? (The Problem) */}
       <section className="py-12 lg:py-16 bg-[#FAF8F5]">
