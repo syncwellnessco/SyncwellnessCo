@@ -123,11 +123,18 @@ const ObjectArrayEditor = ({
   };
   const remove = (i: number) => onChange((items || []).filter((_, idx) => idx !== i));
 
+  const getButtonText = () => {
+    const lower = title.toLowerCase();
+    if (lower.includes("included")) return "Add Included Item";
+    if (lower.includes("bonus")) return "Add Bonus";
+    if (lower.includes("faq")) return "Add More FAQs";
+    return `Add ${title}`;
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40]">{title}</label>
-        <Button type="button" onClick={add} variant="outline" size="sm" className="h-7 text-xs"><PlusCircle className="h-3 w-3 mr-1"/> Add</Button>
+        <label className="block text-xs uppercase font-bold tracking-widest text-[#8C6D40]">{title}</label>
       </div>
       {(items || []).map((item, i) => (
         <div key={i} className="flex gap-4 items-start border border-[#EBE3DB] p-4 rounded-sm bg-[#FAF8F5] relative">
@@ -163,6 +170,16 @@ const ObjectArrayEditor = ({
            <button type="button" onClick={() => remove(i)} className="text-red-500 mt-6 hover:bg-red-50 p-1 rounded transition-colors"><MinusCircle className="h-5 w-5" /></button>
         </div>
       ))}
+      <div className="flex justify-start pt-2">
+        <button 
+          type="button" 
+          onClick={add} 
+          className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#8C6D40] hover:text-[#B8955F] transition-colors focus:outline-none py-1.5"
+        >
+          <Plus className="h-4 w-4" />
+          {getButtonText()}
+        </button>
+      </div>
     </div>
   )
 };
@@ -213,7 +230,13 @@ export function ProgramsManager() {
     try {
       const res = await fetch('/api/programs');
       const data = await res.json();
-      if (Array.isArray(data)) setPrograms(data);
+      if (Array.isArray(data)) {
+        const normalized = data.map((prog: Program) => ({
+          ...prog,
+          pricing: prog.pricing ? { ...prog.pricing, currency: "AUD" } : { price: 0, currency: "AUD", paymentType: "one-time" as const, installmentAvailable: false }
+        }));
+        setPrograms(normalized);
+      }
     } catch (e) {
       console.error(e);
     } finally {
@@ -232,7 +255,6 @@ export function ProgramsManager() {
     setEditForm(selectedProgram || {});
     setIsEditing(true);
     setIsNew(false);
-    setActiveTab("basic");
   };
 
   const handleAddClick = () => {
@@ -287,10 +309,15 @@ export function ProgramsManager() {
       const url = isActuallyNew ? '/api/programs' : `/api/programs/${selectedProgram?.id}`;
       const method = isActuallyNew ? 'POST' : 'PUT';
       
+      const payload = {
+        ...editForm,
+        pricing: editForm.pricing ? { ...editForm.pricing, currency: "AUD" } : { price: 0, currency: "AUD", paymentType: "one-time", installmentAvailable: false }
+      };
+
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editForm)
+        body: JSON.stringify(payload)
       });
       
       if (res.ok) {
@@ -373,7 +400,7 @@ export function ProgramsManager() {
                   <span className={`text-[9px] px-2 py-1 uppercase tracking-wider font-bold rounded-sm ${prog.status === 'published' ? 'bg-green-100 text-green-700' : 'bg-charcoal/10 text-charcoal/60'}`}>
                     {prog.status}
                   </span>
-                  <span className="text-xs font-semibold text-[#8C6D40]">{prog.pricing?.price ? `${prog.pricing.currency} ${prog.pricing.price}` : "Free"}</span>
+                  <span className="text-xs font-semibold text-[#8C6D40]">{prog.pricing?.price ? `AUD ${prog.pricing.salePrice ?? prog.pricing.price}` : "Free"}</span>
                 </div>
                 <h3 className="font-display text-lg text-charcoal font-bold mb-1">{prog.title}</h3>
                 <div className="text-[10px] text-charcoal/50 font-normal uppercase tracking-wider mb-3">{prog.category || "Uncategorized"} • {prog.duration || "No duration"}</div>
@@ -446,8 +473,15 @@ export function ProgramsManager() {
                   {activeTab === 'pricing' && (
                     <div className="bg-[#FAF8F5] p-4 rounded-sm border border-[#EBE3DB]">
                       <h4 className="text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-3">Pricing Details</h4>
-                      <div className="grid grid-cols-3 gap-4">
-                        <div><span className="block text-[10px] text-charcoal/60 uppercase">Price</span><span className="text-sm font-medium">{selectedProgram.pricing?.currency} {selectedProgram.pricing?.price}</span></div>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                          <span className="block text-[10px] text-charcoal/60 uppercase">Regular Price (MRP)</span>
+                          <span className="text-sm font-medium">AUD {selectedProgram.pricing?.price}</span>
+                        </div>
+                        <div>
+                          <span className="block text-[10px] text-charcoal/60 uppercase">Sale Price (Selling Price)</span>
+                          <span className="text-sm font-medium text-green-700">AUD {selectedProgram.pricing?.salePrice ?? selectedProgram.pricing?.price}</span>
+                        </div>
                         <div><span className="block text-[10px] text-charcoal/60 uppercase">Type</span><span className="text-sm font-medium capitalize">{selectedProgram.pricing?.paymentType}</span></div>
                         <div><span className="block text-[10px] text-charcoal/60 uppercase">Installments</span><span className="text-sm font-medium">{selectedProgram.pricing?.installmentAvailable ? "Yes" : "No"}</span></div>
                       </div>
@@ -774,37 +808,39 @@ export function ProgramsManager() {
                   {/* EDIT MODE: CONTENT */}
                   {activeTab === 'content' && (
                     <div className="space-y-8">
-                       <ObjectArrayEditor 
-                        title="What's Included" 
-                        items={editForm.included || []} 
-                        onChange={v => setEditForm({...editForm, included: v})}
-                        fields={[
-                          {key: 'title', label: 'Title', type: 'text'}
-                        ]} 
-                      />
+                      <div className="bg-[#FAF8F5]/40 border border-[#EBE3DB] p-6 rounded-sm shadow-sm">
+                        <ObjectArrayEditor 
+                          title="What's Included" 
+                          items={editForm.included || []} 
+                          onChange={v => setEditForm({...editForm, included: v})}
+                          fields={[
+                            {key: 'title', label: 'Title', type: 'text'}
+                          ]} 
+                        />
+                      </div>
 
-                      <hr className="border-[#EBE3DB]" />
+                      <div className="bg-[#FAF8F5]/40 border border-[#EBE3DB] p-6 rounded-sm shadow-sm">
+                        <ObjectArrayEditor 
+                          title="Bonuses" 
+                          items={editForm.bonuses || []} 
+                          onChange={v => setEditForm({...editForm, bonuses: v})}
+                          fields={[
+                            {key: 'title', label: 'Title', type: 'text'}
+                          ]} 
+                        />
+                      </div>
 
-                      <ObjectArrayEditor 
-                        title="Bonuses" 
-                        items={editForm.bonuses || []} 
-                        onChange={v => setEditForm({...editForm, bonuses: v})}
-                        fields={[
-                          {key: 'title', label: 'Title', type: 'text'}
-                        ]} 
-                      />
-
-                      <hr className="border-[#EBE3DB]" />
-
-                      <ObjectArrayEditor 
-                        title="FAQs" 
-                        items={editForm.faqs || []} 
-                        onChange={v => setEditForm({...editForm, faqs: v})}
-                        fields={[
-                          {key: 'question', label: 'Question', type: 'text'},
-                          {key: 'answer', label: 'Answer', type: 'textarea'}
-                        ]} 
-                      />
+                      <div className="bg-[#FAF8F5]/40 border border-[#EBE3DB] p-6 rounded-sm shadow-sm">
+                        <ObjectArrayEditor 
+                          title="FAQs" 
+                          items={editForm.faqs || []} 
+                          onChange={v => setEditForm({...editForm, faqs: v})}
+                          fields={[
+                            {key: 'question', label: 'Question', type: 'text'},
+                            {key: 'answer', label: 'Answer', type: 'textarea'}
+                          ]} 
+                        />
+                      </div>
                     </div>
                   )}
 

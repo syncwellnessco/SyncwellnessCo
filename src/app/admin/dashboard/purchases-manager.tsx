@@ -202,7 +202,7 @@ export function PurchasesManager() {
                       {purchase.program_id}
                     </td>
                     <td className="p-4 font-semibold text-[#8C6D40]">
-                      ${(purchase.amount / 100).toFixed(2)} <span className="text-[10px] font-bold uppercase">{purchase.currency}</span>
+                      ${(purchase.amount / 100).toFixed(2)} <span className="text-[10px] font-bold uppercase">AUD</span>
                     </td>
                     <td className="p-4">
                       <div className="text-xs text-charcoal flex items-center gap-1.5">
