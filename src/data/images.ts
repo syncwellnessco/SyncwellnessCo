@@ -4,7 +4,8 @@ export const IMAGES = {
   cubePattern: "https://www.transparenttextures.com/patterns/cubes.png",
 
   // Coach Assets
-  coachProfile: "/neha_arora_coach.png",
+  aboutPageProfile: "/neha_arora_coach_about_page.jpeg",
+  homeAboutProfile: "/neha_arora_coach_home_page.png",
 
   // Ebook & Resources
   ebookMockupPng: "https://res.cloudinary.com/daw1tscqr/image/upload/e_trim/v1783333186/NehaEbookMockup_3pjf7_1280_ip08ks.png",
@@ -19,5 +20,5 @@ export const IMAGES = {
 
   // Contact Page Assets
   contactPageOffice: "https://images.unsplash.com/photo-1542435503-956c469947f6?auto=format&fit=crop&q=80",
-  contactPageProfile: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80",
+  contactPageProfile: "/neha_arora_coach_contact_page.jpeg"
 };

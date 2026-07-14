@@ -79,3 +79,5 @@ export function AboutCoachSection() {
     </section>
   );
 }
+  );
+}
