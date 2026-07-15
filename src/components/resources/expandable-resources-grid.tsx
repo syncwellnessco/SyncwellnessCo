@@ -90,27 +90,32 @@ export function ExpandableGrid({ items, type }: ExpandableGridProps) {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {visibleItems.map(podcast => {
             const videoId = getYouTubeId(podcast.content);
+            const thumbnailUrl = videoId 
+              ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`
+              : podcast.image || null;
+
             return (
-              <div 
+              <a 
                 key={podcast.id} 
-                className="flex flex-col bg-white border border-[#EBE3DB] shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden max-w-md mx-auto sm:max-w-none w-full"
+                href={podcast.content}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex flex-col bg-white border border-[#EBE3DB] shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden max-w-md mx-auto sm:max-w-none w-full"
               >
                 <div className="relative aspect-video bg-charcoal overflow-hidden border-b border-[#EBE3DB]">
-                  {videoId ? (
-                    <iframe 
-                      src={`https://www.youtube.com/embed/${videoId}`} 
-                      title={podcast.title}
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                      allowFullScreen
-                      className="w-full h-full"
-                    ></iframe>
-                  ) : podcast.image ? (
-                    <img 
-                      src={podcast.image} 
-                      alt={podcast.title} 
-                      className="w-full h-full object-cover opacity-95"
-                    />
+                  {thumbnailUrl ? (
+                    <>
+                      <img 
+                        src={thumbnailUrl} 
+                        alt={podcast.title} 
+                        className="w-full h-full object-cover opacity-95 group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/20 transition-colors">
+                        <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center shadow-md text-[#8C6D40] group-hover:scale-110 transition-transform duration-300">
+                          <Video className="w-5 h-5 fill-current" />
+                        </div>
+                      </div>
+                    </>
                   ) : (
                     <div className="w-full h-full bg-[#FAF8F5] flex items-center justify-center text-charcoal/20">
                       <Video className="w-12 h-12" />
@@ -121,7 +126,7 @@ export function ExpandableGrid({ items, type }: ExpandableGridProps) {
                   <span className="text-[#8C6D40] text-[10px] font-bold uppercase tracking-[0.15em]">
                     YouTube Episode
                   </span>
-                  <h3 className="font-display text-base sm:text-lg text-charcoal leading-snug line-clamp-2">
+                  <h3 className="font-display text-base sm:text-lg text-charcoal leading-snug line-clamp-2 group-hover:text-[#8C6D40] transition-colors">
                     {podcast.title}
                   </h3>
                   {podcast.excerpt && (
@@ -129,16 +134,11 @@ export function ExpandableGrid({ items, type }: ExpandableGridProps) {
                       {podcast.excerpt}
                     </p>
                   )}
-                  <a 
-                    href={podcast.content} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="inline-flex items-center gap-1.5 text-[#8C6D40] text-[11px] font-bold uppercase tracking-[0.15em] hover:text-[#B8955F] transition-colors pt-1 border-t border-[#FAF8F5] w-fit"
-                  >
+                  <div className="inline-flex items-center gap-1.5 text-[#8C6D40] text-[11px] font-bold uppercase tracking-[0.15em] group-hover:text-[#B8955F] transition-colors pt-1 border-t border-[#FAF8F5] w-fit">
                     Watch <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
+                  </div>
                 </div>
-              </div>
+              </a>
             );
           })}
         </div>
