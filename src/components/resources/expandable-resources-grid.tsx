@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Video, ExternalLink } from "lucide-react";
+import { ArrowRight, Video, ExternalLink, Play } from "lucide-react";
 
 type ResourceItem = {
   id: string;
@@ -110,9 +110,9 @@ export function ExpandableGrid({ items, type }: ExpandableGridProps) {
                         alt={podcast.title} 
                         className="w-full h-full object-cover opacity-95 group-hover:scale-105 transition-transform duration-500"
                       />
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/20 transition-colors">
-                        <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center shadow-md text-[#8C6D40] group-hover:scale-110 transition-transform duration-300">
-                          <Video className="w-5 h-5 fill-current" />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/15 group-hover:bg-black/25 transition-colors">
+                        <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-white/20 backdrop-blur-md border border-white/30 shadow-lg transition-transform group-hover:scale-110 duration-300">
+                          <Play className="ml-0.5 sm:ml-1 h-4 w-4 sm:h-5 sm:w-5 fill-white text-white" />
                         </div>
                       </div>
                     </>

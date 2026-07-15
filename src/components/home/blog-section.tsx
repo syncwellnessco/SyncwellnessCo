@@ -23,7 +23,7 @@ export function BlogSection({ blogs }: BlogSectionProps) {
           description="Practical reads on hormones, nutrition, and living well — curated for women like you."
         />
 
-        <div className="mt-8 grid gap-6 sm:mt-10 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 grid gap-6 sm:mt-10 sm:grid-cols-2 max-w-4xl mx-auto">
           {blogs.map((post, index) => (
             <motion.article
               key={post.id}
