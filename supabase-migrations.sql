@@ -89,3 +89,26 @@ CREATE POLICY "Enable insert for all users" ON quiz_responses
 CREATE POLICY "Enable read access for authenticated users" ON quiz_responses
   FOR SELECT TO authenticated USING (true);
 
+-- 5. Create Calendly Bookings Table
+CREATE TABLE IF NOT EXISTS calendly_bookings (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  invitee_uri TEXT UNIQUE NOT NULL,
+  event_uri TEXT,
+  event_name TEXT,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  timezone TEXT,
+  start_time TIMESTAMP WITH TIME ZONE,
+  end_time TIMESTAMP WITH TIME ZONE,
+  join_url TEXT,
+  completed BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
+ALTER TABLE calendly_bookings ENABLE ROW LEVEL SECURITY;
+
+-- Allow insert/select/update/delete for everyone (or bypass using Service Role Key in Next.js backend)
+CREATE POLICY "Enable insert for everyone" ON calendly_bookings FOR INSERT WITH CHECK (true);
+CREATE POLICY "Enable select for everyone" ON calendly_bookings FOR SELECT USING (true);
+CREATE POLICY "Enable update for everyone" ON calendly_bookings FOR UPDATE USING (true);
+CREATE POLICY "Enable delete for everyone" ON calendly_bookings FOR DELETE USING (true);

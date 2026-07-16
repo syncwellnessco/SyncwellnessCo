@@ -5,8 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { ProgramsManager } from "./programs-manager";
 import { EnquiriesManager } from "./enquiries-manager";
 import { EbooksManager } from "./ebooks-manager";
-import { ReviewsManager } from "./reviews-manager";
-import { VideoTestimonialsManager } from "./video-testimonials-manager";
+import { TestimonialsManager } from "./testimonials-manager";
 import { ResourcesManager } from "./resources-manager";
 import { OverviewTab } from "./overview-tab";
 import { PurchasesManager } from "./purchases-manager";
@@ -32,8 +31,7 @@ export function AdminDashboardClient() {
         {activeTab === "ebooks" && <EbooksManager />}
         {activeTab === "quiz" && <QuizManager />}
         {activeTab === "programs" && <ProgramsManager />}
-        {activeTab === "reviews" && <ReviewsManager />}
-        {activeTab === "videos" && <VideoTestimonialsManager />}
+        {activeTab === "testimonials" && <TestimonialsManager />}
         {(activeTab === "resources" || activeTab === "blogs") && <ResourcesManager />}
       </div>
     </div>

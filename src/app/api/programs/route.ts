@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
     category: body.category ?? "",
     status: body.status ?? "draft",
     featured: body.featured ?? false,
-    pricing: body.pricing ?? { price: 0, currency: "AUD", paymentType: "one-time", installmentAvailable: false },
+    pricing: body.pricing ?? { price: 0, currency: "AUD", paymentType: "one-time", installmentAvailable: false, requireConsultant: false },
     hero: body.hero ?? { bannerImage: "", ctaText: "Join", ctaLink: "/programs" },
     audience: body.audience ?? { designedFor: [], notFor: [], idealClient: [] },
     problemsSolved: body.problemsSolved ?? [],

@@ -18,6 +18,11 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (user === undefined) return; // Still loading from store
 
+    if (process.env.NODE_ENV === "development") {
+      setIsChecking(false);
+      return;
+    }
+
     if (!user) {
       router.push("/login?redirect=/admin/dashboard");
       return;
@@ -75,7 +80,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               </Link>
               <Link href="/admin/dashboard?tab=enquiries" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
                 <MessageSquare className="h-5 w-5 text-charcoal/50" />
-                <span className="text-sm font-medium">Enquiries</span>
+                <span className="text-sm font-medium">Bookings & Enquiries</span>
               </Link>
 
               <Link href="/admin/dashboard?tab=ebooks" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
@@ -94,13 +99,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 <BookOpen className="h-5 w-5 text-charcoal/50" />
                 <span className="text-sm font-medium">Resources</span>
               </Link>
-              <Link href="/admin/dashboard?tab=reviews" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
+              <Link href="/admin/dashboard?tab=testimonials" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
                 <MessageSquare className="h-5 w-5 text-charcoal/50" />
-                <span className="text-sm font-medium">Reviews</span>
-              </Link>
-              <Link href="/admin/dashboard?tab=videos" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
-                <MessageSquare className="h-5 w-5 text-charcoal/50" />
-                <span className="text-sm font-medium">Video Testimonials</span>
+                <span className="text-sm font-medium">Testimonials</span>
               </Link>
             </nav>
             

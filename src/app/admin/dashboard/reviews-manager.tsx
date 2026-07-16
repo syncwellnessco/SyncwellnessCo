@@ -433,12 +433,12 @@ export function ReviewsManager() {
                   <div className="flex items-center gap-3">
                     {viewReview.status !== 'published' && (
                       <Button onClick={() => updateStatus(viewReview.id, { status: 'published' })} className="h-9 px-5 rounded-full bg-charcoal text-white hover:bg-charcoal/90 text-[11px] font-bold tracking-wider uppercase transition-colors">
-                        Approve
+                        Show / Publish
                       </Button>
                     )}
-                    {viewReview.status !== 'rejected' && (
+                    {viewReview.status === 'published' && (
                       <Button onClick={() => updateStatus(viewReview.id, { status: 'rejected' })} variant="outline" className="h-9 px-5 rounded-full border-charcoal/20 text-charcoal hover:bg-charcoal/5 text-[11px] font-bold tracking-wider uppercase transition-colors">
-                        Decline
+                        Hide Review
                       </Button>
                     )}
                     <Button onClick={() => setDeleteConfirmId(viewReview.id)} variant="ghost" className="h-9 px-4 rounded-full text-red-500 hover:text-red-600 hover:bg-red-50 text-[11px] font-bold tracking-wider uppercase transition-colors ml-auto">

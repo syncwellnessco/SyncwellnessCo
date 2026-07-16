@@ -261,7 +261,7 @@ export function ProgramsManager() {
     const newProg: Partial<Program> = {
       title: "", slug: "", shortDescription: "", description: "", duration: "", format: "", category: "", status: "draft", featured_rank: 1,
       featured: false, showOnHome: false,
-      pricing: { price: 0, currency: "AUD", paymentType: "one-time", installmentAvailable: false },
+      pricing: { price: 0, currency: "AUD", paymentType: "one-time", installmentAvailable: false, requireConsultant: false },
       hero: { bannerImage: "", ctaText: "Join", ctaLink: "" },
       audience: { designedFor: [], notFor: [], idealClient: [] },
       problemsSolved: [],
@@ -400,7 +400,9 @@ export function ProgramsManager() {
                   <span className={`text-[9px] px-2 py-1 uppercase tracking-wider font-bold rounded-sm ${prog.status === 'published' ? 'bg-green-100 text-green-700' : 'bg-charcoal/10 text-charcoal/60'}`}>
                     {prog.status}
                   </span>
-                  <span className="text-xs font-semibold text-[#8C6D40]">{prog.pricing?.price ? `AUD ${prog.pricing.salePrice ?? prog.pricing.price}` : "Free"}</span>
+                  <span className="text-xs font-semibold text-[#8C6D40]">
+                    {prog.pricing?.requireConsultant ? "1:1 Consult" : (prog.pricing?.price ? `AUD ${prog.pricing.salePrice ?? prog.pricing.price}` : "Free")}
+                  </span>
                 </div>
                 <h3 className="font-display text-lg text-charcoal font-bold mb-1">{prog.title}</h3>
                 <div className="text-[10px] text-charcoal/50 font-normal uppercase tracking-wider mb-3">{prog.category || "Uncategorized"} • {prog.duration || "No duration"}</div>
@@ -473,7 +475,7 @@ export function ProgramsManager() {
                   {activeTab === 'pricing' && (
                     <div className="bg-[#FAF8F5] p-4 rounded-sm border border-[#EBE3DB]">
                       <h4 className="text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-3">Pricing Details</h4>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                         <div>
                           <span className="block text-[10px] text-charcoal/60 uppercase">Regular Price (MRP)</span>
                           <span className="text-sm font-medium">AUD {selectedProgram.pricing?.price}</span>
@@ -484,6 +486,7 @@ export function ProgramsManager() {
                         </div>
                         <div><span className="block text-[10px] text-charcoal/60 uppercase">Type</span><span className="text-sm font-medium capitalize">{selectedProgram.pricing?.paymentType}</span></div>
                         <div><span className="block text-[10px] text-charcoal/60 uppercase">Installments</span><span className="text-sm font-medium">{selectedProgram.pricing?.installmentAvailable ? "Yes" : "No"}</span></div>
+                        <div><span className="block text-[10px] text-charcoal/60 uppercase">Require Consultation</span><span className="text-sm font-medium">{selectedProgram.pricing?.requireConsultant ? "Yes" : "No"}</span></div>
                       </div>
                     </div>
                   )}
@@ -647,6 +650,10 @@ export function ProgramsManager() {
                           <option value="subscription">Subscription</option>
                           <option value="custom">Custom</option>
                         </select>
+                      </div>
+                      <div className="md:col-span-2 flex items-center gap-2">
+                        <input type="checkbox" id="requireConsultant" checked={editForm.pricing?.requireConsultant || false} onChange={e => updateNested(['pricing', 'requireConsultant'], e.target.checked)} className="w-4 h-4 text-[#8C6D40]" />
+                        <label htmlFor="requireConsultant" className="text-[10px] uppercase font-bold tracking-wider text-[#8C6D40]">Require 1:1 Consultation (Hides price, shows free booking CTA with Calendly)</label>
                       </div>
                       <div className="md:col-span-2 flex items-center gap-2">
                         <input type="checkbox" id="installments" checked={editForm.pricing?.installmentAvailable || false} onChange={e => updateNested(['pricing', 'installmentAvailable'], e.target.checked)} className="w-4 h-4 text-[#8C6D40]" />

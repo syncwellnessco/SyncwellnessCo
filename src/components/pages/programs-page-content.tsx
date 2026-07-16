@@ -8,6 +8,7 @@ import { MyProgramsSection } from "@/components/pages/my-programs-section";
 import { InteractiveLink } from "@/components/ui/interactive-link";
 import { cn } from "@/lib/utils";
 import { IMAGES } from "@/data/images";
+import { ProgramPriceOverride } from "@/components/ui/program-price-override";
 
 export async function ProgramsPageContent() {
   const programs = await getAllPrograms({ publishedOnly: true });
@@ -195,39 +196,12 @@ export async function ProgramsPageContent() {
                     </ul>
                   </div>
                   
-                  <div className="flex items-center justify-between border-t border-beige-200 pt-6 mt-auto">
-                    {(() => {
-                      const listPrice = program.pricing?.price ? Number(program.pricing.price) : null;
-                      const salePrice = program.pricing?.salePrice ? Number(program.pricing.salePrice) : null;
-                      const hasDiscount = salePrice !== null && listPrice !== null && listPrice > salePrice;
-                      const displayPrice = hasDiscount ? salePrice : (listPrice || 0);
-                      const originalPrice = listPrice || 0;
-
-                      if (hasDiscount) {
-                        return (
-                          <div className="flex items-baseline gap-2">
-                            <span className="font-light text-sm text-slate-400 line-through">
-                              ${originalPrice} AUD
-                            </span>
-                            <span className="font-bold text-lg text-slate-800">
-                              ${displayPrice} AUD
-                            </span>
-                            <span className="bg-black text-white text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-none">
-                              SAVE ${originalPrice - displayPrice}
-                            </span>
-                          </div>
-                        );
-                      }
-                      return (
-                        <span className="font-semibold text-lg text-slate-800">
-                          {displayPrice > 0 ? `$${displayPrice} AUD` : "Free"}
-                        </span>
-                      );
-                    })()}
-                    <Button asChild variant="ghost" className="group/btn text-[#8C6D40] hover:text-[#B8955F] hover:bg-transparent px-0 font-semibold tracking-wide uppercase text-xs">
-                      <Link href={`/programs/${program.slug || program.id}`}>
+                  <div className="flex items-center justify-between border-t border-beige-200 pt-6 mt-auto gap-4 w-full">
+                    <ProgramPriceOverride program={program} />
+                    <Button asChild variant="ghost" className="group/btn text-[#8C6D40] hover:text-[#B8955F] hover:bg-transparent px-0 font-semibold tracking-wide uppercase text-xs shrink-0">
+                      <Link href={`/programs/${program.slug || program.id}`} className="flex items-center">
                         View Details
-                        <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
+                        <ArrowRight className="ml-1.5 h-3.5 w-3.5 transition-transform group-hover/btn:translate-x-1" />
                       </Link>
                     </Button>
                   </div>

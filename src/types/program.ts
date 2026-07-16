@@ -25,6 +25,7 @@ export interface Program {
     price: number;
     currency: string;
     salePrice?: number;
+    requireConsultant?: boolean;
 
     paymentType: "one-time" | "subscription" | "custom";
 

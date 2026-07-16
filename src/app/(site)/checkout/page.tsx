@@ -192,6 +192,7 @@ function CheckoutPageContent() {
   const [program, setProgram] = useState<ProgramDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [consultationCompleted, setConsultationCompleted] = useState(false);
 
   useEffect(() => {
     if (!programId) {
@@ -200,14 +201,40 @@ function CheckoutPageContent() {
       return;
     }
 
-    const fetchProgram = async () => {
+    // Wait until user store finishes loading initial auth state (undefined)
+    if (user === undefined) return;
+
+    const fetchProgramAndCheckConsultation = async () => {
       try {
+        setLoading(true);
         const res = await fetch(`/api/programs/${programId}`);
         if (!res.ok) {
           throw new Error("Failed to fetch program information.");
         }
         const data = await res.json();
         setProgram(data);
+
+        // If the program requires a consultation, verify status
+        if (data?.pricing?.requireConsultant) {
+          if (!user) {
+            // Redirect to login page if user is not logged in
+            const currentPath = window.location.pathname + window.location.search;
+            router.replace(`/login?redirect=${encodeURIComponent(currentPath)}`);
+            return;
+          }
+
+          const checkRes = await fetch(`/api/bookings/check?email=${encodeURIComponent(user.email)}`);
+          if (checkRes.ok) {
+            const checkData = await checkRes.json();
+            if (checkData?.completed) {
+              setConsultationCompleted(true);
+            } else {
+              setError("A completed 1:1 consultation is required before purchasing this program.");
+            }
+          } else {
+            setError("Failed to verify consultation status.");
+          }
+        }
       } catch (err: any) {
         console.error("Checkout page error fetching program:", err);
         setError(err.message || "Failed to load program details.");
@@ -216,8 +243,8 @@ function CheckoutPageContent() {
       }
     };
 
-    fetchProgram();
-  }, [programId]);
+    fetchProgramAndCheckConsultation();
+  }, [programId, user, router]);
 
   // Check if user already purchased the program and redirect
   useEffect(() => {
@@ -239,17 +266,34 @@ function CheckoutPageContent() {
   }
 
   if (error || !program) {
+    const isConsultationError = error === "A completed 1:1 consultation is required before purchasing this program.";
+
     return (
       <div className="min-h-[50vh] flex flex-col justify-center items-center gap-4 py-16 border-t border-[#EBE3DB]">
         <div className="max-w-md mx-auto text-center py-16 px-4 bg-white border border-[#EBE3DB] rounded-sm p-8 shadow-sm">
           <h2 className="font-display text-2xl font-semibold text-charcoal mb-4">Checkout Error</h2>
           <p className="text-charcoal/70 mb-8">{error || "The requested program could not be loaded."}</p>
-          <button
-            onClick={() => router.push("/programs")}
-            className="bg-charcoal text-white hover:bg-[#8C6D40] uppercase tracking-wider text-[11px] font-bold py-4 px-8 transition-colors rounded-sm"
-          >
-            View All Programs
-          </button>
+          {isConsultationError ? (
+            <button
+              onClick={() => {
+                if (program) {
+                  router.push(`/programs/${program.slug || program.id}`);
+                } else {
+                  router.push("/programs");
+                }
+              }}
+              className="bg-[#8C6D40] text-white hover:bg-[#B8955F] uppercase tracking-wider text-[11px] font-bold py-4 px-8 transition-colors rounded-sm cursor-pointer"
+            >
+              Book Free Consultation
+            </button>
+          ) : (
+            <button
+              onClick={() => router.push("/programs")}
+              className="bg-charcoal text-white hover:bg-[#8C6D40] uppercase tracking-wider text-[11px] font-bold py-4 px-8 transition-colors rounded-sm cursor-pointer"
+            >
+              View All Programs
+            </button>
+          )}
         </div>
       </div>
     );

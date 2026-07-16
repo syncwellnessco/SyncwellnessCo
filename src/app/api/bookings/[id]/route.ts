@@ -6,12 +6,11 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const { id } = await params;
     const body = await request.json();
     const updateData: any = {};
-    if ("status" in body) updateData.status = body.status;
-    if ("message" in body) updateData.message = body.message;
+    if ("completed" in body) updateData.completed = body.completed;
 
     const supabase = await createClient();
     const { data, error } = await supabase
-      .from("contact_enquiries")
+      .from("calendly_bookings")
       .update(updateData)
       .eq("id", id)
       .select();
@@ -27,7 +26,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
   try {
     const { id } = await params;
     const supabase = await createClient();
-    const { error } = await supabase.from("contact_enquiries").delete().eq("id", id);
+    const { error } = await supabase.from("calendly_bookings").delete().eq("id", id);
     if (error) throw error;
     return NextResponse.json({ success: true });
   } catch (err: any) {

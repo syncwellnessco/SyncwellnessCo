@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
-import { publicSupabase } from '@/lib/supabase-server';
+import { publicSupabase, getServiceSupabase } from '@/lib/supabase-server';
 
 export async function POST(req: Request) {
   try {
@@ -24,6 +24,31 @@ export async function POST(req: Request) {
 
     // Extract price and handle fallbacks
     const pricing = program.pricing || {};
+
+    // Enforce consultation requirement if required by program pricing
+    if (pricing.requireConsultant) {
+      if (!email) {
+        return NextResponse.json({ error: 'Email is required for programs requiring consultation' }, { status: 400 });
+      }
+
+      const supabase = getServiceSupabase();
+      const { data: bookings, error: bookingsError } = await supabase
+        .from('calendly_bookings')
+        .select('completed')
+        .eq('email', email);
+
+      if (bookingsError) {
+        console.error('Error verifying booking completion:', bookingsError.message);
+        return NextResponse.json({ error: 'Failed to verify consultation status' }, { status: 500 });
+      }
+
+      const hasCompleted = bookings ? bookings.some((b: any) => b.completed === true) : false;
+      if (!hasCompleted) {
+        return NextResponse.json({ 
+          error: 'A completed 1:1 consultation is required before purchasing this program.' 
+        }, { status: 403 });
+      }
+    }
     const price = pricing.salePrice !== undefined && pricing.salePrice !== null
       ? pricing.salePrice 
       : (pricing.price !== undefined && pricing.price !== null ? pricing.price : 599);
