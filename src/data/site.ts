@@ -1,7 +1,7 @@
 export const siteConfig = {
   name: "SyncWellnessCo",
   tagline: "Women's Hormone, Gut Health & Weight Loss Coaching",
-  founder: "Neha",
+  founder: "Neha Arora",
   founderTitle: "Women's Hormone, Gut Health & Weight Loss Coach",
   founderTagline:
     "Helping women balance hormones, heal their gut, lose weight naturally, and reclaim their energy through sustainable lifestyle changes",

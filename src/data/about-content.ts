@@ -37,7 +37,7 @@ export const brandContent = {
 
 export const aboutContent = {
   aboutCoach: {
-    name: "Neha",
+    name: "Neha Arora",
     title: "Women's Hormone & Weight Loss Coach",
   },
   story: [

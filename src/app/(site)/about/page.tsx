@@ -5,7 +5,7 @@ import { AboutPageContent } from "@/components/pages/about-page-content";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Meet Neha — Certified Women's Health Coach helping women balance hormones and achieve sustainable wellness.",
+    "Meet Neha Arora — Certified Women's Health Coach helping women balance hormones and achieve sustainable wellness.",
 };
 
 export default function AboutPage() {
