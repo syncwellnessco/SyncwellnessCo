@@ -120,10 +120,18 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
             programSlug={program.slug || program.id}
             programName={program.title} 
             theme="dark"
-            className="w-full sm:w-auto bg-[#8C6D40] text-white hover:bg-white hover:text-charcoal uppercase tracking-[0.15em] text-[11px] font-bold h-14 px-10 rounded-none border-0 transition-all duration-300 cursor-pointer"
+            className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white uppercase tracking-[0.15em] text-[11px] font-bold h-14 px-10 rounded-none border-0 transition-all duration-300 cursor-pointer"
           >
             Access Course
           </BookingButton>
+          <div className="flex flex-col gap-1 items-start">
+            <span className="text-[10px] text-white/60 font-semibold tracking-wide uppercase">
+              Already Enrolled
+            </span>
+            <span className="text-[10px] text-white/50 font-light tracking-wide leading-normal">
+              You have full lifetime access to this program. Click the button to start learning.
+            </span>
+          </div>
         </div>
       );
     }
@@ -271,25 +279,24 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
 
   // position === "bottom"
   if (isPurchased) {
-    return (
-      <div className="flex justify-center items-center gap-6 min-h-[64px]">
-        <BookingButton 
-          programId={program.id} 
-          programSlug={program.slug || program.id}
-          programName={program.title} 
-          theme="light"
-          className="bg-[#8C6D40] text-white hover:bg-charcoal uppercase tracking-[0.2em] text-[11px] font-bold h-16 px-12 rounded-none border-0 transition-all duration-300 w-full sm:w-auto cursor-pointer"
-        >
-          Access Course
-        </BookingButton>
-      </div>
-    );
+    return null;
   }
 
   if (requireConsultant) {
     if (consultationCompleted) {
       return (
         <div className="flex flex-col sm:flex-row justify-center items-center gap-6 min-h-[64px]">
+          <BookingButton 
+            programId={program.id} 
+            programSlug={program.slug || program.id}
+            programName={program.title} 
+            requireConsultant={true}
+            theme="light"
+            className="bg-transparent border border-charcoal/30 text-charcoal hover:bg-charcoal hover:text-white uppercase tracking-[0.2em] text-[11px] font-bold h-16 px-8 rounded-none transition-all duration-300 w-full sm:w-auto cursor-pointer"
+          >
+            Book Again
+          </BookingButton>
+
           <BookingButton 
             programId={program.id} 
             programSlug={program.slug || program.id}
@@ -329,73 +336,8 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
       );
     }
 
-    if (booked) {
-      return (
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-6 min-h-[64px]">
-          {bookingDetails?.join_url ? (
-            <a 
-              href={bookingDetails.join_url} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="bg-[#8C6D40] text-white hover:bg-charcoal uppercase tracking-[0.2em] text-[11px] font-bold h-16 px-12 rounded-none border-0 transition-all duration-300 w-full sm:w-auto flex items-center justify-center gap-2 cursor-pointer text-center"
-            >
-              Join Call
-            </a>
-          ) : (
-            <button 
-              disabled
-              className="bg-charcoal/5 text-charcoal/40 uppercase tracking-[0.2em] text-[11px] font-bold h-16 px-12 rounded-none border border-charcoal/10 w-full sm:w-auto cursor-not-allowed"
-            >
-              Awaiting Call
-            </button>
-          )}
-
-          <div className="flex flex-col items-center sm:items-start gap-1.5">
-            <div className="flex items-baseline gap-3">
-              <span className="text-charcoal font-bold text-xl sm:text-2xl uppercase tracking-wide">
-                Scheduled
-              </span>
-              <span className="text-[#8C6D40] font-bold text-sm">
-                {formatBookingTime(bookingDetails?.start_time, bookingDetails?.timezone)}
-              </span>
-            </div>
-            <span className="text-[10px] text-charcoal/60 font-light tracking-wide text-center sm:text-left leading-normal">
-              Note: Clinical coach will call you. Once marked done, checkout will unlock here.
-            </span>
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div className="flex flex-col sm:flex-row justify-center items-center gap-6 min-h-[64px]">
-        <BookingButton 
-          programId={program.id} 
-          programSlug={program.slug || program.id}
-          programName={program.title} 
-          requireConsultant={true}
-          onBooked={(details) => setBookingDetail(program.id, details)}
-          theme="light"
-          className="bg-[#8C6D40] text-white hover:bg-charcoal uppercase tracking-[0.2em] text-[11px] font-bold h-16 px-12 rounded-none border-0 transition-all duration-300 w-full sm:w-auto cursor-pointer"
-        >
-          Book Free Call
-        </BookingButton>
-
-        <div className="flex flex-col items-center sm:items-start gap-1.5">
-          <div className="flex items-baseline gap-3">
-            <span className="text-charcoal font-bold text-2xl sm:text-3xl">
-              FREE
-            </span>
-            <span className="bg-charcoal/5 text-charcoal border border-charcoal/10 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-none self-center">
-              NO COMMITMENT
-            </span>
-          </div>
-          <span className="text-[10px] text-charcoal/60 font-light tracking-wide text-center sm:text-left leading-normal">
-            Note: 1-to-1 consultation is required before enrollment.
-          </span>
-        </div>
-      </div>
-    );
+    // Nothing at bottom if one-to-one consultation is enabled but not marked done
+    return null;
   }
 
   // Remove pricing from bottom for all other courses

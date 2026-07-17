@@ -303,30 +303,17 @@ export function BookingButton({
   }
 
   if (isPurchased) {
-    if (showMemberStatus) {
-      return (
-        <div className="flex flex-col gap-2 w-full sm:w-auto items-stretch">
-          <Button 
-            className={cn("relative overflow-hidden select-none w-full", className)} 
-            onClick={handleAccessCourse}
-          >
-            Access Course
-          </Button>
-          <span className="text-[9px] font-bold uppercase tracking-[0.15em] px-3 py-2 rounded-none shadow-sm bg-emerald-600 text-white flex items-center justify-center gap-1.5 mt-1 w-full text-center">
-            ✓ ALREADY A MEMBER
-          </span>
-        </div>
-      );
-    } else {
-      return (
-        <Button 
-          className={cn("relative overflow-hidden select-none", className)} 
-          onClick={handleAccessCourse}
-        >
-          Access Course
-        </Button>
-      );
-    }
+    return (
+      <Button 
+        className={cn(
+          "relative overflow-hidden select-none bg-emerald-600 hover:bg-emerald-700 text-white uppercase tracking-[0.15em] text-[11px] font-bold border-0 transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-1.5",
+          className
+        )} 
+        onClick={handleAccessCourse}
+      >
+        Access Course
+      </Button>
+    );
   }
 
   return (
