@@ -204,6 +204,13 @@ function CheckoutPageContent() {
     // Wait until user store finishes loading initial auth state (undefined)
     if (user === undefined) return;
 
+    if (!user) {
+      // Redirect to login page if user is not logged in
+      const currentPath = window.location.pathname + window.location.search;
+      router.replace(`/login?redirect=${encodeURIComponent(currentPath)}`);
+      return;
+    }
+
     const fetchProgramAndCheckConsultation = async () => {
       try {
         setLoading(true);
@@ -216,13 +223,6 @@ function CheckoutPageContent() {
 
         // If the program requires a consultation, verify status
         if (data?.pricing?.requireConsultant) {
-          if (!user) {
-            // Redirect to login page if user is not logged in
-            const currentPath = window.location.pathname + window.location.search;
-            router.replace(`/login?redirect=${encodeURIComponent(currentPath)}`);
-            return;
-          }
-
           const checkRes = await fetch(`/api/bookings/check?email=${encodeURIComponent(user.email)}`);
           if (checkRes.ok) {
             const checkData = await checkRes.json();

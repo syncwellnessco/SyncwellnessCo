@@ -412,9 +412,9 @@ export function ProgramsManager() {
                 <button 
                   onClick={() => handleView(prog)} 
                   className="flex items-center justify-center text-charcoal/60 hover:text-[#8C6D40] flex-1 hover:bg-[#8C6D40]/5 transition-colors"
-                  title="Edit Program"
+                  title="View Program"
                 >
-                  <Edit className="h-4 w-4" />
+                  <Eye className="h-4 w-4" />
                 </button>
                 <div className="w-px bg-[#EBE3DB]"></div>
                 <button 
@@ -487,6 +487,29 @@ export function ProgramsManager() {
                         <div><span className="block text-[10px] text-charcoal/60 uppercase">Type</span><span className="text-sm font-medium capitalize">{selectedProgram.pricing?.paymentType}</span></div>
                         <div><span className="block text-[10px] text-charcoal/60 uppercase">Installments</span><span className="text-sm font-medium">{selectedProgram.pricing?.installmentAvailable ? "Yes" : "No"}</span></div>
                         <div><span className="block text-[10px] text-charcoal/60 uppercase">Require Consultation</span><span className="text-sm font-medium">{selectedProgram.pricing?.requireConsultant ? "Yes" : "No"}</span></div>
+                      </div>
+
+                      {/* Direct Checkout Payment Link */}
+                      <div className="mt-6 pt-4 border-t border-[#EBE3DB]">
+                        <span className="block text-[10px] text-[#8C6D40] uppercase font-bold tracking-wider mb-2">Direct Checkout Payment Link</span>
+                        <div className="flex items-center gap-2 max-w-2xl bg-white border border-[#EBE3DB] p-2 rounded-sm">
+                          <input 
+                            type="text" 
+                            readOnly 
+                            value={typeof window !== 'undefined' ? `${window.location.origin}/checkout?programId=${selectedProgram.slug || selectedProgram.id}` : ""}
+                            className="bg-transparent border-0 focus:ring-0 focus:outline-none text-xs text-charcoal/80 flex-1 min-w-0" 
+                          />
+                          <button 
+                            onClick={() => {
+                              const url = `${window.location.origin}/checkout?programId=${selectedProgram.slug || selectedProgram.id}`;
+                              navigator.clipboard.writeText(url);
+                              toast.success("Checkout link copied to clipboard!");
+                            }}
+                            className="bg-[#8C6D40] hover:bg-[#B8955F] text-white text-[10px] uppercase font-bold px-3 py-1.5 transition-colors rounded-sm shrink-0 cursor-pointer"
+                          >
+                            Copy Link
+                          </button>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -663,6 +686,32 @@ export function ProgramsManager() {
                         <div className="md:col-span-2">
                           <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Installment Text</label>
                           <input type="text" value={editForm.pricing?.installmentText || ''} onChange={e => updateNested(['pricing', 'installmentText'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40]" placeholder="e.g. 3 monthly payments of $400" />
+                        </div>
+                      )}
+
+                      {/* Read-Only Checkout Link on Edit Mode */}
+                      {!isNew && (
+                        <div className="md:col-span-2 mt-4 pt-4 border-t border-[#EBE3DB]">
+                          <span className="block text-[10px] text-[#8C6D40] uppercase font-bold tracking-wider mb-2">Direct Checkout Payment Link (Read-Only)</span>
+                          <div className="flex items-center gap-2 max-w-2xl bg-white border border-[#EBE3DB] p-2 rounded-sm">
+                            <input 
+                              type="text" 
+                              readOnly 
+                              value={typeof window !== 'undefined' ? `${window.location.origin}/checkout?programId=${editForm.slug || editForm.id}` : ""}
+                              className="bg-transparent border-0 focus:ring-0 focus:outline-none text-xs text-charcoal/50 flex-1 min-w-0" 
+                            />
+                            <button 
+                              type="button"
+                              onClick={() => {
+                                const url = `${window.location.origin}/checkout?programId=${editForm.slug || editForm.id}`;
+                                navigator.clipboard.writeText(url);
+                                toast.success("Checkout link copied to clipboard!");
+                              }}
+                              className="bg-[#8C6D40] hover:bg-[#B8955F] text-white text-[10px] uppercase font-bold px-3 py-1.5 transition-colors rounded-sm shrink-0 cursor-pointer"
+                            >
+                              Copy Link
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>
