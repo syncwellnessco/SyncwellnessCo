@@ -16,11 +16,61 @@ import dynamic from 'next/dynamic';
 
 const Editor = dynamic(() => import('@/components/admin/editor'), { ssr: false });
 
-function getYouTubeId(url: string) {
+async function fetchPodcastMetadata(url: string) {
   if (!url) return null;
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-  const match = url.match(regExp);
-  return (match && match[2].length === 11) ? match[2] : null;
+  
+  if (url.includes('youtube.com') || url.includes('youtu.be')) {
+    try {
+      const res = await fetch(`https://noembed.com/embed?url=${encodeURIComponent(url)}`);
+      const data = await res.json();
+      return {
+        title: data?.title || "",
+        thumbnailUrl: data?.thumbnail_url || "",
+        excerpt: `Watch this episode on YouTube.`
+      };
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  
+  if (url.includes('spotify.com')) {
+    try {
+      const res = await fetch(`https://open.spotify.com/oembed?url=${encodeURIComponent(url)}`);
+      const data = await res.json();
+      return {
+        title: data?.title || "",
+        thumbnailUrl: data?.thumbnail_url || "",
+        excerpt: `Listen to this episode on Spotify.`
+      };
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  if (url.includes('podcasts.apple.com')) {
+    try {
+      const matchId = url.match(/\/id(\d+)/);
+      const episodeMatch = url.match(/[?&]i=(\d+)/);
+      const lookupId = episodeMatch ? episodeMatch[1] : (matchId ? matchId[1] : null);
+      
+      if (lookupId) {
+        const res = await fetch(`https://itunes.apple.com/lookup?id=${lookupId}`);
+        const data = await res.json();
+        if (data && data.results && data.results.length > 0) {
+          const result = data.results[0];
+          return {
+            title: result.trackName || result.collectionName || "",
+            thumbnailUrl: result.artworkUrl600 || result.artworkUrl100 || "",
+            excerpt: `Listen to this episode on Apple Podcasts.`
+          };
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  
+  return null;
 }
 
 type SubTab = "blogs" | "podcasts" | "media";
@@ -407,33 +457,25 @@ export function ResourcesManager() {
 
                     {subTab === "podcasts" && (
                       <div className="space-y-2">
-                        <Label>YouTube Podcast Link</Label>
+                        <Label>Podcast Episode Link</Label>
                         <Input 
                           value={formData.content || ""}
                           onChange={async (e) => {
                             const url = e.target.value;
                             setFormData(prev => ({ ...prev, content: url }));
                             
-                            const videoId = getYouTubeId(url);
-                            if (videoId) {
-                              try {
-                                const res = await fetch(`https://noembed.com/embed?url=${encodeURIComponent(url)}`);
-                                const data = await res.json();
-                                if (data && data.title) {
-                                  setFormData(prev => ({
-                                    ...prev,
-                                    title: prev.title || data.title,
-                                    image_url: prev.image_url || data.thumbnail_url,
-                                    excerpt: prev.excerpt || `Watch this episode on YouTube.`
-                                  }));
-                                }
-                              } catch (err) {
-                                console.error("Failed to fetch YouTube oEmbed info", err);
-                              }
+                            const metadata = await fetchPodcastMetadata(url);
+                            if (metadata) {
+                              setFormData(prev => ({
+                                ...prev,
+                                title: prev.title || metadata.title,
+                                image_url: prev.image_url || metadata.thumbnailUrl,
+                                excerpt: prev.excerpt || metadata.excerpt
+                              }));
                             }
                           }}
                           required
-                          placeholder="https://www.youtube.com/watch?v=..."
+                          placeholder="Enter YouTube, Spotify, or Apple Podcast link..."
                           className="border-[#EBE3DB] focus:border-[#8C6D40]"
                         />
                       </div>
@@ -502,7 +544,7 @@ export function ResourcesManager() {
                     Cancel
                   </Button>
                   <Button type="submit" className="bg-[#8C6D40] hover:bg-[#B8955F] text-white">
-                    {formData.id ? "Update" : "Publish"}
+                    {formData.published !== false ? (formData.id ? "Update" : "Publish") : "Draft"}
                   </Button>
                 </div>
               </form>

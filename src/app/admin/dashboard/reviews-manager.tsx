@@ -82,7 +82,7 @@ export function ReviewsManager() {
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   
   // Add Form
-  const [form, setForm] = useState({ name: "", testimonial: "", programId: "", beforeImage: "", beforePublicId: "", afterImage: "", afterPublicId: "", rating: 5 });
+  const [form, setForm] = useState({ name: "", testimonial: "", programId: "", beforeImage: "", beforePublicId: "", afterImage: "", afterPublicId: "", rating: 5, published: true });
   const [submitting, setSubmitting] = useState(false);
   const uploadTargetRef = useRef<'before' | 'after' | null>(null);
 
@@ -182,8 +182,17 @@ export function ReviewsManager() {
         program_id: form.programId,
         before_image: form.beforeImage,
         after_image: form.afterImage,
-        rating: form.rating
-      } : form;
+        rating: form.rating,
+        status: form.published ? 'published' : 'pending'
+      } : {
+        programId: form.programId,
+        name: form.name,
+        testimonial: form.testimonial,
+        beforeImage: form.beforeImage,
+        afterImage: form.afterImage,
+        rating: form.rating,
+        status: form.published ? 'published' : 'pending'
+      };
 
       const res = await fetch(isEditing ? `/api/reviews/${editingId}` : "/api/reviews", {
         method: isEditing ? "PATCH" : "POST",
@@ -195,7 +204,7 @@ export function ReviewsManager() {
         // Successfully saved, so don't delete images. Just reset and close.
         setIsAddModalOpen(false);
         setEditingId(null);
-        setForm({ name: "", testimonial: "", programId: "", beforeImage: "", beforePublicId: "", afterImage: "", afterPublicId: "", rating: 5 });
+        setForm({ name: "", testimonial: "", programId: "", beforeImage: "", beforePublicId: "", afterImage: "", afterPublicId: "", rating: 5, published: true });
         fetchReviews();
       } else {
         const err = await res.json();
@@ -220,7 +229,8 @@ export function ReviewsManager() {
       beforePublicId: "", // Optional since we don't have it
       afterImage: review.after_image || "",
       afterPublicId: "",
-      rating: review.rating || 5
+      rating: review.rating || 5,
+      published: review.status === 'published'
     });
     setEditingId(review.id);
     setIsAddModalOpen(true);
@@ -231,7 +241,7 @@ export function ReviewsManager() {
     if (form.afterPublicId) deleteCloudinaryFile(form.afterPublicId, 'image');
     setIsAddModalOpen(false);
     setEditingId(null);
-    setForm({ name: "", testimonial: "", programId: "", beforeImage: "", beforePublicId: "", afterImage: "", afterPublicId: "", rating: 5 });
+    setForm({ name: "", testimonial: "", programId: "", beforeImage: "", beforePublicId: "", afterImage: "", afterPublicId: "", rating: 5, published: true });
   };
 
   if (loading) return <Skeleton className="h-64 w-full" />;
@@ -368,10 +378,19 @@ export function ReviewsManager() {
                     <label className="block text-sm font-medium mb-1">Review Text</label>
                     <textarea value={form.testimonial} onChange={e => setForm(prev => ({...prev, testimonial: e.target.value}))} required rows={6} className="w-full p-2.5 border border-[#EBE3DB] rounded resize-none" />
                   </div>
-                  
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="checkbox" 
+                      id="published" 
+                      checked={form.published !== false} 
+                      onChange={(e) => setForm(prev => ({...prev, published: e.target.checked}))}
+                    />
+                    <label htmlFor="published" className="text-sm font-medium">Publish immediately</label>
+                  </div>
+
                   <div className="pt-4">
                     <Button type="submit" disabled={submitting} className="w-full h-12 bg-[#8C6D40] hover:bg-[#B8955F] text-white">
-                      {submitting ? "Saving..." : editingId ? "Save Changes" : "Save Review (will be pending by default)"}
+                      {submitting ? "Saving..." : (form.published ? (editingId ? "Save Changes" : "Publish Review") : "Draft")}
                     </Button>
                   </div>
                 </div>

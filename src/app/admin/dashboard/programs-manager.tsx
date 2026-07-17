@@ -259,7 +259,7 @@ export function ProgramsManager() {
 
   const handleAddClick = () => {
     const newProg: Partial<Program> = {
-      title: "", slug: "", shortDescription: "", description: "", duration: "", format: "", category: "", status: "draft", featured_rank: 1,
+      title: "", slug: "", shortDescription: "", description: "", duration: "", format: "", category: "", status: "published", featured_rank: 1,
       featured: false, showOnHome: false,
       pricing: { price: 0, currency: "AUD", paymentType: "one-time", installmentAvailable: false, requireConsultant: false },
       hero: { bannerImage: "", ctaText: "Join", ctaLink: "" },
@@ -930,7 +930,7 @@ export function ProgramsManager() {
                   <Button onClick={() => setSelectedProgram(null)} variant="outline" className="text-xs uppercase tracking-wider" disabled={isSaving}>Cancel</Button>
                   <Button onClick={handleSave} disabled={isSaving} className="bg-[#8C6D40] hover:bg-[#B8955F] text-white text-xs uppercase tracking-wider">
                     {isSaving ? <RefreshCw className="h-3 w-3 mr-2 animate-spin" /> : <Save className="h-3 w-3 mr-2" />} 
-                    {isSaving ? "Saving..." : (isNew ? "Create Program" : "Save Changes")}
+                    {isSaving ? "Saving..." : (editForm.status !== 'published' ? "Draft" : (isNew ? "Create Program" : "Save Changes"))}
                   </Button>
                 </>
               )}

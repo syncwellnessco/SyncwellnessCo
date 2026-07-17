@@ -255,7 +255,7 @@ export function BlogsManager() {
               Cancel
             </Button>
             <Button type="submit" className="bg-[#8C6D40] hover:bg-[#B8955F] text-white">
-              {formData.id ? "Update Blog" : "Publish Blog"}
+              {formData.published !== false ? (formData.id ? "Update Blog" : "Publish Blog") : "Draft"}
             </Button>
           </div>
         </form>

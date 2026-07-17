@@ -21,7 +21,7 @@ export async function POST(request: Request) {
           before_image: beforeImage,
           after_image: afterImage,
           rating: rating || 5,
-          status: 'published'
+          status: body.status || 'published'
         }
       ]);
 
