@@ -33,52 +33,64 @@ export function BookingButton({
 }: BookingButtonProps) {
   const [isClient, setIsClient] = useState(false);
   const router = useRouter();
-  const { user, purchasedPrograms } = useUserStore();
+  const { 
+    user, 
+    purchasedPrograms,
+    bookingDetails: allBookingDetails,
+    consultationsCompleted,
+    setBookingDetail,
+    setConsultationCompleted
+  } = useUserStore();
   const [loading, setLoading] = useState(false);
-  const [consultationCompleted, setConsultationCompleted] = useState(false);
-  const [bookingState, setBookingState] = useState<{
+  const [localBookingState, setLocalBookingState] = useState<{
     status: "idle" | "loading" | "booked";
-    details?: {
-      event_name: string;
-      start_time: string;
-      end_time: string;
-      join_url: string;
-      timezone: string;
-      email: string;
-      name: string;
-    };
+    details?: any;
   }>({ status: "idle" });
+
+  const consultationCompleted = consultationsCompleted[programId] || false;
+  const bookingDetail = allBookingDetails[programId] || null;
+
+  const bookingState = localBookingState.status === "loading"
+    ? localBookingState
+    : {
+        status: bookingDetail ? ("booked" as const) : ("idle" as const),
+        details: bookingDetail || undefined
+      };
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
   useEffect(() => {
+    if (!requireConsultant) {
+      setConsultationCompleted(programId, false);
+      setBookingDetail(programId, null);
+      return;
+    }
+
     if (user?.email) {
       fetch(`/api/bookings/check?email=${encodeURIComponent(user.email)}`)
         .then((res) => res.json())
         .then((data) => {
           if (data && data.completed) {
-            setConsultationCompleted(true);
+            setConsultationCompleted(programId, true);
+            setBookingDetail(programId, null);
             localStorage.removeItem(`booking_${programId}`);
-            setBookingState({ status: "idle" });
           } else {
+            setConsultationCompleted(programId, false);
             // Check for pending active bookings
             fetch(`/api/bookings?email=${encodeURIComponent(user.email)}`)
               .then((res) => res.json())
               .then((bData) => {
                 if (bData && bData.found && bData.details) {
-                  setBookingState({
-                    status: "booked",
-                    details: bData.details
-                  });
+                  setBookingDetail(programId, bData.details);
                   localStorage.setItem(`booking_${programId}`, JSON.stringify({
                     time: Date.now(),
                     details: bData.details
                   }));
                 } else {
+                  setBookingDetail(programId, null);
                   localStorage.removeItem(`booking_${programId}`);
-                  setBookingState({ status: "idle" });
                 }
               })
               .catch((err) => console.error("Error checking active booking:", err));
@@ -86,10 +98,10 @@ export function BookingButton({
         })
         .catch((err) => console.error("Error checking booking status:", err));
     } else {
-      setConsultationCompleted(false);
-      setBookingState({ status: "idle" });
+      setConsultationCompleted(programId, false);
+      setBookingDetail(programId, null);
     }
-  }, [user?.email, programId]);
+  }, [user?.email, programId, requireConsultant, setBookingDetail, setConsultationCompleted]);
 
   const effectiveRequireConsultant = requireConsultant && !consultationCompleted;
 
@@ -105,7 +117,6 @@ export function BookingButton({
 
   useEffect(() => {
     if (!programId || !user) {
-      setBookingState({ status: "idle" });
       return;
     }
     const saved = localStorage.getItem(`booking_${programId}`);
@@ -114,7 +125,7 @@ export function BookingButton({
         const parsed = JSON.parse(saved);
         // Keep active for 24 hours
         if (Date.now() - parsed.time < 24 * 60 * 60 * 1000) {
-          setBookingState({ status: "booked", details: parsed.details });
+          setBookingDetail(programId, parsed.details);
         } else {
           localStorage.removeItem(`booking_${programId}`);
         }
@@ -122,7 +133,7 @@ export function BookingButton({
         console.error(e);
       }
     }
-  }, [programId, user]);
+  }, [programId, user, setBookingDetail]);
 
   useEffect(() => {
     if (!effectiveRequireConsultant) return;
@@ -132,7 +143,7 @@ export function BookingButton({
         const inviteeUri = e.data.payload?.invitee?.uri;
         if (!inviteeUri) return;
 
-        setBookingState({ status: "loading" });
+        setLocalBookingState({ status: "loading" });
 
         // Close the Calendly popup widget programmatically
         if ((window as any).Calendly?.closePopupWidget) {
@@ -168,10 +179,8 @@ export function BookingButton({
             const data = await res.json();
             
             if (data && data.found) {
-              setBookingState({
-                status: "booked",
-                details: data.details
-              });
+              setBookingDetail(programId, data.details);
+              setLocalBookingState({ status: "idle" });
               localStorage.setItem(`booking_${programId}`, JSON.stringify({
                 time: Date.now(),
                 details: data.details
@@ -200,10 +209,8 @@ export function BookingButton({
                 email: user?.email || "",
                 name: user?.name || ""
               };
-              setBookingState({
-                status: "booked",
-                details: fallbackDetails
-              });
+              setBookingDetail(programId, fallbackDetails);
+              setLocalBookingState({ status: "idle" });
               localStorage.setItem(`booking_${programId}`, JSON.stringify({
                 time: Date.now(),
                 details: fallbackDetails

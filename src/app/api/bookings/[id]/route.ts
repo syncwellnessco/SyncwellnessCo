@@ -10,8 +10,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     const supabase = await createClient();
     
-    // If marking as completed, update the program requirement too
-    if (body.completed === true) {
+    // If completed is updated, update the program requirement too (both ways)
+    if ("completed" in body) {
       const { data: booking } = await supabase
         .from("calendly_bookings")
         .select("event_name")
@@ -33,7 +33,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
           if (matchedProgram) {
             const updatedPricing = {
               ...(matchedProgram.pricing || {}),
-              requireConsultant: false
+              requireConsultant: !body.completed // Completed = true => requireConsultant = false; Completed = false => requireConsultant = true
             };
 
             await supabase

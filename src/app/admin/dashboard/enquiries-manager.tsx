@@ -208,22 +208,35 @@ export function EnquiriesManager() {
                     </div>
                   </div>
                   
-                  <div className="flex sm:flex-row lg:flex-col gap-2.5 justify-end w-full lg:w-auto shrink-0 mt-4 lg:mt-0">
-                    <button
+                  <div className="flex sm:flex-row lg:flex-col gap-2.5 items-center lg:items-end w-full lg:w-auto shrink-0 mt-4 lg:mt-0">
+                    {/* Toggle Switch: Left Pending, Right Done */}
+                    <div 
                       onClick={() => toggleBookingCompleted(booking.id, booking.completed)}
-                      className={`h-9 px-4 text-xs font-bold uppercase tracking-wider transition-colors duration-200 border rounded-sm w-full sm:w-36 text-center ${
-                        completed 
-                          ? "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100" 
-                          : "bg-emerald-600 text-white border-transparent hover:bg-emerald-700"
-                      }`}
+                      className="relative flex items-center justify-between bg-[#EBE3DB]/60 p-1 rounded-full cursor-pointer select-none w-36 h-9 border border-[#DCD3C9] overflow-hidden shrink-0"
                     >
-                      {completed ? "Mark Pending" : "Mark Done"}
-                    </button>
+                      {/* Sliding background pill */}
+                      <div 
+                        className={`absolute top-0.5 bottom-0.5 rounded-full bg-[#8C6D40] transition-all duration-300 shadow-sm ${
+                          completed 
+                            ? "left-[72px] right-0.5" 
+                            : "left-0.5 right-[72px]"
+                        }`}
+                      />
+                      
+                      {/* Labels */}
+                      <span className={`z-10 w-1/2 text-center text-[10px] font-bold uppercase tracking-wider transition-colors duration-200 ${!completed ? 'text-white' : 'text-charcoal/60'}`}>
+                        Pending
+                      </span>
+                      <span className={`z-10 w-1/2 text-center text-[10px] font-bold uppercase tracking-wider transition-colors duration-200 ${completed ? 'text-white' : 'text-charcoal/60'}`}>
+                        Done
+                      </span>
+                    </div>
+
                     <Button 
                       onClick={() => setDeleteConfirmId(booking.id)} 
                       variant="ghost" 
                       size="sm" 
-                      className="w-full sm:w-36 text-xs text-charcoal/50 hover:text-red-500 border border-charcoal/10 lg:border-transparent rounded-sm h-9"
+                      className="w-full sm:w-36 text-xs text-red-600 hover:bg-red-50 hover:text-red-700 border border-red-200 hover:border-red-300 rounded-sm h-9 bg-white transition-colors"
                     >
                       Delete Booking
                     </Button>

@@ -32,16 +32,22 @@ interface ProgramDetailCTAProps {
 }
 
 export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
-  const { user } = useUserStore();
-  const [consultationCompleted, setConsultationCompleted] = useState(false);
+  const { 
+    user,
+    bookingDetails: allBookingDetails,
+    consultationsCompleted,
+    setBookingDetail,
+    setConsultationCompleted
+  } = useUserStore();
+
   const [loading, setLoading] = useState(true);
-  const [booked, setBooked] = useState(false);
-  const [bookingDetails, setBookingDetails] = useState<any>(null);
+
+  const bookingDetails = allBookingDetails[program.id] || null;
+  const booked = !!bookingDetails;
+  const consultationCompleted = consultationsCompleted[program.id] || false;
 
   useEffect(() => {
     if (!user) {
-      setBooked(false);
-      setBookingDetails(null);
       return;
     }
     const saved = localStorage.getItem(`booking_${program.id}`);
@@ -49,42 +55,46 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
       try {
         const parsed = JSON.parse(saved);
         if (Date.now() - parsed.time < 24 * 60 * 60 * 1000) {
-          setBooked(true);
           if (parsed.details) {
-            setBookingDetails(parsed.details);
+            setBookingDetail(program.id, parsed.details);
           }
         }
       } catch (e) {}
     }
-  }, [program.id, user]);
+  }, [program.id, user, setBookingDetail]);
 
   useEffect(() => {
+    if (!program.pricing?.requireConsultant) {
+      setLoading(false);
+      setBookingDetail(program.id, null);
+      setConsultationCompleted(program.id, false);
+      return;
+    }
+
     if (user?.email) {
       setLoading(true);
       fetch(`/api/bookings/check?email=${encodeURIComponent(user.email)}`)
         .then((res) => res.json())
         .then((data) => {
           if (data && data.completed) {
-            setConsultationCompleted(true);
+            setConsultationCompleted(program.id, true);
+            setBookingDetail(program.id, null);
             localStorage.removeItem(`booking_${program.id}`);
-            setBooked(false);
-            setBookingDetails(null);
           } else {
+            setConsultationCompleted(program.id, false);
             // Check for pending active bookings
             fetch(`/api/bookings?email=${encodeURIComponent(user.email)}`)
               .then((res) => res.json())
               .then((bData) => {
                 if (bData && bData.found && bData.details) {
-                  setBooked(true);
-                  setBookingDetails(bData.details);
+                  setBookingDetail(program.id, bData.details);
                   localStorage.setItem(`booking_${program.id}`, JSON.stringify({
                     time: Date.now(),
                     details: bData.details
                   }));
                 } else {
+                  setBookingDetail(program.id, null);
                   localStorage.removeItem(`booking_${program.id}`);
-                  setBooked(false);
-                  setBookingDetails(null);
                 }
               })
               .catch((err) => console.error("Error checking active booking:", err));
@@ -94,11 +104,10 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
         .finally(() => setLoading(false));
     } else {
       setLoading(false);
-      setBooked(false);
-      setBookingDetails(null);
-      setConsultationCompleted(false);
+      setBookingDetail(program.id, null);
+      setConsultationCompleted(program.id, false);
     }
-  }, [user?.email, program.id]);
+  }, [user?.email, program.id, program.pricing?.requireConsultant, setBookingDetail, setConsultationCompleted]);
 
   const requireConsultant = program.pricing?.requireConsultant && !consultationCompleted;
 
@@ -231,8 +240,7 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
                   programName={program.title} 
                   requireConsultant={true}
                   onBooked={(details) => {
-                    setBooked(true);
-                    setBookingDetails(details);
+                    setBookingDetail(program.id, details);
                   }}
                   theme="dark"
                   className="w-full md:w-auto bg-[#8C6D40] text-white hover:bg-white hover:text-black uppercase tracking-[0.2em] text-[10.5px] font-bold h-12 px-8 rounded-none border-0 transition-all duration-300 z-10 shrink-0 cursor-pointer"
@@ -328,8 +336,7 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
           programName={program.title} 
           requireConsultant={true}
           onBooked={(details) => {
-            setBooked(true);
-            setBookingDetails(details);
+            setBookingDetail(program.id, details);
           }}
           theme="light"
           className="w-full md:w-auto bg-[#8C6D40] text-white hover:bg-charcoal uppercase tracking-[0.2em] text-[10.5px] font-bold h-14 px-10 rounded-sm border-0 transition-all duration-300 z-10 shrink-0 shadow-md hover:shadow-lg cursor-pointer"
