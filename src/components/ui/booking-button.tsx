@@ -16,7 +16,7 @@ interface BookingButtonProps {
   theme?: "light" | "dark";
   showMemberStatus?: boolean;
   requireConsultant?: boolean;
-  onBooked?: () => void;
+  onBooked?: (details?: any) => void;
 }
 
 export function BookingButton({ 
@@ -60,11 +60,24 @@ export function BookingButton({
         .then((data) => {
           if (data && data.completed) {
             setConsultationCompleted(true);
+          } else {
+            // Check for pending active bookings
+            fetch(`/api/bookings?email=${encodeURIComponent(user.email)}`)
+              .then((res) => res.json())
+              .then((bData) => {
+                if (bData && bData.found && bData.details) {
+                  setBookingState({
+                    status: "booked",
+                    details: bData.details
+                  });
+                }
+              })
+              .catch((err) => console.error("Error checking active booking:", err));
           }
         })
         .catch((err) => console.error("Error checking booking status:", err));
     }
-  }, [user]);
+  }, [user?.email]);
 
   const effectiveRequireConsultant = requireConsultant && !consultationCompleted;
 
@@ -76,7 +89,7 @@ export function BookingButton({
       window.history.replaceState({}, "", newUrl);
       handleClick();
     }
-  }, [isClient, effectiveRequireConsultant, user]);
+  }, [isClient, effectiveRequireConsultant, user?.email]);
 
   useEffect(() => {
     if (!programId) return;
@@ -148,7 +161,7 @@ export function BookingButton({
                 time: Date.now(),
                 details: data.details
               }));
-              onBooked?.();
+              onBooked?.(data.details);
               return true;
             }
           } catch (err) {
@@ -180,7 +193,7 @@ export function BookingButton({
                 time: Date.now(),
                 details: fallbackDetails
               }));
-              onBooked?.();
+              onBooked?.(fallbackDetails);
             }
           }
         }, 1000);
@@ -191,7 +204,7 @@ export function BookingButton({
     return () => {
       window.removeEventListener("message", handleCalendlyEvent);
     };
-  }, [effectiveRequireConsultant, programId, user, programName, onBooked]);
+  }, [effectiveRequireConsultant, programId, user?.email, programName, onBooked]);
 
   const isPurchased = isClient && purchasedPrograms.includes(programId);
 
@@ -257,21 +270,52 @@ export function BookingButton({
   }
 
   if (effectiveRequireConsultant && bookingState.status === "booked") {
+    const details = bookingState.details;
+    const formatBookingTimeLocal = (startTime?: string) => {
+      if (!startTime) return "";
+      try {
+        const date = new Date(startTime);
+        return date.toLocaleDateString("en-US", {
+          weekday: "long",
+          month: "long",
+          day: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true
+        });
+      } catch (e) {
+        return startTime;
+      }
+    };
     return (
-      <div className="flex items-center gap-3.5 p-5 border border-emerald-200 bg-emerald-50/50 w-full text-emerald-950 max-w-xl">
-        <div className="h-9 w-9 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 border border-emerald-200">
-          <svg className="h-4.5 w-4.5 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 p-6 border border-[#8C6D40]/30 bg-charcoal/95 w-full text-white shadow-lg rounded-md text-left">
+        <div className="flex items-start gap-4 flex-1">
+          <svg className="w-8 h-8 text-[#B8955F] shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
           </svg>
+          <div className="space-y-1">
+            <h4 className="font-bold text-sm uppercase tracking-wider text-[#B8955F]">
+              Consultation Booked!
+            </h4>
+            <div className="text-xs text-white/80 leading-relaxed font-light">
+              <p className="font-medium text-white">{details?.event_name || "1:1 Consultation Call"}</p>
+              {details?.start_time && (
+                <p className="text-white/70 font-medium">{formatBookingTimeLocal(details.start_time)}</p>
+              )}
+              <p className="text-white/50 mt-1">Please check your email for joining details. Once completed, your payment checkout will unlock.</p>
+            </div>
+          </div>
         </div>
-        <div className="space-y-0.5">
-          <h4 className="font-bold text-xs sm:text-sm uppercase tracking-wider text-emerald-800">
-            Meeting Booked!
-          </h4>
-          <p className="text-[11px] sm:text-xs text-emerald-800/80 leading-relaxed font-medium">
-            Please check your email for the calendar invitation and joining details.
-          </p>
-        </div>
+        {details?.join_url && (
+          <a 
+            href={details.join_url} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="w-full sm:w-auto bg-[#8C6D40] text-white hover:bg-[#A88858] hover:translate-y-[-2px] active:translate-y-[0px] active:scale-98 uppercase tracking-[0.2em] text-[10px] font-bold h-12 px-6 rounded-sm border-0 transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-1.5 shrink-0"
+          >
+            Join Call
+          </a>
+        )}
       </div>
     );
   }

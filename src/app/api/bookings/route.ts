@@ -5,6 +5,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const inviteeUri = searchParams.get("invitee_uri");
+    const email = searchParams.get("email");
 
     const supabase = await createClient();
 
@@ -13,6 +14,25 @@ export async function GET(request: NextRequest) {
         .from("calendly_bookings")
         .select("*")
         .eq("invitee_uri", inviteeUri)
+        .maybeSingle();
+
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+
+      if (!data) {
+        return NextResponse.json({ found: false });
+      }
+
+      return NextResponse.json({ found: true, details: data });
+    } else if (email) {
+      const { data, error } = await supabase
+        .from("calendly_bookings")
+        .select("*")
+        .eq("email", email)
+        .eq("completed", false)
+        .order("start_time", { ascending: false })
+        .limit(1)
         .maybeSingle();
 
       if (error) {

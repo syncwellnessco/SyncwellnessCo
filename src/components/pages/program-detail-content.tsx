@@ -43,7 +43,7 @@ export async function ProgramDetailContent({ slug }: ProgramDetailContentProps) 
         <div className="absolute inset-0 bg-[#4A5D5E]/70 mix-blend-multiply" />
         <div className="absolute inset-0 bg-slate-900/20" />
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+          <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center mb-12">
             
             <div className="lg:col-span-7 flex flex-col justify-center">
               {program.category && (
@@ -81,8 +81,11 @@ export async function ProgramDetailContent({ slug }: ProgramDetailContentProps) 
             </div>
 
           </div>
+
         </div>
       </section>
+
+      <ProgramDetailCTA program={program} position="booking-banner" />
 
       {/* Stats / Keypoints */}
       <section className="bg-charcoal py-8 border-y border-white/5">
