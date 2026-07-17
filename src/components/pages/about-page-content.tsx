@@ -1,57 +1,99 @@
 "use client";
 
-import Image from "next/image";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { aboutContent, brandContent } from "@/data/about-content";
 import { IMAGES } from "@/data/images";
 
 export function AboutPageContent() {
   const coachImageSrc = IMAGES.aboutPageProfile;
+  const coachVideoSrc = "/about.mp4";
+
+  const [isMuted, setIsMuted] = useState(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.play().catch((err) => {
+        console.log("Autoplay was blocked or failed:", err);
+      });
+    }
+  }, []);
+
+  const toggleMute = (e: React.MouseEvent) => {
+    if (videoRef.current) {
+      const nextMuted = !videoRef.current.muted;
+      videoRef.current.muted = nextMuted;
+      setIsMuted(nextMuted);
+    }
+  };
 
   return (
     <article className="bg-[#FAF8F5] min-h-screen">
       
-      {/* Hero / Founder Section */}
-      <section className="pt-12 pb-20 lg:pt-16 lg:pb-32 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
-        <div className="block">
-          
-          <div className="relative float-none md:float-right mx-auto mb-8 md:ml-12 md:mb-8 w-full max-w-[340px] md:max-w-none md:w-[380px] aspect-[4/5] overflow-hidden bg-[#EBE3DB] shadow-lg rounded-sm mt-2">
-            <Image
-              src={coachImageSrc}
-              alt={`${aboutContent.aboutCoach.name} — ${aboutContent.aboutCoach.title}`}
-              fill
-              sizes="(max-width: 768px) 340px, 380px"
-              className="object-cover object-top"
-              priority
-            />
-          </div>
-          
-          <div className="block">
-            <span className="text-xs uppercase tracking-[0.15em] font-bold text-[#8C6D40] mb-4 block">
-              About Our Founder
-            </span>
-            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl text-charcoal mb-4">
-              {aboutContent.aboutCoach.name}
-            </h1>
-            <h2 className="text-xs sm:text-sm md:text-xs uppercase tracking-[0.1em] font-bold text-charcoal/60 mb-8 md:mb-10 leading-relaxed">
-              {aboutContent.aboutCoach.title}
-              <br className="hidden md:block" />
-              <span className="mx-2 md:hidden text-charcoal/30">&bull;</span>
-              <span className="hidden md:inline">&nbsp;</span>
-              {aboutContent.certifications.join(" • ")}
-            </h2>
-            
-            <div className="space-y-6 text-[15px] md:text-base leading-relaxed text-charcoal/80">
-              {aboutContent.story.map((paragraph, index) => (
-                <p key={index} className={index === 5 ? "font-display text-2xl text-[#8C6D40] italic my-8 block" : ""}>
-                  {paragraph}
-                </p>
-              ))}
-            </div>
-            
-            <div className="clear-both"></div>
-          </div>
+      {/* Title Header */}
+      <section className="pt-6 pb-4 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto text-center">
+        <span className="text-xs uppercase tracking-[0.15em] font-bold text-[#8C6D40] mb-3 block">
+          About Our Founder
+        </span>
+        <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl text-charcoal mb-4">
+          {aboutContent.aboutCoach.name}
+        </h1>
+        <h2 className="text-xs sm:text-sm uppercase tracking-[0.1em] font-bold text-charcoal/60 max-w-2xl mx-auto leading-relaxed">
+          {aboutContent.aboutCoach.title}
+          <span className="mx-2 text-charcoal/30">&bull;</span>
+          {aboutContent.certifications.join(" • ")}
+        </h2>
+      </section>
 
+      {/* Standalone Video Player Section */}
+      <section className="px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto mb-6 sm:mb-8">
+        <div 
+          onClick={toggleMute}
+          className="relative aspect-video w-full rounded-2xl overflow-hidden bg-charcoal shadow-2xl border border-beige-200 cursor-pointer group"
+        >
+          <video
+            ref={videoRef}
+            className="w-full h-full object-cover"
+            autoPlay
+            muted={isMuted}
+            loop
+            playsInline
+            preload="metadata"
+            poster={coachImageSrc}
+          >
+            <source src={coachVideoSrc} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+
+          {/* Subtle overlay on hover */}
+          <div className="absolute inset-0 bg-black/10 group-hover:bg-black/5 transition-all duration-300" />
+
+          {/* Sound Toggle Indicator Badge */}
+          <div className="absolute bottom-4 right-4 z-10 bg-black/70 hover:bg-black/90 backdrop-blur-md text-white text-[9px] sm:text-[11px] font-semibold px-3 py-2 rounded-full flex items-center gap-1.5 border border-white/10 shadow-lg transition-all duration-300 hover:scale-105">
+            {isMuted ? (
+              <>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#8C6D40] animate-pulse" />
+                <span>🔊 TAP FOR AUDIO</span>
+              </>
+            ) : (
+              <>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                <span>🔇 MUTE AUDIO</span>
+              </>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Story details */}
+      <section className="pt-0 pb-16 sm:pb-24 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">
+        <div className="space-y-6 text-[15px] sm:text-base leading-relaxed text-charcoal/80">
+          {aboutContent.story.map((paragraph, index) => (
+            <p key={index} className={index === 5 ? "font-display text-2xl text-[#8C6D40] italic my-8 block text-center" : ""}>
+              {paragraph}
+            </p>
+          ))}
         </div>
       </section>
 
