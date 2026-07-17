@@ -95,7 +95,7 @@ export function EnquiriesManager() {
     } catch (e) {
       toast.error("Failed to update booking status");
       console.error(e);
-      fetchData();
+      await fetchData();
     } finally {
       setUpdatingBookings(prev => ({ ...prev, [id]: false }));
     }
@@ -223,30 +223,27 @@ export function EnquiriesManager() {
                     >
                       {/* Sliding background pill */}
                       <div 
-                        className={`absolute top-0.5 bottom-0.5 rounded-full bg-[#8C6D40] transition-all duration-300 shadow-sm ${
+                        className={`absolute top-0.5 bottom-0.5 rounded-full bg-[#8C6D40] transition-all duration-300 shadow-sm flex items-center justify-center ${
                           completed 
                             ? "left-[72px] right-0.5" 
                             : "left-0.5 right-[72px]"
                         }`}
-                      />
-                      
-                      {/* Labels */}
-                      <span className={`z-10 w-1/2 text-center text-[10px] font-bold uppercase tracking-wider transition-colors duration-200 ${!completed ? 'text-white' : 'text-charcoal/60'} ${updatingBookings[booking.id] ? 'opacity-0' : ''}`}>
-                        Pending
-                      </span>
-                      <span className={`z-10 w-1/2 text-center text-[10px] font-bold uppercase tracking-wider transition-colors duration-200 ${completed ? 'text-white' : 'text-charcoal/60'} ${updatingBookings[booking.id] ? 'opacity-0' : ''}`}>
-                        Done
-                      </span>
-
-                      {/* Loading Spinner overlay */}
-                      {updatingBookings[booking.id] && (
-                        <div className="absolute inset-0 flex items-center justify-center z-20">
-                          <svg className="animate-spin h-4 w-4 text-[#8C6D40]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      >
+                        {updatingBookings[booking.id] && (
+                          <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                           </svg>
-                        </div>
-                      )}
+                        )}
+                      </div>
+                      
+                      {/* Labels */}
+                      <span className={`z-10 w-1/2 text-center text-[10px] font-bold uppercase tracking-wider transition duration-200 ${!completed ? 'text-white' : 'text-charcoal/60'} ${updatingBookings[booking.id] && !completed ? 'opacity-0' : ''}`}>
+                        Pending
+                      </span>
+                      <span className={`z-10 w-1/2 text-center text-[10px] font-bold uppercase tracking-wider transition duration-200 ${completed ? 'text-white' : 'text-charcoal/60'} ${updatingBookings[booking.id] && completed ? 'opacity-0' : ''}`}>
+                        Done
+                      </span>
                     </div>
 
                     <Button 
