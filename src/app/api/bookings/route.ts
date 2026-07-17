@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
       const { data, error } = await supabase
         .from("calendly_bookings")
         .select("*")
-        .eq("email", email)
+        .ilike("email", email)
         .eq("completed", false)
         .order("start_time", { ascending: false })
         .limit(1)

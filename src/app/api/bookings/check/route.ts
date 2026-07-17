@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     const { data, error } = await supabase
       .from("calendly_bookings")
       .select("completed")
-      .eq("email", email);
+      .ilike("email", email);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
