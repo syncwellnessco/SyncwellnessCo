@@ -61,47 +61,7 @@ export function BookingButton({
     setIsClient(true);
   }, []);
 
-  useEffect(() => {
-    if (!requireConsultant) {
-      setConsultationCompleted(programId, false);
-      setBookingDetail(programId, null);
-      return;
-    }
 
-    if (user?.email) {
-      fetch(`/api/bookings/check?email=${encodeURIComponent(user.email)}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data && data.completed) {
-            setConsultationCompleted(programId, true);
-            setBookingDetail(programId, null);
-            localStorage.removeItem(`booking_${programId}`);
-          } else {
-            setConsultationCompleted(programId, false);
-            // Check for pending active bookings
-            fetch(`/api/bookings?email=${encodeURIComponent(user.email)}`)
-              .then((res) => res.json())
-              .then((bData) => {
-                if (bData && bData.found && bData.details) {
-                  setBookingDetail(programId, bData.details);
-                  localStorage.setItem(`booking_${programId}`, JSON.stringify({
-                    time: Date.now(),
-                    details: bData.details
-                  }));
-                } else {
-                  setBookingDetail(programId, null);
-                  localStorage.removeItem(`booking_${programId}`);
-                }
-              })
-              .catch((err) => console.error("Error checking active booking:", err));
-          }
-        })
-        .catch((err) => console.error("Error checking booking status:", err));
-    } else {
-      setConsultationCompleted(programId, false);
-      setBookingDetail(programId, null);
-    }
-  }, [user?.email, programId, requireConsultant, setBookingDetail, setConsultationCompleted]);
 
   const effectiveRequireConsultant = requireConsultant && !consultationCompleted;
 

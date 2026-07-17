@@ -73,31 +73,23 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
 
     if (user?.email) {
       setLoading(true);
-      fetch(`/api/bookings/check?email=${encodeURIComponent(user.email)}`)
+      fetch(`/api/bookings/status?email=${encodeURIComponent(user.email)}&programId=${encodeURIComponent(program.id)}`)
         .then((res) => res.json())
         .then((data) => {
-          if (data && data.completed) {
-            setConsultationCompleted(program.id, true);
-            setBookingDetail(program.id, null);
-            localStorage.removeItem(`booking_${program.id}`);
-          } else {
-            setConsultationCompleted(program.id, false);
-            // Check for pending active bookings
-            fetch(`/api/bookings?email=${encodeURIComponent(user.email)}`)
-              .then((res) => res.json())
-              .then((bData) => {
-                if (bData && bData.found && bData.details) {
-                  setBookingDetail(program.id, bData.details);
-                  localStorage.setItem(`booking_${program.id}`, JSON.stringify({
-                    time: Date.now(),
-                    details: bData.details
-                  }));
-                } else {
-                  setBookingDetail(program.id, null);
-                  localStorage.removeItem(`booking_${program.id}`);
-                }
-              })
-              .catch((err) => console.error("Error checking active booking:", err));
+          if (data) {
+            setConsultationCompleted(program.id, data.completed);
+            setBookingDetail(program.id, data.booking);
+
+            if (data.completed) {
+              localStorage.removeItem(`booking_${program.id}`);
+            } else if (data.booking) {
+              localStorage.setItem(`booking_${program.id}`, JSON.stringify({
+                time: Date.now(),
+                details: data.booking
+              }));
+            } else {
+              localStorage.removeItem(`booking_${program.id}`);
+            }
           }
         })
         .catch((err) => console.error("Error checking booking status:", err))
