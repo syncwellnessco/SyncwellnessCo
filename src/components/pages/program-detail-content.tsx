@@ -85,7 +85,7 @@ export async function ProgramDetailContent({ slug }: ProgramDetailContentProps) 
         </div>
       </section>
 
-      <ProgramDetailCTA program={program} position="booking-banner" />
+
 
       {/* Stats / Keypoints */}
       <section className="bg-charcoal py-8 border-y border-white/5">
