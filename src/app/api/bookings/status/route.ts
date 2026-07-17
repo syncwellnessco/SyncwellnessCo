@@ -25,24 +25,37 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    let query = supabase
+    const { data: bookings, error } = await supabase
       .from("calendly_bookings")
       .select("*")
-      .ilike("email", email);
-
-    if (programTitle) {
-      query = query.ilike("event_name", `%${programTitle}%`);
-    }
-
-    const { data: bookings, error } = await query
+      .ilike("email", email)
       .order("created_at", { ascending: false });
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    const completed = bookings ? bookings.some((b: any) => b.completed) : false;
-    const latestBooking = bookings && bookings.length > 0 ? bookings[0] : null;
+    const completed = bookings ? bookings.some((b: any) => b.completed === true) : false;
+    
+    // Find the latest booking that is either generic or matches this programTitle
+    let latestBooking = null;
+    if (bookings && bookings.length > 0) {
+      if (programTitle) {
+        const cleanTitle = programTitle.toLowerCase();
+        latestBooking = bookings.find((b: any) => {
+          const name = (b.event_name || "").toLowerCase();
+          return name.includes(cleanTitle) || 
+                 name.includes("consultation") || 
+                 name.includes("discovery") || 
+                 name.includes("call") || 
+                 name.includes("meeting") || 
+                 name.includes("30min");
+        });
+      }
+      if (!latestBooking) {
+        latestBooking = bookings[0];
+      }
+    }
 
     return NextResponse.json({
       completed,

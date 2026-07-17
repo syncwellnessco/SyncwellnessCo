@@ -148,7 +148,7 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
               theme="dark"
               className="w-full sm:w-auto bg-[#8C6D40] text-white hover:bg-white hover:text-charcoal uppercase tracking-[0.15em] text-[11px] font-bold h-14 px-10 rounded-none border-0 transition-all duration-300 cursor-pointer"
             >
-              Booked Again
+              Book Again
             </BookingButton>
             <div className="flex flex-col gap-1 items-start">
               <span className="text-[10px] text-white/60 font-semibold tracking-wide uppercase">
