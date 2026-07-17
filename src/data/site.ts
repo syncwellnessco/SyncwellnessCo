@@ -9,7 +9,7 @@ export const siteConfig = {
   businessHours: "9:00 AM – 5:00 PM (Sydney/Melbourne Time)",
   social: {
     instagram: "https://instagram.com/healthcoach_nehaarora",
-    facebook: "https://facebook.com/NehaHealthCoaching",
+    facebook: "https://www.facebook.com/share/1DGRWDDuWU/?mibextid=wwXIfr",
     youtube: "https://youtube.com/@syncwellnessco",
     pinterest: "https://pinterest.com/syncwellnessco",
   },

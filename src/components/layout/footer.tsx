@@ -51,15 +51,6 @@ export function Footer() {
               >
                 <FacebookIcon className="h-4 w-4" />
               </a>
-              <a
-                href={siteConfig.social.youtube}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-cream/20 text-cream/80 transition-colors hover:border-cream/40 hover:bg-cream/10 hover:text-cream"
-                aria-label="YouTube"
-              >
-                <YoutubeIcon className="h-4 w-4" />
-              </a>
             </div>
           </div>
 

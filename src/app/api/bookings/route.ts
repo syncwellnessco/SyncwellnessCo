@@ -84,18 +84,78 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, alreadyExists: true });
     }
 
+    // Default fallback values
+    let eventName = programName ? `1:1 Consultation: ${programName}` : "1:1 Consultation Call";
+    let startTime = new Date().toISOString();
+    let endTime = new Date().toISOString();
+    let timezone = "Local";
+    let joinUrl = "";
+    let finalEmail = email;
+    let finalName = name || "Calendly User";
+
+    // Query Calendly API for real meeting details
+    const apiKey = process.env.CALENDLY_API_KEY || process.env.CALENDLY_TOKEN;
+    if (apiKey && inviteeUri) {
+      try {
+        console.log("Fetching Calendly invitee details in POST API:", inviteeUri);
+        const inviteeRes = await fetch(inviteeUri, {
+          headers: {
+            "Authorization": `Bearer ${apiKey}`,
+            "Content-Type": "application/json"
+          }
+        });
+
+        if (inviteeRes.ok) {
+          const inviteeData = await inviteeRes.json();
+          if (inviteeData && inviteeData.resource) {
+            const invitee = inviteeData.resource;
+            finalEmail = invitee.email || finalEmail;
+            finalName = invitee.name || finalName;
+            timezone = invitee.timezone || timezone;
+
+            const eventUri = invitee.event;
+            if (eventUri) {
+              console.log("Fetching Calendly event details in POST API:", eventUri);
+              const eventRes = await fetch(eventUri, {
+                headers: {
+                  "Authorization": `Bearer ${apiKey}`,
+                  "Content-Type": "application/json"
+                }
+              });
+
+              if (eventRes.ok) {
+                const eventData = await eventRes.json();
+                if (eventData && eventData.resource) {
+                  const eventResrc = eventData.resource;
+                  eventName = eventResrc.name || eventName;
+                  startTime = eventResrc.start_time || startTime;
+                  endTime = eventResrc.end_time || endTime;
+                  if (eventResrc.location) {
+                    joinUrl = eventResrc.location.join_url || eventResrc.location.location || "";
+                  }
+                  console.log("Successfully retrieved Calendly details on client fallback POST:", { eventName, startTime, timezone, joinUrl });
+                }
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching Calendly details in POST API:", err);
+      }
+    }
+
     const { error } = await supabase
       .from("calendly_bookings")
       .insert([
         {
           invitee_uri: inviteeUri,
-          event_name: programName ? `1:1 Consultation: ${programName}` : "1:1 Consultation Call",
-          name: name || "Calendly User",
-          email: email,
-          start_time: new Date().toISOString(),
-          end_time: new Date().toISOString(),
-          timezone: "Local",
-          join_url: "",
+          event_name: eventName,
+          name: finalName,
+          email: finalEmail,
+          start_time: startTime,
+          end_time: endTime,
+          timezone: timezone,
+          join_url: joinUrl,
           completed: false
         }
       ]);

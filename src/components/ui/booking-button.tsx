@@ -60,6 +60,8 @@ export function BookingButton({
         .then((data) => {
           if (data && data.completed) {
             setConsultationCompleted(true);
+            localStorage.removeItem(`booking_${programId}`);
+            setBookingState({ status: "idle" });
           } else {
             // Check for pending active bookings
             fetch(`/api/bookings?email=${encodeURIComponent(user.email)}`)
@@ -70,14 +72,24 @@ export function BookingButton({
                     status: "booked",
                     details: bData.details
                   });
+                  localStorage.setItem(`booking_${programId}`, JSON.stringify({
+                    time: Date.now(),
+                    details: bData.details
+                  }));
+                } else {
+                  localStorage.removeItem(`booking_${programId}`);
+                  setBookingState({ status: "idle" });
                 }
               })
               .catch((err) => console.error("Error checking active booking:", err));
           }
         })
         .catch((err) => console.error("Error checking booking status:", err));
+    } else {
+      setConsultationCompleted(false);
+      setBookingState({ status: "idle" });
     }
-  }, [user?.email]);
+  }, [user?.email, programId]);
 
   const effectiveRequireConsultant = requireConsultant && !consultationCompleted;
 
@@ -92,7 +104,10 @@ export function BookingButton({
   }, [isClient, effectiveRequireConsultant, user?.email]);
 
   useEffect(() => {
-    if (!programId) return;
+    if (!programId || !user) {
+      setBookingState({ status: "idle" });
+      return;
+    }
     const saved = localStorage.getItem(`booking_${programId}`);
     if (saved) {
       try {
@@ -107,7 +122,7 @@ export function BookingButton({
         console.error(e);
       }
     }
-  }, [programId]);
+  }, [programId, user]);
 
   useEffect(() => {
     if (!effectiveRequireConsultant) return;

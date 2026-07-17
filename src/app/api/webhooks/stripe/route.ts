@@ -41,6 +41,7 @@ export async function POST(req: NextRequest) {
     const amount = session.amount_total;
     const currency = session.currency;
     const sessionId = session.id;
+    let programRecord: any = null;
 
     console.log('Processing successful Stripe Checkout Session:', {
       programId,
@@ -124,6 +125,7 @@ export async function POST(req: NextRequest) {
         .maybeSingle();
 
       if (!fetchErr && program) {
+        programRecord = program;
         // If there is capacity or spots count in columns (e.g. metadata or direct columns)
         // we can perform decrement. For now we log it clearly:
         console.log(`Program "${program.title}" spots updated successfully.`);
@@ -184,6 +186,74 @@ export async function POST(req: NextRequest) {
         }
       } catch (err) {
         console.warn('Error updating user/profile purchased programs array:', err);
+      }
+    }
+
+    // 5. Add/Subscribe to MailerLite
+    if (process.env.MAILERLITE_API_KEY && email) {
+      try {
+        console.log(`Subscribing buyer ${email} to MailerLite...`);
+        
+        let progDetails = programRecord;
+        if (!progDetails) {
+          const { data } = await supabase
+            .from('programs')
+            .select('*')
+            .eq('id', programId)
+            .maybeSingle();
+          progDetails = data;
+        }
+
+        const programTitle = progDetails?.title || "Unknown Program";
+        const programDuration = progDetails?.duration || "";
+        const programFormat = progDetails?.format || "";
+        const programCategory = progDetails?.category || "";
+        const programSlug = progDetails?.slug || "";
+
+        // Resolve group ID
+        let targetGroupId = process.env.MAILERLITE_BUYERS_GROUP_ID || process.env.MAILERLITE_GROUP_ID;
+        if (programSlug) {
+          const envVarName = `MAILERLITE_GROUP_${programSlug.toUpperCase().replace(/-/g, '_')}`;
+          const specificGroupId = process.env[envVarName];
+          if (specificGroupId) {
+            targetGroupId = specificGroupId;
+            console.log(`Using program-specific MailerLite Group ID from ${envVarName}: ${targetGroupId}`);
+          }
+        }
+
+        const payload: any = {
+          email: email,
+          fields: {
+            name: name || "",
+            purchased_program: programTitle,
+            program_duration: programDuration,
+            program_format: programFormat,
+            program_category: programCategory
+          }
+        };
+
+        if (targetGroupId) {
+          payload.groups = [targetGroupId];
+        }
+
+        const mlRes = await fetch("https://connect.mailerlite.com/api/subscribers", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": `Bearer ${process.env.MAILERLITE_API_KEY}`
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!mlRes.ok) {
+          const mlError = await mlRes.json().catch(() => ({}));
+          console.error("MailerLite Webhook Subscription Error:", mlError);
+        } else {
+          console.log(`Successfully subscribed ${email} to MailerLite for program "${programTitle}".`);
+        }
+      } catch (err) {
+        console.error("MailerLite integration exception in webhook:", err);
       }
     }
   }

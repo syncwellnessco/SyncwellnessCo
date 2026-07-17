@@ -39,6 +39,11 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
   const [bookingDetails, setBookingDetails] = useState<any>(null);
 
   useEffect(() => {
+    if (!user) {
+      setBooked(false);
+      setBookingDetails(null);
+      return;
+    }
     const saved = localStorage.getItem(`booking_${program.id}`);
     if (saved) {
       try {
@@ -51,7 +56,7 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
         }
       } catch (e) {}
     }
-  }, [program.id]);
+  }, [program.id, user]);
 
   useEffect(() => {
     if (user?.email) {
@@ -61,6 +66,9 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
         .then((data) => {
           if (data && data.completed) {
             setConsultationCompleted(true);
+            localStorage.removeItem(`booking_${program.id}`);
+            setBooked(false);
+            setBookingDetails(null);
           } else {
             // Check for pending active bookings
             fetch(`/api/bookings?email=${encodeURIComponent(user.email)}`)
@@ -69,6 +77,14 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
                 if (bData && bData.found && bData.details) {
                   setBooked(true);
                   setBookingDetails(bData.details);
+                  localStorage.setItem(`booking_${program.id}`, JSON.stringify({
+                    time: Date.now(),
+                    details: bData.details
+                  }));
+                } else {
+                  localStorage.removeItem(`booking_${program.id}`);
+                  setBooked(false);
+                  setBookingDetails(null);
                 }
               })
               .catch((err) => console.error("Error checking active booking:", err));
@@ -78,8 +94,11 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
         .finally(() => setLoading(false));
     } else {
       setLoading(false);
+      setBooked(false);
+      setBookingDetails(null);
+      setConsultationCompleted(false);
     }
-  }, [user?.email]);
+  }, [user?.email, program.id]);
 
   const requireConsultant = program.pricing?.requireConsultant && !consultationCompleted;
 
