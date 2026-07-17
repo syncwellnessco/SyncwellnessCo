@@ -60,9 +60,18 @@ export function Navbar() {
   }, [mobileOpen]);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.error("Error signing out:", err);
+    }
+    if (typeof window !== "undefined") {
+      localStorage.clear();
+      sessionStorage.clear();
+    }
     logout();
     router.push("/");
+    router.refresh();
   };
 
   return (

@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
     // Default fallback values
     let eventName = programName ? `1:1 Consultation: ${programName}` : "1:1 Consultation Call";
     let startTime = new Date().toISOString();
-    let endTime = new Date().toISOString();
+    let endTime = new Date(Date.now() + 45 * 60 * 1000).toISOString();
     let timezone = "Local";
     let joinUrl = "";
     let finalEmail = email;

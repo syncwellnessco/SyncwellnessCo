@@ -26,6 +26,18 @@ const formatBookingTime = (startTime: string, timezone?: string) => {
   }
 };
 
+const isBookingOver = (booking: any) => {
+  if (!booking) return true;
+  if (booking.completed) return true;
+  if (booking.end_time) {
+    return Date.now() > new Date(booking.end_time).getTime();
+  }
+  if (booking.start_time) {
+    return Date.now() > (new Date(booking.start_time).getTime() + 60 * 60 * 1000);
+  }
+  return false;
+};
+
 interface ProgramDetailCTAProps {
   program: any;
   position: "hero" | "bottom" | "booking-banner";
@@ -43,53 +55,54 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
 
   const [loading, setLoading] = useState(true);
 
-  const bookingDetails = allBookingDetails[program.id] || null;
+  const rawBookingDetails = allBookingDetails[program.id] || null;
+  const bookingDetails = (rawBookingDetails && user && rawBookingDetails.email && rawBookingDetails.email.toLowerCase() === user.email.toLowerCase() && !isBookingOver(rawBookingDetails)) 
+    ? rawBookingDetails 
+    : null;
   const booked = !!bookingDetails;
   const consultationCompleted = consultationsCompleted[program.id] || false;
   const isPurchased = purchasedPrograms.includes(program.id);
 
   useEffect(() => {
-    if (!user) {
+    if (!user?.email) {
       return;
     }
     const saved = localStorage.getItem(`booking_${program.id}`);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Date.now() - parsed.time < 24 * 60 * 60 * 1000) {
-          if (parsed.details) {
-            setBookingDetail(program.id, parsed.details);
-          }
+        const details = parsed.details;
+        if (details && details.email && details.email.toLowerCase() === user.email.toLowerCase() && !isBookingOver(details)) {
+          setBookingDetail(program.id, details);
+        } else {
+          localStorage.removeItem(`booking_${program.id}`);
+          setBookingDetail(program.id, null);
         }
       } catch (e) {}
     }
-  }, [program.id, user, setBookingDetail]);
+  }, [program.id, user?.email, setBookingDetail]);
 
   useEffect(() => {
-    if (!program.pricing?.requireConsultant) {
-      setLoading(false);
-      setBookingDetail(program.id, null);
-      setConsultationCompleted(program.id, false);
-      return;
-    }
-
     if (user?.email) {
-      setLoading(true);
+      setTimeout(() => {
+        setLoading(true);
+      }, 0);
       fetch(`/api/bookings/status?email=${encodeURIComponent(user.email)}&programId=${encodeURIComponent(program.id)}`)
         .then((res) => res.json())
         .then((data) => {
           if (data) {
             setConsultationCompleted(program.id, data.completed);
-            setBookingDetail(program.id, data.booking);
-
-            if (data.completed) {
-              localStorage.removeItem(`booking_${program.id}`);
-            } else if (data.booking) {
+            
+            const booking = data.booking;
+            // Only set booking detail if active, not completed, not over, and belongs to current user
+            if (booking && !booking.completed && !isBookingOver(booking) && booking.email && booking.email.toLowerCase() === user.email.toLowerCase()) {
+              setBookingDetail(program.id, booking);
               localStorage.setItem(`booking_${program.id}`, JSON.stringify({
                 time: Date.now(),
-                details: data.booking
+                details: booking
               }));
             } else {
+              setBookingDetail(program.id, null);
               localStorage.removeItem(`booking_${program.id}`);
             }
           }
@@ -97,11 +110,13 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
         .catch((err) => console.error("Error checking booking status:", err))
         .finally(() => setLoading(false));
     } else {
-      setLoading(false);
-      setBookingDetail(program.id, null);
-      setConsultationCompleted(program.id, false);
+      setTimeout(() => {
+        setLoading(false);
+        setBookingDetail(program.id, null);
+        setConsultationCompleted(program.id, false);
+      }, 0);
     }
-  }, [user?.email, program.id, program.pricing?.requireConsultant, setBookingDetail, setConsultationCompleted]);
+  }, [user?.email, program.id, setBookingDetail, setConsultationCompleted]);
 
   const requireConsultant = program.pricing?.requireConsultant || false;
 
@@ -136,6 +151,44 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
       );
     }
 
+    if (booked) {
+      return (
+        <div className="mt-12 flex flex-col sm:flex-row items-start sm:items-center gap-6 min-h-[56px]">
+          {bookingDetails?.join_url ? (
+            <a 
+              href={bookingDetails.join_url} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto bg-[#8C6D40] text-white hover:bg-white hover:text-charcoal uppercase tracking-[0.15em] text-[11px] font-bold h-14 px-10 rounded-none border-0 transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer text-center"
+            >
+              Join Call
+            </a>
+          ) : (
+            <button 
+              disabled
+              className="w-full sm:w-auto bg-white/10 text-white/50 uppercase tracking-[0.15em] text-[11px] font-bold h-14 px-10 rounded-none border border-white/10 cursor-not-allowed"
+            >
+              Awaiting Call
+            </button>
+          )}
+          
+          <div className="flex flex-col gap-1.5 items-start">
+            <div className="flex items-baseline gap-3">
+              <span className="text-white font-bold text-xl sm:text-2xl tracking-wide uppercase">
+                Scheduled
+              </span>
+              <span className="text-[#8C6D40] font-bold text-sm">
+                {formatBookingTime(bookingDetails?.start_time, bookingDetails?.timezone)}
+              </span>
+            </div>
+            <span className="text-[10px] text-white/60 font-light tracking-wide max-w-xs sm:max-w-md text-left leading-normal">
+              Note: Clinical coach will call you. Once call is marked done, price details & buy button will unlock here.
+            </span>
+          </div>
+        </div>
+      );
+    }
+
     if (requireConsultant) {
       if (consultationCompleted) {
         return (
@@ -156,44 +209,6 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
               </span>
               <span className="text-[10px] text-white/50 font-light tracking-wide leading-normal">
                 Need another call? Click above to schedule. Scroll down to view pricing and enroll.
-              </span>
-            </div>
-          </div>
-        );
-      }
-
-      if (booked) {
-        return (
-          <div className="mt-12 flex flex-col sm:flex-row items-start sm:items-center gap-6 min-h-[56px]">
-            {bookingDetails?.join_url ? (
-              <a 
-                href={bookingDetails.join_url} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto bg-[#8C6D40] text-white hover:bg-white hover:text-charcoal uppercase tracking-[0.15em] text-[11px] font-bold h-14 px-10 rounded-none border-0 transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer text-center"
-              >
-                Join Call
-              </a>
-            ) : (
-              <button 
-                disabled
-                className="w-full sm:w-auto bg-white/10 text-white/50 uppercase tracking-[0.15em] text-[11px] font-bold h-14 px-10 rounded-none border border-white/10 cursor-not-allowed"
-              >
-                Awaiting Call
-              </button>
-            )}
-            
-            <div className="flex flex-col gap-1.5 items-start">
-              <div className="flex items-baseline gap-3">
-                <span className="text-white font-bold text-xl sm:text-2xl tracking-wide uppercase">
-                  Scheduled
-                </span>
-                <span className="text-[#8C6D40] font-bold text-sm">
-                  {formatBookingTime(bookingDetails?.start_time, bookingDetails?.timezone)}
-                </span>
-              </div>
-              <span className="text-[10px] text-white/60 font-light tracking-wide max-w-xs sm:max-w-md text-left leading-normal">
-                Note: Clinical coach will call you. Once call is marked done, price details & buy button will unlock here.
               </span>
             </div>
           </div>

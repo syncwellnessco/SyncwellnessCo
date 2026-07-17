@@ -40,7 +40,28 @@ export async function GET(request: NextRequest) {
     // Find the latest booking that is either generic or matches this programTitle
     let latestBooking = null;
     if (bookings && bookings.length > 0) {
+      // 1. Try to find an active (not completed) booking matching the criteria
       if (programTitle) {
+        const cleanTitle = programTitle.toLowerCase();
+        latestBooking = bookings.find((b: any) => {
+          if (b.completed) return false;
+          const name = (b.event_name || "").toLowerCase();
+          return name.includes(cleanTitle) || 
+                 name.includes("consultation") || 
+                 name.includes("discovery") || 
+                 name.includes("call") || 
+                 name.includes("meeting") || 
+                 name.includes("30min");
+        });
+      }
+      
+      // 2. If no active matched, find any active booking
+      if (!latestBooking) {
+        latestBooking = bookings.find((b: any) => !b.completed);
+      }
+
+      // 3. If no active booking at all, find the latest completed booking matching the criteria
+      if (!latestBooking && programTitle) {
         const cleanTitle = programTitle.toLowerCase();
         latestBooking = bookings.find((b: any) => {
           const name = (b.event_name || "").toLowerCase();
@@ -52,6 +73,8 @@ export async function GET(request: NextRequest) {
                  name.includes("30min");
         });
       }
+
+      // 4. Fallback to the absolute latest booking
       if (!latestBooking) {
         latestBooking = bookings[0];
       }

@@ -19,6 +19,18 @@ interface BookingButtonProps {
   onBooked?: (details?: any) => void;
 }
 
+const isBookingOver = (booking: any) => {
+  if (!booking) return true;
+  if (booking.completed) return true;
+  if (booking.end_time) {
+    return Date.now() > new Date(booking.end_time).getTime();
+  }
+  if (booking.start_time) {
+    return Date.now() > (new Date(booking.start_time).getTime() + 60 * 60 * 1000);
+  }
+  return false;
+};
+
 export function BookingButton({ 
   programId, 
   programSlug, 
@@ -48,7 +60,10 @@ export function BookingButton({
   }>({ status: "idle" });
 
   const consultationCompleted = consultationsCompleted[programId] || false;
-  const bookingDetail = allBookingDetails[programId] || null;
+  const rawBookingDetail = allBookingDetails[programId] || null;
+  const bookingDetail = (rawBookingDetail && user && rawBookingDetail.email && rawBookingDetail.email.toLowerCase() === user.email.toLowerCase() && !isBookingOver(rawBookingDetail)) 
+    ? rawBookingDetail 
+    : null;
 
   const bookingState = localBookingState.status === "loading"
     ? localBookingState
@@ -74,24 +89,49 @@ export function BookingButton({
   }, [isClient, effectiveRequireConsultant, user?.email]);
 
   useEffect(() => {
-    if (!programId || !user) {
+    if (!programId || !user?.email) {
       return;
     }
+
+    // Try loading from localStorage first
     const saved = localStorage.getItem(`booking_${programId}`);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        // Keep active for 24 hours
-        if (Date.now() - parsed.time < 24 * 60 * 60 * 1000) {
-          setBookingDetail(programId, parsed.details);
+        const details = parsed.details;
+        if (details && details.email && details.email.toLowerCase() === user.email.toLowerCase() && !isBookingOver(details)) {
+          setBookingDetail(programId, details);
         } else {
           localStorage.removeItem(`booking_${programId}`);
+          setBookingDetail(programId, null);
         }
       } catch (e) {
         console.error(e);
       }
     }
-  }, [programId, user, setBookingDetail]);
+
+    // Fetch fresh status from backend
+    fetch(`/api/bookings/status?email=${encodeURIComponent(user.email)}&programId=${encodeURIComponent(programId)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data) {
+          setConsultationCompleted(programId, data.completed);
+          const booking = data.booking;
+          // Only show booking if it is active, not completed, not over, and email matches
+          if (booking && !booking.completed && !isBookingOver(booking) && booking.email && booking.email.toLowerCase() === user.email.toLowerCase()) {
+            setBookingDetail(programId, booking);
+            localStorage.setItem(`booking_${programId}`, JSON.stringify({
+              time: Date.now(),
+              details: booking
+            }));
+          } else {
+            setBookingDetail(programId, null);
+            localStorage.removeItem(`booking_${programId}`);
+          }
+        }
+      })
+      .catch((err) => console.error("Error fetching booking status in BookingButton:", err));
+  }, [programId, user?.email, setBookingDetail, setConsultationCompleted]);
 
   useEffect(() => {
     if (!requireConsultant) return;
@@ -161,7 +201,7 @@ export function BookingButton({
               const fallbackDetails = {
                 event_name: "1:1 Consultation Call",
                 start_time: new Date().toISOString(),
-                end_time: new Date().toISOString(),
+                end_time: new Date(Date.now() + 45 * 60 * 1000).toISOString(),
                 join_url: "",
                 timezone: "",
                 email: user?.email || "",
@@ -235,7 +275,7 @@ export function BookingButton({
     return <Button className={className}>{children || "Join Program"}</Button>;
   }
 
-  if (requireConsultant && bookingState.status === "loading") {
+  if (bookingState.status === "loading") {
     return (
       <Button 
         className={cn("relative overflow-hidden select-none", className)} 
@@ -249,9 +289,9 @@ export function BookingButton({
     );
   }
 
-  const hasActiveBooking = bookingDetail && !bookingDetail.completed;
+  const hasActiveBooking = bookingDetail && !bookingDetail.completed && !isBookingOver(bookingDetail);
 
-  if (requireConsultant && bookingState.status === "booked" && hasActiveBooking) {
+  if (bookingState.status === "booked" && hasActiveBooking) {
     const details = bookingState.details;
     const formatBookingTimeLocal = (startTime?: string) => {
       if (!startTime) return "";

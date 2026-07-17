@@ -15,7 +15,7 @@ import { getProgramsAction } from "@/app/actions/programs";
 
 
 export default function ProfilePage() {
-  const { user, purchasedPrograms } = useUserStore();
+  const { user, purchasedPrograms, logout } = useUserStore();
   const router = useRouter();
   const supabase = createClient();
   
@@ -37,8 +37,18 @@ export default function ProfilePage() {
   }, [user, router]);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.error("Error signing out:", err);
+    }
+    if (typeof window !== "undefined") {
+      localStorage.clear();
+      sessionStorage.clear();
+    }
+    logout();
     router.push("/");
+    router.refresh();
   };
 
   if (!user || loading) {
