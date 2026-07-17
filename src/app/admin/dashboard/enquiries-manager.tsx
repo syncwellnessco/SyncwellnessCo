@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { ContactEnquiry } from "@/types/dashboard";
-import { Mail, Clock, Calendar, User } from "lucide-react";
+import { Mail, Clock, Calendar, User, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -183,77 +183,81 @@ export function EnquiriesManager() {
               const completed = booking.completed === true;
 
               return (
-                <div key={booking.id} className="p-5 border border-[#EBE3DB] rounded-md bg-[#FAF8F5] flex flex-col lg:flex-row gap-6 justify-between items-start lg:items-center">
-                  <div className="flex-1 space-y-1">
-                    <div className="flex items-center gap-3">
+                <div key={booking.id} className="p-4 border border-[#EBE3DB] rounded-md bg-[#FAF8F5] flex flex-col gap-3">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <div className="flex flex-wrap items-center gap-3">
                       <h3 className="font-semibold text-charcoal flex items-center gap-1.5">
                         <User className="h-4 w-4 text-charcoal/40" />
                         {booking.name}
                       </h3>
                       <span className={`text-[9px] px-2 py-0.5 uppercase tracking-wider font-bold rounded-sm ${completed ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>
-                        {completed ? 'Consultation Completed' : 'Pending Call'}
+                        {completed ? 'Completed' : 'Pending'}
                       </span>
                     </div>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-charcoal/60">
-                      <span className="flex items-center gap-1"><Mail className="h-3 w-3" /> {booking.email}</span>
-                      <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> Booked on {new Date(booking.created_at).toLocaleDateString()}</span>
+
+                    <div className="flex items-center gap-3 shrink-0">
+                      {/* Toggle Switch */}
+                      <div 
+                        onClick={() => !updatingBookings[booking.id] && toggleBookingCompleted(booking.id, booking.completed)}
+                        className={`relative flex items-center justify-between bg-[#EBE3DB]/60 p-0.5 rounded-full select-none w-28 h-8 border border-[#DCD3C9] overflow-hidden shrink-0 transition-all ${
+                          updatingBookings[booking.id] ? "opacity-75 cursor-not-allowed" : "cursor-pointer"
+                        }`}
+                      >
+                        {/* Sliding background pill */}
+                        <div 
+                          className={`absolute top-0.5 bottom-0.5 rounded-full bg-[#8C6D40] transition-all duration-300 shadow-sm flex items-center justify-center ${
+                            completed 
+                              ? "left-[56px] right-0.5" 
+                              : "left-0.5 right-[56px]"
+                          }`}
+                        >
+                          {updatingBookings[booking.id] && (
+                            <svg className="animate-spin h-3.5 w-3.5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                          )}
+                        </div>
+                        
+                        {/* Labels */}
+                        <span className={`z-10 w-1/2 text-center text-[9px] font-bold uppercase tracking-wider transition duration-200 ${!completed ? 'text-white' : 'text-charcoal/60'} ${updatingBookings[booking.id] && !completed ? 'opacity-0' : ''}`}>
+                          Pending
+                        </span>
+                        <span className={`z-10 w-1/2 text-center text-[9px] font-bold uppercase tracking-wider transition duration-200 ${completed ? 'text-white' : 'text-charcoal/60'} ${updatingBookings[booking.id] && completed ? 'opacity-0' : ''}`}>
+                          Done
+                        </span>
+                      </div>
+
+                      {/* Delete Icon */}
+                      <button
+                        onClick={() => setDeleteConfirmId(booking.id)}
+                        className="text-red-500 hover:text-red-700 transition-colors cursor-pointer bg-transparent border-0 outline-none hover:scale-105 active:scale-95 flex items-center justify-center h-8 w-8 rounded-full hover:bg-red-50"
+                        title="Delete Booking"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
                     </div>
-                    <div className="mt-3 bg-white p-4 rounded border border-[#EBE3DB] space-y-2 max-w-xl">
-                      <div className="text-[10px] font-bold text-[#8C6D40] uppercase tracking-wider">Scheduled Details</div>
-                      <div className="text-sm font-semibold text-charcoal">{booking.event_name || "1:1 Consultation Call"}</div>
-                      {dateStr && <div className="text-xs text-charcoal/70"><strong>Time:</strong> {dateStr} ({booking.timezone || "UTC"})</div>}
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-charcoal/60 -mt-1">
+                    <span className="flex items-center gap-1"><Mail className="h-3 w-3" /> {booking.email}</span>
+                    <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> Booked on {new Date(booking.created_at).toLocaleDateString()}</span>
+                  </div>
+
+                  <div className="bg-white/60 p-3 rounded border border-[#EBE3DB]/60 space-y-1 text-xs w-full">
+                    <div className="text-[9px] font-bold text-[#8C6D40] uppercase tracking-wider">Scheduled Details</div>
+                    <div className="flex flex-col md:flex-row md:items-center gap-x-6 gap-y-1">
+                      <div className="font-semibold text-charcoal">{booking.event_name || "1:1 Consultation Call"}</div>
+                      {dateStr && <div className="text-charcoal/70"><strong>Time:</strong> {dateStr}</div>}
                       {booking.join_url && (
-                        <div className="text-xs text-charcoal/70">
-                          <strong>Join Link:</strong>{" "}
-                          <a href={booking.join_url} target="_blank" rel="noopener noreferrer" className="text-[#8C6D40] hover:underline font-medium break-all">
+                        <div className="text-charcoal/70">
+                          <strong>Link:</strong>{" "}
+                          <a href={booking.join_url} target="_blank" rel="noopener noreferrer" className="text-[#8C6D40] hover:underline font-semibold break-all">
                             {booking.join_url}
                           </a>
                         </div>
                       )}
                     </div>
-                  </div>
-                  
-                  <div className="flex sm:flex-row lg:flex-col gap-2.5 items-center lg:items-end w-full lg:w-auto shrink-0 mt-4 lg:mt-0">
-                    {/* Toggle Switch: Left Pending, Right Done */}
-                    <div 
-                      onClick={() => !updatingBookings[booking.id] && toggleBookingCompleted(booking.id, booking.completed)}
-                      className={`relative flex items-center justify-between bg-[#EBE3DB]/60 p-1 rounded-full select-none w-36 h-9 border border-[#DCD3C9] overflow-hidden shrink-0 transition-all ${
-                        updatingBookings[booking.id] ? "opacity-75 cursor-not-allowed" : "cursor-pointer"
-                      }`}
-                    >
-                      {/* Sliding background pill */}
-                      <div 
-                        className={`absolute top-0.5 bottom-0.5 rounded-full bg-[#8C6D40] transition-all duration-300 shadow-sm flex items-center justify-center ${
-                          completed 
-                            ? "left-[72px] right-0.5" 
-                            : "left-0.5 right-[72px]"
-                        }`}
-                      >
-                        {updatingBookings[booking.id] && (
-                          <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                        )}
-                      </div>
-                      
-                      {/* Labels */}
-                      <span className={`z-10 w-1/2 text-center text-[10px] font-bold uppercase tracking-wider transition duration-200 ${!completed ? 'text-white' : 'text-charcoal/60'} ${updatingBookings[booking.id] && !completed ? 'opacity-0' : ''}`}>
-                        Pending
-                      </span>
-                      <span className={`z-10 w-1/2 text-center text-[10px] font-bold uppercase tracking-wider transition duration-200 ${completed ? 'text-white' : 'text-charcoal/60'} ${updatingBookings[booking.id] && completed ? 'opacity-0' : ''}`}>
-                        Done
-                      </span>
-                    </div>
-
-                    <Button 
-                      onClick={() => setDeleteConfirmId(booking.id)} 
-                      variant="ghost" 
-                      size="sm" 
-                      className="w-full sm:w-36 text-xs text-red-600 hover:bg-red-50 hover:text-red-700 border border-red-200 hover:border-red-300 rounded-sm h-9 bg-white transition-colors"
-                    >
-                      Delete Booking
-                    </Button>
                   </div>
                 </div>
               );

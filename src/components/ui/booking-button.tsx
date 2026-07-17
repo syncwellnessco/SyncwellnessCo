@@ -61,8 +61,6 @@ export function BookingButton({
     setIsClient(true);
   }, []);
 
-
-
   const effectiveRequireConsultant = requireConsultant && !consultationCompleted;
 
   useEffect(() => {
@@ -96,7 +94,7 @@ export function BookingButton({
   }, [programId, user, setBookingDetail]);
 
   useEffect(() => {
-    if (!effectiveRequireConsultant) return;
+    if (!requireConsultant) return;
 
     const handleCalendlyEvent = async (e: MessageEvent) => {
       if (e.data?.event === "calendly.event_scheduled") {
@@ -186,12 +184,12 @@ export function BookingButton({
     return () => {
       window.removeEventListener("message", handleCalendlyEvent);
     };
-  }, [effectiveRequireConsultant, programId, user?.email, programName, onBooked]);
+  }, [requireConsultant, programId, user?.email, programName, onBooked]);
 
   const isPurchased = isClient && purchasedPrograms.includes(programId);
 
   const handleClick = () => {
-    if (effectiveRequireConsultant) {
+    if (requireConsultant) {
       if (!user) {
         const currentPath = window.location.pathname;
         router.push(`/login?redirect=${encodeURIComponent(currentPath + "?openBooking=true")}`);
@@ -237,7 +235,7 @@ export function BookingButton({
     return <Button className={className}>{children || "Join Program"}</Button>;
   }
 
-  if (effectiveRequireConsultant && bookingState.status === "loading") {
+  if (requireConsultant && bookingState.status === "loading") {
     return (
       <Button 
         className={cn("relative overflow-hidden select-none", className)} 
@@ -251,7 +249,9 @@ export function BookingButton({
     );
   }
 
-  if (effectiveRequireConsultant && bookingState.status === "booked") {
+  const hasActiveBooking = bookingDetail && !bookingDetail.completed;
+
+  if (requireConsultant && bookingState.status === "booked" && hasActiveBooking) {
     const details = bookingState.details;
     const formatBookingTimeLocal = (startTime?: string) => {
       if (!startTime) return "";
@@ -336,10 +336,9 @@ export function BookingButton({
       disabled={loading}
     >
       <span className={cn("inline-flex items-center justify-center gap-2 w-full h-full transition-opacity", loading && "opacity-75")}>
-        {children || "Join Program"}
+        {requireConsultant && consultationCompleted ? "Book Again" : (children || "Join Program")}
       </span>
       {loading && <span className="shimmer-bg-light" />}
     </Button>
   );
 }
-

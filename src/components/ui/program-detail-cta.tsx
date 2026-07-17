@@ -34,6 +34,7 @@ interface ProgramDetailCTAProps {
 export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
   const { 
     user,
+    purchasedPrograms = [],
     bookingDetails: allBookingDetails,
     consultationsCompleted,
     setBookingDetail,
@@ -45,6 +46,7 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
   const bookingDetails = allBookingDetails[program.id] || null;
   const booked = !!bookingDetails;
   const consultationCompleted = consultationsCompleted[program.id] || false;
+  const isPurchased = purchasedPrograms.includes(program.id);
 
   useEffect(() => {
     if (!user) {
@@ -101,7 +103,7 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
     }
   }, [user?.email, program.id, program.pricing?.requireConsultant, setBookingDetail, setConsultationCompleted]);
 
-  const requireConsultant = program.pricing?.requireConsultant && !consultationCompleted;
+  const requireConsultant = program.pricing?.requireConsultant || false;
 
   const listPrice = program.pricing?.price ? Number(program.pricing.price) : null;
   const salePrice = program.pricing?.salePrice ? Number(program.pricing.salePrice) : null;
@@ -110,7 +112,48 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
   const originalPrice = listPrice || 0;
 
   if (position === "hero") {
+    if (isPurchased) {
+      return (
+        <div className="mt-12 flex flex-col sm:flex-row items-start sm:items-center gap-6 min-h-[56px]">
+          <BookingButton 
+            programId={program.id} 
+            programSlug={program.slug || program.id}
+            programName={program.title} 
+            theme="dark"
+            className="w-full sm:w-auto bg-[#8C6D40] text-white hover:bg-white hover:text-charcoal uppercase tracking-[0.15em] text-[11px] font-bold h-14 px-10 rounded-none border-0 transition-all duration-300 cursor-pointer"
+          >
+            Access Course
+          </BookingButton>
+        </div>
+      );
+    }
+
     if (requireConsultant) {
+      if (consultationCompleted) {
+        return (
+          <div className="mt-12 flex flex-col sm:flex-row items-start sm:items-center gap-6 min-h-[56px]">
+            <BookingButton 
+              programId={program.id} 
+              programSlug={program.slug || program.id}
+              programName={program.title} 
+              requireConsultant={true}
+              theme="dark"
+              className="w-full sm:w-auto bg-[#8C6D40] text-white hover:bg-white hover:text-charcoal uppercase tracking-[0.15em] text-[11px] font-bold h-14 px-10 rounded-none border-0 transition-all duration-300 cursor-pointer"
+            >
+              Booked Again
+            </BookingButton>
+            <div className="flex flex-col gap-1 items-start">
+              <span className="text-[10px] text-white/60 font-semibold tracking-wide uppercase">
+                Consultation Completed
+              </span>
+              <span className="text-[10px] text-white/50 font-light tracking-wide leading-normal">
+                Need another call? Click above to schedule. Scroll down to view pricing and enroll.
+              </span>
+            </div>
+          </div>
+        );
+      }
+
       if (booked) {
         return (
           <div className="mt-12 flex flex-col sm:flex-row items-start sm:items-center gap-6 min-h-[56px]">
@@ -189,7 +232,7 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
           theme="dark"
           className="w-full sm:w-auto bg-[#8C6D40] text-white hover:bg-white hover:text-charcoal uppercase tracking-[0.15em] text-[11px] font-bold h-14 px-10 rounded-none border-0 transition-all duration-300 cursor-pointer"
         >
-          {consultationCompleted ? "Enroll Now" : (program.hero?.ctaText || "Join Program")}
+          {program.hero?.ctaText || "Join Program"}
         </BookingButton>
         
         {program.pricing && (
@@ -223,12 +266,69 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
   }
 
   if (position === "booking-banner") {
-    // consolidated into hero cta, returning null
     return null;
   }
 
   // position === "bottom"
+  if (isPurchased) {
+    return (
+      <div className="flex justify-center items-center gap-6 min-h-[64px]">
+        <BookingButton 
+          programId={program.id} 
+          programSlug={program.slug || program.id}
+          programName={program.title} 
+          theme="light"
+          className="bg-[#8C6D40] text-white hover:bg-charcoal uppercase tracking-[0.2em] text-[11px] font-bold h-16 px-12 rounded-none border-0 transition-all duration-300 w-full sm:w-auto cursor-pointer"
+        >
+          Access Course
+        </BookingButton>
+      </div>
+    );
+  }
+
   if (requireConsultant) {
+    if (consultationCompleted) {
+      return (
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-6 min-h-[64px]">
+          <BookingButton 
+            programId={program.id} 
+            programSlug={program.slug || program.id}
+            programName={program.title} 
+            theme="light"
+            className="bg-[#8C6D40] text-white hover:bg-charcoal uppercase tracking-[0.2em] text-[11px] font-bold h-16 px-12 rounded-none border-0 transition-all duration-300 w-full sm:w-auto cursor-pointer"
+          >
+            Enroll Now
+          </BookingButton>
+          {program.pricing && (
+            <div className="flex flex-col items-center sm:items-start gap-1.5">
+              <div className="flex items-baseline gap-3">
+                {hasDiscount ? (
+                  <>
+                    <span className="text-charcoal/60 line-through font-light text-lg">
+                      ${originalPrice} AUD
+                    </span>
+                    <span className="text-charcoal font-bold text-2xl sm:text-3xl">
+                      ${displayPrice} AUD
+                    </span>
+                    <span className="bg-black text-white text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-none self-center">
+                      SAVE ${originalPrice - displayPrice}
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-charcoal font-bold text-2xl sm:text-3xl">
+                    ${displayPrice} AUD
+                  </span>
+                )}
+              </div>
+              <span className="text-[10px] text-charcoal/60 font-light tracking-wide">
+                Note: Special pricing valid today only, subject to change.
+              </span>
+            </div>
+          )}
+        </div>
+      );
+    }
+
     if (booked) {
       return (
         <div className="flex flex-col sm:flex-row justify-center items-center gap-6 min-h-[64px]">
@@ -298,43 +398,6 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
     );
   }
 
-  return (
-    <div className="flex flex-col sm:flex-row justify-center items-center gap-6 min-h-[64px]">
-      <BookingButton 
-        programId={program.id} 
-        programSlug={program.slug || program.id}
-        programName={program.title} 
-        theme="light"
-        className="bg-[#8C6D40] text-white hover:bg-charcoal uppercase tracking-[0.2em] text-[11px] font-bold h-16 px-12 rounded-none border-0 transition-all duration-300 w-full sm:w-auto cursor-pointer"
-      >
-        {consultationCompleted ? "Enroll Now" : (program.hero?.ctaText || "Join Program")}
-      </BookingButton>
-      {program.pricing && (
-        <div className="flex flex-col items-center sm:items-start gap-1.5">
-          <div className="flex items-baseline gap-3">
-            {hasDiscount ? (
-              <>
-                <span className="text-charcoal/60 line-through font-light text-lg">
-                  ${originalPrice} AUD
-                </span>
-                <span className="text-charcoal font-bold text-2xl sm:text-3xl">
-                  ${displayPrice} AUD
-                </span>
-                <span className="bg-black text-white text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-none self-center">
-                  SAVE ${originalPrice - displayPrice}
-                </span>
-              </>
-            ) : (
-              <span className="text-charcoal font-bold text-2xl sm:text-3xl">
-                ${displayPrice} AUD
-              </span>
-            )}
-          </div>
-          <span className="text-[10px] text-charcoal/60 font-light tracking-wide">
-            Note: Special pricing valid today only, subject to change.
-          </span>
-        </div>
-      )}
-    </div>
-  );
+  // Remove pricing from bottom for all other courses
+  return null;
 }

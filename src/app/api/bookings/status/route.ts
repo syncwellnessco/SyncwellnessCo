@@ -34,18 +34,19 @@ export async function GET(request: NextRequest) {
       query = query.ilike("event_name", `%${programTitle}%`);
     }
 
-    const { data: booking, error } = await query
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    const { data: bookings, error } = await query
+      .order("created_at", { ascending: false });
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
+    const completed = bookings ? bookings.some((b: any) => b.completed) : false;
+    const latestBooking = bookings && bookings.length > 0 ? bookings[0] : null;
+
     return NextResponse.json({
-      completed: booking ? booking.completed : false,
-      booking: booking || null
+      completed,
+      booking: latestBooking
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
