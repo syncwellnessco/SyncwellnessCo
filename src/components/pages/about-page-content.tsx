@@ -4,29 +4,81 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { aboutContent, brandContent } from "@/data/about-content";
 import { IMAGES } from "@/data/images";
+import { Play, Pause, Volume2, VolumeX } from "lucide-react";
 
 export function AboutPageContent() {
   const coachImageSrc = IMAGES.aboutPageProfile;
   const coachVideoSrc = "/about.mp4";
 
   const [isMuted, setIsMuted] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     if (videoRef.current) {
-      videoRef.current.play().catch((err) => {
-        console.log("Autoplay was blocked or failed:", err);
-      });
+      videoRef.current.play()
+        .then(() => setIsPlaying(true))
+        .catch((err) => {
+          console.log("Autoplay was blocked or failed:", err);
+          setIsPlaying(false);
+        });
     }
   }, []);
 
-  const toggleMute = (e: React.MouseEvent) => {
+  const handlePlayPause = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+        setIsPlaying(false);
+      } else {
+        videoRef.current.play()
+          .then(() => setIsPlaying(true))
+          .catch((err) => console.log(err));
+      }
+    }
+  };
+
+  const handleMuteUnmute = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (videoRef.current) {
       const nextMuted = !videoRef.current.muted;
       videoRef.current.muted = nextMuted;
       setIsMuted(nextMuted);
     }
   };
+
+  const handleTimeUpdate = () => {
+    if (videoRef.current) {
+      setCurrentTime(videoRef.current.currentTime);
+    }
+  };
+
+  const handleDurationChange = () => {
+    if (videoRef.current) {
+      setDuration(videoRef.current.duration || 0);
+    }
+  };
+
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
+    const time = parseFloat(e.target.value);
+    setCurrentTime(time);
+    if (videoRef.current) {
+      videoRef.current.currentTime = time;
+    }
+  };
+
+  const formatTime = (time: number) => {
+    if (isNaN(time)) return "0:00";
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+  };
+
+  const progressPercent = duration ? (currentTime / duration) * 100 : 0;
 
   return (
     <article className="bg-[#FAF8F5] min-h-screen">
@@ -49,8 +101,7 @@ export function AboutPageContent() {
       {/* Standalone Video Player Section */}
       <section className="px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto mb-6 sm:mb-8">
         <div 
-          onClick={toggleMute}
-          className="relative aspect-video w-full rounded-2xl overflow-hidden bg-charcoal shadow-2xl border border-beige-200 cursor-pointer group"
+          className="relative aspect-video w-full rounded-2xl overflow-hidden bg-charcoal shadow-2xl border border-beige-200 group select-none"
         >
           <video
             ref={videoRef}
@@ -61,27 +112,79 @@ export function AboutPageContent() {
             playsInline
             preload="metadata"
             poster={coachImageSrc}
+            onTimeUpdate={handleTimeUpdate}
+            onDurationChange={handleDurationChange}
+            onLoadedMetadata={handleDurationChange}
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
           >
             <source src={coachVideoSrc} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
 
-          {/* Subtle overlay on hover */}
-          <div className="absolute inset-0 bg-black/10 group-hover:bg-black/5 transition-all duration-300" />
+          {/* Clickable overlay to toggle play/pause */}
+          <div 
+            onClick={() => handlePlayPause()}
+            className="absolute inset-0 bg-black/10 group-hover:bg-black/5 transition-all duration-300 cursor-pointer"
+          />
 
-          {/* Sound Toggle Indicator Badge */}
-          <div className="absolute bottom-4 right-4 z-10 bg-black/70 hover:bg-black/90 backdrop-blur-md text-white text-[9px] sm:text-[11px] font-semibold px-3 py-2 rounded-full flex items-center gap-1.5 border border-white/10 shadow-lg transition-all duration-300 hover:scale-105">
-            {isMuted ? (
-              <>
-                <span className="w-1.5 h-1.5 rounded-full bg-[#8C6D40] animate-pulse" />
-                <span>🔊 TAP FOR AUDIO</span>
-              </>
-            ) : (
-              <>
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                <span>🔇 MUTE AUDIO</span>
-              </>
-            )}
+          {/* Custom Controls Layout */}
+          
+          {/* Center Play/Pause Button */}
+          <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+            <button
+              onClick={() => handlePlayPause()}
+              type="button"
+              className={`p-6 rounded-full bg-white/15 hover:bg-white/25 border border-white/20 backdrop-blur-md shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] text-white active:scale-95 transition-all duration-300 pointer-events-auto focus:outline-none flex items-center justify-center ${
+                isPlaying ? "opacity-0 scale-75 pointer-events-none" : "opacity-100 scale-100 pointer-events-auto"
+              }`}
+              aria-label={isPlaying ? "Pause" : "Play"}
+            >
+              {isPlaying ? (
+                <Pause className="w-8 h-8 fill-white text-white" />
+              ) : (
+                <Play className="w-8 h-8 fill-white text-white translate-x-[1.5px]" />
+              )}
+            </button>
+          </div>
+
+          {/* Top Right Mute Button */}
+          <div className="absolute top-4 right-4 z-20">
+            <button
+              onClick={handleMuteUnmute}
+              type="button"
+              className="p-2.5 rounded-full bg-white/15 hover:bg-white/25 border border-white/20 backdrop-blur-md shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] text-white active:scale-95 cursor-pointer focus:outline-none flex items-center justify-center transition-all duration-300 opacity-100 pointer-events-auto"
+              aria-label={isMuted ? "Unmute" : "Mute"}
+            >
+              {isMuted ? (
+                <VolumeX className="w-4 h-4 text-white" />
+              ) : (
+                <Volume2 className="w-4 h-4 text-white" />
+              )}
+            </button>
+          </div>
+
+          {/* Bottom Seekbar */}
+          <div 
+            onClick={(e) => e.stopPropagation()} 
+            className={`absolute bottom-0 left-0 right-0 z-20 px-4 pb-3 transition-all duration-300 ${
+              isPlaying 
+                ? "opacity-0 pointer-events-none translate-y-1 group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0" 
+                : "opacity-100 pointer-events-auto translate-y-0"
+            }`}
+          >
+            <input
+              type="range"
+              min={0}
+              max={duration || 100}
+              value={currentTime}
+              onChange={handleSeek}
+              style={{
+                background: `linear-gradient(to right, #8C6D40 0%, #8C6D40 ${progressPercent}%, rgba(255, 255, 255, 0.2) ${progressPercent}%, rgba(255, 255, 255, 0.2) 100%)`
+              }}
+              className="w-full h-1 rounded-lg appearance-none cursor-pointer outline-none transition-colors [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white hover:[&::-webkit-slider-thumb]:scale-125 [&::-webkit-slider-thumb]:transition-transform"
+              aria-label="Seek video"
+            />
           </div>
         </div>
       </section>

@@ -5,7 +5,6 @@ import nextDynamic from 'next/dynamic';
 
 const ProgramsSection = nextDynamic(() => import("@/components/home/programs-section").then(mod => mod.ProgramsSection));
 const AboutCoachSection = nextDynamic(() => import("@/components/home/about-coach-section").then(mod => mod.AboutCoachSection));
-const OneToOneCallSection = nextDynamic(() => import("@/components/home/one-to-one-call-section").then(mod => mod.OneToOneCallSection));
 const TestimonialsSection = nextDynamic(() => import("@/components/home/testimonials-section").then(mod => mod.TestimonialsSection));
 const VideoTestimonialsSection = nextDynamic(() => import("@/components/home/video-testimonials-section").then(mod => mod.VideoTestimonialsSection));
 const BlogSection = nextDynamic(() => import("@/components/home/blog-section").then(mod => mod.BlogSection));
@@ -31,7 +30,6 @@ export default async function HomePage() {
       <HowWeHelpSection />
       <ProgramsSection programs={allPrograms} />
       <AboutCoachSection />
-      <OneToOneCallSection />
       <TestimonialsSection />
       <VideoTestimonialsSection />
       <BlogSection blogs={latestBlogs} />
