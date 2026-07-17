@@ -192,7 +192,6 @@ function CheckoutPageContent() {
   const [program, setProgram] = useState<ProgramDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [consultationCompleted, setConsultationCompleted] = useState(false);
 
   useEffect(() => {
     if (!programId) {
@@ -220,21 +219,6 @@ function CheckoutPageContent() {
         }
         const data = await res.json();
         setProgram(data);
-
-        // If the program requires a consultation, verify status
-        if (data?.pricing?.requireConsultant) {
-          const checkRes = await fetch(`/api/bookings/check?email=${encodeURIComponent(user.email)}`);
-          if (checkRes.ok) {
-            const checkData = await checkRes.json();
-            if (checkData?.completed) {
-              setConsultationCompleted(true);
-            } else {
-              setError("A completed 1:1 consultation is required before purchasing this program.");
-            }
-          } else {
-            setError("Failed to verify consultation status.");
-          }
-        }
       } catch (err: any) {
         console.error("Checkout page error fetching program:", err);
         setError(err.message || "Failed to load program details.");
