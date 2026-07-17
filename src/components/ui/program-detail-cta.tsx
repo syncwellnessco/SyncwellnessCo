@@ -177,7 +177,7 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
               <span className="text-white font-bold text-xl sm:text-2xl tracking-wide uppercase">
                 Scheduled
               </span>
-              <span className="text-[#8C6D40] font-bold text-sm">
+              <span className="text-[#E6C594] font-bold text-sm sm:text-base">
                 {formatBookingTime(bookingDetails?.start_time, bookingDetails?.timezone)}
               </span>
             </div>
@@ -192,25 +192,51 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
     if (requireConsultant) {
       if (consultationCompleted) {
         return (
-          <div className="mt-12 flex flex-col sm:flex-row items-start sm:items-center gap-6 min-h-[56px]">
+          <div className="mt-12 flex flex-col sm:flex-row items-stretch sm:items-center gap-4 min-h-[56px]">
             <BookingButton 
               programId={program.id} 
               programSlug={program.slug || program.id}
               programName={program.title} 
               requireConsultant={true}
               theme="dark"
-              className="w-full sm:w-auto bg-[#8C6D40] text-white hover:bg-white hover:text-charcoal uppercase tracking-[0.15em] text-[11px] font-bold h-14 px-10 rounded-none border-0 transition-all duration-300 cursor-pointer"
+              className="w-full sm:w-auto bg-transparent border border-white/30 text-white hover:bg-white hover:text-charcoal uppercase tracking-[0.15em] text-[11px] font-bold h-14 px-8 rounded-none transition-all duration-300 cursor-pointer"
             >
               Book Again
             </BookingButton>
-            <div className="flex flex-col gap-1 items-start">
-              <span className="text-[10px] text-white/60 font-semibold tracking-wide uppercase">
-                Consultation Completed
-              </span>
-              <span className="text-[10px] text-white/50 font-light tracking-wide leading-normal">
-                Need another call? Click above to schedule. Scroll down to view pricing and enroll.
-              </span>
-            </div>
+
+            <BookingButton 
+              programId={program.id} 
+              programSlug={program.slug || program.id}
+              programName={program.title} 
+              theme="dark"
+              className="w-full sm:w-auto bg-[#8C6D40] text-white hover:bg-[#a37f4c] uppercase tracking-[0.15em] text-[11px] font-bold h-14 px-10 rounded-none border-0 transition-all duration-300 cursor-pointer"
+            >
+              Enroll Now
+            </BookingButton>
+
+            {program.pricing && (
+              <div className="flex flex-col gap-1 items-start sm:ml-2">
+                <div className="flex items-baseline gap-2">
+                  {hasDiscount ? (
+                    <>
+                      <span className="text-white/60 line-through font-light text-xs">
+                        ${originalPrice} AUD
+                      </span>
+                      <span className="text-white font-bold text-lg">
+                        ${displayPrice} AUD
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-white font-bold text-lg">
+                      ${displayPrice} AUD
+                    </span>
+                  )}
+                </div>
+                <span className="text-[10px] text-white/50 font-light tracking-wide leading-none">
+                  Consultation completed! Enroll now to access.
+                </span>
+              </div>
+            )}
           </div>
         );
       }

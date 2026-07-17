@@ -297,14 +297,17 @@ export function BookingButton({
       if (!startTime) return "";
       try {
         const date = new Date(startTime);
-        return date.toLocaleDateString("en-US", {
+        const formattedDate = date.toLocaleDateString("en-US", {
           weekday: "long",
           month: "long",
-          day: "numeric",
+          day: "numeric"
+        });
+        const formattedTime = date.toLocaleTimeString("en-US", {
           hour: "numeric",
           minute: "2-digit",
           hour12: true
         });
+        return `${formattedDate} at ${formattedTime}`;
       } catch (e) {
         return startTime;
       }
