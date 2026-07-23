@@ -9,6 +9,7 @@ import { optimizeCloudinaryUrl, deleteCloudinaryFile } from "@/lib/cloudinary-ut
 import useEmblaCarousel from "embla-carousel-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useUserStore } from "@/store/user-store";
 
 interface Review {
   id: string;
@@ -21,16 +22,16 @@ interface Review {
 }
 
 const CloudinaryBtn = ({ label, onUpload, onRemove, value }: { label: string, onUpload: (u: string, pId: string) => void, onRemove: () => void, value: string }) => (
-  <div className="flex flex-col gap-2">
+  <div className="flex flex-col gap-1.5">
     <div className="flex justify-between items-baseline">
-      <span className="text-sm font-medium text-charcoal/80">{label}</span>
-      {!value && <span className="text-[10px] text-charcoal/50 font-medium">Aspect ratio: 4:5 vertical</span>}
+      <span className="text-xs font-semibold text-charcoal/80">{label}</span>
+      {!value && <span className="text-[9px] text-charcoal/40 font-medium">4:5 vertical format</span>}
     </div>
     {value ? (
-      <div className="relative w-full aspect-[4/5] rounded-md overflow-hidden border border-[#EBE3DB]">
+      <div className="relative w-full h-20 sm:h-24 md:h-28 rounded-md overflow-hidden border border-[#EBE3DB] bg-beige-100/50">
         <img src={value} alt="Preview" className="w-full h-full object-cover" />
-        <button type="button" onClick={onRemove} className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full hover:bg-black/70 transition-colors">
-          <X className="h-4 w-4" />
+        <button type="button" onClick={onRemove} className="absolute top-1.5 right-1.5 bg-black/60 text-white p-1 rounded-full hover:bg-black/80 transition-colors">
+          <X className="h-3.5 w-3.5" />
         </button>
       </div>
     ) : (
@@ -51,10 +52,10 @@ const CloudinaryBtn = ({ label, onUpload, onRemove, value }: { label: string, on
         }}
       >
         {({ open }) => (
-          <button type="button" onClick={() => open()} className="w-full aspect-[4/5] border-2 border-dashed border-[#EBE3DB] rounded-md flex flex-col items-center justify-center text-charcoal/50 hover:bg-[#FAF8F5] hover:border-[#8C6D40] transition-colors">
-            <Upload className="h-6 w-6 mb-2" />
-            <span className="text-xs">Click to upload</span>
-            <span className="text-[10px] text-charcoal/40 mt-1">4:5 vertical format only</span>
+          <button type="button" onClick={() => open()} className="w-full h-20 sm:h-24 md:h-28 border-2 border-dashed border-[#EBE3DB] rounded-md flex flex-col items-center justify-center p-2 text-charcoal/60 hover:bg-[#FAF8F5] hover:border-[#8C6D40] transition-colors">
+            <Upload className="h-4 w-4 sm:h-5 sm:w-5 mb-1 text-[#8C6D40]" />
+            <span className="text-[11px] font-medium leading-tight">Click to upload</span>
+            <span className="text-[9px] text-charcoal/40 mt-0.5">Vertical 4:5</span>
           </button>
         )}
       </CldUploadWidget>
@@ -63,6 +64,11 @@ const CloudinaryBtn = ({ label, onUpload, onRemove, value }: { label: string, on
 );
 
 export function ProgramReviewsSection({ programId }: { programId: string }) {
+  const { user } = useUserStore();
+  const rawName = user?.user_metadata?.full_name || user?.user_metadata?.name || (user?.email ? user.email.split('@')[0] : "");
+  const displayName = rawName ? rawName.trim() : "Valued Member";
+  const firstName = displayName.split(' ')[0];
+
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -70,7 +76,6 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
   const [submitting, setSubmitting] = useState(false);
 
   // Form state
-  const [name, setName] = useState("");
   const [testimonial, setTestimonial] = useState("");
   const [beforeImage, setBeforeImage] = useState("");
   const [beforePublicId, setBeforePublicId] = useState("");
@@ -133,8 +138,8 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !testimonial) {
-      toast.error("Please provide your name and review");
+    if (!testimonial.trim()) {
+      toast.error("Please share your experience before submitting");
       return;
     }
 
@@ -143,13 +148,12 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
       const res = await fetch("/api/reviews", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ programId, name, testimonial, beforeImage, afterImage, rating }),
+        body: JSON.stringify({ programId, name: displayName, testimonial, beforeImage, afterImage, rating }),
       });
 
       if (res.ok) {
         toast.success("Thank you! Your review has been submitted for approval.");
         setIsModalOpen(false);
-        setName("");
         setTestimonial("");
         setBeforeImage("");
         setBeforePublicId("");
@@ -299,69 +303,90 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-charcoal/60 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-white rounded-md w-full max-w-lg shadow-2xl relative my-8">
-            <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 text-charcoal/50 hover:text-charcoal">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-charcoal/60 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white rounded-xl w-full max-w-3xl lg:max-w-4xl shadow-2xl relative my-auto max-h-[95vh] overflow-y-auto md:overflow-visible">
+            <button 
+              type="button"
+              onClick={() => setIsModalOpen(false)} 
+              className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 text-charcoal/50 hover:text-charcoal p-1.5 rounded-full hover:bg-beige-100 transition-colors"
+              aria-label="Close review modal"
+            >
               <X className="h-5 w-5" />
             </button>
-            <div className="p-8">
-              <h3 className="font-display text-2xl font-semibold text-charcoal mb-2">Write a Review</h3>
-              <p className="text-charcoal/60 text-sm mb-6">Share your transformation story to inspire others.</p>
+            <div className="p-4 sm:p-6 md:p-8">
+              <div className="mb-4 sm:mb-6 pr-8">
+                <h3 className="font-display text-xl sm:text-2xl font-semibold text-charcoal mb-1">Write a Review</h3>
+                <p className="text-charcoal/80 text-xs sm:text-sm font-medium">
+                  Hi {firstName}! How has your experience been with this program?
+                </p>
+              </div>
               
-              <form onSubmit={handleSubmit} className="space-y-5 text-left">
-                <div>
-                  <label className="block text-sm font-medium text-charcoal/80 mb-1">Your Name</label>
-                  <input type="text" value={name} onChange={e => setName(e.target.value)} required className="w-full px-4 py-3 rounded-md border border-beige-200 focus:border-[#8C6D40] focus:ring-1 focus:ring-[#8C6D40] outline-none transition-colors" placeholder="e.g. Sarah J." />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-charcoal/80 mb-2">Rating</label>
-                  <div className="flex gap-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        type="button"
-                        onClick={() => setRating(star)}
-                        className={`transition-colors ${star <= rating ? 'text-[#8C6D40]' : 'text-gray-300 hover:text-[#8C6D40]/50'}`}
-                      >
-                        <Star className="h-8 w-8 fill-current" />
-                      </button>
-                    ))}
+              <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 text-left">
+                {/* Left Column: Form Details */}
+                <div className="space-y-3.5 sm:space-y-4">
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-charcoal/80 mb-1.5">Rating</label>
+                    <div className="flex gap-1.5 sm:gap-2">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={() => setRating(star)}
+                          className={`transition-colors ${star <= rating ? 'text-[#8C6D40]' : 'text-gray-300 hover:text-[#8C6D40]/50'}`}
+                        >
+                          <Star className="h-6 w-6 sm:h-7 sm:w-7 fill-current" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-charcoal/80 mb-1">Share Your Experience</label>
+                    <textarea 
+                      value={testimonial} 
+                      onChange={e => setTestimonial(e.target.value)} 
+                      required 
+                      rows={4} 
+                      className="w-full px-3.5 py-2.5 text-sm rounded-md border border-beige-200 focus:border-[#8C6D40] focus:ring-1 focus:ring-[#8C6D40] outline-none transition-colors resize-none" 
+                      placeholder="Tell us what you loved about this program, the transformation you experienced, or how it helped your health..." 
+                    />
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-charcoal/80 mb-1">Your Experience</label>
-                  <textarea value={testimonial} onChange={e => setTestimonial(e.target.value)} required rows={4} className="w-full px-4 py-3 rounded-md border border-beige-200 focus:border-[#8C6D40] focus:ring-1 focus:ring-[#8C6D40] outline-none transition-colors resize-none" placeholder="How did this program help you?" />
-                </div>
+                {/* Right Column: Images & Submit */}
+                <div className="flex flex-col justify-between gap-4">
+                  <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                    <CloudinaryBtn 
+                      label="Before Image (Optional)" 
+                      value={beforeImage} 
+                      onUpload={(u, pId) => { setBeforeImage(u); setBeforePublicId(pId); }} 
+                      onRemove={async () => {
+                        if (beforePublicId) await deleteCloudinaryFile(beforePublicId, 'image');
+                        setBeforeImage("");
+                        setBeforePublicId("");
+                      }}
+                    />
+                    <CloudinaryBtn 
+                      label="After Image (Optional)" 
+                      value={afterImage} 
+                      onUpload={(u, pId) => { setAfterImage(u); setAfterPublicId(pId); }} 
+                      onRemove={async () => {
+                        if (afterPublicId) await deleteCloudinaryFile(afterPublicId, 'image');
+                        setAfterImage("");
+                        setAfterPublicId("");
+                      }}
+                    />
+                  </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <CloudinaryBtn 
-                    label="Before Image (Optional)" 
-                    value={beforeImage} 
-                    onUpload={(u, pId) => { setBeforeImage(u); setBeforePublicId(pId); }} 
-                    onRemove={async () => {
-                      if (beforePublicId) await deleteCloudinaryFile(beforePublicId, 'image');
-                      setBeforeImage("");
-                      setBeforePublicId("");
-                    }}
-                  />
-                  <CloudinaryBtn 
-                    label="After Image (Optional)" 
-                    value={afterImage} 
-                    onUpload={(u, pId) => { setAfterImage(u); setAfterPublicId(pId); }} 
-                    onRemove={async () => {
-                      if (afterPublicId) await deleteCloudinaryFile(afterPublicId, 'image');
-                      setAfterImage("");
-                      setAfterPublicId("");
-                    }}
-                  />
+                  <Button 
+                    type="submit" 
+                    disabled={submitting} 
+                    className="w-full bg-[#8C6D40] hover:bg-[#B8955F] text-white h-10 sm:h-12 text-sm sm:text-base font-semibold rounded-full mt-2"
+                  >
+                    {submitting ? <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin mr-2" /> : <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />}
+                    {submitting ? "Submitting..." : "Submit Review"}
+                  </Button>
                 </div>
-
-                <Button type="submit" disabled={submitting} className="w-full bg-[#8C6D40] hover:bg-[#B8955F] text-white h-12 text-base font-semibold rounded-full mt-4">
-                  {submitting ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <CheckCircle2 className="h-5 w-5 mr-2" />}
-                  {submitting ? "Submitting..." : "Submit Review"}
-                </Button>
               </form>
             </div>
           </div>
