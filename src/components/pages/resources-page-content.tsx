@@ -20,7 +20,7 @@ export function ResourcesPageContent() {
     e.preventDefault();
     
     if (!user) {
-      toast.error("Please log in or sign up to download the eBook.");
+      toast.error("Please log in or sign up to download the Ebook.");
       router.push("/login?redirect=/resources");
       return;
     }
@@ -143,7 +143,7 @@ export function ResourcesPageContent() {
                 {submitted ? (
                   <div className="bg-[#FAF8F5] p-8 border border-[#EBE3DB] rounded-sm text-center">
                     <p className="text-[#8C6D40] font-display text-2xl mb-2">Check your inbox!</p>
-                    <p className="text-charcoal text-sm mb-3">Your free eBook download link is on its way.</p>
+                    <p className="text-charcoal text-sm mb-3">Your free Ebook download link is on its way.</p>
                     <p className="text-charcoal/70 text-xs italic">
                       (Note: Please check your spam or promotions folder if you don't receive it within a few minutes!)
                     </p>
@@ -151,7 +151,7 @@ export function ResourcesPageContent() {
                 ) : duplicateError ? (
                   <div className="bg-[#FAF8F5] p-8 border border-[#EBE3DB] rounded-sm text-center">
                     <p className="text-[#8C6D40] font-display text-2xl mb-2">Check your inbox!</p>
-                    <p className="text-charcoal text-sm mb-3">Sorry, we have already sent you the eBook. Please contact support if you didn't receive it.</p>
+                    <p className="text-charcoal text-sm mb-3">Sorry, we have already sent you the Ebook. Please contact support if you didn't receive it.</p>
                     <p className="text-charcoal/70 text-xs italic">
                       (Note: Don't forget to check your spam or promotions folder!)
                     </p>

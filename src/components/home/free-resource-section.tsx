@@ -16,7 +16,7 @@ export function FreeResourceSection() {
             <div className="p-5 sm:p-12 lg:p-14">
               <SectionHeading
                 eyebrow="Free Resource"
-                title="Free Hormone Balance eBook"
+                title="Free Hormone Balance Ebook"
                 description="Discover the 7 foundational principles for balancing hormones naturally without restrictive diets or overwhelming protocols."
                 align="left"
               />
@@ -55,7 +55,7 @@ export function FreeResourceSection() {
             <div className="relative flex items-center justify-center p-5 sm:p-12">
               <img
                 src={IMAGES.ebookMockupPng}
-                alt="Free Hormone Balance eBook"
+                alt="Free Hormone Balance Ebook"
                 className="w-full max-w-sm drop-shadow-2xl object-contain hover:scale-105 transition-transform duration-700"
               />
             </div>

@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
 
     if (existingRequest) {
       return NextResponse.json(
-        { error: "You have already requested this eBook! Please check your inbox (and spam folder) for the download link." },
+        { error: "You have already requested this Ebook! Please check your inbox (and spam folder) for the download link." },
         { status: 409 }
       );
     }

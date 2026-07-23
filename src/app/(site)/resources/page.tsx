@@ -8,7 +8,7 @@ import { IMAGES } from "@/data/images";
 
 export const metadata: Metadata = {
   title: "Resources | SyncwellnessCo",
-  description: "Free resources, eBooks, and diet plans to help balance your hormones naturally.",
+  description: "Free resources, Ebooks, and diet plans to help balance your hormones naturally.",
 };
 
 export const revalidate = 0;
@@ -55,7 +55,7 @@ export default async function ResourcesHubPage() {
                 <div className="relative max-w-[280px] w-full aspect-[3/4] bg-[#FAF8F5] p-4 border border-[#EBE3DB] shadow-md group-hover:-translate-y-1 transition-transform duration-500 flex items-center justify-center">
                   <img 
                     src={IMAGES.ebookMockupPng} 
-                    alt="Hormone Balance eBook" 
+                    alt="Hormone Balance Ebook" 
                     className="w-full h-full object-contain drop-shadow-xl"
                   />
                 </div>
@@ -65,7 +65,7 @@ export default async function ResourcesHubPage() {
               <div className="lg:col-span-7 space-y-4">
                 <div className="inline-flex items-center gap-2 px-2.5 py-0.5 bg-[#8C6D40]/5 border border-[#8C6D40]/10 rounded-sm">
                   <BookOpen className="w-3.5 h-3.5 text-[#8C6D40]" />
-                  <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#8C6D40]">Featured eBook</span>
+                  <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#8C6D40]">Featured Ebook</span>
                 </div>
                 <h2 className="font-display text-2xl sm:text-3xl text-charcoal leading-tight">
                   The Hormone Balance Guide
