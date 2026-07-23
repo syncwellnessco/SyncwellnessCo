@@ -20,7 +20,7 @@ export function BlogSection({ blogs }: BlogSectionProps) {
         <SectionHeading
           eyebrow="From the Blog"
           title={<>Wellness Insights & <span className="box-decoration-clone bg-[#B38C50] px-2 py-0.5 text-cream">Tips</span></>}
-          description="Practical reads on hormones, nutrition, and living well — curated for women like you."
+          description="Practical reads on hormones, nutrition, and living well, curated for women like you."
         />
 
         <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 md:gap-6 max-w-4xl mx-auto">

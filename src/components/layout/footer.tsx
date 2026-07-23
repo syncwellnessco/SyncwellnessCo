@@ -99,14 +99,6 @@ export function Footer() {
           <div className="col-span-2 lg:col-span-1">
             <h4 className="font-display text-base text-cream">Contact</h4>
             <ul className="mt-4 space-y-2 text-sm text-cream/60">
-              <li>
-                <a
-                  href={`mailto:${siteConfig.email}`}
-                  className="transition-colors hover:text-cream"
-                >
-                  {siteConfig.email}
-                </a>
-              </li>
               <li>{siteConfig.businessHours}</li>
             </ul>
           </div>

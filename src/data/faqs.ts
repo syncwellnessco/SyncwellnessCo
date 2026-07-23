@@ -15,7 +15,7 @@ export const faqs: FAQ[] = [
     id: "2",
     question: "Do I need to follow a restrictive diet?",
     answer:
-      "Absolutely not. We focus on hormone-friendly nutrition that nourishes your body — not extreme restriction. Our approach emphasizes sustainable habits, balanced macros, and foods that support your unique hormonal profile.",
+      "Absolutely not. We focus on hormone-friendly nutrition that nourishes your body, not extreme restriction. Our approach emphasizes sustainable habits, balanced macros, and foods that support your unique hormonal profile.",
   },
   {
     id: "3",
@@ -33,12 +33,12 @@ export const faqs: FAQ[] = [
     id: "5",
     question: "What makes SyncWellnessCo different?",
     answer:
-      "We combine evidence-based functional health principles with compassionate, personalized coaching. Our holistic approach addresses hormones, gut health, metabolism, and lifestyle — not just calories in, calories out.",
+      "We combine evidence-based functional health principles with compassionate, personalized coaching. Our holistic approach addresses hormones, gut health, metabolism, and lifestyle, not just calories in, calories out.",
   },
   {
     id: "6",
     question: "How do I get started?",
     answer:
-      "Explore our programs to find the best fit for your health goals. There's no pressure — just an honest conversation about how we can support your transformation.",
+      "Explore our programs to find the best fit for your health goals. There's no pressure, just an honest conversation about how we can support your transformation.",
   },
 ];

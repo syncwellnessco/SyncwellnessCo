@@ -57,7 +57,7 @@ export function ContactPageContent() {
               Have A Question? We're Here To Help.
             </h1>
             <p className="text-[15px] leading-relaxed text-charcoal mb-10 max-w-lg">
-              Whether you're curious about our programs, health coaching, or collaboration opportunities — we're just a message away. Reach out and a member from our team will get back to you within 24-48 business hours.
+              Whether you're curious about our programs, health coaching, or collaboration opportunities, we're just a message away. Reach out and a member from our team will get back to you within 24-48 business hours.
             </p>
             
             <div className="relative w-full aspect-[4/3] rounded-sm overflow-hidden shadow-sm">

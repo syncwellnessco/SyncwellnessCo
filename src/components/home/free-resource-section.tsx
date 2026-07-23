@@ -17,7 +17,7 @@ export function FreeResourceSection() {
               <SectionHeading
                 eyebrow="Free Resource"
                 title="Free Hormone Balance eBook"
-                description="Discover the 7 foundational principles for balancing hormones naturally — without restrictive diets or overwhelming protocols."
+                description="Discover the 7 foundational principles for balancing hormones naturally without restrictive diets or overwhelming protocols."
                 align="left"
               />
 

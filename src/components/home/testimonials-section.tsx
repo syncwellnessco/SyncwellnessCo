@@ -107,7 +107,7 @@ export function TestimonialsSection() {
         <SectionHeading
           eyebrow="Client Stories"
           title="Real Women, Real Transformations"
-          description="Hear from women who've walked this path and discovered what's possible when you work with your body — not against it."
+          description="Hear from women who've walked this path and discovered what's possible when you work with your body, not against it."
         />
 
         <div className="mt-8 grid grid-cols-3 gap-3 sm:gap-6">

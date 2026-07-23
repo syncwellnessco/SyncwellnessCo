@@ -71,7 +71,7 @@ export default async function ResourcesHubPage() {
                   The Hormone Balance Guide
                 </h2>
                 <p className="text-charcoal/80 text-sm leading-relaxed">
-                  Discover a simple, protein-focused blueprint designed to naturally reset your hormones, curb cravings, and jumpstart healthy weight management—completely free of calorie restriction or exhausting workouts.
+                  Discover a simple, protein-focused blueprint designed to naturally reset your hormones, curb cravings, and jumpstart healthy weight management, completely free of calorie restriction or exhausting workouts.
                 </p>
                 <div className="pt-2">
                   <Link 

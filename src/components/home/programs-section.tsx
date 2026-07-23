@@ -33,7 +33,7 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
         <SectionHeading
           eyebrow="Signature Programs"
           title="Transform Your Health"
-          description="Choose the program that meets you where you are — each designed to deliver real, sustainable results."
+          description="Choose the program that meets you where you are, each designed to deliver real, sustainable results."
         />
 
         <div className="mt-16 grid gap-8 lg:grid-cols-12">

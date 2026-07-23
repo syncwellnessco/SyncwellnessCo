@@ -42,8 +42,8 @@ export const aboutContent = {
   },
   story: [
     "My journey into women's health began long before I became a coach.",
-    "Around six years ago, I found myself navigating a series of health challenges that many women silently struggle with. I was diagnosed with endometriosis, underwent surgery, managed hypothyroidism, and faced difficulties conceiving. Like many women, I felt overwhelmed by conflicting health advice and frustrated by the lack of practical solutions that fit into everyday life.",
-    "After welcoming my son, I experienced another challenge that many mothers can relate to—weight gain, low energy, and the struggle to prioritise my own health while caring for my family and managing work responsibilities.",
+    "In 2018, I found myself navigating a series of health challenges that many women silently struggle with. I was diagnosed with endometriosis, underwent surgery, managed hypothyroidism, and faced difficulties conceiving. Like many women, I felt overwhelmed by conflicting health advice and frustrated by the lack of practical solutions that fit into everyday life.",
+    "After welcoming my son, I experienced another challenge that many mothers can relate to: weight gain, low energy, and the struggle to prioritise my own health while caring for my family and managing work responsibilities.",
     "Determined to regain my health, I turned to nutrition and lifestyle changes. While many of the meal plans I came across promised results, they often required hours of preparation, complicated recipes, and unrealistic expectations.",
     "As a busy mother with limited support and increasing work commitments, I knew this approach wasn't sustainable.",
     "I began asking myself a simple question:\nWhy should healthy eating feel so complicated?",
@@ -66,7 +66,7 @@ export const aboutContent = {
   coachingPhilosophy: {
     title: "My Coaching Philosophy",
     intro: [
-      "I believe that sustainable health is built through education, empowerment, and consistency—not perfection.",
+      "I believe that sustainable health is built through education, empowerment, and consistency, not perfection.",
       "There is no one-size-fits-all solution when it comes to women's health.",
       "Every woman has a unique lifestyle, health history, hormonal profile, responsibilities, and goals. That's why my coaching approach is highly personalised and designed to fit into real life.",
       "I don't believe in restrictive diets, extreme workouts, or short-term fixes.",
@@ -83,7 +83,7 @@ export const aboutContent = {
       "Increased energy",
       "Long-term health and vitality"
     ],
-    outro: "My goal isn't just to help women achieve results today—it's to give them the knowledge and tools they need to maintain those results for life."
+    outro: "My goal isn't just to help women achieve results today. It's to give them the knowledge and tools they need to maintain those results for life."
   },
   whatMakesMyApproachDifferent: {
     title: "What Makes My Approach Different",

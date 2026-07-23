@@ -19,7 +19,7 @@ export async function BlogPageContent() {
             Wellness Insights & <span className="italic text-[#8C6D40]">Tips.</span>
           </h1>
           <p className="mx-auto text-sm lg:text-base leading-relaxed text-charcoal/80 max-w-2xl">
-            Practical reads on hormones, nutrition, and living well — curated for women like you.
+            Practical reads on hormones, nutrition, and living well, curated for women like you.
           </p>
         </section>
       </article>

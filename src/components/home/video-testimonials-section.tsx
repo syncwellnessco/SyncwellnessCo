@@ -93,7 +93,7 @@ export function VideoTestimonialsSection() {
     return (
       <section className="bg-sage-100/40 pt-7 pb-1 sm:pt-12 sm:pb-2">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <SectionHeading eyebrow="Video Stories" title="Watch Their Transformations Unfold" description="Hear directly from our clients about their journey — in their own words." />
+          <SectionHeading eyebrow="Video Stories" title="Watch Their Transformations Unfold" description="Hear directly from our clients about their journey in their own words." />
           <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-[#8C6D40]" /></div>
         </div>
       </section>
@@ -110,7 +110,7 @@ export function VideoTestimonialsSection() {
         <SectionHeading
           eyebrow="Video Stories"
           title="Watch Their Transformations Unfold"
-          description="Hear directly from our clients about their journey — in their own words."
+          description="Hear directly from our clients about their journey in their own words."
         />
       </div>
 

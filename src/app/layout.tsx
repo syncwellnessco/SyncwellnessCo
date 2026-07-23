@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     siteName: siteConfig.name,
     title: `${siteConfig.name} | Hormone Balance, Gut Health & Weight Loss Coaching`,
     description:
-      "Helping women balance hormones, heal their gut & lose weight naturally — without extreme dieting.",
+      "Helping women balance hormones, heal their gut & lose weight naturally without extreme dieting.",
   },
   twitter: {
     card: "summary_large_image",

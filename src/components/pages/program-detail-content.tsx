@@ -122,7 +122,7 @@ export async function ProgramDetailContent({ slug }: ProgramDetailContentProps) 
                 Is this you right now?
               </h2>
               <p className="text-lg text-charcoal/80 leading-relaxed max-w-md">
-                You’re doing everything "right" but still feeling exhausted, out of balance, and overwhelmed. It's not your fault—the conventional approach often misses the root cause.
+                You’re doing everything "right" but still feeling exhausted, out of balance, and overwhelmed. It's not your fault. The conventional approach often misses the root cause.
               </p>
             </div>
             <div className="space-y-6">

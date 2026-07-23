@@ -40,8 +40,8 @@ export function HowWeHelpSection() {
             </span>
           </h2>
           <p className="mt-2 text-sm leading-relaxed text-cream/85 sm:mt-3 sm:text-base">
-            Our integrated approach addresses every aspect of your wellness —
-            from hormones to habits — with personalized guidance every step of
+            Our integrated approach addresses every aspect of your wellness,
+            from hormones to habits, with personalized guidance every step of
             the way.
           </p>
         </motion.div>

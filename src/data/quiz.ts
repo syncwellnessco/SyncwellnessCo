@@ -232,7 +232,7 @@ export const QUIZ_RESULTS: QuizResult[] = [
   {
     minScore: 15,
     maxScore: 30,
-    categoryTitle: "Category 1 — Moderate Gut Dysbiosis",
+    categoryTitle: "Category 1: Moderate Gut Dysbiosis",
     categoryColor: "text-amber-700 bg-amber-50 border-amber-200",
     emojiType: "alert-warning",
     descriptionParagraphs: [
@@ -251,7 +251,7 @@ export const QUIZ_RESULTS: QuizResult[] = [
   {
     minScore: 31,
     maxScore: 50,
-    categoryTitle: "Category 2 — Elevated Gut Dysbiosis",
+    categoryTitle: "Category 2: Elevated Gut Dysbiosis",
     categoryColor: "text-orange-700 bg-orange-50 border-orange-200",
     emojiType: "alert-warning",
     descriptionParagraphs: [
@@ -270,7 +270,7 @@ export const QUIZ_RESULTS: QuizResult[] = [
   {
     minScore: 51,
     maxScore: 999,
-    categoryTitle: "Category 3 — Severe Gut Dysbiosis",
+    categoryTitle: "Category 3: Severe Gut Dysbiosis",
     categoryColor: "text-red-700 bg-red-50 border-red-200",
     emojiType: "alert-error",
     descriptionParagraphs: [

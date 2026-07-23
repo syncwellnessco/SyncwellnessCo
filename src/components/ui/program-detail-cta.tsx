@@ -306,7 +306,7 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
               )}
             </div>
             <span className="text-[10px] text-white/60 font-light tracking-wide">
-              Note: Special pricing valid today only, subject to change.
+              Note: Special pricing valid for limited period only, subject to change.
             </span>
           </div>
         )}
@@ -369,7 +369,7 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
                 )}
               </div>
               <span className="text-[10px] text-charcoal/60 font-light tracking-wide">
-                Note: Special pricing valid today only, subject to change.
+                Note: Special pricing valid for limited period only, subject to change.
               </span>
             </div>
           )}

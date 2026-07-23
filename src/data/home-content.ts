@@ -6,7 +6,7 @@ export const heroContent = {
   videoUrl: IMAGES.heroVideo,
   image: IMAGES.heroDefaultImage,
   imageAlt:
-    "Women's hormone balance, gut health, and fat loss coaching — SyncWellnessCo",
+    "Women's hormone balance, gut health, and fat loss coaching | SyncWellnessCo",
   desktopCta: "Get Started",
   mobileMemberCta: "Member",
   mobileStartCta: "Start Now",
@@ -34,7 +34,7 @@ export const transformationPillars = [
   {
     title: "Sustainable Fat Loss",
     description:
-      "Lose weight naturally by optimizing metabolism and working with your hormones — no crash diets, no deprivation, just lasting results.",
+      "Lose weight naturally by optimizing metabolism and working with your hormones. No crash diets, no deprivation, just lasting results.",
     icon: "sparkles" as const,
   },
 ];
@@ -88,7 +88,7 @@ export const coachHighlights = [
   {
     title: "Holistic Wellness",
     description:
-      "We address the whole person — body, mind, and lifestyle — creating sustainable transformation that goes beyond quick fixes.",
+      "We address the whole person (body, mind, and lifestyle), creating sustainable transformation that goes beyond quick fixes.",
   },
   {
     title: "Personalized Support",

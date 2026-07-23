@@ -110,7 +110,7 @@ export function ProgramVideoTestimonials({ programId, programTitle }: ProgramVid
         <SectionHeading
           eyebrow="Video Stories"
           title="What People Say"
-          description={`Hear directly from clients who completed ${programTitle} — in their own words.`}
+          description={`Hear directly from clients who completed ${programTitle} in their own words.`}
           align="center"
         />
       </div>

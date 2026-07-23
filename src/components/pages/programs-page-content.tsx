@@ -34,10 +34,10 @@ export async function ProgramsPageContent() {
           </h1>
           <div className="mx-auto mt-8 max-w-2xl space-y-4 text-base text-white/90 sm:text-lg">
             <p>
-              Hormones are at the core of women's health — and yet most solutions barely scratch the surface, leaving you piecing things together on your own.
+              Hormones are at the core of women's health, and yet most solutions barely scratch the surface, leaving you piecing things together on your own.
             </p>
             <p>
-              Choose the program that meets you where you are — each designed to deliver real, sustainable results through a research-backed, root-cause approach.
+              Choose the program that meets you where you are, each designed to deliver real, sustainable results through a research-backed, root-cause approach.
             </p>
           </div>
         </div>
