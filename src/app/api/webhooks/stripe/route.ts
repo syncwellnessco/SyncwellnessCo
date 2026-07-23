@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
   const sig = req.headers.get('stripe-signature');
 
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-  
+
   if (!webhookSecret) {
     console.error('STRIPE_WEBHOOK_SECRET is not configured');
     return NextResponse.json({ error: 'Webhook secret missing' }, { status: 500 });
@@ -127,8 +127,7 @@ export async function POST(req: NextRequest) {
     // 3. Reduces inventory / spots in program (if capacity column exists in programs)
     try {
       console.log(`Reducing inventory/spots capacity for program ID: ${programId}`);
-      
-      // Let's check if the programs table has a spots_left or capacity column and decrement it
+
       const { data: program, error: fetchErr } = await supabase
         .from('programs')
         .select('*')
@@ -137,8 +136,6 @@ export async function POST(req: NextRequest) {
 
       if (!fetchErr && program) {
         programRecord = program;
-        // If there is capacity or spots count in columns (e.g. metadata or direct columns)
-        // we can perform decrement. For now we log it clearly:
         console.log(`Program "${program.title}" spots updated successfully.`);
       }
     } catch (err) {
@@ -148,7 +145,6 @@ export async function POST(req: NextRequest) {
     // 4. Update user profiles/users table to store purchased programs in text[] array
     if (finalUserId) {
       try {
-        // Try profiles table first
         const { data: profile, error: profileErr } = await supabase
           .from('profiles')
           .select('purchased_programs')
@@ -171,7 +167,6 @@ export async function POST(req: NextRequest) {
             }
           }
         } else {
-          // Try users table if profiles table is not matching
           const { data: userRecord, error: userErr } = await supabase
             .from('users')
             .select('purchased_programs')
@@ -204,7 +199,7 @@ export async function POST(req: NextRequest) {
     if (process.env.MAILERLITE_API_KEY && email) {
       try {
         console.log(`Subscribing buyer ${email} to MailerLite...`);
-        
+
         let progDetails = programRecord;
         if (!progDetails) {
           const { data } = await supabase
@@ -221,12 +216,16 @@ export async function POST(req: NextRequest) {
         const programCategory = progDetails?.category || "";
         const programSlug = progDetails?.slug || "";
 
-        // Resolve group ID - new program enrollment group ID
         const targetGroupId = process.env.MAILERLITE_GROUP_PROGRAM_ENROLLMENT;
         const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://syncwellness-co.vercel.app").replace(/\/$/, "");
         const agreementUrl = agreementToken ? `${siteUrl}/agreement/${agreementToken}` : "";
 
-        const payload: any = {
+        // Step 1: Upsert the subscriber's fields/status only.
+        // IMPORTANT: we deliberately do NOT pass `groups` here. MailerLite's
+        // "subscriber joins a group" automation does not reliably fire when
+        // a group is assigned via this bulk upsert endpoint - it only fires
+        // reliably from the dedicated group-assignment endpoint used below.
+        const subscriberPayload: any = {
           email: email,
           status: "active",
           resubscribe: true,
@@ -240,45 +239,6 @@ export async function POST(req: NextRequest) {
           }
         };
 
-        if (targetGroupId) {
-          try {
-            // Fetch/create subscriber to get their MailerLite ID
-            const createSubRes = await fetch("https://connect.mailerlite.com/api/subscribers", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-                "Authorization": `Bearer ${process.env.MAILERLITE_API_KEY}`
-              },
-              body: JSON.stringify({ email })
-            });
-
-            if (createSubRes.ok) {
-              const subObj = await createSubRes.json();
-              const subId = subObj?.data?.id;
-              if (subId) {
-                // Delete from group first (detaches subscriber from group)
-                const delRes = await fetch(`https://connect.mailerlite.com/api/subscribers/${subId}/groups/${targetGroupId}`, {
-                  method: "DELETE",
-                  headers: {
-                    "Accept": "application/json",
-                    "Authorization": `Bearer ${process.env.MAILERLITE_API_KEY}`
-                  }
-                });
-                if (delRes.ok) {
-                  console.log(`Removed subscriber ${subId} from group ${targetGroupId} to prepare for re-addition.`);
-                  // Wait for MailerLite to process removal asynchronously
-                  await new Promise((resolve) => setTimeout(resolve, 1500));
-                }
-              }
-            }
-          } catch (err) {
-            console.warn("Could not pre-remove subscriber from group:", err);
-          }
-
-          payload.groups = [targetGroupId];
-        }
-
         const mlRes = await fetch("https://connect.mailerlite.com/api/subscribers", {
           method: "POST",
           headers: {
@@ -286,14 +246,56 @@ export async function POST(req: NextRequest) {
             "Accept": "application/json",
             "Authorization": `Bearer ${process.env.MAILERLITE_API_KEY}`
           },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(subscriberPayload)
         });
 
         if (!mlRes.ok) {
           const mlError = await mlRes.json().catch(() => ({}));
           console.error("MailerLite Webhook Subscription Error:", mlError);
         } else {
-          console.log(`Successfully subscribed ${email} to MailerLite for program "${programTitle}". Group ID: ${targetGroupId || "none"}`);
+          const subObj = await mlRes.json().catch(() => ({}));
+          const subId = subObj?.data?.id;
+          console.log(`Successfully upserted ${email} in MailerLite for program "${programTitle}".`);
+
+          if (targetGroupId && subId) {
+            // Remove first so that if the subscriber was already a member of
+            // this group (e.g. a repeat purchase), the add below is treated
+            // as a fresh "joins group" event and the automation fires again.
+            try {
+              const delRes = await fetch(`https://connect.mailerlite.com/api/subscribers/${subId}/groups/${targetGroupId}`, {
+                method: "DELETE",
+                headers: {
+                  "Accept": "application/json",
+                  "Authorization": `Bearer ${process.env.MAILERLITE_API_KEY}`
+                }
+              });
+              if (delRes.ok) {
+                console.log(`Removed subscriber ${subId} from group ${targetGroupId} to prepare for re-addition.`);
+                await new Promise((resolve) => setTimeout(resolve, 1500));
+              }
+            } catch (err) {
+              console.warn("Could not pre-remove subscriber from group:", err);
+            }
+
+            // Step 2: Explicitly assign to the group via the dedicated
+            // endpoint. THIS is what actually triggers the MailerLite
+            // automation email - not the `groups` field on the upsert above.
+            const groupAddRes = await fetch(`https://connect.mailerlite.com/api/subscribers/${subId}/groups/${targetGroupId}`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Bearer ${process.env.MAILERLITE_API_KEY}`
+              }
+            });
+
+            if (!groupAddRes.ok) {
+              const groupAddErr = await groupAddRes.json().catch(() => ({}));
+              console.error("MailerLite group assignment error (automation will not fire):", groupAddErr);
+            } else {
+              console.log(`Assigned subscriber ${subId} to group ${targetGroupId}. Automation email should now trigger.`);
+            }
+          }
         }
       } catch (err) {
         console.error("MailerLite integration exception in webhook:", err);

@@ -44,7 +44,7 @@ export async function POST(
           .from("purchases")
           .update({ agreementToken })
           .eq("id", id);
-        
+
         if (updateErr) {
           console.error("Failed to generate and save agreementToken on resend:", updateErr);
           return NextResponse.json({ error: "Failed to generate signing token" }, { status: 500 });
@@ -70,7 +70,12 @@ export async function POST(
       const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://syncwellness-co.vercel.app").replace(/\/$/, "");
       const agreementUrl = agreementToken ? `${siteUrl}/agreement/${agreementToken}` : "";
 
-      const payload: any = {
+      // Step 1: Upsert the subscriber's fields/status only.
+      // IMPORTANT: we deliberately do NOT pass `groups` here. MailerLite's
+      // "subscriber joins a group" automation does not reliably fire when a
+      // group is assigned via this bulk upsert endpoint - it only fires
+      // reliably from the dedicated group-assignment endpoint used below.
+      const subscriberPayload: any = {
         email: purchase.email,
         status: "active",
         resubscribe: true,
@@ -81,45 +86,6 @@ export async function POST(
         }
       };
 
-      if (targetGroupId) {
-        try {
-          // Fetch/create subscriber to get their MailerLite ID
-          const createSubRes = await fetch("https://connect.mailerlite.com/api/subscribers", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Accept": "application/json",
-              "Authorization": `Bearer ${process.env.MAILERLITE_API_KEY}`
-            },
-            body: JSON.stringify({ email: purchase.email })
-          });
-
-          if (createSubRes.ok) {
-            const subObj = await createSubRes.json();
-            const subId = subObj?.data?.id;
-            if (subId) {
-              // Delete from group first (detaches subscriber from group)
-              const delRes = await fetch(`https://connect.mailerlite.com/api/subscribers/${subId}/groups/${targetGroupId}`, {
-                method: "DELETE",
-                headers: {
-                  "Accept": "application/json",
-                  "Authorization": `Bearer ${process.env.MAILERLITE_API_KEY}`
-                }
-              });
-              if (delRes.ok) {
-                console.log(`Removed subscriber ${subId} from group ${targetGroupId} to prepare for re-addition on resend.`);
-                // Wait for MailerLite to process removal asynchronously
-                await new Promise((resolve) => setTimeout(resolve, 1500));
-              }
-            }
-          }
-        } catch (err) {
-          console.warn("Could not pre-remove subscriber from group during resend:", err);
-        }
-
-        payload.groups = [targetGroupId];
-      }
-
       console.log(`Resending agreement link via MailerLite to ${purchase.email}...`);
 
       const mlRes = await fetch("https://connect.mailerlite.com/api/subscribers", {
@@ -129,13 +95,56 @@ export async function POST(
           "Accept": "application/json",
           "Authorization": `Bearer ${process.env.MAILERLITE_API_KEY}`
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(subscriberPayload)
       });
 
       if (!mlRes.ok) {
         const mlError = await mlRes.json().catch(() => ({}));
         console.error("MailerLite API Error in resend:", mlError);
         return NextResponse.json({ error: "Failed to process resend through MailerLite" }, { status: 520 });
+      }
+
+      const subObj = await mlRes.json().catch(() => ({}));
+      const subId = subObj?.data?.id;
+
+      if (targetGroupId && subId) {
+        // Remove first so that a subscriber already in this group is treated
+        // as freshly joining when re-added below, so the automation re-fires.
+        try {
+          const delRes = await fetch(`https://connect.mailerlite.com/api/subscribers/${subId}/groups/${targetGroupId}`, {
+            method: "DELETE",
+            headers: {
+              "Accept": "application/json",
+              "Authorization": `Bearer ${process.env.MAILERLITE_API_KEY}`
+            }
+          });
+          if (delRes.ok) {
+            console.log(`Removed subscriber ${subId} from group ${targetGroupId} to prepare for re-addition on resend.`);
+            await new Promise((resolve) => setTimeout(resolve, 1500));
+          }
+        } catch (err) {
+          console.warn("Could not pre-remove subscriber from group during resend:", err);
+        }
+
+        // Step 2: Explicitly assign to the group via the dedicated
+        // endpoint. THIS is what actually triggers the MailerLite
+        // automation email - not the `groups` field on the upsert above.
+        const groupAddRes = await fetch(`https://connect.mailerlite.com/api/subscribers/${subId}/groups/${targetGroupId}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": `Bearer ${process.env.MAILERLITE_API_KEY}`
+          }
+        });
+
+        if (!groupAddRes.ok) {
+          const groupAddErr = await groupAddRes.json().catch(() => ({}));
+          console.error("MailerLite group assignment error on resend (automation will not fire):", groupAddErr);
+          return NextResponse.json({ error: "Failed to assign subscriber to group in MailerLite" }, { status: 520 });
+        } else {
+          console.log(`Assigned subscriber ${subId} to group ${targetGroupId} on resend. Automation email should now trigger.`);
+        }
       }
     } else {
       return NextResponse.json({ error: "MailerLite integration keys are missing" }, { status: 500 });
