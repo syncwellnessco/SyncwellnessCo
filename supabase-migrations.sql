@@ -112,3 +112,11 @@ CREATE POLICY "Enable insert for everyone" ON calendly_bookings FOR INSERT WITH 
 CREATE POLICY "Enable select for everyone" ON calendly_bookings FOR SELECT USING (true);
 CREATE POLICY "Enable update for everyone" ON calendly_bookings FOR UPDATE USING (true);
 CREATE POLICY "Enable delete for everyone" ON calendly_bookings FOR DELETE USING (true);
+
+-- 6. Add Coaching Agreement Fields to Purchases Table
+ALTER TABLE purchases ADD COLUMN IF NOT EXISTS "agreementToken" TEXT UNIQUE;
+ALTER TABLE purchases ADD COLUMN IF NOT EXISTS "agreementStatus" TEXT DEFAULT 'Pending' CHECK ("agreementStatus" IN ('Pending', 'Accepted'));
+ALTER TABLE purchases ADD COLUMN IF NOT EXISTS "agreementAcceptedAt" TIMESTAMP WITH TIME ZONE;
+ALTER TABLE purchases ADD COLUMN IF NOT EXISTS "agreementIp" TEXT;
+ALTER TABLE purchases ADD COLUMN IF NOT EXISTS "agreementUserAgent" TEXT;
+ALTER TABLE purchases ADD COLUMN IF NOT EXISTS "agreementVersion" INTEGER DEFAULT 1;

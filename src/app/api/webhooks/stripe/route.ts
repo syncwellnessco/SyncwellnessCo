@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { getServiceSupabase } from '@/lib/supabase-server';
+import crypto from 'crypto';
 
 export async function POST(req: NextRequest) {
   const payload = await req.text();
@@ -85,6 +86,13 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    let agreementToken = "";
+    try {
+      agreementToken = crypto.randomBytes(32).toString("hex");
+    } catch (e) {
+      console.error("Failed to generate secure agreement token:", e);
+    }
+
     // 2. Insert into purchases table
     try {
       const { data, error } = await supabase
@@ -100,6 +108,9 @@ export async function POST(req: NextRequest) {
             email: email,
             name: name,
             phone: phone,
+            agreementToken: agreementToken || null,
+            agreementStatus: 'Pending',
+            agreementVersion: 1
           }
         ])
         .select();
@@ -210,16 +221,10 @@ export async function POST(req: NextRequest) {
         const programCategory = progDetails?.category || "";
         const programSlug = progDetails?.slug || "";
 
-        // Resolve group ID
-        let targetGroupId = process.env.MAILERLITE_BUYERS_GROUP_ID || process.env.MAILERLITE_GROUP_ID;
-        if (programSlug) {
-          const envVarName = `MAILERLITE_GROUP_${programSlug.toUpperCase().replace(/-/g, '_')}`;
-          const specificGroupId = process.env[envVarName];
-          if (specificGroupId) {
-            targetGroupId = specificGroupId;
-            console.log(`Using program-specific MailerLite Group ID from ${envVarName}: ${targetGroupId}`);
-          }
-        }
+        // Resolve group ID - new program enrollment group ID
+        const targetGroupId = process.env.MAILERLITE_GROUP_PROGRAM_ENROLLMENT;
+        const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://syncwellness-co.vercel.app").replace(/\/$/, "");
+        const agreementUrl = agreementToken ? `${siteUrl}/agreement/${agreementToken}` : "";
 
         const payload: any = {
           email: email,
@@ -228,11 +233,43 @@ export async function POST(req: NextRequest) {
             purchased_program: programTitle,
             program_duration: programDuration,
             program_format: programFormat,
-            program_category: programCategory
+            program_category: programCategory,
+            agreement_url: agreementUrl
           }
         };
 
         if (targetGroupId) {
+          try {
+            // Fetch/create subscriber to get their MailerLite ID
+            const createSubRes = await fetch("https://connect.mailerlite.com/api/subscribers", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Bearer ${process.env.MAILERLITE_API_KEY}`
+              },
+              body: JSON.stringify({ email })
+            });
+
+            if (createSubRes.ok) {
+              const subObj = await createSubRes.json();
+              const subId = subObj?.data?.id;
+              if (subId) {
+                // Delete from group first (detaches subscriber from group)
+                await fetch(`https://connect.mailerlite.com/api/subscribers/${subId}/groups/${targetGroupId}`, {
+                  method: "DELETE",
+                  headers: {
+                    "Accept": "application/json",
+                    "Authorization": `Bearer ${process.env.MAILERLITE_API_KEY}`
+                  }
+                });
+                console.log(`Removed subscriber ${subId} from group ${targetGroupId} to prepare for re-addition.`);
+              }
+            }
+          } catch (err) {
+            console.warn("Could not pre-remove subscriber from group:", err);
+          }
+
           payload.groups = [targetGroupId];
         }
 
@@ -250,7 +287,7 @@ export async function POST(req: NextRequest) {
           const mlError = await mlRes.json().catch(() => ({}));
           console.error("MailerLite Webhook Subscription Error:", mlError);
         } else {
-          console.log(`Successfully subscribed ${email} to MailerLite for program "${programTitle}".`);
+          console.log(`Successfully subscribed ${email} to MailerLite for program "${programTitle}". Group ID: ${targetGroupId || "none"}`);
         }
       } catch (err) {
         console.error("MailerLite integration exception in webhook:", err);

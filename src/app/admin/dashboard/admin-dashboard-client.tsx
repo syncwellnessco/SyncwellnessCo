@@ -1,19 +1,56 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { ProgramsManager } from "./programs-manager";
-import { EnquiriesManager } from "./enquiries-manager";
-import { EbooksManager } from "./ebooks-manager";
-import { TestimonialsManager } from "./testimonials-manager";
-import { ResourcesManager } from "./resources-manager";
-import { OverviewTab } from "./overview-tab";
-import { PurchasesManager } from "./purchases-manager";
-import { QuizManager } from "./quiz-manager";
+import { useSearchParams } from "next/navigation";
+import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/skeleton";
+
+// Reusable elegant loader fallback skeleton structure while lazy loading tabs
+const LoadingFallback = () => (
+  <div className="space-y-6">
+    <div className="flex justify-between items-center">
+      <Skeleton className="h-8 w-48" />
+      <Skeleton className="h-10 w-24" />
+    </div>
+    <Skeleton className="h-[380px] w-full" />
+  </div>
+);
+
+// Lazy-load dashboard components using dynamic imports (improves page speed & bundle splitting)
+const OverviewTab = dynamic(() => import("./overview-tab").then(m => m.OverviewTab), {
+  loading: LoadingFallback,
+  ssr: false
+});
+const PurchasesManager = dynamic(() => import("./purchases-manager").then(m => m.PurchasesManager), {
+  loading: LoadingFallback,
+  ssr: false
+});
+const EnquiriesManager = dynamic(() => import("./enquiries-manager").then(m => m.EnquiriesManager), {
+  loading: LoadingFallback,
+  ssr: false
+});
+const EbooksManager = dynamic(() => import("./ebooks-manager").then(m => m.EbooksManager), {
+  loading: LoadingFallback,
+  ssr: false
+});
+const QuizManager = dynamic(() => import("./quiz-manager").then(m => m.QuizManager), {
+  loading: LoadingFallback,
+  ssr: false
+});
+const ProgramsManager = dynamic(() => import("./programs-manager").then(m => m.ProgramsManager), {
+  loading: LoadingFallback,
+  ssr: false
+});
+const TestimonialsManager = dynamic(() => import("./testimonials-manager").then(m => m.TestimonialsManager), {
+  loading: LoadingFallback,
+  ssr: false
+});
+const ResourcesManager = dynamic(() => import("./resources-manager").then(m => m.ResourcesManager), {
+  loading: LoadingFallback,
+  ssr: false
+});
 
 export function AdminDashboardClient() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const activeTab = searchParams.get("tab") || "overview";
 
   return (
@@ -25,7 +62,6 @@ export function AdminDashboardClient() {
 
       <div className="bg-white p-6 rounded-md shadow-sm border border-[#EBE3DB] min-h-[500px]">
         {activeTab === "overview" && <OverviewTab />}
-
         {activeTab === "purchases" && <PurchasesManager />}
         {activeTab === "enquiries" && <EnquiriesManager />}
         {activeTab === "ebooks" && <EbooksManager />}
@@ -37,4 +73,3 @@ export function AdminDashboardClient() {
     </div>
   );
 }
-
