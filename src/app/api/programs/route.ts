@@ -101,6 +101,12 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const supabase = await createClient();
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session || session.user.user_metadata?.role !== 'admin') {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   let body: Partial<Program>;
   try {
     body = (await request.json()) as Partial<Program>;
@@ -116,7 +122,6 @@ export async function POST(request: NextRequest) {
   }
 
   const now = new Date().toISOString();
-  const supabase = await createClient();
   const newSlug = await generateUniqueSlug(body.title, supabase);
   
   const program: Program = {

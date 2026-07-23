@@ -32,6 +32,7 @@ export function PurchasesManager() {
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [programs, setPrograms] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [agreementFilter, setAgreementFilter] = useState("all");
@@ -65,7 +66,7 @@ export function PurchasesManager() {
   };
 
   useEffect(() => {
-    fetchPurchases();
+    fetchPurchases(true);
     fetchPrograms();
   }, []);
 
@@ -83,10 +84,15 @@ export function PurchasesManager() {
     }
   };
 
-  const fetchPurchases = async () => {
-    setLoading(true);
+  const fetchPurchases = async (showSkeleton = true) => {
+    const shouldShowSkeleton = showSkeleton === true;
+    if (shouldShowSkeleton) {
+      setLoading(true);
+    } else {
+      setRefreshing(true);
+    }
     try {
-      const res = await fetch("/api/purchases");
+      const res = await fetch(`/api/purchases?t=${Date.now()}`, { cache: "no-store" });
       if (!res.ok) {
         throw new Error("Failed to fetch purchases");
       }
@@ -98,15 +104,22 @@ export function PurchasesManager() {
       console.error(e);
       toast.error("Failed to load purchases from database.");
     } finally {
-      setLoading(false);
+      if (shouldShowSkeleton) {
+        setLoading(false);
+      } else {
+        setRefreshing(false);
+      }
     }
   };
 
   const filteredPurchases = purchases.filter((purchase) => {
+    const matchingProgram = programs.find(p => p.id === purchase.program_id || p.slug === purchase.program_id);
+    const programTitle = matchingProgram?.title || purchase.program_id || "";
+
     const matchesSearch = 
       (purchase.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
       (purchase.email || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (purchase.program_id || "").toLowerCase().includes(searchQuery.toLowerCase());
+      programTitle.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesStatus = 
       statusFilter === "all" || 
@@ -149,10 +162,18 @@ export function PurchasesManager() {
           <p className="text-charcoal/60 text-xs mt-1">Track and manage enrollment purchases from your Stripe gateway.</p>
         </div>
         <button
-          onClick={fetchPurchases}
-          className="text-xs text-[#8C6D40] hover:underline font-bold uppercase tracking-wider self-start sm:self-center"
+          onClick={() => fetchPurchases(false)}
+          disabled={refreshing}
+          className="text-xs text-[#8C6D40] hover:underline font-bold uppercase tracking-wider self-start sm:self-center disabled:opacity-50 flex items-center gap-1.5"
         >
-          Refresh Data
+          {refreshing ? (
+            <>
+              <span className="animate-spin h-3 w-3 border-2 border-[#8C6D40] border-t-transparent rounded-full"></span>
+              Refreshing...
+            </>
+          ) : (
+            "Refresh Data"
+          )}
         </button>
       </div>
 
@@ -242,7 +263,7 @@ export function PurchasesManager() {
             <thead>
               <tr className="bg-[#FAF8F5] border-b border-[#EBE3DB] text-[10px] uppercase font-bold tracking-wider text-charcoal/60">
                 <th className="p-4">Customer Details</th>
-                <th className="p-4">Program ID</th>
+                <th className="p-4">Program</th>
                 <th className="p-4">Amount Paid</th>
                 <th className="p-4">Date & Session</th>
                 <th className="p-4">Agreement</th>
@@ -276,8 +297,8 @@ export function PurchasesManager() {
                         </div>
                       )}
                     </td>
-                    <td className="p-4 font-mono text-xs text-charcoal/80 uppercase">
-                      {purchase.program_id}
+                    <td className="p-4 text-xs font-semibold text-charcoal/80">
+                      {programs.find(p => p.id === purchase.program_id || p.slug === purchase.program_id)?.title || purchase.program_id}
                     </td>
                     <td className="p-4 font-semibold text-[#8C6D40]">
                       ${(purchase.amount / 100).toFixed(2)} <span className="text-[10px] font-bold uppercase">AUD</span>

@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServiceSupabase } from "@/lib/supabase-server";
+import { getServiceSupabase, createClient } from "@/lib/supabase-server";
 
 export async function POST(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authClient = await createClient();
+    const { data: { session } } = await authClient.auth.getSession();
+    if (!session || session.user.user_metadata?.role !== 'admin') {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { id } = await context.params;
 
     if (!id) {
@@ -66,6 +72,8 @@ export async function POST(
 
       const payload: any = {
         email: purchase.email,
+        status: "active",
+        resubscribe: true,
         fields: {
           name: purchase.name || "",
           purchased_program: programTitle,
@@ -91,14 +99,18 @@ export async function POST(
             const subId = subObj?.data?.id;
             if (subId) {
               // Delete from group first (detaches subscriber from group)
-              await fetch(`https://connect.mailerlite.com/api/subscribers/${subId}/groups/${targetGroupId}`, {
+              const delRes = await fetch(`https://connect.mailerlite.com/api/subscribers/${subId}/groups/${targetGroupId}`, {
                 method: "DELETE",
                 headers: {
                   "Accept": "application/json",
                   "Authorization": `Bearer ${process.env.MAILERLITE_API_KEY}`
                 }
               });
-              console.log(`Removed subscriber ${subId} from group ${targetGroupId} to prepare for re-addition on resend.`);
+              if (delRes.ok) {
+                console.log(`Removed subscriber ${subId} from group ${targetGroupId} to prepare for re-addition on resend.`);
+                // Wait for MailerLite to process removal asynchronously
+                await new Promise((resolve) => setTimeout(resolve, 1500));
+              }
             }
           }
         } catch (err) {

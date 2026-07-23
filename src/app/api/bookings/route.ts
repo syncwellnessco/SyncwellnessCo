@@ -46,6 +46,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ found: true, details: data });
     } else {
       // Get all bookings for admin dashboard
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session || session.user.user_metadata?.role !== 'admin') {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
+
       const { data, error } = await supabase
         .from("calendly_bookings")
         .select("*")

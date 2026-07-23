@@ -228,6 +228,8 @@ export async function POST(req: NextRequest) {
 
         const payload: any = {
           email: email,
+          status: "active",
+          resubscribe: true,
           fields: {
             name: name || "",
             purchased_program: programTitle,
@@ -256,14 +258,18 @@ export async function POST(req: NextRequest) {
               const subId = subObj?.data?.id;
               if (subId) {
                 // Delete from group first (detaches subscriber from group)
-                await fetch(`https://connect.mailerlite.com/api/subscribers/${subId}/groups/${targetGroupId}`, {
+                const delRes = await fetch(`https://connect.mailerlite.com/api/subscribers/${subId}/groups/${targetGroupId}`, {
                   method: "DELETE",
                   headers: {
                     "Accept": "application/json",
                     "Authorization": `Bearer ${process.env.MAILERLITE_API_KEY}`
                   }
                 });
-                console.log(`Removed subscriber ${subId} from group ${targetGroupId} to prepare for re-addition.`);
+                if (delRes.ok) {
+                  console.log(`Removed subscriber ${subId} from group ${targetGroupId} to prepare for re-addition.`);
+                  // Wait for MailerLite to process removal asynchronously
+                  await new Promise((resolve) => setTimeout(resolve, 1500));
+                }
               }
             }
           } catch (err) {

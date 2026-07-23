@@ -1,8 +1,15 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { createClient } from '@/lib/supabase-server';
 
 export async function POST(request: Request) {
   try {
+    const supabase = await createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session || session.user.user_metadata?.role !== 'admin') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { public_id, resource_type = 'image' } = await request.json();
     
     if (!public_id) {

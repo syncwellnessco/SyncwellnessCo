@@ -18,11 +18,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (user === undefined) return; // Still loading from store
 
-    if (process.env.NODE_ENV === "development") {
-      setIsChecking(false);
-      return;
-    }
-
     if (!user) {
       router.push("/login?redirect=/admin/dashboard");
       return;

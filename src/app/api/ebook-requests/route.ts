@@ -5,6 +5,10 @@ import { createClient } from "@/lib/supabase-server";
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session || session.user.user_metadata?.role !== 'admin') {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const { data, error } = await supabase
       .from("ebook_requests")
       .select("*")
@@ -78,20 +82,68 @@ export async function POST(request: NextRequest) {
     // 3. Add to MailerLite
     if (process.env.MAILERLITE_API_KEY) {
       try {
+        const targetGroupId = process.env.MAILERLITE_GROUP_ID;
+        let subId: string | undefined;
+
+        // Fetch/create subscriber to get their MailerLite ID and pre-remove from the group
+        if (targetGroupId) {
+          try {
+            const createSubRes = await fetch("https://connect.mailerlite.com/api/subscribers", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Bearer ${process.env.MAILERLITE_API_KEY}`
+              },
+              body: JSON.stringify({ email })
+            });
+
+            if (createSubRes.ok) {
+              const subObj = await createSubRes.json();
+              subId = subObj?.data?.id;
+              if (subId) {
+                // Delete from group first (detaches subscriber from group)
+                const delRes = await fetch(`https://connect.mailerlite.com/api/subscribers/${subId}/groups/${targetGroupId}`, {
+                  method: "DELETE",
+                  headers: {
+                    "Accept": "application/json",
+                    "Authorization": `Bearer ${process.env.MAILERLITE_API_KEY}`
+                  }
+                });
+                if (delRes.ok) {
+                  console.log(`Removed subscriber ${subId} from group ${targetGroupId} to prepare for ebook request re-addition.`);
+                  // Wait for MailerLite to process removal asynchronously
+                  await new Promise((resolve) => setTimeout(resolve, 1500));
+                }
+              }
+            }
+          } catch (err) {
+            console.warn("Could not pre-remove subscriber from ebook group:", err);
+          }
+        }
+
+        const payload: any = {
+          email,
+          status: "active",
+          resubscribe: true,
+          fields: {
+            name: name || "",
+            phone: phoneNumber ? `${countryCode || '+61'}${phoneNumber}` : ""
+          }
+        };
+
+        if (targetGroupId) {
+          payload.groups = [targetGroupId];
+        }
+
         const mlRes = await fetch("https://connect.mailerlite.com/api/subscribers", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "Accept": "application/json",
             "Authorization": `Bearer ${process.env.MAILERLITE_API_KEY}`,
           },
-          body: JSON.stringify({
-            email,
-            fields: {
-              name: name || "",
-              phone: phoneNumber ? `${countryCode || '+61'}${phoneNumber}` : ""
-            },
-            groups: process.env.MAILERLITE_GROUP_ID ? [process.env.MAILERLITE_GROUP_ID] : []
-          }),
+          body: JSON.stringify(payload),
         });
         
         if (!mlRes.ok) {

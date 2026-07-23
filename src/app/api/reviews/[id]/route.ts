@@ -4,6 +4,11 @@ import { createClient } from "@/lib/supabase-server";
 export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
   try {
     const supabase = await createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session || session.user.user_metadata?.role !== 'admin') {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { id } = await props.params;
     const body = await request.json();
 
@@ -23,6 +28,11 @@ export async function PATCH(request: Request, props: { params: Promise<{ id: str
 export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
   try {
     const supabase = await createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session || session.user.user_metadata?.role !== 'admin') {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { id } = await props.params;
     const { error } = await supabase
       .from('reviews')

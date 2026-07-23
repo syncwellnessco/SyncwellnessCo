@@ -3,12 +3,16 @@ import { createClient } from "@/lib/supabase-server";
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const supabase = await createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session || session.user.user_metadata?.role !== 'admin') {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { id } = await params;
     const body = await request.json();
     const updateData: any = {};
     if ("completed" in body) updateData.completed = body.completed;
-
-    const supabase = await createClient();
     
     // If completed is updated, update the program requirement too (both ways)
     if ("completed" in body) {
@@ -60,8 +64,13 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = await params;
     const supabase = await createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session || session.user.user_metadata?.role !== 'admin') {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
     const { error } = await supabase.from("calendly_bookings").delete().eq("id", id);
     if (error) throw error;
     return NextResponse.json({ success: true });

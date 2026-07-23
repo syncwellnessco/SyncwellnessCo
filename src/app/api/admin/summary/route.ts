@@ -1,8 +1,14 @@
 import { NextResponse } from "next/server";
-import { getServiceSupabase } from "@/lib/supabase-server";
+import { getServiceSupabase, createClient } from "@/lib/supabase-server";
 
 export async function GET() {
   try {
+    const authClient = await createClient();
+    const { data: { session } } = await authClient.auth.getSession();
+    if (!session || session.user.user_metadata?.role !== "admin") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const supabase = getServiceSupabase();
 
     // Parallel count & limit queries

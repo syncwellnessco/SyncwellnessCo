@@ -67,6 +67,12 @@ export async function GET(_request: NextRequest, context: RouteContext) {
 
 export async function PUT(request: NextRequest, context: RouteContext) {
   try {
+    const supabase = await createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session || session.user.user_metadata?.role !== 'admin') {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { slug } = await context.params;
     let body: Partial<Program>;
     try {
@@ -74,8 +80,6 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     } catch {
       return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
     }
-
-    const supabase = await createClient();
     const updatedBody = {
       ...body,
       updatedAt: new Date().toISOString(),
@@ -101,8 +105,13 @@ export async function PUT(request: NextRequest, context: RouteContext) {
 
 export async function DELETE(request: NextRequest, context: RouteContext) {
   try {
-    const { slug } = await context.params;
     const supabase = await createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session || session.user.user_metadata?.role !== 'admin') {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { slug } = await context.params;
     
     const { error } = await supabase.from("programs").delete().or(`id.eq.${slug},slug.eq.${slug}`);
     if (error) throw error;
