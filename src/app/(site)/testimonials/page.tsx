@@ -39,7 +39,7 @@ export default function TestimonialsPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoPage, setVideoPage] = useState(1);
   const [reviewPage, setReviewPage] = useState(1);
-  const ITEMS_PER_PAGE = 20;
+  const ITEMS_PER_PAGE = 10;
 
   const videoSectionRef = useRef<HTMLDivElement>(null);
   const reviewSectionRef = useRef<HTMLDivElement>(null);

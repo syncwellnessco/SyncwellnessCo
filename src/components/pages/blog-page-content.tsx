@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import Link from "next/link";
 import type { BlogPost } from "@/types/blog";
 
-const ITEMS_PER_PAGE = 20;
+const ITEMS_PER_PAGE = 10;
 
 type BlogPageContentProps = {
   initialPosts?: BlogPost[];
