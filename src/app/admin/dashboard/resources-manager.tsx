@@ -521,7 +521,7 @@ export function ResourcesManager() {
 
                 {subTab === "blogs" && (
                   <div className="space-y-2">
-                    <Label>Blog Content (Tiptap)</Label>
+                    <Label>Blog Content</Label>
                     <Editor 
                       data={formData.content || ""} 
                       onChange={(val) => setFormData({...formData, content: val})} 

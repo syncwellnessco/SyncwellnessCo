@@ -1,14 +1,71 @@
 "use client";
 
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useState, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { BookOpen, Calendar, LayoutDashboard, Mail, MessageSquare, Users, ExternalLink, CreditCard, ClipboardList } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { BookOpen, Calendar, LayoutDashboard, MessageSquare, ExternalLink, CreditCard, ClipboardList } from "lucide-react";
 import { useUserStore } from "@/store/user-store";
 import { Spinner } from "@/components/ui/spinner";
 import { AdminPresence } from "@/components/admin/AdminPresence";
-import { Suspense } from "react";
 
+const navItems = [
+  { label: "Overview", tab: "overview", href: "/admin/dashboard", icon: LayoutDashboard },
+  { label: "Purchases", tab: "purchases", href: "/admin/dashboard?tab=purchases", icon: CreditCard },
+  { label: "Bookings & Enquiries", tab: "enquiries", href: "/admin/dashboard?tab=enquiries", icon: MessageSquare },
+  { label: "Ebook Requests", tab: "ebooks", href: "/admin/dashboard?tab=ebooks", icon: BookOpen },
+  { label: "Quiz Responses", tab: "quiz", href: "/admin/dashboard?tab=quiz", icon: ClipboardList },
+  { label: "Programs", tab: "programs", href: "/admin/dashboard?tab=programs", icon: Calendar },
+  { label: "Resources", tab: "resources", href: "/admin/dashboard?tab=resources", icon: BookOpen, altTabs: ["blogs"] },
+  { label: "Testimonials", tab: "testimonials", href: "/admin/dashboard?tab=testimonials", icon: MessageSquare },
+];
+
+function AdminSidebarNav() {
+  const searchParams = useSearchParams();
+  const currentTab = searchParams.get("tab") || "overview";
+
+  return (
+    <nav className="space-y-1.5 flex-1">
+      {navItems.map((item) => {
+        const Icon = item.icon;
+        const active = currentTab === item.tab || (item.altTabs && item.altTabs.includes(currentTab));
+        return (
+          <Link
+            key={item.tab}
+            href={item.href}
+            className={`group flex items-center gap-3 px-4 py-2.5 rounded-md text-sm transition-all ${
+              active
+                ? "bg-[#8C6D40] text-white font-semibold shadow-sm"
+                : "text-charcoal/80 hover:bg-[#EBE3DB]/40 hover:text-charcoal font-medium"
+            }`}
+          >
+            <Icon className={`h-4.5 w-4.5 transition-colors ${active ? "text-white" : "text-charcoal/50 group-hover:text-charcoal"}`} />
+            <span>{item.label}</span>
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}
+
+function AdminNavFallback() {
+  return (
+    <nav className="space-y-1.5 flex-1">
+      {navItems.map((item) => {
+        const Icon = item.icon;
+        return (
+          <Link
+            key={item.tab}
+            href={item.href}
+            className="group flex items-center gap-3 px-4 py-2.5 rounded-md text-sm text-charcoal/80 hover:bg-[#EBE3DB]/40 transition-all font-medium"
+          >
+            <Icon className="h-4.5 w-4.5 text-charcoal/50" />
+            <span>{item.label}</span>
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const { user } = useUserStore();
@@ -64,41 +121,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         <aside className="w-64 bg-white border-r border-[#EBE3DB] fixed h-screen overflow-hidden shadow-sm">
           <div className="p-6 h-full flex flex-col">
             <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-[#8C6D40] mb-6">Admin Panel</h2>
-            <nav className="space-y-2 flex-1">
-              <Link href="/admin/dashboard" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
-                <LayoutDashboard className="h-5 w-5 text-charcoal/50" />
-                <span className="text-sm font-medium">Overview</span>
-              </Link>
-              <Link href="/admin/dashboard?tab=purchases" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
-                <CreditCard className="h-5 w-5 text-charcoal/50" />
-                <span className="text-sm font-medium">Purchases</span>
-              </Link>
-              <Link href="/admin/dashboard?tab=enquiries" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
-                <MessageSquare className="h-5 w-5 text-charcoal/50" />
-                <span className="text-sm font-medium">Bookings & Enquiries</span>
-              </Link>
-
-              <Link href="/admin/dashboard?tab=ebooks" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
-                <BookOpen className="h-5 w-5 text-charcoal/50" />
-                <span className="text-sm font-medium">Ebook Requests</span>
-              </Link>
-              <Link href="/admin/dashboard?tab=quiz" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
-                <ClipboardList className="h-5 w-5 text-charcoal/50" />
-                <span className="text-sm font-medium">Quiz Responses</span>
-              </Link>
-              <Link href="/admin/dashboard?tab=programs" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
-                <Calendar className="h-5 w-5 text-charcoal/50" />
-                <span className="text-sm font-medium">Programs</span>
-              </Link>
-              <Link href="/admin/dashboard?tab=resources" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
-                <BookOpen className="h-5 w-5 text-charcoal/50" />
-                <span className="text-sm font-medium">Resources</span>
-              </Link>
-              <Link href="/admin/dashboard?tab=testimonials" className="flex items-center gap-3 px-4 py-3 rounded-md text-charcoal hover:bg-[#EBE3DB]/40 transition-colors">
-                <MessageSquare className="h-5 w-5 text-charcoal/50" />
-                <span className="text-sm font-medium">Testimonials</span>
-              </Link>
-            </nav>
+            <Suspense fallback={<AdminNavFallback />}>
+              <AdminSidebarNav />
+            </Suspense>
             
             <div className="mt-auto pt-6 border-t border-[#EBE3DB]">
               <Link 
@@ -119,7 +144,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             </div>
           </div>
         </aside>
-
 
         {/* Main Content */}
         <main className="ml-64 flex-1 p-8 lg:p-12">
