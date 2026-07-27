@@ -42,29 +42,32 @@ export function ExpandableGrid({ items, type }: ExpandableGridProps) {
       <div className="space-y-8">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
           {visibleItems.map(blog => (
-            <Link 
-              key={blog.id} 
+            <Link
+              key={blog.id}
               href={`/resources/blogs/${blog.slug || blog.id}`}
               className="group flex flex-col bg-white border border-[#EBE3DB] hover:shadow-lg transition-all duration-300 overflow-hidden"
             >
               {blog.image ? (
                 <div className="relative aspect-[4/3] overflow-hidden border-b border-[#EBE3DB]">
-                  <img 
-                    src={blog.image} 
-                    alt={blog.title} 
+                  <img
+                    src={blog.image}
+                    alt={blog.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                 </div>
               ) : (
                 <div className="relative aspect-[4/3] bg-sage-50 border-b border-[#EBE3DB]" />
               )}
-              <div className="p-3 md:p-5 flex flex-col flex-1 space-y-2">
-                <span className="text-[#8C6D40] text-[9px] md:text-[10px] font-bold uppercase tracking-[0.15em]">
-                  {blog.category}
-                </span>
-                <h3 className="font-display text-xs sm:text-sm md:text-base text-charcoal leading-snug line-clamp-2 group-hover:text-[#8C6D40] transition-colors">
+              <div className="p-3 sm:p-5 flex flex-col flex-1 text-center justify-between min-h-[90px] sm:min-h-[110px]">
+                <h3 className="font-display text-xs sm:text-base md:text-lg font-medium text-charcoal leading-snug line-clamp-2 group-hover:text-[#8C6D40] transition-colors">
                   {blog.title}
                 </h3>
+                <span className="font-display italic text-[#8C6D40] text-sm sm:text-base font-semibold mt-2.5">
+                  {blog.category}
+                </span>
+              </div>
+              <div className="w-full bg-[#8C6D40] py-2 sm:py-2.5 text-center text-[9px] sm:text-[10px] font-semibold uppercase tracking-[0.15em] text-white transition-colors group-hover:bg-[#B8955F]">
+                Read More
               </div>
             </Link>
           ))}
@@ -72,7 +75,7 @@ export function ExpandableGrid({ items, type }: ExpandableGridProps) {
 
         {hasMore && (
           <div className="flex justify-center pt-4">
-            <button 
+            <button
               onClick={showMore}
               className="inline-flex items-center gap-2 px-6 py-3 border border-[#8C6D40] text-[#8C6D40] text-xs font-bold uppercase tracking-[0.15em] hover:bg-[#8C6D40] hover:text-white transition-all duration-300"
             >
@@ -90,13 +93,13 @@ export function ExpandableGrid({ items, type }: ExpandableGridProps) {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {visibleItems.map(podcast => {
             const videoId = getYouTubeId(podcast.content);
-            const thumbnailUrl = videoId 
+            const thumbnailUrl = videoId
               ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`
               : podcast.image || null;
 
             return (
-              <a 
-                key={podcast.id} 
+              <a
+                key={podcast.id}
                 href={podcast.content}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -105,9 +108,9 @@ export function ExpandableGrid({ items, type }: ExpandableGridProps) {
                 <div className="relative aspect-video bg-charcoal overflow-hidden border-b border-[#EBE3DB]">
                   {thumbnailUrl ? (
                     <>
-                      <img 
-                        src={thumbnailUrl} 
-                        alt={podcast.title} 
+                      <img
+                        src={thumbnailUrl}
+                        alt={podcast.title}
                         className="w-full h-full object-cover opacity-95 group-hover:scale-105 transition-transform duration-500"
                       />
                       <div className="absolute inset-0 flex items-center justify-center bg-black/15 group-hover:bg-black/25 transition-colors">
@@ -146,7 +149,7 @@ export function ExpandableGrid({ items, type }: ExpandableGridProps) {
 
         {hasMore && (
           <div className="flex justify-center pt-4">
-            <button 
+            <button
               onClick={showMore}
               className="inline-flex items-center gap-2 px-6 py-3 border border-[#8C6D40] text-[#8C6D40] text-xs font-bold uppercase tracking-[0.15em] hover:bg-[#8C6D40] hover:text-white transition-all duration-300"
             >
@@ -162,11 +165,11 @@ export function ExpandableGrid({ items, type }: ExpandableGridProps) {
     <div className="space-y-8">
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
         {visibleItems.map(article => (
-          <a 
-            key={article.id} 
-            href={article.content} 
-            target="_blank" 
-            rel="noopener noreferrer" 
+          <a
+            key={article.id}
+            href={article.content}
+            target="_blank"
+            rel="noopener noreferrer"
             className="group flex flex-col bg-[#FAF8F5] border border-[#EBE3DB] p-3 md:p-5 hover:shadow-md hover:bg-white transition-all duration-300 relative w-full"
           >
             <div className="flex items-center justify-between mb-2 md:mb-4">
@@ -179,9 +182,9 @@ export function ExpandableGrid({ items, type }: ExpandableGridProps) {
             </div>
             {article.image && (
               <div className="w-full aspect-[4/5] mb-3 md:mb-4 overflow-hidden rounded-sm border border-[#EBE3DB]/60 bg-white">
-                <img 
-                  src={article.image} 
-                  alt={article.author || ""} 
+                <img
+                  src={article.image}
+                  alt={article.author || ""}
                   className="w-full h-full object-cover opacity-95 group-hover:scale-102 transition-transform duration-300"
                 />
               </div>
@@ -200,7 +203,7 @@ export function ExpandableGrid({ items, type }: ExpandableGridProps) {
 
       {hasMore && (
         <div className="flex justify-center pt-4">
-          <button 
+          <button
             onClick={showMore}
             className="inline-flex items-center gap-2 px-6 py-3 border border-[#8C6D40] text-[#8C6D40] text-xs font-bold uppercase tracking-[0.15em] hover:bg-[#8C6D40] hover:text-white transition-all duration-300"
           >

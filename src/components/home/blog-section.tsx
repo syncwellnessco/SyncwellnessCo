@@ -23,7 +23,7 @@ export function BlogSection({ blogs }: BlogSectionProps) {
           description="Practical reads on hormones, nutrition, and living well, curated for women like you."
         />
 
-        <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 md:gap-6 max-w-4xl mx-auto">
+        <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 max-w-3xl mx-auto">
           {blogs.map((post, index) => (
             <motion.div
               key={post.id}
@@ -33,30 +33,35 @@ export function BlogSection({ blogs }: BlogSectionProps) {
               transition={{ delay: index * 0.08 }}
               className="w-full flex"
             >
-              <Link 
-                href={`/resources/blogs/${post.slug || post.id}`}
-                className="group flex flex-col w-full bg-white border border-[#EBE3DB] hover:shadow-lg transition-all duration-300 overflow-hidden"
-              >
-                {post.image ? (
-                  <div className="relative aspect-[4/3] overflow-hidden border-b border-[#EBE3DB]">
-                    <img 
-                      src={post.image} 
-                      alt={post.title} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                    />
+              <article className="flex flex-col overflow-hidden bg-[#FAF8F5] border border-[#EBE3DB] shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md w-full">
+                <Link href={`/resources/blogs/${post.slug || post.id}`} className="group flex-1 flex flex-col">
+                  {post.image ? (
+                    <div className="relative aspect-[16/9] overflow-hidden border-b border-[#EBE3DB]">
+                      <img
+                        src={post.image}
+                        alt={post.title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    </div>
+                  ) : (
+                    <div className="relative aspect-[16/9] bg-sage-50 border-b border-[#EBE3DB]" />
+                  )}
+                  <div className="p-3 sm:p-4 flex flex-1 flex-col items-center justify-between text-center min-h-[110px] sm:min-h-[130px]">
+                    <h3 className="font-display text-sm sm:text-base md:text-lg font-bold text-charcoal leading-snug line-clamp-3 group-hover:text-[#8C6D40] transition-colors">
+                      {post.title}
+                    </h3>
+                    <span className="font-display italic text-[#8C6D40] text-sm sm:text-base font-semibold mt-2.5">
+                      {post.category}
+                    </span>
                   </div>
-                ) : (
-                  <div className="relative aspect-[4/3] bg-sage-50 border-b border-[#EBE3DB]" />
-                )}
-                <div className="p-3 md:p-5 flex flex-col flex-1 space-y-2 text-left">
-                  <span className="text-[#8C6D40] text-[9px] md:text-[10px] font-bold uppercase tracking-[0.15em]">
-                    {post.category}
-                  </span>
-                  <h3 className="font-display text-xs sm:text-sm md:text-base text-charcoal leading-snug line-clamp-2 group-hover:text-[#8C6D40] transition-colors">
-                    {post.title}
-                  </h3>
-                </div>
-              </Link>
+                </Link>
+                <Link 
+                  href={`/resources/blogs/${post.slug || post.id}`} 
+                  className="block w-full bg-[#8C6D40] py-2.5 text-center text-[10px] font-semibold uppercase tracking-[0.15em] text-white transition-colors hover:bg-[#B8955F]"
+                >
+                  Read More
+                </Link>
+              </article>
             </motion.div>
           ))}
         </div>

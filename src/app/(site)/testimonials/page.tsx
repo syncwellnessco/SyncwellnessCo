@@ -37,8 +37,12 @@ export default function TestimonialsPage() {
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [videoLimit, setVideoLimit] = useState(8);
-  const [reviewLimit, setReviewLimit] = useState(6);
+  const [videoPage, setVideoPage] = useState(1);
+  const [reviewPage, setReviewPage] = useState(1);
+  const ITEMS_PER_PAGE = 20;
+
+  const videoSectionRef = useRef<HTMLDivElement>(null);
+  const reviewSectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     Promise.all([
@@ -51,7 +55,9 @@ export default function TestimonialsPage() {
       setPrograms(Array.isArray(progData) ? progData : []);
       setLoading(false);
     });
-  }, []);  useEffect(() => {
+  }, []);
+
+  useEffect(() => {
     if (activeVideo || activeReview) {
       document.body.style.overflow = "hidden";
     } else {
@@ -61,7 +67,6 @@ export default function TestimonialsPage() {
       document.body.style.overflow = "";
     };
   }, [activeVideo, activeReview]);
-
 
   const getProgramName = (id: string) => {
     const p = programs.find(x => x.id === id);
@@ -80,6 +85,32 @@ export default function TestimonialsPage() {
     if (videoRef.current) {
       videoRef.current.muted = !isMuted;
       setIsMuted(!isMuted);
+    }
+  };
+
+  const totalVideoPages = Math.ceil(videos.length / ITEMS_PER_PAGE);
+  const paginatedVideos = videos.slice(
+    (videoPage - 1) * ITEMS_PER_PAGE,
+    videoPage * ITEMS_PER_PAGE
+  );
+
+  const totalReviewPages = Math.ceil(reviews.length / ITEMS_PER_PAGE);
+  const paginatedReviews = reviews.slice(
+    (reviewPage - 1) * ITEMS_PER_PAGE,
+    reviewPage * ITEMS_PER_PAGE
+  );
+
+  const handleVideoPageChange = (page: number) => {
+    setVideoPage(page);
+    if (videoSectionRef.current) {
+      videoSectionRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  const handleReviewPageChange = (page: number) => {
+    setReviewPage(page);
+    if (reviewSectionRef.current) {
+      reviewSectionRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
@@ -137,14 +168,14 @@ export default function TestimonialsPage() {
               
               {/* VIDEO TESTIMONIALS */}
               {videos.length > 0 && (
-                <section>
+                <section ref={videoSectionRef}>
                   <div className="text-center mb-12">
                     <h2 className="font-display text-3xl font-bold text-charcoal sm:text-4xl">Video Stories</h2>
                     <p className="mt-3 text-lg text-charcoal/60">Watch their journeys unfold in their own words.</p>
                   </div>
                   
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
-                    {videos.slice(0, videoLimit).map((video) => (
+                    {paginatedVideos.map((video) => (
                       <article
                         key={video.id}
                         className="group cursor-pointer overflow-hidden rounded-2xl border border-beige-200 bg-cream shadow-sm transition-shadow hover:shadow-lg relative aspect-[9/16] bg-black"
@@ -183,13 +214,35 @@ export default function TestimonialsPage() {
                       </article>
                     ))}
                   </div>
-                  {videos.length > videoLimit && (
-                    <div className="mt-8 flex justify-center">
-                      <button 
-                        onClick={() => setVideoLimit(prev => prev + 8)}
-                        className="inline-flex h-10 items-center justify-center rounded-sm border border-charcoal/20 bg-transparent px-6 text-xs font-semibold uppercase tracking-[0.15em] text-charcoal transition-colors hover:bg-charcoal/5"
+
+                  {totalVideoPages > 1 && (
+                    <div className="flex items-center justify-center gap-1.5 sm:gap-2 mt-10">
+                      <button
+                        onClick={() => handleVideoPageChange(Math.max(1, videoPage - 1))}
+                        disabled={videoPage === 1}
+                        className="px-3 py-1.5 rounded-sm border border-[#EBE3DB] bg-white text-xs font-semibold uppercase tracking-wider text-charcoal disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#8C6D40] hover:text-white transition-colors"
                       >
-                        Load More Videos
+                        Prev
+                      </button>
+                      {Array.from({ length: totalVideoPages }, (_, i) => i + 1).map((page) => (
+                        <button
+                          key={page}
+                          onClick={() => handleVideoPageChange(page)}
+                          className={`h-8 w-8 rounded-sm text-xs font-semibold transition-colors ${
+                            page === videoPage
+                              ? "bg-[#8C6D40] text-white shadow-sm"
+                              : "bg-white border border-[#EBE3DB] text-charcoal hover:bg-[#8C6D40]/10 hover:text-[#8C6D40]"
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      ))}
+                      <button
+                        onClick={() => handleVideoPageChange(Math.min(totalVideoPages, videoPage + 1))}
+                        disabled={videoPage === totalVideoPages}
+                        className="px-3 py-1.5 rounded-sm border border-[#EBE3DB] bg-white text-xs font-semibold uppercase tracking-wider text-charcoal disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#8C6D40] hover:text-white transition-colors"
+                      >
+                        Next
                       </button>
                     </div>
                   )}
@@ -198,14 +251,14 @@ export default function TestimonialsPage() {
 
               {/* TEXT REVIEWS */}
               {reviews.length > 0 && (
-                <section>
+                <section ref={reviewSectionRef}>
                   <div className="text-center mb-12">
                     <h2 className="font-display text-3xl font-bold text-charcoal sm:text-4xl">Written Reviews</h2>
                     <p className="mt-3 text-lg text-charcoal/60">Read what our amazing clients have to say about their experience.</p>
                   </div>
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-                    {reviews.slice(0, reviewLimit).map((r) => (
+                    {paginatedReviews.map((r) => (
                       <article 
                         key={r.id}
                         className="bg-white rounded-md border border-[#EBE3DB] shadow-sm cursor-pointer hover:shadow-xl transition-all duration-500 hover:-translate-y-1 hover:border-[#8C6D40]/30 group/card flex flex-col h-full overflow-hidden"
@@ -267,13 +320,35 @@ export default function TestimonialsPage() {
                       </article>
                     ))}
                   </div>
-                  {reviews.length > reviewLimit && (
-                    <div className="mt-8 flex justify-center">
-                      <button 
-                        onClick={() => setReviewLimit(prev => prev + 6)}
-                        className="inline-flex h-10 items-center justify-center rounded-sm border border-charcoal/20 bg-transparent px-6 text-xs font-semibold uppercase tracking-[0.15em] text-charcoal transition-colors hover:bg-charcoal/5"
+
+                  {totalReviewPages > 1 && (
+                    <div className="flex items-center justify-center gap-1.5 sm:gap-2 mt-10">
+                      <button
+                        onClick={() => handleReviewPageChange(Math.max(1, reviewPage - 1))}
+                        disabled={reviewPage === 1}
+                        className="px-3 py-1.5 rounded-sm border border-[#EBE3DB] bg-white text-xs font-semibold uppercase tracking-wider text-charcoal disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#8C6D40] hover:text-white transition-colors"
                       >
-                        Load More Reviews
+                        Prev
+                      </button>
+                      {Array.from({ length: totalReviewPages }, (_, i) => i + 1).map((page) => (
+                        <button
+                          key={page}
+                          onClick={() => handleReviewPageChange(page)}
+                          className={`h-8 w-8 rounded-sm text-xs font-semibold transition-colors ${
+                            page === reviewPage
+                              ? "bg-[#8C6D40] text-white shadow-sm"
+                              : "bg-white border border-[#EBE3DB] text-charcoal hover:bg-[#8C6D40]/10 hover:text-[#8C6D40]"
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      ))}
+                      <button
+                        onClick={() => handleReviewPageChange(Math.min(totalReviewPages, reviewPage + 1))}
+                        disabled={reviewPage === totalReviewPages}
+                        className="px-3 py-1.5 rounded-sm border border-[#EBE3DB] bg-white text-xs font-semibold uppercase tracking-wider text-charcoal disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#8C6D40] hover:text-white transition-colors"
+                      >
+                        Next
                       </button>
                     </div>
                   )}
