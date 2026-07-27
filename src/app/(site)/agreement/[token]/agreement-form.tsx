@@ -212,7 +212,7 @@ export function AgreementForm({
         </div>
 
         <p className="italic">
-          The Client Commitment & Agreement for Personal Coaching by Neha Arora outlines the expectations, commitments, and responsibilities for both the client and coach.
+          The Client Commitment & Agreement for Personal Coaching by SyncWellnessCo outlines the expectations, commitments, and responsibilities for both the client and coach.
         </p>
 
         <div>
@@ -286,7 +286,7 @@ export function AgreementForm({
           <div className="bg-[#FAF8F5] border border-[#EBE3DB] p-4 space-y-2 text-xs rounded-sm max-w-md">
             <div><strong>Client Name:</strong> {name}</div>
             <div><strong>Date:</strong> {purchaseDate}</div>
-            <div><strong>Coach:</strong> Neha Arora</div>
+            <div><strong>Coach:</strong> SyncWellnessCo</div>
           </div>
         </div>
 
