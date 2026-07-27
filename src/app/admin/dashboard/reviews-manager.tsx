@@ -166,8 +166,20 @@ export function ReviewsManager() {
     }
   };
 
-  const handleAddReview = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+
+  const executeCancel = async () => {
+    if (!editingId) {
+      if (form.beforePublicId) await deleteCloudinaryFile(form.beforePublicId, 'image');
+      if (form.afterPublicId) await deleteCloudinaryFile(form.afterPublicId, 'image');
+    }
+    setForm({ name: "", testimonial: "", programId: "", beforeImage: "", beforePublicId: "", afterImage: "", afterPublicId: "", rating: 5, published: true });
+    setIsAddModalOpen(false);
+    setEditingId(null);
+    setShowCancelConfirm(false);
+  };
+
+  const handleSaveWithStatus = async (publish: boolean) => {
     if (!form.name || !form.testimonial || !form.programId) {
       toast.error("Please fill all required fields");
       return;
@@ -183,7 +195,7 @@ export function ReviewsManager() {
         before_image: form.beforeImage,
         after_image: form.afterImage,
         rating: form.rating,
-        status: form.published ? 'published' : 'pending'
+        status: publish ? 'published' : 'pending'
       } : {
         programId: form.programId,
         name: form.name,
@@ -191,7 +203,7 @@ export function ReviewsManager() {
         beforeImage: form.beforeImage,
         afterImage: form.afterImage,
         rating: form.rating,
-        status: form.published ? 'published' : 'pending'
+        status: publish ? 'published' : 'pending'
       };
 
       const res = await fetch(isEditing ? `/api/reviews/${editingId}` : "/api/reviews", {
@@ -200,8 +212,7 @@ export function ReviewsManager() {
         body: JSON.stringify(payload)
       });
       if (res.ok) {
-        toast.success(isEditing ? "Review updated" : "Review added");
-        // Successfully saved, so don't delete images. Just reset and close.
+        toast.success(isEditing ? (publish ? "Review updated & published!" : "Review saved as draft!") : (publish ? "Review published!" : "Review saved as draft!"));
         setIsAddModalOpen(false);
         setEditingId(null);
         setForm({ name: "", testimonial: "", programId: "", beforeImage: "", beforePublicId: "", afterImage: "", afterPublicId: "", rating: 5, published: true });
@@ -218,6 +229,11 @@ export function ReviewsManager() {
       if (!editingId && form.afterPublicId) await deleteCloudinaryFile(form.afterPublicId, 'image');
     }
     setSubmitting(false);
+  };
+
+  const handleAddReview = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSaveWithStatus(true);
   };
 
   const openEditModal = (review: Review) => {
@@ -323,13 +339,14 @@ export function ReviewsManager() {
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/60 backdrop-blur-sm">
           <div className="bg-white rounded-md w-full max-w-4xl shadow-xl relative max-h-[90vh] flex flex-col overflow-hidden">
-            <button 
-              onClick={closeModal} 
-              className="absolute top-4 right-4 z-30 p-1.5 rounded-full text-charcoal/60 hover:text-charcoal bg-white/80 hover:bg-white backdrop-blur-md transition-all shadow-sm border border-[#EBE3DB]"
-              title="Close"
+            <Button 
+              type="button" 
+              variant="outline"
+              onClick={() => setShowCancelConfirm(true)} 
+              className="absolute top-4 right-4 z-30 rounded-none border border-[#EBE3DB] bg-white hover:bg-red-50 hover:border-red-200 hover:text-red-600 px-3.5 py-1 text-xs font-semibold tracking-wider uppercase text-charcoal/80 transition-colors shadow-sm h-8"
             >
-              <X className="h-5 w-5" />
-            </button>
+              Cancel
+            </Button>
             <div className="p-8 overflow-y-auto flex-1">
               <h3 className="font-display text-2xl text-charcoal mb-6 border-b pb-4">{editingId ? 'Edit' : 'Add Manual'} Review</h3>
               <form onSubmit={handleAddReview} className="flex flex-col md:flex-row gap-8">
@@ -384,19 +401,38 @@ export function ReviewsManager() {
                     <label className="block text-sm font-medium mb-1">Review Text</label>
                     <textarea value={form.testimonial} onChange={e => setForm(prev => ({...prev, testimonial: e.target.value}))} required rows={6} className="w-full p-2.5 border border-[#EBE3DB] rounded resize-none" />
                   </div>
-                  <div className="flex items-center gap-2">
+
+                  <div className="flex items-center gap-2 pt-2">
                     <input 
                       type="checkbox" 
-                      id="published" 
+                      id="review-published" 
                       checked={form.published !== false} 
                       onChange={(e) => setForm(prev => ({...prev, published: e.target.checked}))}
+                      className="h-4 w-4 rounded-none border-[#EBE3DB] text-[#8C6D40] focus:ring-[#8C6D40] cursor-pointer"
                     />
-                    <label htmlFor="published" className="text-sm font-medium">Publish immediately</label>
+                    <label htmlFor="review-published" className="text-sm font-medium text-charcoal cursor-pointer">Publish immediately</label>
                   </div>
 
-                  <div className="pt-4">
-                    <Button type="submit" disabled={submitting} className="w-full h-12 bg-[#8C6D40] hover:bg-[#B8955F] text-white">
-                      {submitting ? "Saving..." : (form.published ? (editingId ? "Save Changes" : "Publish Review") : "Draft")}
+                  <div className="flex items-center justify-end gap-3 pt-6 border-t border-[#EBE3DB]">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => setShowCancelConfirm(true)}
+                      className="rounded-none border border-[#EBE3DB] hover:bg-red-50 hover:border-red-200 hover:text-red-600 text-charcoal/80 text-xs uppercase tracking-wider font-semibold h-11 px-5"
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      type="button" 
+                      disabled={submitting}
+                      onClick={() => handleSaveWithStatus(form.published !== false)} 
+                      className={`rounded-none text-xs uppercase tracking-wider font-semibold h-11 px-6 ${
+                        form.published !== false 
+                          ? "bg-[#8C6D40] hover:bg-[#B8955F] text-white" 
+                          : "bg-charcoal hover:bg-charcoal/80 text-white"
+                      }`}
+                    >
+                      {submitting ? "Saving..." : (form.published !== false ? "Publish Immediately" : "Save Draft")}
                     </Button>
                   </div>
                 </div>
@@ -503,6 +539,16 @@ export function ReviewsManager() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={showCancelConfirm}
+        onClose={() => setShowCancelConfirm(false)}
+        onConfirm={executeCancel}
+        title="Are you sure you want to cancel?"
+        message="Any unsaved changes will be discarded. Are you sure you want to exit?"
+        confirmText="Yes, Cancel"
+        cancelText="Keep Editing"
+      />
 
       <ConfirmModal
         isOpen={!!deleteConfirmId}

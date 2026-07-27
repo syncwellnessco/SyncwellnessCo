@@ -159,8 +159,23 @@ export function VideoTestimonialsManager() {
     }
   }, []);
 
-  const handleAdd = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+
+  const executeCancel = () => {
+    if (form.public_id) {
+      deleteCloudinaryFile(form.public_id, 'video');
+    }
+    setIsAddModalOpen(false);
+    setEditingId(null);
+    setForm({ video_url: "", public_id: "", caption: "", name: "", program_id: "", featured_on_home: true });
+    setShowCancelConfirm(false);
+  };
+
+  const closeModal = () => {
+    executeCancel();
+  };
+
+  const handleSaveWithStatus = async (featured: boolean) => {
     if (!form.video_url) {
       toast.error("Please upload a video");
       return;
@@ -168,8 +183,8 @@ export function VideoTestimonialsManager() {
     setSubmitting(true);
     try {
       const isEditing = !!editingId;
-      const payload = { ...form };
-      delete (payload as any).public_id; // Remove public_id since it's not in the DB schema
+      const payload = { ...form, featured_on_home: featured };
+      delete (payload as any).public_id;
 
       const res = await fetch(isEditing ? `/api/videos/${editingId}` : "/api/videos", {
         method: isEditing ? "PATCH" : "POST",
@@ -177,7 +192,7 @@ export function VideoTestimonialsManager() {
         body: JSON.stringify(payload)
       });
       if (res.ok) {
-        toast.success(isEditing ? "Video testimonial updated" : "Video testimonial added");
+        toast.success(isEditing ? (featured ? "Video updated & featured on Home!" : "Video saved as draft!") : (featured ? "Video added & featured on Home!" : "Video saved as draft!"));
         setIsAddModalOpen(false);
         setEditingId(null);
         setForm({ video_url: "", public_id: "", caption: "", name: "", program_id: "", featured_on_home: true });
@@ -185,7 +200,6 @@ export function VideoTestimonialsManager() {
       } else {
         const errorData = await res.json();
         toast.error(`Database error: ${errorData.error || "Unknown error"}`);
-        // DB upload failed! Clean up the video from Cloudinary ONLY IF NEW
         if (!isEditing && form.public_id) {
           await deleteCloudinaryFile(form.public_id, 'video');
         }
@@ -199,10 +213,15 @@ export function VideoTestimonialsManager() {
     setSubmitting(false);
   };
 
+  const handleAdd = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSaveWithStatus(form.featured_on_home);
+  };
+
   const openEditModal = (video: VideoTestimonial) => {
     setForm({
       video_url: video.video_url || "",
-      public_id: "", // We don't have the original public_id saved in DB currently, it's fine
+      public_id: "",
       caption: video.caption || "",
       name: video.name || "",
       program_id: video.program_id || "",
@@ -210,15 +229,6 @@ export function VideoTestimonialsManager() {
     });
     setEditingId(video.id);
     setIsAddModalOpen(true);
-  };
-
-  const closeModal = () => {
-    if (form.public_id) {
-      deleteCloudinaryFile(form.public_id, 'video');
-    }
-    setIsAddModalOpen(false);
-    setEditingId(null);
-    setForm({ video_url: "", public_id: "", caption: "", name: "", program_id: "", featured_on_home: true });
   };
 
   const updateStatus = async (id: string, updates: Partial<VideoTestimonial>) => {
@@ -333,13 +343,14 @@ export function VideoTestimonialsManager() {
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/60 backdrop-blur-sm">
           <div className="bg-white rounded-md w-full max-w-2xl shadow-xl relative max-h-[90vh] flex flex-col overflow-hidden">
-            <button 
-              onClick={closeModal} 
-              className="absolute top-4 right-4 z-30 p-1.5 rounded-full text-charcoal/60 hover:text-charcoal bg-white/80 hover:bg-white backdrop-blur-md transition-all shadow-sm border border-[#EBE3DB]"
-              title="Close"
+            <Button 
+              type="button" 
+              variant="outline"
+              onClick={() => setShowCancelConfirm(true)} 
+              className="absolute top-4 right-4 z-30 rounded-none border border-[#EBE3DB] bg-white hover:bg-red-50 hover:border-red-200 hover:text-red-600 px-3.5 py-1 text-xs font-semibold tracking-wider uppercase text-charcoal/80 transition-colors shadow-sm h-8"
             >
-              <X className="h-5 w-5" />
-            </button>
+              Cancel
+            </Button>
             <div className="p-8 overflow-y-auto flex-1">
               <h3 className="font-display text-2xl text-charcoal mb-6 border-b pb-4">{editingId ? 'Edit' : 'Upload'} Video Testimonial</h3>
               <form onSubmit={handleAdd} className="flex flex-col sm:flex-row gap-8">
@@ -366,25 +377,38 @@ export function VideoTestimonialsManager() {
                     <label className="block text-sm font-medium mb-1">Caption</label>
                     <textarea value={form.caption} onChange={e => setForm({...form, caption: e.target.value})} className="w-full p-2.5 border border-[#EBE3DB] rounded resize-none" rows={4} placeholder="e.g., Sarah's 3-month progress..." />
                   </div>
-                  <div className="flex items-center justify-between gap-2 text-sm font-medium text-charcoal">
-                    <span>Feature on Home Page instantly</span>
-                    <button
-                      type="button"
-                      onClick={() => setForm({...form, featured_on_home: !form.featured_on_home})}
-                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                        form.featured_on_home ? "bg-[#8C6D40]" : "bg-gray-200"
+                  
+                  <div className="flex items-center gap-2 pt-2">
+                    <input 
+                      type="checkbox" 
+                      id="video-published" 
+                      checked={form.featured_on_home !== false} 
+                      onChange={(e) => setForm({...form, featured_on_home: e.target.checked})}
+                      className="h-4 w-4 rounded-none border-[#EBE3DB] text-[#8C6D40] focus:ring-[#8C6D40] cursor-pointer"
+                    />
+                    <label htmlFor="video-published" className="text-sm font-medium text-charcoal cursor-pointer">Publish immediately</label>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-3 pt-6 border-t border-[#EBE3DB]">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => setShowCancelConfirm(true)}
+                      className="rounded-none border border-[#EBE3DB] hover:bg-red-50 hover:border-red-200 hover:text-red-600 text-charcoal/80 text-xs uppercase tracking-wider font-semibold h-11 px-5"
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      type="button" 
+                      disabled={submitting}
+                      onClick={() => handleSaveWithStatus(form.featured_on_home !== false)} 
+                      className={`rounded-none text-xs uppercase tracking-wider font-semibold h-11 px-6 ${
+                        form.featured_on_home !== false 
+                          ? "bg-[#8C6D40] hover:bg-[#B8955F] text-white" 
+                          : "bg-charcoal hover:bg-charcoal/80 text-white"
                       }`}
                     >
-                      <span
-                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                          form.featured_on_home ? "translate-x-5" : "translate-x-0"
-                        }`}
-                      />
-                    </button>
-                  </div>
-                  <div className="pt-4">
-                    <Button type="submit" disabled={submitting} className="w-full h-12 bg-[#8C6D40] hover:bg-[#B8955F] text-white">
-                      {submitting ? "Uploading..." : "Save Video"}
+                      {submitting ? "Saving..." : (form.featured_on_home !== false ? "Publish Immediately" : "Save Draft")}
                     </Button>
                   </div>
                 </div>
@@ -393,6 +417,16 @@ export function VideoTestimonialsManager() {
           </div>
         </div>
       )}
+
+      <ConfirmModal 
+        isOpen={showCancelConfirm}
+        onClose={() => setShowCancelConfirm(false)}
+        onConfirm={executeCancel}
+        title="Are you sure you want to cancel?"
+        message="Any unsaved changes will be discarded. Are you sure you want to exit?"
+        confirmText="Yes, Cancel"
+        cancelText="Keep Editing"
+      />
 
       <ConfirmModal 
         isOpen={!!deleteConfirmId}

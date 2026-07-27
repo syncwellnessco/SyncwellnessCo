@@ -37,17 +37,17 @@ export function ConfirmModal({
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
           onClick={(e) => e.stopPropagation()}
-          className="bg-white rounded-2xl w-full max-w-sm shadow-2xl relative overflow-hidden"
+          className="bg-white rounded-md w-full max-w-sm shadow-2xl relative overflow-hidden border border-[#EBE3DB]"
         >
           <div className="p-6">
             <h3 className="font-display text-2xl font-semibold text-charcoal mb-2">{title}</h3>
-            <p className="text-charcoal/60 text-sm mb-6">{message}</p>
+            <p className="text-charcoal/60 text-sm mb-6 leading-relaxed">{message}</p>
             
             <div className="flex gap-3 justify-end">
               <Button
                 variant="outline"
                 onClick={onClose}
-                className="rounded-full px-6"
+                className="rounded-none border-[#EBE3DB] text-charcoal/80 text-xs font-semibold tracking-wider uppercase h-10 px-5"
               >
                 {cancelText}
               </Button>
@@ -56,7 +56,11 @@ export function ConfirmModal({
                   onConfirm();
                   onClose();
                 }}
-                className="bg-red-600 hover:bg-red-700 text-white rounded-full px-6"
+                className={`rounded-none text-xs font-semibold tracking-wider uppercase h-10 px-5 text-white ${
+                  confirmText.toLowerCase().includes("delete") 
+                    ? "bg-red-600 hover:bg-red-700" 
+                    : "bg-[#8C6D40] hover:bg-[#B8955F]"
+                }`}
               >
                 {confirmText}
               </Button>

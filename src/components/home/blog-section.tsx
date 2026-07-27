@@ -23,7 +23,7 @@ export function BlogSection({ blogs }: BlogSectionProps) {
           description="Practical reads on hormones, nutrition, and living well, curated for women like you."
         />
 
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-7xl mx-auto">
+        <div className="mt-8 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 max-w-7xl mx-auto">
           {blogs.map((post, index) => (
             <motion.div
               key={post.id}
@@ -46,12 +46,12 @@ export function BlogSection({ blogs }: BlogSectionProps) {
                   ) : (
                     <div className="relative aspect-[16/9] bg-sage-50 border-b border-[#EBE3DB]" />
                   )}
-                  <div className="p-3 sm:p-4 flex flex-1 flex-col items-center justify-between text-center min-h-[110px] sm:min-h-[130px]">
-                    <h3 className="font-display text-sm sm:text-base md:text-lg font-bold text-charcoal leading-snug line-clamp-3 group-hover:text-[#8C6D40] transition-colors">
+                  <div className="p-2.5 sm:p-4 flex flex-1 flex-col items-center justify-between text-center min-h-[95px] sm:min-h-[130px]">
+                    <h3 className="font-display text-xs sm:text-base md:text-lg font-bold text-charcoal leading-snug line-clamp-3 group-hover:text-[#8C6D40] transition-colors">
                       {post.title}
                     </h3>
                     {post.category && (
-                      <span className="font-display italic text-[#8C6D40] text-sm sm:text-base font-semibold mt-2.5">
+                      <span className="font-display italic text-[#8C6D40] text-xs sm:text-base font-semibold mt-1.5 sm:mt-2.5">
                         {post.category}
                       </span>
                     )}
@@ -59,7 +59,7 @@ export function BlogSection({ blogs }: BlogSectionProps) {
                 </Link>
                 <Link 
                   href={`/resources/blogs/${post.slug || post.id}`} 
-                  className="block w-full bg-[#8C6D40] py-2.5 text-center text-[10px] font-semibold uppercase tracking-[0.15em] text-white transition-colors hover:bg-[#B8955F]"
+                  className="block w-full bg-[#8C6D40] py-2 sm:py-2.5 text-center text-[9px] sm:text-[10px] font-semibold uppercase tracking-[0.12em] sm:tracking-[0.15em] text-white transition-colors hover:bg-[#B8955F]"
                 >
                   Read More
                 </Link>

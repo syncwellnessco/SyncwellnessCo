@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Blog } from "@/types/dashboard";
-import { Plus, Edit, Trash, ExternalLink, Image as ImageIcon } from "lucide-react";
+import { Plus, Edit, Trash, ExternalLink, Image as ImageIcon, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,7 @@ import { createClient } from "@/lib/supabase-client";
 import { CldUploadWidget } from 'next-cloudinary';
 import { deleteCloudinaryFile } from "@/lib/cloudinary-utils";
 import dynamic from 'next/dynamic';
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 
 const Editor = dynamic(() => import('@/components/admin/editor'), { ssr: false });
 
@@ -21,6 +22,8 @@ export function BlogsManager() {
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [uploadedImageId, setUploadedImageId] = useState<string | null>(null);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   
   const [formData, setFormData] = useState<Partial<Blog>>({});
 
@@ -29,6 +32,17 @@ export function BlogsManager() {
   useEffect(() => {
     fetchBlogs();
   }, []);
+
+  useEffect(() => {
+    if (isEditing) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isEditing]);
 
   const fetchBlogs = async () => {
     try {
@@ -76,10 +90,10 @@ export function BlogsManager() {
     return title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Math.random().toString(36).substring(2, 8);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSaveWithStatus = async (publish: boolean) => {
+    setSubmitting(true);
     try {
-      const submitData = { ...formData };
+      const submitData = { ...formData, published: publish };
       if (!submitData.slug) {
         submitData.slug = generateSlug(submitData.title || "untitled");
       }
@@ -88,12 +102,12 @@ export function BlogsManager() {
         // Update
         const { error } = await supabase.from('blogs').update(submitData).eq('id', formData.id);
         if (error) throw error;
-        toast.success("Blog updated!");
+        toast.success(publish ? "Blog published!" : "Blog saved as draft!");
       } else {
         // Create
         const { error } = await supabase.from('blogs').insert([submitData]);
         if (error) throw error;
-        toast.success("Blog published!");
+        toast.success(publish ? "Blog published!" : "Blog saved as draft!");
       }
       setUploadedImageId(null);
       setIsEditing(false);
@@ -105,7 +119,18 @@ export function BlogsManager() {
         setUploadedImageId(null);
         setFormData(prev => ({ ...prev, image_url: '' }));
       }
+    } finally {
+      setSubmitting(false);
     }
+  }
+
+  const executeCancel = async () => {
+    if (uploadedImageId) {
+      await deleteCloudinaryFile(uploadedImageId, 'image');
+      setUploadedImageId(null);
+    }
+    setIsEditing(false);
+    setShowCancelConfirm(false);
   }
 
   if (loading) {
@@ -119,152 +144,193 @@ export function BlogsManager() {
     );
   }
 
-  if (isEditing) {
-    return (
-      <div className="bg-white p-6 rounded-md border border-[#EBE3DB] shadow-sm">
-        <h2 className="text-2xl font-display text-charcoal mb-6">{formData.id ? "Edit Blog" : "Create New Blog"}</h2>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="flex flex-col lg:flex-row gap-6">
-            {/* Left Side: Cover Image */}
-            <div className="w-full lg:w-1/3 space-y-2">
-              <div className="flex justify-between items-baseline">
-                <Label className="text-sm font-medium">Cover Image</Label>
-                <span className="text-[10px] text-charcoal/50 font-medium">Aspect ratio: 3:2 landscape</span>
-              </div>
-              <CldUploadWidget 
-                uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_BLOGS || "syncwellness_blogs"}
-                onSuccess={(result: any) => {
-                  setFormData(prev => ({ ...prev, image_url: result.info.secure_url }));
-                  setUploadedImageId(result.info.public_id);
-                  document.body.style.overflow = '';
-                }}
-              >
-                {({ open }) => (
-                  <div className="w-full aspect-[3/2] sm:h-[220px] lg:h-full lg:min-h-[260px]">
-                    {formData.image_url ? (
-                      <div className="relative w-full h-full rounded-md overflow-hidden border border-[#EBE3DB] group">
-                        <img src={formData.image_url} alt="Cover" className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-charcoal/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                          <Button type="button" size="sm" onClick={(e) => { e.preventDefault(); open(); }} variant="secondary">
-                            Change
-                          </Button>
-                          <Button 
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            className="bg-red-50 text-red-600 border-red-200 hover:bg-red-100" 
-                            onClick={async (e) => { 
-                              e.preventDefault(); 
-                              if (uploadedImageId) {
-                                await deleteCloudinaryFile(uploadedImageId, 'image');
-                                setUploadedImageId(null);
-                              }
-                              setFormData(prev => ({ ...prev, image_url: '' })); 
-                            }}
-                          >
-                            Remove
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <button 
-                        type="button" 
-                        onClick={(e) => { e.preventDefault(); open(); }} 
-                        className="w-full h-full flex flex-col items-center justify-center border-2 border-dashed border-[#EBE3DB] rounded-md bg-[#FAF8F5] hover:bg-[#EBE3DB]/40 hover:border-[#8C6D40] transition-colors text-charcoal/50 hover:text-charcoal"
-                      >
-                        <ImageIcon className="h-8 w-8 mb-2 opacity-50" />
-                        <span className="font-medium text-sm">Upload Cover Image</span>
-                        <span className="text-[10px] text-charcoal/40 mt-1">3:2 landscape recommended</span>
-                      </button>
-                    )}
-                  </div>
-                )}
-              </CldUploadWidget>
-            </div>
-
-            {/* Right Side: Title, Category, Tags */}
-            <div className="w-full lg:w-2/3 space-y-5">
-              <div className="space-y-2">
-                <Label>Title</Label>
-                <Input 
-                  value={formData.title || ""}
-                  onChange={(e) => setFormData({...formData, title: e.target.value})}
-                  required
-                  className="text-lg font-medium h-12"
-                  placeholder="Enter an engaging blog title..."
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div className="space-y-2">
-                  <Label>Category</Label>
-                  <Input 
-                    value={formData.category || ""}
-                    onChange={(e) => setFormData({...formData, category: e.target.value})}
-                    placeholder="e.g. Wellness"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Tags (Comma separated)</Label>
-                  <Input 
-                    value={formData.tags || ""}
-                    onChange={(e) => setFormData({...formData, tags: e.target.value})}
-                    placeholder="e.g. fitness, hormones, diet"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Short Excerpt</Label>
-                <Textarea 
-                  rows={3}
-                  value={formData.excerpt || ""}
-                  onChange={(e) => setFormData({...formData, excerpt: e.target.value})}
-                  placeholder="A brief 1-2 sentence summary of the article..."
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Blog Content</Label>
-            <Editor 
-              data={formData.content || ""} 
-              onChange={(val) => setFormData({...formData, content: val})} 
-            />
-          </div>
-
-          <div className="flex items-center gap-2">
-            <input 
-              type="checkbox" 
-              id="published" 
-              checked={formData.published !== false} 
-              onChange={(e) => setFormData({...formData, published: e.target.checked})}
-            />
-            <Label htmlFor="published">Publish immediately</Label>
-          </div>
-
-          <div className="flex gap-4 pt-4 border-t border-[#EBE3DB]">
-            <Button type="button" variant="outline" onClick={async () => {
-              if (uploadedImageId) {
-                await deleteCloudinaryFile(uploadedImageId, 'image');
-                setUploadedImageId(null);
-              }
-              setIsEditing(false);
-            }}>
-              Cancel
-            </Button>
-            <Button type="submit" className="bg-[#8C6D40] hover:bg-[#B8955F] text-white">
-              {formData.published !== false ? (formData.id ? "Update Blog" : "Publish Blog") : "Draft"}
-            </Button>
-          </div>
-        </form>
-      </div>
-    )
-  }
-
   return (
     <div>
+      {/* Add / Edit Modal */}
+      {isEditing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-charcoal/60 backdrop-blur-sm">
+          <div className="bg-white rounded-lg w-full max-w-4xl shadow-2xl relative max-h-[90vh] flex flex-col overflow-hidden border border-[#EBE3DB]">
+            {/* Modal Header */}
+            <div className="px-6 py-4 border-b border-[#EBE3DB] flex items-center justify-between bg-white shrink-0">
+              <h3 className="font-display text-xl sm:text-2xl text-charcoal font-semibold">
+                {formData.id ? "Edit Blog" : "Create New Blog"}
+              </h3>
+              <button 
+                type="button" 
+                onClick={() => setShowCancelConfirm(true)}
+                className="text-charcoal/50 hover:text-charcoal p-1.5 rounded-full hover:bg-charcoal/10 transition-colors focus:outline-none"
+                aria-label="Close modal"
+                title="Close"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form onSubmit={(e) => { e.preventDefault(); handleSaveWithStatus(formData.published !== false); }} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+              {/* Scrollable Form Body */}
+              <div className="p-6 sm:p-8 overflow-y-auto flex-1 space-y-6">
+                <div className="flex flex-col lg:flex-row gap-6">
+                  {/* Left Side: Cover Image */}
+                  <div className="w-full lg:w-1/3 space-y-2">
+                    <div className="flex justify-between items-baseline">
+                      <Label className="text-sm font-medium">Cover Image</Label>
+                      <span className="text-[10px] text-charcoal/50 font-medium">Aspect ratio: 3:2 landscape</span>
+                    </div>
+                    <CldUploadWidget 
+                      uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_BLOGS || "syncwellness_blogs"}
+                      onSuccess={(result: any) => {
+                        setFormData(prev => ({ ...prev, image_url: result.info.secure_url }));
+                        setUploadedImageId(result.info.public_id);
+                        document.body.style.overflow = '';
+                      }}
+                    >
+                      {({ open }) => (
+                        <div className="w-full aspect-[3/2] sm:h-[220px] lg:h-full lg:min-h-[260px]">
+                          {formData.image_url ? (
+                            <div className="relative w-full h-full rounded-md overflow-hidden border border-[#EBE3DB] group">
+                              <img src={formData.image_url} alt="Cover" className="w-full h-full object-cover" />
+                              <div className="absolute inset-0 bg-charcoal/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                <Button type="button" size="sm" onClick={(e) => { e.preventDefault(); open(); }} variant="secondary">
+                                  Change
+                                </Button>
+                                <Button 
+                                  type="button"
+                                  size="sm"
+                                  variant="outline"
+                                  className="bg-red-50 text-red-600 border-red-200 hover:bg-red-100" 
+                                  onClick={async (e) => { 
+                                    e.preventDefault(); 
+                                    if (uploadedImageId) {
+                                      await deleteCloudinaryFile(uploadedImageId, 'image');
+                                      setUploadedImageId(null);
+                                    }
+                                    setFormData(prev => ({ ...prev, image_url: '' })); 
+                                  }}
+                                >
+                                  Remove
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <button 
+                              type="button" 
+                              onClick={(e) => { e.preventDefault(); open(); }} 
+                              className="w-full h-full flex flex-col items-center justify-center border-2 border-dashed border-[#EBE3DB] rounded-md bg-[#FAF8F5] hover:bg-[#EBE3DB]/40 hover:border-[#8C6D40] transition-colors text-charcoal/50 hover:text-charcoal"
+                            >
+                              <ImageIcon className="h-8 w-8 mb-2 opacity-50" />
+                              <span className="font-medium text-sm">Upload Cover Image</span>
+                              <span className="text-[10px] text-charcoal/40 mt-1">3:2 landscape recommended</span>
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </CldUploadWidget>
+                  </div>
+
+                  {/* Right Side: Title, Category, Tags */}
+                  <div className="w-full lg:w-2/3 space-y-5">
+                    <div className="space-y-2">
+                      <Label>Title</Label>
+                      <Input 
+                        value={formData.title || ""}
+                        onChange={(e) => setFormData({...formData, title: e.target.value})}
+                        required
+                        className="text-lg font-medium h-12"
+                        placeholder="Enter an engaging blog title..."
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      <div className="space-y-2">
+                        <Label>Category</Label>
+                        <Input 
+                          value={formData.category || ""}
+                          onChange={(e) => setFormData({...formData, category: e.target.value})}
+                          placeholder="e.g. Wellness"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Tags (Comma separated)</Label>
+                        <Input 
+                          value={formData.tags || ""}
+                          onChange={(e) => setFormData({...formData, tags: e.target.value})}
+                          placeholder="e.g. fitness, hormones, diet"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Short Excerpt</Label>
+                      <Textarea 
+                        rows={3}
+                        value={formData.excerpt || ""}
+                        onChange={(e) => setFormData({...formData, excerpt: e.target.value})}
+                        placeholder="A brief 1-2 sentence summary of the article..."
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Blog Content</Label>
+                  <Editor 
+                    data={formData.content || ""} 
+                    onChange={(val) => setFormData({...formData, content: val})} 
+                  />
+                </div>
+              </div>
+
+              {/* Fixed Footer at the Bottom */}
+              <div className="px-6 py-4 border-t border-[#EBE3DB] bg-[#FAF8F5] flex flex-wrap items-center justify-between gap-4 shrink-0">
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="checkbox" 
+                    id="published" 
+                    checked={formData.published !== false} 
+                    onChange={(e) => setFormData({...formData, published: e.target.checked})}
+                    className="h-4 w-4 rounded-none border-[#EBE3DB] text-[#8C6D40] focus:ring-[#8C6D40] cursor-pointer"
+                  />
+                  <Label htmlFor="published" className="text-sm font-medium text-charcoal cursor-pointer select-none">Publish immediately</Label>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => setShowCancelConfirm(true)}
+                    className="rounded-none border border-[#EBE3DB] hover:bg-red-50 hover:border-red-200 hover:text-red-600 text-charcoal/80 text-xs uppercase tracking-wider font-semibold h-10 px-5 transition-colors"
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    type="button" 
+                    disabled={submitting}
+                    onClick={() => handleSaveWithStatus(formData.published !== false)} 
+                    className={`rounded-none text-xs uppercase tracking-wider font-semibold h-10 px-6 transition-colors ${
+                      formData.published !== false 
+                        ? "bg-[#8C6D40] hover:bg-[#B8955F] text-white" 
+                        : "bg-charcoal hover:bg-charcoal/80 text-white"
+                    }`}
+                  >
+                    {submitting ? "Saving..." : (formData.published !== false ? "Publish" : "Save Draft")}
+                  </Button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      <ConfirmModal
+        isOpen={showCancelConfirm}
+        onClose={() => setShowCancelConfirm(false)}
+        onConfirm={executeCancel}
+        title="Are you sure you want to cancel?"
+        message="Any unsaved changes will be discarded. Are you sure you want to exit?"
+        confirmText="Yes, Cancel"
+        cancelText="Keep Editing"
+      />
+
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-display text-charcoal">Blog Manager</h2>
         <Button onClick={handleCreateNew} className="bg-[#8C6D40] hover:bg-[#B8955F] text-white text-[11px] uppercase tracking-widest px-6 h-10">
@@ -275,7 +341,7 @@ export function BlogsManager() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {blogs.length === 0 ? (
           <div className="col-span-full py-12 text-center text-charcoal/50 border border-dashed border-[#EBE3DB] rounded-lg bg-white">
-            No blogs found. Click "New Blog" to create one.
+            No blogs found. Click &quot;New Blog&quot; to create one.
           </div>
         ) : (
           blogs.map((blog) => (

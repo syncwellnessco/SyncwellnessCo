@@ -210,6 +210,7 @@ export function ProgramsManager() {
   const [editForm, setEditForm] = useState<Partial<Program>>({});
   const [activeTab, setActiveTab] = useState("basic");
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
   const tabs = [
     { id: 'basic', label: 'Basic Info' },
@@ -294,7 +295,7 @@ export function ProgramsManager() {
     });
   };
 
-  const handleSave = async () => {
+  const handleSaveWithStatus = async (statusVal: 'published' | 'draft') => {
     if (editForm.featured && editForm.featured_rank) {
       const existing = programs.find(p => p.featured && p.featured_rank === editForm.featured_rank && p.id !== (isNew ? null : selectedProgram?.id) && !(p as any).isSeed);
       if (existing) {
@@ -311,6 +312,7 @@ export function ProgramsManager() {
       
       const payload = {
         ...editForm,
+        status: statusVal,
         pricing: editForm.pricing ? { ...editForm.pricing, currency: "AUD" } : { price: 0, currency: "AUD", paymentType: "one-time", installmentAvailable: false }
       };
 
@@ -321,7 +323,7 @@ export function ProgramsManager() {
       });
       
       if (res.ok) {
-        toast.success(isNew ? "Program created successfully!" : "Program updated successfully!");
+        toast.success(isNew ? (statusVal === 'published' ? "Program created & published!" : "Program saved as draft!") : (statusVal === 'published' ? "Program published!" : "Program saved as draft!"));
         setIsEditing(false);
         setSelectedProgram(null);
         fetchPrograms();
@@ -336,6 +338,8 @@ export function ProgramsManager() {
       setIsSaving(false);
     }
   };
+
+  const handleSave = () => handleSaveWithStatus(editForm.status === 'published' ? 'published' : 'draft');
 
   const executeDelete = async () => {
     if (!deleteConfirmId) return;
@@ -438,9 +442,14 @@ export function ProgramsManager() {
               <h3 className="font-display text-2xl text-charcoal">
                 {isEditing ? (isNew ? "New Program" : "Edit Program") : selectedProgram.title}
               </h3>
-              <button onClick={() => setSelectedProgram(null)} className="text-charcoal/50 hover:text-charcoal transition-colors">
-                <X className="h-5 w-5" />
-              </button>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => isEditing ? setShowCancelConfirm(true) : setSelectedProgram(null)} 
+                className="rounded-none border border-[#EBE3DB] hover:bg-red-50 hover:border-red-200 hover:text-red-600 text-charcoal/80 text-xs font-semibold tracking-wider uppercase h-8 px-3 transition-colors"
+              >
+                Cancel
+              </Button>
             </div>
 
             <div className="flex border-b border-[#EBE3DB] bg-white px-6 pt-2 overflow-x-auto custom-scrollbar">
@@ -969,25 +978,67 @@ export function ProgramsManager() {
             <div className="p-6 border-t border-[#EBE3DB] bg-[#FAF8F5] flex justify-end gap-3 shrink-0">
               {!isEditing ? (
                 <>
-                  <Button onClick={() => setSelectedProgram(null)} variant="outline" className="text-xs uppercase tracking-wider">Close</Button>
-                  <Button onClick={handleEditClick} className="bg-[#8C6D40] hover:bg-[#B8955F] text-white text-xs uppercase tracking-wider">
+                  <Button onClick={() => setSelectedProgram(null)} variant="outline" className="text-xs uppercase tracking-wider rounded-none">Close</Button>
+                  <Button onClick={handleEditClick} className="bg-[#8C6D40] hover:bg-[#B8955F] text-white text-xs uppercase tracking-wider rounded-none">
                     <Edit className="h-3 w-3 mr-2" /> Edit Program
                   </Button>
                 </>
               ) : (
-                <>
-                  <Button onClick={() => setSelectedProgram(null)} variant="outline" className="text-xs uppercase tracking-wider" disabled={isSaving}>Cancel</Button>
-                  <Button onClick={handleSave} disabled={isSaving} className="bg-[#8C6D40] hover:bg-[#B8955F] text-white text-xs uppercase tracking-wider">
-                    {isSaving ? <RefreshCw className="h-3 w-3 mr-2 animate-spin" /> : <Save className="h-3 w-3 mr-2" />} 
-                    {isSaving ? "Saving..." : (editForm.status !== 'published' ? "Draft" : (isNew ? "Create Program" : "Save Changes"))}
-                  </Button>
-                </>
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="checkbox" 
+                      id="program-published" 
+                      checked={editForm.status === 'published'} 
+                      onChange={(e) => setEditForm(prev => ({ ...prev, status: e.target.checked ? 'published' : 'draft' }))}
+                      className="h-4 w-4 rounded-none border-[#EBE3DB] text-[#8C6D40] focus:ring-[#8C6D40] cursor-pointer"
+                    />
+                    <label htmlFor="program-published" className="text-sm font-medium text-charcoal cursor-pointer">Publish immediately</label>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Button 
+                      type="button" 
+                      onClick={() => setShowCancelConfirm(true)} 
+                      variant="outline" 
+                      className="rounded-none border border-[#EBE3DB] hover:bg-red-50 hover:border-red-200 hover:text-red-600 text-charcoal/80 text-xs uppercase tracking-wider font-semibold h-10 px-5" 
+                      disabled={isSaving}
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      type="button" 
+                      onClick={() => handleSaveWithStatus(editForm.status === 'published' ? 'published' : 'draft')} 
+                      disabled={isSaving} 
+                      className={`rounded-none text-xs uppercase tracking-wider font-semibold h-10 px-6 ${
+                        editForm.status === 'published' 
+                          ? "bg-[#8C6D40] hover:bg-[#B8955F] text-white" 
+                          : "bg-charcoal hover:bg-charcoal/80 text-white"
+                      }`}
+                    >
+                      {isSaving ? "Saving..." : (editForm.status === 'published' ? "Publish Immediately" : "Save Draft")}
+                    </Button>
+                  </div>
+                </div>
               )}
             </div>
 
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={showCancelConfirm}
+        onClose={() => setShowCancelConfirm(false)}
+        onConfirm={() => {
+          setIsEditing(false);
+          setSelectedProgram(null);
+          setShowCancelConfirm(false);
+        }}
+        title="Are you sure you want to cancel?"
+        message="Any unsaved changes will be discarded. Are you sure you want to exit?"
+        confirmText="Yes, Cancel"
+        cancelText="Keep Editing"
+      />
 
       <ConfirmModal
         isOpen={!!deleteConfirmId}

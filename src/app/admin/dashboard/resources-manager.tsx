@@ -13,6 +13,7 @@ import { createClient } from "@/lib/supabase-client";
 import { CldUploadWidget } from 'next-cloudinary';
 import { deleteCloudinaryFile } from "@/lib/cloudinary-utils";
 import dynamic from 'next/dynamic';
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 
 const Editor = dynamic(() => import('@/components/admin/editor'), { ssr: false });
 
@@ -81,6 +82,8 @@ export function ResourcesManager() {
   const [subTab, setSubTab] = useState<SubTab>("blogs");
   const [isEditing, setIsEditing] = useState(false);
   const [uploadedImageId, setUploadedImageId] = useState<string | null>(null);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState<Partial<Blog>>({});
 
   const supabase = createClient();
@@ -107,6 +110,7 @@ export function ResourcesManager() {
     }
     setIsEditing(false);
     setFormData({});
+    setShowCancelConfirm(false);
   };
 
   const fetchResources = async () => {
@@ -156,7 +160,7 @@ export function ResourcesManager() {
         category: "Podcast",
         published: true
       });
-    } else {
+    } else if (subTab === "media") {
       setFormData({
         title: "",
         slug: "",
@@ -187,10 +191,10 @@ export function ResourcesManager() {
     return `${prefix}-${cleanTitle}`;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSaveWithStatus = async (publish: boolean) => {
+    setSubmitting(true);
     try {
-      const submitData = { ...formData };
+      const submitData = { ...formData, published: publish };
       
       // Auto-populate attributes for Podcasts and Media
       if (subTab === "podcasts") {
@@ -214,12 +218,12 @@ export function ResourcesManager() {
         // Update
         const { error } = await supabase.from('blogs').update(submitData).eq('id', formData.id);
         if (error) throw error;
-        toast.success("Resource updated!");
+        toast.success(publish ? "Resource published!" : "Resource saved as draft!");
       } else {
         // Create
         const { error } = await supabase.from('blogs').insert([submitData]);
         if (error) throw error;
-        toast.success("Resource published!");
+        toast.success(publish ? "Resource published!" : "Resource saved as draft!");
       }
       
       setUploadedImageId(null);
@@ -232,6 +236,8 @@ export function ResourcesManager() {
         setUploadedImageId(null);
         setFormData(prev => ({ ...prev, image_url: '' }));
       }
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -248,35 +254,50 @@ export function ResourcesManager() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-display text-charcoal">Resources Manager</h2>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div>
+          <h2 className="text-2xl font-display text-charcoal">Resources Manager</h2>
+          <p className="text-sm text-charcoal/60 mt-0.5">Manage blogs, podcasts, and media appearances from one place.</p>
+        </div>
         <Button onClick={handleCreateNew} className="bg-[#8C6D40] hover:bg-[#B8955F] text-white text-[11px] uppercase tracking-widest px-6 h-10">
-          <Plus className="h-4 w-4 mr-2" /> Add {subTab === "blogs" ? "Blog" : subTab === "podcasts" ? "Podcast" : "Media Link"}
+          <Plus className="h-4 w-4 mr-2" /> Add {subTab === "blogs" ? "Blog" : subTab === "podcasts" ? "Podcast" : "Media Article"}
         </Button>
       </div>
 
-      {/* Sub-tab selector */}
-      <div className="flex gap-2 border-b border-[#EBE3DB] mb-8">
+      {/* Sub-tabs */}
+      <div className="flex gap-2 border-b border-[#EBE3DB] mb-6">
         <button 
-          onClick={() => { setSubTab("blogs"); setIsEditing(false); }}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors -mb-px ${subTab === "blogs" ? "border-[#8C6D40] text-[#8C6D40]" : "border-transparent text-charcoal/60 hover:text-charcoal"}`}
+          onClick={() => setSubTab("blogs")}
+          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors -mb-px ${
+            subTab === "blogs" 
+              ? "border-[#8C6D40] text-[#8C6D40]" 
+              : "border-transparent text-charcoal/60 hover:text-charcoal"
+          }`}
         >
           <BookOpen className="h-4 w-4" />
-          Blogs
+          Blogs ({blogs.length})
         </button>
         <button 
-          onClick={() => { setSubTab("podcasts"); setIsEditing(false); }}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors -mb-px ${subTab === "podcasts" ? "border-[#8C6D40] text-[#8C6D40]" : "border-transparent text-charcoal/60 hover:text-charcoal"}`}
+          onClick={() => setSubTab("podcasts")}
+          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors -mb-px ${
+            subTab === "podcasts" 
+              ? "border-[#8C6D40] text-[#8C6D40]" 
+              : "border-transparent text-charcoal/60 hover:text-charcoal"
+          }`}
         >
           <Video className="h-4 w-4" />
-          Podcasts
+          Podcasts ({podcasts.length})
         </button>
         <button 
-          onClick={() => { setSubTab("media"); setIsEditing(false); }}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors -mb-px ${subTab === "media" ? "border-[#8C6D40] text-[#8C6D40]" : "border-transparent text-charcoal/60 hover:text-charcoal"}`}
+          onClick={() => setSubTab("media")}
+          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors -mb-px ${
+            subTab === "media" 
+              ? "border-[#8C6D40] text-[#8C6D40]" 
+              : "border-transparent text-charcoal/60 hover:text-charcoal"
+          }`}
         >
           <Newspaper className="h-4 w-4" />
-          Media & Press
+          Media Articles ({media.length})
         </button>
       </div>
       
@@ -343,22 +364,27 @@ export function ResourcesManager() {
 
       {/* Add / Edit Modal */}
       {isEditing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/60 backdrop-blur-sm">
-          <div className="bg-white rounded-md w-full max-w-4xl shadow-xl relative max-h-[90vh] flex flex-col overflow-hidden">
-            <button 
-              type="button" 
-              onClick={closeModal} 
-              className="absolute top-4 right-4 z-30 p-1.5 rounded-full text-charcoal/60 hover:text-charcoal bg-white/80 hover:bg-white backdrop-blur-md transition-all shadow-sm border border-[#EBE3DB]"
-              title="Close"
-            >
-              <X className="h-5 w-5" />
-            </button>
-            <div className="p-8 overflow-y-auto flex-1">
-              <h3 className="font-display text-2xl text-charcoal mb-6 border-b pb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-charcoal/60 backdrop-blur-sm">
+          <div className="bg-white rounded-lg w-full max-w-4xl shadow-2xl relative max-h-[90vh] flex flex-col overflow-hidden border border-[#EBE3DB]">
+            {/* Modal Header */}
+            <div className="px-6 py-4 border-b border-[#EBE3DB] flex items-center justify-between bg-white shrink-0">
+              <h3 className="font-display text-xl sm:text-2xl text-charcoal font-semibold">
                 {formData.id ? "Edit" : "Create"} {subTab === "blogs" ? "Blog" : subTab === "podcasts" ? "Podcast" : "Media Article"}
               </h3>
-              
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <button 
+                type="button" 
+                onClick={() => setShowCancelConfirm(true)}
+                className="text-charcoal/50 hover:text-charcoal p-1.5 rounded-full hover:bg-charcoal/10 transition-colors focus:outline-none"
+                aria-label="Close modal"
+                title="Close"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form onSubmit={(e) => { e.preventDefault(); handleSaveWithStatus(formData.published !== false); }} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+              {/* Scrollable Form Body */}
+              <div className="p-6 sm:p-8 overflow-y-auto flex-1 space-y-6">
                 <div className="flex flex-col lg:flex-row gap-6">
                   {/* Left Side: Cover Image */}
                   {subTab !== "podcasts" && (
@@ -533,30 +559,58 @@ export function ResourcesManager() {
                     />
                   </div>
                 )}
+              </div>
 
+              {/* Fixed Footer at the Bottom */}
+              <div className="px-6 py-4 border-t border-[#EBE3DB] bg-[#FAF8F5] flex flex-wrap items-center justify-between gap-4 shrink-0">
                 <div className="flex items-center gap-2">
                   <input 
                     type="checkbox" 
                     id="published" 
                     checked={formData.published !== false} 
                     onChange={(e) => setFormData({...formData, published: e.target.checked})}
+                    className="h-4 w-4 rounded-none border-[#EBE3DB] text-[#8C6D40] focus:ring-[#8C6D40] cursor-pointer"
                   />
-                  <Label htmlFor="published">Publish immediately</Label>
+                  <Label htmlFor="published" className="text-sm font-medium text-charcoal cursor-pointer select-none">Publish immediately</Label>
                 </div>
 
-                <div className="flex gap-4 pt-4 border-t border-[#EBE3DB]">
-                  <Button type="button" variant="outline" onClick={closeModal}>
+                <div className="flex items-center gap-3">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => setShowCancelConfirm(true)}
+                    className="rounded-none border border-[#EBE3DB] hover:bg-red-50 hover:border-red-200 hover:text-red-600 text-charcoal/80 text-xs uppercase tracking-wider font-semibold h-10 px-5 transition-colors"
+                  >
                     Cancel
                   </Button>
-                  <Button type="submit" className="bg-[#8C6D40] hover:bg-[#B8955F] text-white">
-                    {formData.published !== false ? (formData.id ? "Update" : "Publish") : "Draft"}
+                  <Button 
+                    type="button" 
+                    disabled={submitting}
+                    onClick={() => handleSaveWithStatus(formData.published !== false)} 
+                    className={`rounded-none text-xs uppercase tracking-wider font-semibold h-10 px-6 transition-colors ${
+                      formData.published !== false 
+                        ? "bg-[#8C6D40] hover:bg-[#B8955F] text-white" 
+                        : "bg-charcoal hover:bg-charcoal/80 text-white"
+                    }`}
+                  >
+                    {submitting ? "Saving..." : (formData.published !== false ? "Publish" : "Save Draft")}
                   </Button>
                 </div>
-              </form>
-            </div>
+              </div>
+            </form>
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={showCancelConfirm}
+        onClose={() => setShowCancelConfirm(false)}
+        onConfirm={closeModal}
+        title="Are you sure you want to cancel?"
+        message="Any unsaved changes will be discarded. Are you sure you want to exit?"
+        confirmText="Yes, Cancel"
+        cancelText="Keep Editing"
+      />
     </div>
   );
 }
