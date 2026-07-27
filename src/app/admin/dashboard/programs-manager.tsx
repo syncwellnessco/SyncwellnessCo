@@ -385,7 +385,7 @@ export function ProgramsManager() {
         </div>
         
         <div className="flex items-center gap-3">
-          <Button onClick={handleAddClick} className="bg-[#8C6D40] hover:bg-[#B8955F] text-white text-xs uppercase tracking-wider h-9">
+          <Button onClick={handleAddClick} className="bg-[#8C6D40] hover:bg-[#B8955F] text-white text-xs uppercase tracking-wider h-9 rounded-none">
             <Plus className="h-3 w-3 mr-2" /> New Program
           </Button>
         </div>

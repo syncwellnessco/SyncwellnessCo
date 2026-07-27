@@ -17,6 +17,8 @@ import { ConfirmModal } from "@/components/ui/confirm-modal";
 
 const Editor = dynamic(() => import('@/components/admin/editor'), { ssr: false });
 
+const ITEMS_PER_PAGE = 15;
+
 export function BlogsManager() {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,6 +26,7 @@ export function BlogsManager() {
   const [uploadedImageId, setUploadedImageId] = useState<string | null>(null);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   
   const [formData, setFormData] = useState<Partial<Blog>>({});
 
@@ -55,6 +58,12 @@ export function BlogsManager() {
       setLoading(false);
     }
   }
+
+  const totalPages = Math.ceil(blogs.length / ITEMS_PER_PAGE);
+  const paginatedBlogs = blogs.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   const handleEdit = (blog: Blog) => {
     setFormData(blog);
@@ -190,14 +199,14 @@ export function BlogsManager() {
                             <div className="relative w-full h-full rounded-md overflow-hidden border border-[#EBE3DB] group">
                               <img src={formData.image_url} alt="Cover" className="w-full h-full object-cover" />
                               <div className="absolute inset-0 bg-charcoal/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                <Button type="button" size="sm" onClick={(e) => { e.preventDefault(); open(); }} variant="secondary">
+                                <Button type="button" size="sm" onClick={(e) => { e.preventDefault(); open(); }} variant="secondary" className="rounded-none">
                                   Change
                                 </Button>
                                 <Button 
                                   type="button"
                                   size="sm"
                                   variant="outline"
-                                  className="bg-red-50 text-red-600 border-red-200 hover:bg-red-100" 
+                                  className="bg-red-50 text-red-600 border-red-200 hover:bg-red-100 rounded-none"
                                   onClick={async (e) => { 
                                     e.preventDefault(); 
                                     if (uploadedImageId) {
@@ -235,7 +244,7 @@ export function BlogsManager() {
                         value={formData.title || ""}
                         onChange={(e) => setFormData({...formData, title: e.target.value})}
                         required
-                        className="text-lg font-medium h-12"
+                        className="text-lg font-medium h-12 rounded-none"
                         placeholder="Enter an engaging blog title..."
                       />
                     </div>
@@ -246,6 +255,7 @@ export function BlogsManager() {
                         <Input 
                           value={formData.category || ""}
                           onChange={(e) => setFormData({...formData, category: e.target.value})}
+                          className="rounded-none"
                           placeholder="e.g. Wellness"
                         />
                       </div>
@@ -254,6 +264,7 @@ export function BlogsManager() {
                         <Input 
                           value={formData.tags || ""}
                           onChange={(e) => setFormData({...formData, tags: e.target.value})}
+                          className="rounded-none"
                           placeholder="e.g. fitness, hormones, diet"
                         />
                       </div>
@@ -265,6 +276,7 @@ export function BlogsManager() {
                         rows={3}
                         value={formData.excerpt || ""}
                         onChange={(e) => setFormData({...formData, excerpt: e.target.value})}
+                        className="rounded-none"
                         placeholder="A brief 1-2 sentence summary of the article..."
                       />
                     </div>
@@ -333,7 +345,7 @@ export function BlogsManager() {
 
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-display text-charcoal">Blog Manager</h2>
-        <Button onClick={handleCreateNew} className="bg-[#8C6D40] hover:bg-[#B8955F] text-white text-[11px] uppercase tracking-widest px-6 h-10">
+        <Button onClick={handleCreateNew} className="bg-[#8C6D40] hover:bg-[#B8955F] text-white text-[11px] uppercase tracking-widest px-6 h-10 rounded-none">
           <Plus className="h-4 w-4 mr-2" /> New Blog
         </Button>
       </div>
@@ -344,7 +356,7 @@ export function BlogsManager() {
             No blogs found. Click &quot;New Blog&quot; to create one.
           </div>
         ) : (
-          blogs.map((blog) => (
+          paginatedBlogs.map((blog) => (
             <div key={blog.id} className="bg-white border border-[#EBE3DB] rounded-lg shadow-sm hover:shadow-md transition-all flex flex-col overflow-hidden">
               <div className="relative h-40 w-full bg-[#FAF8F5] border-b border-[#EBE3DB]">
                 {blog.image_url ? (
@@ -360,11 +372,11 @@ export function BlogsManager() {
                 </span>
               </div>
               
-              <div className="p-5 flex-1 flex flex-col">
-                <div className="text-[10px] text-[#8C6D40] font-bold uppercase tracking-wider mb-2">{blog.category || 'General'}</div>
-                <h3 className="font-display text-lg text-charcoal font-bold leading-tight mb-2 line-clamp-2">{blog.title}</h3>
-                <div className="text-[10px] text-charcoal/40 font-mono mb-3 truncate bg-charcoal/5 px-2 py-1 rounded-sm w-fit">/{blog.slug}</div>
-                <p className="text-xs text-charcoal/70 line-clamp-3 mt-auto">{blog.excerpt || 'No excerpt provided for this blog.'}</p>
+              <div className="p-5 flex-1 flex flex-col justify-between">
+                <div>
+                  <div className="text-[10px] text-[#8C6D40] font-bold uppercase tracking-wider mb-2">{blog.category || 'General'}</div>
+                  <h3 className="font-display text-lg text-charcoal font-bold leading-tight line-clamp-2">{blog.title}</h3>
+                </div>
               </div>
 
               <div className="bg-[#FAF8F5] border-t border-[#EBE3DB] flex items-stretch h-10">
@@ -388,6 +400,39 @@ export function BlogsManager() {
           ))
         )}
       </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-1.5 sm:gap-2 mt-8">
+          <button
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}
+            className="px-3 py-1.5 rounded-none border border-[#EBE3DB] bg-white text-xs font-semibold uppercase tracking-wider text-charcoal disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#8C6D40] hover:text-white transition-colors"
+          >
+            Prev
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              onClick={() => setCurrentPage(page)}
+              className={`h-8 w-8 rounded-none text-xs font-semibold transition-colors ${
+                page === currentPage
+                  ? "bg-[#8C6D40] text-white shadow-sm"
+                  : "bg-white border border-[#EBE3DB] text-charcoal hover:bg-[#8C6D40]/10 hover:text-[#8C6D40]"
+              }`}
+            >
+              {page}
+            </button>
+          ))}
+          <button
+            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            disabled={currentPage === totalPages}
+            className="px-3 py-1.5 rounded-none border border-[#EBE3DB] bg-white text-xs font-semibold uppercase tracking-wider text-charcoal disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#8C6D40] hover:text-white transition-colors"
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 }

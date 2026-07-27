@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import Link from "next/link";
 import type { BlogPost } from "@/types/blog";
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 15;
 
 type BlogPageContentProps = {
   initialPosts?: BlogPost[];
@@ -47,8 +47,8 @@ export function BlogPageContent({ initialPosts = [] }: BlogPageContentProps) {
 
       <section ref={gridRef} className="pb-12 sm:pb-16 pt-4">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          {/* Smaller, sleeker blog grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+          {/* Sleeker 3-column blog grid with 15 items (5 rows of 3) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {paginatedPosts.map((post) => (
               <article
                 key={post.id}

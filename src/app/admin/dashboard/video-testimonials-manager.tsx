@@ -269,7 +269,7 @@ export function VideoTestimonialsManager() {
           <h2 className="text-2xl font-display text-charcoal">Video Testimonials</h2>
           <p className="text-sm text-charcoal/60 mt-1">Upload and manage video testimonials for the home page.</p>
         </div>
-        <Button onClick={() => { setEditingId(null); setIsAddModalOpen(true); }} className="bg-[#8C6D40] hover:bg-[#B8955F] text-white">
+        <Button onClick={() => { setEditingId(null); setIsAddModalOpen(true); }} className="bg-[#8C6D40] hover:bg-[#B8955F] text-white rounded-none">
           Add Video Testimonial
         </Button>
       </div>

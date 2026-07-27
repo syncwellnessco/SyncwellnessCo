@@ -269,7 +269,7 @@ export function ReviewsManager() {
           <h2 className="text-2xl font-display text-charcoal">Reviews</h2>
           <p className="text-sm text-charcoal/60 mt-1">Manage user reviews and publish them to program pages.</p>
         </div>
-        <Button onClick={() => { setEditingId(null); setIsAddModalOpen(true); }} className="bg-[#8C6D40] hover:bg-[#B8955F] text-white">
+        <Button onClick={() => { setEditingId(null); setIsAddModalOpen(true); }} className="bg-[#8C6D40] hover:bg-[#B8955F] text-white rounded-none">
           Add Review Manually
         </Button>
       </div>

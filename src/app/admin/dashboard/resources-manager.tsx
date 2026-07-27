@@ -76,6 +76,8 @@ async function fetchPodcastMetadata(url: string) {
 
 type SubTab = "blogs" | "podcasts" | "media";
 
+const ITEMS_PER_PAGE = 15;
+
 export function ResourcesManager() {
   const [resources, setResources] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -84,6 +86,7 @@ export function ResourcesManager() {
   const [uploadedImageId, setUploadedImageId] = useState<string | null>(null);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const [formData, setFormData] = useState<Partial<Blog>>({});
 
   const supabase = createClient();
@@ -131,6 +134,11 @@ export function ResourcesManager() {
   const media = resources.filter(r => r.category === "News Article");
 
   const currentList = subTab === "blogs" ? blogs : subTab === "podcasts" ? podcasts : media;
+  const totalPages = Math.ceil(currentList.length / ITEMS_PER_PAGE);
+  const paginatedList = currentList.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   const handleEdit = (resource: Blog) => {
     setFormData(resource);
@@ -259,7 +267,7 @@ export function ResourcesManager() {
           <h2 className="text-2xl font-display text-charcoal">Resources Manager</h2>
           <p className="text-sm text-charcoal/60 mt-0.5">Manage blogs, podcasts, and media appearances from one place.</p>
         </div>
-        <Button onClick={handleCreateNew} className="bg-[#8C6D40] hover:bg-[#B8955F] text-white text-[11px] uppercase tracking-widest px-6 h-10">
+        <Button onClick={handleCreateNew} className="bg-[#8C6D40] hover:bg-[#B8955F] text-white text-[11px] uppercase tracking-widest px-6 h-10 rounded-none">
           <Plus className="h-4 w-4 mr-2" /> Add {subTab === "blogs" ? "Blog" : subTab === "podcasts" ? "Podcast" : "Media Article"}
         </Button>
       </div>
@@ -267,7 +275,7 @@ export function ResourcesManager() {
       {/* Sub-tabs */}
       <div className="flex gap-2 border-b border-[#EBE3DB] mb-6">
         <button 
-          onClick={() => setSubTab("blogs")}
+          onClick={() => { setSubTab("blogs"); setCurrentPage(1); }}
           className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors -mb-px ${
             subTab === "blogs" 
               ? "border-[#8C6D40] text-[#8C6D40]" 
@@ -278,7 +286,7 @@ export function ResourcesManager() {
           Blogs ({blogs.length})
         </button>
         <button 
-          onClick={() => setSubTab("podcasts")}
+          onClick={() => { setSubTab("podcasts"); setCurrentPage(1); }}
           className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors -mb-px ${
             subTab === "podcasts" 
               ? "border-[#8C6D40] text-[#8C6D40]" 
@@ -289,7 +297,7 @@ export function ResourcesManager() {
           Podcasts ({podcasts.length})
         </button>
         <button 
-          onClick={() => setSubTab("media")}
+          onClick={() => { setSubTab("media"); setCurrentPage(1); }}
           className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors -mb-px ${
             subTab === "media" 
               ? "border-[#8C6D40] text-[#8C6D40]" 
@@ -307,7 +315,7 @@ export function ResourcesManager() {
             No items found. Click &quot;Add&quot; to create one.
           </div>
         ) : (
-          currentList.map((resource) => (
+          paginatedList.map((resource) => (
             <div key={resource.id} className="bg-white border border-[#EBE3DB] rounded-lg shadow-sm hover:shadow-md transition-all flex flex-col overflow-hidden">
               <div className="relative h-40 w-full bg-[#FAF8F5] border-b border-[#EBE3DB]">
                 {resource.image_url ? (
@@ -323,21 +331,23 @@ export function ResourcesManager() {
                 </span>
               </div>
               
-              <div className="p-5 flex-1 flex flex-col">
-                <div className="text-[10px] text-[#8C6D40] font-bold uppercase tracking-wider mb-2">
-                  {subTab === "blogs" ? (resource.category || 'General') : subTab === "podcasts" ? 'Podcast' : (resource.author || 'Press')}
-                </div>
-                <h3 className="font-display text-lg text-charcoal font-bold leading-tight mb-2 line-clamp-2">{resource.title}</h3>
-                
-                {subTab === "blogs" ? (
-                  <div className="text-[10px] text-charcoal/40 font-mono mb-3 truncate bg-charcoal/5 px-2 py-1 rounded-sm w-fit">/{resource.slug}</div>
-                ) : (
-                  <div className="text-[10px] text-charcoal/40 font-mono mb-3 truncate flex items-center gap-1 bg-charcoal/5 px-2 py-1 rounded-sm w-fit">
-                    <ExternalLink className="h-2.5 w-2.5" />
-                    {resource.content ? new URL(resource.content).hostname : "no-link"}
+              <div className="p-5 flex-1 flex flex-col justify-between">
+                <div>
+                  <div className="text-[10px] text-[#8C6D40] font-bold uppercase tracking-wider mb-2">
+                    {subTab === "blogs" ? (resource.category || 'General') : subTab === "podcasts" ? 'Podcast' : (resource.author || 'Press')}
                   </div>
-                )}
-                <p className="text-xs text-charcoal/70 line-clamp-3 mt-auto">{resource.excerpt || 'No description provided.'}</p>
+                  <h3 className="font-display text-lg text-charcoal font-bold leading-tight line-clamp-2 mb-2">{resource.title}</h3>
+                  
+                  {subTab !== "blogs" && (
+                    <div className="text-[10px] text-charcoal/40 font-mono mb-3 truncate flex items-center gap-1 bg-charcoal/5 px-2 py-1 rounded-sm w-fit">
+                      <ExternalLink className="h-2.5 w-2.5" />
+                      {resource.content ? new URL(resource.content).hostname : "no-link"}
+                    </div>
+                  )}
+                  {subTab !== "blogs" && (
+                    <p className="text-xs text-charcoal/70 line-clamp-3 mt-auto">{resource.excerpt || 'No description provided.'}</p>
+                  )}
+                </div>
               </div>
 
               <div className="bg-[#FAF8F5] border-t border-[#EBE3DB] flex items-stretch h-10">
@@ -361,6 +371,39 @@ export function ResourcesManager() {
           ))
         )}
       </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-1.5 sm:gap-2 mt-8">
+          <button
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}
+            className="px-3 py-1.5 rounded-none border border-[#EBE3DB] bg-white text-xs font-semibold uppercase tracking-wider text-charcoal disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#8C6D40] hover:text-white transition-colors"
+          >
+            Prev
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              onClick={() => setCurrentPage(page)}
+              className={`h-8 w-8 rounded-none text-xs font-semibold transition-colors ${
+                page === currentPage
+                  ? "bg-[#8C6D40] text-white shadow-sm"
+                  : "bg-white border border-[#EBE3DB] text-charcoal hover:bg-[#8C6D40]/10 hover:text-[#8C6D40]"
+              }`}
+            >
+              {page}
+            </button>
+          ))}
+          <button
+            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            disabled={currentPage === totalPages}
+            className="px-3 py-1.5 rounded-none border border-[#EBE3DB] bg-white text-xs font-semibold uppercase tracking-wider text-charcoal disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#8C6D40] hover:text-white transition-colors"
+          >
+            Next
+          </button>
+        </div>
+      )}
 
       {/* Add / Edit Modal */}
       {isEditing && (
