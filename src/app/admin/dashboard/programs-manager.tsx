@@ -442,14 +442,15 @@ export function ProgramsManager() {
               <h3 className="font-display text-2xl text-charcoal">
                 {isEditing ? (isNew ? "New Program" : "Edit Program") : selectedProgram.title}
               </h3>
-              <Button 
+              <button 
                 type="button" 
-                variant="outline" 
                 onClick={() => isEditing ? setShowCancelConfirm(true) : setSelectedProgram(null)} 
-                className="rounded-none border border-[#EBE3DB] hover:bg-red-50 hover:border-red-200 hover:text-red-600 text-charcoal/80 text-xs font-semibold tracking-wider uppercase h-8 px-3 transition-colors"
+                className="p-1.5 text-charcoal/60 hover:text-charcoal hover:bg-[#EBE3DB]/50 rounded-full transition-colors focus:outline-none"
+                aria-label="Close modal"
+                title="Close"
               >
-                Cancel
-              </Button>
+                <X className="h-5 w-5" />
+              </button>
             </div>
 
             <div className="flex border-b border-[#EBE3DB] bg-white px-6 pt-2 overflow-x-auto custom-scrollbar">

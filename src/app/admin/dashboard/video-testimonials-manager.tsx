@@ -343,14 +343,15 @@ export function VideoTestimonialsManager() {
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/60 backdrop-blur-sm">
           <div className="bg-white rounded-md w-full max-w-2xl shadow-xl relative max-h-[90vh] flex flex-col overflow-hidden">
-            <Button 
+            <button 
               type="button" 
-              variant="outline"
               onClick={() => setShowCancelConfirm(true)} 
-              className="absolute top-4 right-4 z-30 rounded-none border border-[#EBE3DB] bg-white hover:bg-red-50 hover:border-red-200 hover:text-red-600 px-3.5 py-1 text-xs font-semibold tracking-wider uppercase text-charcoal/80 transition-colors shadow-sm h-8"
+              className="absolute top-4 right-4 z-30 p-1.5 rounded-full text-charcoal/60 hover:text-charcoal bg-white/80 hover:bg-white backdrop-blur-md transition-all shadow-sm border border-[#EBE3DB]"
+              aria-label="Close modal"
+              title="Close"
             >
-              Cancel
-            </Button>
+              <X className="h-5 w-5 text-charcoal/60" />
+            </button>
             <div className="p-8 overflow-y-auto flex-1">
               <h3 className="font-display text-2xl text-charcoal mb-6 border-b pb-4">{editingId ? 'Edit' : 'Upload'} Video Testimonial</h3>
               <form onSubmit={handleAdd} className="flex flex-col sm:flex-row gap-8">
