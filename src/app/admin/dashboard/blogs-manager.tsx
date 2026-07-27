@@ -55,7 +55,7 @@ export function BlogsManager() {
       content: "",
       image_url: "",
       author: "Admin",
-      category: "Wellness",
+      category: "",
       published: true
     });
     setIsEditing(true);

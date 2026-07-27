@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     title: body.title,
     excerpt: body.excerpt ?? body.content.slice(0, 160),
     content: body.content,
-    category: body.category ?? "Wellness",
+    category: body.category ?? "",
     image: body.image ?? "",
     author: body.author ?? "Neha",
     published: body.published ?? true,

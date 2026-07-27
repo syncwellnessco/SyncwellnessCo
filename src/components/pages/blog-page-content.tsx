@@ -70,9 +70,11 @@ export function BlogPageContent({ initialPosts = [] }: BlogPageContentProps) {
                     <h3 className="font-display text-sm sm:text-base md:text-lg font-bold text-charcoal leading-snug line-clamp-3 group-hover:text-[#8C6D40] transition-colors">
                       {post.title}
                     </h3>
-                    <span className="font-display italic text-[#8C6D40] text-sm sm:text-base font-semibold mt-2.5">
-                      {post.category}
-                    </span>
+                    {post.category && (
+                      <span className="font-display italic text-[#8C6D40] text-sm sm:text-base font-semibold mt-2.5">
+                        {post.category}
+                      </span>
+                    )}
                   </div>
                 </Link>
                 <Link 

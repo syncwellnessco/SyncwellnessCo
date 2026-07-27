@@ -62,9 +62,11 @@ export function ExpandableGrid({ items, type }: ExpandableGridProps) {
                 <h3 className="font-display text-xs sm:text-base md:text-lg font-medium text-charcoal leading-snug line-clamp-2 group-hover:text-[#8C6D40] transition-colors">
                   {blog.title}
                 </h3>
-                <span className="font-display italic text-[#8C6D40] text-sm sm:text-base font-semibold mt-2.5">
-                  {blog.category}
-                </span>
+                {blog.category && (
+                  <span className="font-display italic text-[#8C6D40] text-sm sm:text-base font-semibold mt-2.5">
+                    {blog.category}
+                  </span>
+                )}
               </div>
               <div className="w-full bg-[#8C6D40] py-2 sm:py-2.5 text-center text-[9px] sm:text-[10px] font-semibold uppercase tracking-[0.15em] text-white transition-colors group-hover:bg-[#B8955F]">
                 Read More

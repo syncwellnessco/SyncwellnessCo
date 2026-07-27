@@ -142,7 +142,7 @@ export function ResourcesManager() {
         content: "",
         image_url: "",
         author: "Admin",
-        category: "Wellness",
+        category: "",
         published: true
       });
     } else if (subTab === "podcasts") {
