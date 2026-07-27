@@ -63,8 +63,10 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
   const consultationCompleted = consultationsCompleted[program.id] || false;
   const isPurchased = purchasedPrograms.includes(program.id);
 
+  const requireConsultant = program.pricing?.requireConsultant || false;
+
   useEffect(() => {
-    if (!user?.email) {
+    if (!requireConsultant || !user?.email) {
       return;
     }
     const saved = localStorage.getItem(`booking_${program.id}`);
@@ -80,9 +82,13 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
         }
       } catch (e) {}
     }
-  }, [program.id, user?.email, setBookingDetail]);
+  }, [requireConsultant, program.id, user?.email, setBookingDetail]);
 
   useEffect(() => {
+    if (!requireConsultant) {
+      setLoading(false);
+      return;
+    }
     if (user?.email) {
       setTimeout(() => {
         setLoading(true);
@@ -116,9 +122,7 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
         setConsultationCompleted(program.id, false);
       }, 0);
     }
-  }, [user?.email, program.id, setBookingDetail, setConsultationCompleted]);
-
-  const requireConsultant = program.pricing?.requireConsultant || false;
+  }, [requireConsultant, user?.email, program.id, setBookingDetail, setConsultationCompleted]);
 
   const listPrice = program.pricing?.price ? Number(program.pricing.price) : null;
   const salePrice = program.pricing?.salePrice ? Number(program.pricing.salePrice) : null;
@@ -151,7 +155,7 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
       );
     }
 
-    if (booked) {
+    if (requireConsultant && booked) {
       return (
         <div className="mt-12 flex flex-col sm:flex-row items-start sm:items-center gap-6 min-h-[56px]">
           {bookingDetails?.join_url ? (

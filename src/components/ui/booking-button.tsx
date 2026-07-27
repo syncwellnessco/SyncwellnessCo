@@ -89,7 +89,7 @@ export function BookingButton({
   }, [isClient, effectiveRequireConsultant, user?.email]);
 
   useEffect(() => {
-    if (!programId || !user?.email) {
+    if (!requireConsultant || !programId || !user?.email) {
       return;
     }
 
@@ -131,7 +131,7 @@ export function BookingButton({
         }
       })
       .catch((err) => console.error("Error fetching booking status in BookingButton:", err));
-  }, [programId, user?.email, setBookingDetail, setConsultationCompleted]);
+  }, [requireConsultant, programId, user?.email, setBookingDetail, setConsultationCompleted]);
 
   useEffect(() => {
     if (!requireConsultant) return;
@@ -291,7 +291,7 @@ export function BookingButton({
 
   const hasActiveBooking = bookingDetail && !bookingDetail.completed && !isBookingOver(bookingDetail);
 
-  if (bookingState.status === "booked" && hasActiveBooking) {
+  if (requireConsultant && bookingState.status === "booked" && hasActiveBooking) {
     const details = bookingState.details;
     const formatBookingTimeLocal = (startTime?: string) => {
       if (!startTime) return "";

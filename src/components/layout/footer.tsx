@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Logo } from "@/components/ui/logo";
 import {
   FacebookIcon,
@@ -18,7 +21,12 @@ const footerLinks = [
 ];
 
 export function Footer() {
+  const pathname = usePathname();
   const year = new Date().getFullYear();
+
+  if (pathname === "/checkout") {
+    return null;
+  }
 
   return (
     <footer className="border-t border-cream/10 bg-charcoal text-cream/75">
