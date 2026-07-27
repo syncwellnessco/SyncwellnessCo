@@ -23,7 +23,7 @@ export function BlogSection({ blogs }: BlogSectionProps) {
           description="Practical reads on hormones, nutrition, and living well, curated for women like you."
         />
 
-        <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 max-w-3xl mx-auto">
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-7xl mx-auto">
           {blogs.map((post, index) => (
             <motion.div
               key={post.id}
@@ -50,9 +50,11 @@ export function BlogSection({ blogs }: BlogSectionProps) {
                     <h3 className="font-display text-sm sm:text-base md:text-lg font-bold text-charcoal leading-snug line-clamp-3 group-hover:text-[#8C6D40] transition-colors">
                       {post.title}
                     </h3>
-                    <span className="font-display italic text-[#8C6D40] text-sm sm:text-base font-semibold mt-2.5">
-                      {post.category}
-                    </span>
+                    {post.category && (
+                      <span className="font-display italic text-[#8C6D40] text-sm sm:text-base font-semibold mt-2.5">
+                        {post.category}
+                      </span>
+                    )}
                   </div>
                 </Link>
                 <Link 

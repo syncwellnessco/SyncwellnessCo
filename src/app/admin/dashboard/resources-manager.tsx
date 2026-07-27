@@ -344,11 +344,16 @@ export function ResourcesManager() {
       {/* Add / Edit Modal */}
       {isEditing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/60 backdrop-blur-sm">
-          <div className="bg-white rounded-md w-full max-w-4xl shadow-xl relative max-h-[90vh] overflow-y-auto">
-            <button type="button" onClick={closeModal} className="absolute top-4 right-4 text-charcoal/50 hover:text-charcoal transition-colors">
+          <div className="bg-white rounded-md w-full max-w-4xl shadow-xl relative max-h-[90vh] flex flex-col overflow-hidden">
+            <button 
+              type="button" 
+              onClick={closeModal} 
+              className="absolute top-4 right-4 z-30 p-1.5 rounded-full text-charcoal/60 hover:text-charcoal bg-white/80 hover:bg-white backdrop-blur-md transition-all shadow-sm border border-[#EBE3DB]"
+              title="Close"
+            >
               <X className="h-5 w-5" />
             </button>
-            <div className="p-8">
+            <div className="p-8 overflow-y-auto flex-1">
               <h3 className="font-display text-2xl text-charcoal mb-6 border-b pb-4">
                 {formData.id ? "Edit" : "Create"} {subTab === "blogs" ? "Blog" : subTab === "podcasts" ? "Podcast" : "Media Article"}
               </h3>

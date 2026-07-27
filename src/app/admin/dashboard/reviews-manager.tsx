@@ -322,9 +322,15 @@ export function ReviewsManager() {
       {/* Add Review Modal */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/60 backdrop-blur-sm">
-          <div className="bg-white rounded-md w-full max-w-4xl shadow-xl relative max-h-[90vh] overflow-y-auto">
-            <button onClick={closeModal} className="absolute top-4 right-4 text-charcoal/50 hover:text-charcoal"><X className="h-5 w-5" /></button>
-            <div className="p-8">
+          <div className="bg-white rounded-md w-full max-w-4xl shadow-xl relative max-h-[90vh] flex flex-col overflow-hidden">
+            <button 
+              onClick={closeModal} 
+              className="absolute top-4 right-4 z-30 p-1.5 rounded-full text-charcoal/60 hover:text-charcoal bg-white/80 hover:bg-white backdrop-blur-md transition-all shadow-sm border border-[#EBE3DB]"
+              title="Close"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <div className="p-8 overflow-y-auto flex-1">
               <h3 className="font-display text-2xl text-charcoal mb-6 border-b pb-4">{editingId ? 'Edit' : 'Add Manual'} Review</h3>
               <form onSubmit={handleAddReview} className="flex flex-col md:flex-row gap-8">
                 
@@ -403,9 +409,15 @@ export function ReviewsManager() {
       {/* View Review Modal */}
       {viewReview && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/60 backdrop-blur-sm">
-          <div className="bg-white rounded-md w-full max-w-2xl shadow-xl relative max-h-[90vh] overflow-y-auto">
-            <button onClick={() => setViewReview(null)} className="absolute top-4 right-4 text-charcoal/50 hover:text-charcoal"><X className="h-5 w-5" /></button>
-            <div className="p-6">
+          <div className="bg-white rounded-md w-full max-w-2xl shadow-xl relative max-h-[90vh] flex flex-col overflow-hidden">
+            <button 
+              onClick={() => setViewReview(null)} 
+              className="absolute top-4 right-4 z-30 p-1.5 rounded-full text-charcoal/60 hover:text-charcoal bg-white/80 hover:bg-white backdrop-blur-md transition-all shadow-sm border border-[#EBE3DB]"
+              title="Close"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <div className="p-6 overflow-y-auto flex-1">
               <h3 className="font-display text-2xl text-charcoal mb-6 border-b pb-4">Review Details</h3>
               
               <div className="space-y-6">

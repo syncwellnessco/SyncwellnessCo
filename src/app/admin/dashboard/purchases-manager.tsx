@@ -359,23 +359,23 @@ export function PurchasesManager() {
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.95, opacity: 0 }}
                 onClick={(e) => e.stopPropagation()}
-                className="bg-white rounded-sm w-full max-w-xl shadow-2xl relative border border-[#EBE3DB] max-h-[90vh] overflow-y-auto"
+                className="bg-white rounded-sm w-full max-w-xl shadow-2xl relative border border-[#EBE3DB] max-h-[90vh] flex flex-col overflow-hidden"
               >
                 {/* Decorative top border */}
-                <div className="absolute top-0 left-0 right-0 h-[5px] bg-gradient-to-r from-[#8C6D40] to-[#B8955F]"></div>
+                <div className="absolute top-0 left-0 right-0 h-[5px] bg-gradient-to-r from-[#8C6D40] to-[#B8955F] z-30"></div>
 
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-6">
-                    <div>
-                      <h3 className="font-display text-2xl text-charcoal">Purchase Details</h3>
-                      <p className="text-xs text-charcoal/60">Reference and coaching agreement metadata.</p>
-                    </div>
-                    <button
-                      onClick={() => setSelectedPurchase(null)}
-                      className="p-1 rounded-full hover:bg-[#FAF8F5] transition-colors"
-                    >
-                      <X className="h-5 w-5 text-charcoal/60" />
-                    </button>
+                <button
+                  onClick={() => setSelectedPurchase(null)}
+                  className="absolute top-4 right-4 z-30 p-1.5 rounded-full text-charcoal/60 hover:text-charcoal bg-white/80 hover:bg-white backdrop-blur-md transition-all shadow-sm border border-[#EBE3DB]"
+                  title="Close"
+                >
+                  <X className="h-5 w-5 text-charcoal/60" />
+                </button>
+
+                <div className="p-6 overflow-y-auto flex-1">
+                  <div className="mb-6 pr-8">
+                    <h3 className="font-display text-2xl text-charcoal">Purchase Details</h3>
+                    <p className="text-xs text-charcoal/60">Reference and coaching agreement metadata.</p>
                   </div>
 
                   <div className="space-y-6">
