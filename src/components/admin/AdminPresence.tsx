@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { createClient } from "@/lib/supabase-client";
 import { useUserStore } from "@/store/user-store";
 import { useSearchParams } from "next/navigation";
@@ -20,6 +20,9 @@ export function AdminPresence() {
   const currentTab = searchParams?.get("tab") || "overview";
   const [onlineAdmins, setOnlineAdmins] = useState<OnlineAdmin[]>([]);
   
+  const channelRef = useRef<ReturnType<ReturnType<typeof createClient>["channel"]> | null>(null);
+  const isSubscribedRef = useRef(false);
+
   useEffect(() => {
     if (!user || user.user_metadata?.role !== "admin") return;
 
@@ -31,6 +34,8 @@ export function AdminPresence() {
         },
       },
     });
+
+    channelRef.current = channel;
 
     channel
       .on('presence', { event: 'sync' }, () => {
@@ -51,20 +56,35 @@ export function AdminPresence() {
       })
       .subscribe(async (status: string) => {
         if (status === 'SUBSCRIBED') {
+          isSubscribedRef.current = true;
           await channel.track({
             id: user.id,
             name: user.user_metadata?.full_name?.split(' ')[0] || user.user_metadata?.name || 'Admin',
             email: user.email,
             avatar_url: user.user_metadata?.avatar_url,
-            currentTab: currentTab,
+            currentTab,
           });
         }
       });
 
     return () => {
+      isSubscribedRef.current = false;
       supabase.removeChannel(channel);
+      channelRef.current = null;
     };
-  }, [user, currentTab]);
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (channelRef.current && isSubscribedRef.current && user) {
+      channelRef.current.track({
+        id: user.id,
+        name: user.user_metadata?.full_name?.split(' ')[0] || user.user_metadata?.name || 'Admin',
+        email: user.email,
+        avatar_url: user.user_metadata?.avatar_url,
+        currentTab,
+      });
+    }
+  }, [currentTab, user]);
 
   if (onlineAdmins.length === 0) return null;
 
