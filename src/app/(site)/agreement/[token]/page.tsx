@@ -36,8 +36,9 @@ export default async function AgreementPage({ params }: PageProps) {
     .maybeSingle();
 
   const programTitle = program?.title || "our coaching program";
-  const purchaseDate = purchase.createdat
-    ? new Date(purchase.createdat).toLocaleDateString()
+  const dateVal = purchase.created_at || purchase.createdat;
+  const purchaseDate = dateVal
+    ? new Date(dateVal).toLocaleDateString()
     : "Unknown";
 
   return (

@@ -12,10 +12,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     const supabase = getServiceSupabase();
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from("purchases")
       .select("*")
-      .order("createdat", { ascending: false });
+      .order("created_at", { ascending: false });
+
+    if (error && error.message?.includes("created_at")) {
+      const fallback = await supabase
+        .from("purchases")
+        .select("*")
+        .order("createdat", { ascending: false });
+      data = fallback.data;
+      error = fallback.error;
+    }
 
     // Gracefully handle missing table
     if (error) {
@@ -26,7 +35,7 @@ export async function GET(request: NextRequest) {
     // Map database fields to standard camelCase/format if needed
     const mappedData = (data || []).map((item: any) => ({
       ...item,
-      createdAt: item.createdat || item.createdAt
+      createdAt: item.created_at || item.createdat || item.createdAt
     }));
 
     return NextResponse.json(mappedData);

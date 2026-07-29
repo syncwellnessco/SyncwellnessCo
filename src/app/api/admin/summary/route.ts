@@ -32,9 +32,9 @@ export async function GET() {
       supabase.from("purchases").select("amount").in("status", ["completed", "succeeded"]),
 
       // Top 4 recent lists
-      supabase.from("purchases").select("id, name, program_id, amount, createdat").order("createdat", { ascending: false }).limit(4),
-      supabase.from("enquiries").select("id, name, subject, createdat").eq("status", "new").order("createdat", { ascending: false }).limit(4),
-      supabase.from("ebook_requests").select("id, email, ebookname, createdat").eq("status", "pending").order("createdat", { ascending: false }).limit(4)
+      supabase.from("purchases").select("*").order("created_at", { ascending: false }).limit(4),
+      supabase.from("contact_enquiries").select("*").eq("status", "new").order("created_at", { ascending: false }).limit(4),
+      supabase.from("ebook_requests").select("*").eq("status", "pending").order("created_at", { ascending: false }).limit(4)
     ]);
 
     const enquiriesCount = enquiriesCountRes.count || 0;
@@ -59,19 +59,19 @@ export async function GET() {
           name: p.name,
           program_id: p.program_id,
           amount: p.amount,
-          createdAt: p.createdat
+          createdAt: p.created_at || p.createdat
         })),
         enquiries: (recentEnquiriesRes.data || []).map((e: any) => ({
           id: e.id,
           name: e.name,
           subject: e.subject,
-          createdAt: e.createdat
+          createdAt: e.created_at || e.createdat
         })),
         ebooks: (recentEbooksRes.data || []).map((eb: any) => ({
           id: eb.id,
           email: eb.email,
-          ebookName: eb.ebookname || "General Guide",
-          createdAt: eb.createdat
+          ebookName: eb.ebookname || eb.ebookName || "General Guide",
+          createdAt: eb.created_at || eb.createdat
         }))
       }
     });

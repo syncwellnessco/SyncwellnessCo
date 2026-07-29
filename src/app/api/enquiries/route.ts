@@ -9,10 +9,19 @@ export async function GET(request: NextRequest) {
     if (!session || session.user.user_metadata?.role !== 'admin') {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from("contact_enquiries")
       .select("*")
-      .order("createdat", { ascending: false });
+      .order("created_at", { ascending: false });
+
+    if (error && error.message?.includes("created_at")) {
+      const fallback = await supabase
+        .from("contact_enquiries")
+        .select("*")
+        .order("createdat", { ascending: false });
+      data = fallback.data;
+      error = fallback.error;
+    }
 
     // Gracefully handle missing table
     if (error) {
@@ -20,10 +29,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json([]);
     }
 
-    // Map database createdat to createdAt for frontend
+    // Map database created_at/createdat to createdAt for frontend
     const mappedData = (data || []).map((item: any) => ({
       ...item,
-      createdAt: item.createdat || item.createdAt
+      createdAt: item.created_at || item.createdat || item.createdAt
     }));
 
     return NextResponse.json(mappedData);

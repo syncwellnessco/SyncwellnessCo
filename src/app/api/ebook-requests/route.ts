@@ -9,10 +9,19 @@ export async function GET(request: NextRequest) {
     if (!session || session.user.user_metadata?.role !== 'admin') {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from("ebook_requests")
       .select("*")
-      .order("createdat", { ascending: false });
+      .order("created_at", { ascending: false });
+
+    if (error && error.message?.includes("created_at")) {
+      const fallback = await supabase
+        .from("ebook_requests")
+        .select("*")
+        .order("createdat", { ascending: false });
+      data = fallback.data;
+      error = fallback.error;
+    }
 
     if (error) {
       console.warn("Could not fetch ebook_requests", error.message);
@@ -21,7 +30,7 @@ export async function GET(request: NextRequest) {
 
     const mappedData = (data || []).map((item: any) => ({
       ...item,
-      createdAt: item.createdat || item.createdAt,
+      createdAt: item.created_at || item.createdat || item.createdAt,
       ebookName: item.ebookname || item.ebookName
     }));
 
