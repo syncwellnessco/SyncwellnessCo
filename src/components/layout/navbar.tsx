@@ -95,10 +95,10 @@ export function Navbar() {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-[background-color,box-shadow,border-color] duration-200",
         mobileOpen
-          ? "bg-[#f4f2f0] border-b border-[#EBE3DB]"
+          ? "bg-[#f4f2f0]"
           : heroNav
             ? "bg-transparent"
-            : "border-b border-beige-200/80 bg-cream/95 shadow-xs backdrop-blur-md"
+            : "bg-cream/95 shadow-xs backdrop-blur-md"
       )}
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">

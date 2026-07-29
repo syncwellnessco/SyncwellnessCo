@@ -10,16 +10,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useUserStore } from "@/store/user-store";
-
-interface Review {
-  id: string;
-  name: string;
-  testimonial: string;
-  before_image: string | null;
-  after_image: string | null;
-  rating: number;
-  created_at: string;
-}
+import { useReviewStore, Review } from "@/store/review-store";
 
 const CloudinaryBtn = ({ label, onUpload, onRemove, value }: { label: string, onUpload: (u: string, pId: string) => void, onRemove: () => void, value: string }) => (
   <div className="flex flex-col gap-1.5">
@@ -65,6 +56,7 @@ const CloudinaryBtn = ({ label, onUpload, onRemove, value }: { label: string, on
 
 export function ProgramReviewsSection({ programId }: { programId: string }) {
   const { user } = useUserStore();
+  const { submittedReviews, addReview } = useReviewStore();
   const rawName = user?.user_metadata?.full_name || user?.user_metadata?.name || (user?.email ? user.email.split('@')[0] : "");
   const displayName = rawName ? rawName.trim() : "Valued Member";
   const firstName = displayName.split(' ')[0];
@@ -82,6 +74,12 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
   const [afterImage, setAfterImage] = useState("");
   const [afterPublicId, setAfterPublicId] = useState("");
   const [rating, setRating] = useState(5);
+
+  // Combine database reviews with Zustand local reviews
+  const combinedReviews: Review[] = [
+    ...submittedReviews.filter((sr) => !programId || sr.program_id === programId),
+    ...reviews.filter((r) => !submittedReviews.some((sr) => sr.id === r.id)),
+  ];
 
   // Carousel hooks
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -151,8 +149,26 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
         body: JSON.stringify({ programId, name: displayName, testimonial, beforeImage, afterImage, rating }),
       });
 
+      const json = await res.json().catch(() => ({}));
+
       if (res.ok) {
-        toast.success("Thank you! Your review has been submitted for approval.");
+        const newReview: Review = json?.data || {
+          id: `local-${Date.now()}`,
+          name: displayName,
+          testimonial,
+          before_image: beforeImage || null,
+          after_image: afterImage || null,
+          rating: rating || 5,
+          created_at: new Date().toISOString()
+        };
+
+        // Immediately add to Zustand store so it shows without refresh
+        addReview({
+          ...newReview,
+          program_id: programId,
+        });
+
+        toast.success("Thank you! Your review has been submitted.");
         setIsModalOpen(false);
         setTestimonial("");
         setBeforeImage("");
@@ -182,7 +198,7 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
             <h2 className="font-display text-2xl sm:text-3xl font-semibold text-charcoal">Program Reviews</h2>
             
             <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-              {reviews.length > 1 && (
+              {combinedReviews.length > 1 && (
                 <div className="flex gap-1.5 sm:gap-2">
                   <Button 
                     onClick={scrollPrev} 
@@ -211,15 +227,15 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
           </div>
           
           <div className="flex items-center gap-3">
-            {reviews.length > 0 ? (
+            {combinedReviews.length > 0 ? (
               <>
                 <div className="flex text-[#8C6D40]">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className={`h-4 w-4 sm:h-5 sm:w-5 ${i < Math.round(reviews.reduce((a, b) => a + (b.rating || 5), 0) / reviews.length) ? 'fill-current' : 'text-gray-300'}`} />
+                    <Star key={i} className={`h-4 w-4 sm:h-5 sm:w-5 ${i < Math.round(combinedReviews.reduce((a, b) => a + (b.rating || 5), 0) / combinedReviews.length) ? 'fill-current' : 'text-gray-300'}`} />
                   ))}
                 </div>
-                <span className="font-semibold text-charcoal text-xs sm:text-base">{((reviews.reduce((a, b) => a + (b.rating || 5), 0) / reviews.length) || 0).toFixed(1)}</span>
-                <span className="text-charcoal/60 text-xs sm:text-sm">({reviews.length} reviews)</span>
+                <span className="font-semibold text-charcoal text-xs sm:text-base">{((combinedReviews.reduce((a, b) => a + (b.rating || 5), 0) / combinedReviews.length) || 0).toFixed(1)}</span>
+                <span className="text-charcoal/60 text-xs sm:text-sm">({combinedReviews.length} reviews)</span>
               </>
             ) : (
               <p className="text-charcoal/70 text-xs sm:text-sm">See what others are saying about this program.</p>
@@ -229,7 +245,7 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
 
         {loading ? (
           <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-[#8C6D40]" /></div>
-        ) : reviews.length === 0 ? (
+        ) : combinedReviews.length === 0 ? (
           <div className="text-center py-10 bg-[#FAF9F7] rounded-2xl border border-beige-100">
             <Star className="h-12 w-12 text-[#8C6D40]/30 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-charcoal mb-2">No reviews yet</h3>
@@ -241,7 +257,7 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
         ) : (
           <div className="overflow-hidden" ref={emblaRef}>
             <div className="flex gap-6">
-              {reviews.map(r => (
+              {combinedReviews.map(r => (
                 <div key={r.id} className="flex-[0_0_100%] md:flex-[0_0_calc(50%-12px)] min-w-0 py-1">
                   <article 
                     className="bg-white rounded-md border border-beige-200 shadow-sm cursor-pointer flex flex-col h-full overflow-hidden text-left"

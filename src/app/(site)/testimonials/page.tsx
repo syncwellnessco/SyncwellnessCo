@@ -8,16 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useRef } from "react";
 import { IMAGES } from "@/data/images";
-
-interface Review {
-  id: string;
-  program_id: string;
-  name: string;
-  testimonial: string;
-  before_image: string | null;
-  after_image: string | null;
-  rating: number;
-}
+import { useReviewStore, Review } from "@/store/review-store";
 
 interface VideoTestimonial {
   id: string;
@@ -28,6 +19,7 @@ interface VideoTestimonial {
 }
 
 export default function TestimonialsPage() {
+  const { submittedReviews } = useReviewStore();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [videos, setVideos] = useState<VideoTestimonial[]>([]);
   const [programs, setPrograms] = useState<any[]>([]);
@@ -43,6 +35,12 @@ export default function TestimonialsPage() {
 
   const videoSectionRef = useRef<HTMLDivElement>(null);
   const reviewSectionRef = useRef<HTMLDivElement>(null);
+
+  // Combine fetched reviews with Zustand submittedReviews
+  const allReviews: Review[] = [
+    ...submittedReviews,
+    ...reviews.filter((r) => !submittedReviews.some((sr) => sr.id === r.id)),
+  ];
 
   useEffect(() => {
     Promise.all([
@@ -70,22 +68,23 @@ export default function TestimonialsPage() {
 
   const getProgramName = (id: string) => {
     const p = programs.find(x => x.id === id);
-    return p ? p.title : "";
+    return p ? p.title : "Program";
   };
 
   const togglePlay = () => {
-    if (videoRef.current) {
-      if (isPlaying) videoRef.current.pause();
-      else videoRef.current.play();
-      setIsPlaying(!isPlaying);
+    if (!videoRef.current) return;
+    if (isPlaying) {
+      videoRef.current.pause();
+    } else {
+      videoRef.current.play();
     }
+    setIsPlaying(!isPlaying);
   };
 
   const toggleMute = () => {
-    if (videoRef.current) {
-      videoRef.current.muted = !isMuted;
-      setIsMuted(!isMuted);
-    }
+    if (!videoRef.current) return;
+    videoRef.current.muted = !isMuted;
+    setIsMuted(!isMuted);
   };
 
   const totalVideoPages = Math.ceil(videos.length / ITEMS_PER_PAGE);
@@ -94,8 +93,8 @@ export default function TestimonialsPage() {
     videoPage * ITEMS_PER_PAGE
   );
 
-  const totalReviewPages = Math.ceil(reviews.length / ITEMS_PER_PAGE);
-  const paginatedReviews = reviews.slice(
+  const totalReviewPages = Math.ceil(allReviews.length / ITEMS_PER_PAGE);
+  const paginatedReviews = allReviews.slice(
     (reviewPage - 1) * ITEMS_PER_PAGE,
     reviewPage * ITEMS_PER_PAGE
   );

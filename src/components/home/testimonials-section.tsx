@@ -8,34 +8,21 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Star, ChevronLeft, ChevronRight, Loader2, X } from "lucide-react";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { cn } from "@/lib/utils";
-
-interface Review {
-  id: string;
-  program_id: string;
-  name: string;
-  testimonial: string;
-  before_image: string | null;
-  after_image: string | null;
-  rating: number;
-}
+import { useReviewStore, Review } from "@/store/review-store";
 
 export function TestimonialsSection() {
-  const [emblaRef, emblaApi] = useEmblaCarousel(
-    { loop: true, align: "center", dragFree: true },
-    [
-      Autoplay({
-        delay: 6000,
-        stopOnInteraction: true,
-        stopOnMouseEnter: true,
-      }),
-    ],
-  );
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const { submittedReviews } = useReviewStore();
   const [activeReview, setActiveReview] = useState<Review | null>(null);
   
   const [reviews, setReviews] = useState<Review[]>([]);
   const [programs, setPrograms] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Combine database reviews with Zustand submittedReviews
+  const displayReviews: Review[] = [
+    ...submittedReviews,
+    ...reviews.filter((r) => !submittedReviews.some((sr) => sr.id === r.id)),
+  ];
 
   useEffect(() => {
     Promise.all([
@@ -59,28 +46,10 @@ export function TestimonialsSection() {
     };
   }, [activeReview]);
 
-  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
-  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
-
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return;
-    setSelectedIndex(emblaApi.selectedScrollSnap());
-  }, [emblaApi]);
-
   const getProgramName = (id: string) => {
     const p = programs.find(x => x.id === id);
     return p ? p.title : "Program";
   };
-
-  useEffect(() => {
-    if (!emblaApi) return;
-    emblaApi.on("select", onSelect);
-    emblaApi.on("reInit", onSelect);
-    return () => {
-      emblaApi.off("select", onSelect);
-      emblaApi.off("reInit", onSelect);
-    };
-  }, [emblaApi, onSelect]);
 
   const dragStartRef = useRef<{ x: number, y: number } | null>(null);
 
@@ -135,12 +104,12 @@ export function TestimonialsSection() {
 
         {loading ? (
           <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-[#8C6D40]" /></div>
-        ) : reviews.length === 0 ? (
+        ) : displayReviews.length === 0 ? (
           <div className="text-center py-20 text-charcoal/60">No featured reviews yet.</div>
         ) : (
           <div className="relative mt-10 sm:mt-12 w-full py-4">
             <MarqueeCarousel speed={1.5}>
-              {[...reviews, ...reviews, ...reviews].map((r, index) => (
+              {[...displayReviews, ...displayReviews, ...displayReviews].map((r, index) => (
                 <div
                   key={`${r.id}-${index}`}
                   className="w-[85vw] sm:w-[360px] shrink-0 h-full select-none"
@@ -368,7 +337,7 @@ function MarqueeCarousel({ children, speed = 1 }: MarqueeCarouselProps) {
 
       if (isDownRef.current) {
         scrollPosRef.current = container.scrollLeft;
-      } else if (!isHoveredRef.current) {
+      } else {
         scrollPosRef.current += speed;
         
         const oneThird = container.scrollWidth / 3;

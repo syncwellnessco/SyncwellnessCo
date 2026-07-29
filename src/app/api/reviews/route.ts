@@ -21,12 +21,14 @@ export async function POST(request: Request) {
           before_image: beforeImage,
           after_image: afterImage,
           rating: rating || 5,
-          status: body.status || 'published'
+          status: body.status || 'published',
+          featured_on_home: body.featured_on_home ?? true
         }
-      ]);
+      ])
+      .select();
 
     if (error) throw error;
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, data: data?.[0] });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
