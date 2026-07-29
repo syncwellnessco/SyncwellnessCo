@@ -84,7 +84,7 @@ export function ResourcesPageContent() {
             <div className="relative w-full max-w-sm lg:max-w-none flex items-center justify-center">
               <div className="absolute inset-0 bg-[#8C6D40]/10 transform translate-x-4 translate-y-4 rounded-sm"></div>
               <img 
-                src={IMAGES.ebookMockupWebp} 
+                src={IMAGES.ebookMockup} 
                 alt="Hormone Balance and Burn Guide" 
                 className="relative w-full h-auto object-cover drop-shadow-2xl z-10" 
               />

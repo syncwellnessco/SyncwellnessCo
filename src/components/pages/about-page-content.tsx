@@ -8,7 +8,7 @@ import { Play, Pause, Volume2, VolumeX } from "lucide-react";
 
 export function AboutPageContent() {
   const coachImageSrc = IMAGES.aboutPageProfile;
-  const coachVideoSrc = "/about.mp4";
+  const coachVideoSrc = "/videos/about.mp4";
 
   const [isMuted, setIsMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);

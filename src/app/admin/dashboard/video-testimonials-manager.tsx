@@ -71,7 +71,7 @@ const getVideoThumbnailUrl = (url: string) => {
     const lastDot = baseUrl.lastIndexOf('.');
     if (lastDot !== -1) {
       const jpgUrl = baseUrl.substring(0, lastDot) + '.jpg';
-      return jpgUrl.replace('/video/upload/', '/video/upload/c_fill,w_300,h_533,so_1/');
+      return jpgUrl.replace('/video/upload/', '/video/upload/c_fill,w_300,h_533,so_1,q_auto,f_auto/');
     }
   }
   return "";

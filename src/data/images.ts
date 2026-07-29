@@ -1,24 +1,25 @@
 export const IMAGES = {
   // Backgrounds & Textures
-  shadowBackground: "https://res.cloudinary.com/daw1tscqr/image/upload/v1780733233/shadow-background_wbrsm4.jpg",
+  shadowBackground: "/images/backgrounds/shadow-background.jpg",
   cubePattern: "https://www.transparenttextures.com/patterns/cubes.png",
 
   // Coach Assets
-  aboutPageProfile: "/neha_arora_coach_about_page.jpeg",
-  homeAboutProfile: "/neha_arora_coach_home_page.png",
+  aboutPageProfile: "/images/coach/neha_arora_coach_about_page.jpeg",
+  homeAboutProfile: "/images/coach/neha_arora_coach_home_page.png",
 
   // Ebook & Resources
-  ebookMockupPng: "https://res.cloudinary.com/daw1tscqr/image/upload/e_trim/v1783333186/NehaEbookMockup_3pjf7_1280_ip08ks.png",
-  ebookMockupWebp: "https://res.cloudinary.com/daw1tscqr/image/upload/e_trim/v1783333186/NehaEbookMockup_3pjf7_1280_ip08ks.webp",
+  ebookMockup: "/images/ebook/ebook_mockup.webp",
+  ebookMockupPng: "/images/ebook/ebook_mockup.webp",
+  ebookMockupWebp: "/images/ebook/ebook_mockup.webp",
 
   // Hero Assets
   heroDefaultImage: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=1920&h=1080&fit=crop&q=85",
-  heroVideo: "https://res.cloudinary.com/daw1tscqr/video/upload/ac_none,q_auto/v1784024313/Homepage_Cover_Video_elkg6e.mp4",
+  heroVideo: "/videos/hero_cover.mp4",
 
   // Testimonials Assets
   testimonialsPageHero: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&q=80",
 
   // Contact Page Assets
   contactPageOffice: "https://images.unsplash.com/photo-1542435503-956c469947f6?auto=format&fit=crop&q=80",
-  contactPageProfile: "/neha_arora_coach_contact_page.jpeg"
+  contactPageProfile: "/images/coach/neha_arora_coach_contact_page.jpeg"
 };

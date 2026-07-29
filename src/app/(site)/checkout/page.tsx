@@ -42,7 +42,7 @@ interface ProgramDetails {
 function PoweredByStripeBadge({ className = "h-4" }: { className?: string }) {
   return (
     <img
-      src="/Powered%20by%20Stripe%20-%20blurple.svg"
+      src="/icons/stripe_badge.svg"
       alt="Powered by Stripe"
       className={className}
     />

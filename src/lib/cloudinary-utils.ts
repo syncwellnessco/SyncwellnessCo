@@ -1,7 +1,18 @@
 export const optimizeCloudinaryUrl = (url: string) => {
-  if (!url) return url;
-  if (url.includes('/upload/') && !url.includes('/q_auto') && !url.includes('/f_auto')) {
-    return url.replace('/upload/', '/upload/q_auto,f_auto/');
+  if (!url || typeof url !== 'string') return url;
+  if (!url.includes('res.cloudinary.com')) return url;
+
+  if (url.includes('q_auto') && url.includes('f_auto')) return url;
+
+  if (url.includes('/upload/')) {
+    const paramsToAdd: string[] = [];
+    if (!url.includes('q_auto')) paramsToAdd.push('q_auto');
+    if (!url.includes('f_auto')) paramsToAdd.push('f_auto');
+
+    if (paramsToAdd.length > 0) {
+      const paramString = paramsToAdd.join(',');
+      return url.replace('/upload/', `/upload/${paramString}/`);
+    }
   }
   return url;
 };

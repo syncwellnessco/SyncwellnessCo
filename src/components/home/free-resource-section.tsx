@@ -54,7 +54,7 @@ export function FreeResourceSection() {
 
             <div className="relative flex items-center justify-center p-5 sm:p-12">
               <img
-                src={IMAGES.ebookMockupPng}
+                src={IMAGES.ebookMockup}
                 alt="Free Hormone Balance Ebook"
                 className="w-full max-w-sm drop-shadow-2xl object-contain hover:scale-105 transition-transform duration-700"
               />

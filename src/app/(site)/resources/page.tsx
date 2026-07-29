@@ -54,7 +54,7 @@ export default async function ResourcesHubPage() {
               <div className="lg:col-span-5 flex justify-center">
                 <div className="relative max-w-[280px] w-full aspect-[3/4] bg-[#FAF8F5] p-4 border border-[#EBE3DB] shadow-md group-hover:-translate-y-1 transition-transform duration-500 flex items-center justify-center">
                   <img 
-                    src={IMAGES.ebookMockupPng} 
+                    src={IMAGES.ebookMockup} 
                     alt="Hormone Balance Ebook" 
                     className="w-full h-full object-contain drop-shadow-xl"
                   />

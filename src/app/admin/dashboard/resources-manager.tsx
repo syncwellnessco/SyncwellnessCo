@@ -11,7 +11,7 @@ import toast from "react-hot-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase-client";
 import { CldUploadWidget } from 'next-cloudinary';
-import { deleteCloudinaryFile } from "@/lib/cloudinary-utils";
+import { deleteCloudinaryFile, optimizeCloudinaryUrl } from "@/lib/cloudinary-utils";
 import dynamic from 'next/dynamic';
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 
@@ -442,7 +442,8 @@ export function ResourcesManager() {
                         uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_BLOGS || "syncwellness_blogs"}
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         onSuccess={(result: any) => {
-                          setFormData(prev => ({ ...prev, image_url: result.info.secure_url }));
+                          const optimizedUrl = optimizeCloudinaryUrl(result.info.secure_url);
+                          setFormData(prev => ({ ...prev, image_url: optimizedUrl }));
                           setUploadedImageId(result.info.public_id);
                           document.body.style.overflow = '';
                         }}

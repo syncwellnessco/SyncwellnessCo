@@ -4,8 +4,7 @@ import { motion } from "framer-motion";
 import { howWeHelp } from "@/data/home-content";
 
 export function HowWeHelpSection() {
-  const helpVideoSrc =
-    "https://res.cloudinary.com/daw1tscqr/video/upload/v1780733233/female-hormone-specialist-certification-curriculum-papers_pm0ohz.mp4";
+  const helpVideoSrc = "/videos/how_we_help.mp4";
 
   return (
     <section className="relative overflow-hidden bg-charcoal py-6 sm:py-10">

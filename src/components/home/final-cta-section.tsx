@@ -5,8 +5,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, HeartPulse, UsersRound } from "lucide-react";
 
 export function FinalCTASection() {
-  const ctaVideoSrc =
-    "https://res.cloudinary.com/daw1tscqr/video/upload/v1780735738/certified-functional-hormone-specialist_e844gt.mp4";
+  const ctaVideoSrc = "/videos/final_cta.mp4";
 
   return (
     <section className="relative overflow-hidden bg-charcoal py-6 sm:py-10">
