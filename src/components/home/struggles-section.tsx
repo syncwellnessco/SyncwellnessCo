@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { IMAGES } from "@/data/images";
+import { IMAGES } from "@/data/media";
 import { struggles } from "@/data/home-content";
 
 /* ── Pill component for each struggle tag ── */

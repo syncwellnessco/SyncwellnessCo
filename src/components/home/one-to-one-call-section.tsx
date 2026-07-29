@@ -1,6 +1,6 @@
 "use client";
 
-import { IMAGES } from "@/data/images";
+import { IMAGES } from "@/data/media";
 import { motion } from "framer-motion";
 import { BookingButton } from "@/components/ui/booking-button";
 import { MessageSquare, ShieldCheck, Sparkles } from "lucide-react";

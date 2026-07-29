@@ -7,7 +7,7 @@ import { getAllPrograms } from "@/lib/programs";
 import { MyProgramsSection } from "@/components/pages/my-programs-section";
 import { InteractiveLink } from "@/components/ui/interactive-link";
 import { cn } from "@/lib/utils";
-import { IMAGES } from "@/data/images";
+import { IMAGES } from "@/data/media";
 import { ProgramPriceOverride } from "@/components/ui/program-price-override";
 
 export async function ProgramsPageContent() {

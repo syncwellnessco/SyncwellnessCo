@@ -1,4 +1,4 @@
-import { IMAGES } from "./images";
+import { IMAGES } from "./media";
 
 export const heroContent = {
   marketingLine: "Lose Fat Without Fighting Your Body.",

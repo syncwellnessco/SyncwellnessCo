@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { SectionHeading } from "@/components/ui/section-heading";
 
-import { IMAGES } from "@/data/images";
+import { IMAGES } from "@/data/media";
 
 export function FreeResourceSection() {
 

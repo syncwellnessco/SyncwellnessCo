@@ -17,7 +17,6 @@ const footerLinks = [
   { label: "Blog", href: "/resources/blogs" },
   { label: "Resources", href: "/resources" },
   { label: "FAQ", href: "/faq" },
-  { label: "Contact", href: "/contact" },
 ];
 
 export function Footer() {
@@ -31,7 +30,7 @@ export function Footer() {
   return (
     <footer className="border-t border-cream/10 bg-charcoal text-cream/75">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid gap-x-8 gap-y-12 grid-cols-2 lg:grid-cols-5">
+        <div className="grid gap-x-8 gap-y-12 grid-cols-2 lg:grid-cols-4">
           <div className="col-span-2 lg:col-span-2">
             <Logo variant="light" />
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-cream/60">
@@ -101,13 +100,6 @@ export function Footer() {
                   Disclaimer
                 </Link>
               </li>
-            </ul>
-          </div>
-
-          <div className="col-span-2 lg:col-span-1">
-            <h4 className="font-display text-base text-cream">Contact</h4>
-            <ul className="mt-4 space-y-2 text-sm text-cream/60">
-              <li>{siteConfig.businessHours}</li>
             </ul>
           </div>
         </div>

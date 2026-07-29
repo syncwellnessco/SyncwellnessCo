@@ -5,7 +5,7 @@ import Image from "next/image";
 import toast from "react-hot-toast";
 import { Spinner } from "@/components/ui/spinner";
 import { siteConfig } from "@/data/site";
-import { IMAGES } from "@/data/images";
+import { IMAGES } from "@/data/media";
 
 export function ContactPageContent() {
   const [submitted, setSubmitted] = useState(false);

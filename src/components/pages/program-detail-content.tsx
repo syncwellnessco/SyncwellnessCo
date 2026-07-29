@@ -11,7 +11,7 @@ import { BookingButton } from "@/components/ui/booking-button";
 import { ProgramHeroMedia } from "@/components/pages/program-hero-media";
 import { ProgramReviewsSection } from "@/components/pages/program-reviews-section";
 import { ProgramVideoTestimonials } from "@/components/pages/program-video-testimonials";
-import { IMAGES } from "@/data/images";
+import { IMAGES } from "@/data/media";
 import { ProgramQuiz } from "@/components/pages/program-quiz";
 import { ProgramDetailCTA } from "@/components/ui/program-detail-cta";
 

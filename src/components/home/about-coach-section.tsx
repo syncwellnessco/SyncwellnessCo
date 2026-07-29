@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { SectionHeading } from "@/components/ui/section-heading";
-import { IMAGES } from "@/data/images";
+import { IMAGES } from "@/data/media";
 import { coachHighlights } from "@/data/home-content";
 
 export function AboutCoachSection() {

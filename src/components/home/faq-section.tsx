@@ -8,7 +8,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { IMAGES } from "@/data/images";
+import { IMAGES } from "@/data/media";
 import { faqs } from "@/data/faqs";
 
 export function FAQSection() {

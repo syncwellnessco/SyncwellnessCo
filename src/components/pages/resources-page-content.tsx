@@ -7,7 +7,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { useUserStore } from "@/store/user-store";
 import { useRouter } from "next/navigation";
 
-import { IMAGES } from "@/data/images";
+import { IMAGES } from "@/data/media";
 
 export function ResourcesPageContent() {
   const [submitted, setSubmitted] = useState(false);

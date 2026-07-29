@@ -5,7 +5,7 @@ import { Loader2, Star, Play, Pause, Volume2, VolumeX, X, ChevronDown, Sparkles,
 import { PageShell } from "@/components/layout/page-shell";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { IMAGES } from "@/data/images";
+import { IMAGES } from "@/data/media";
 import { useReviewStore, Review } from "@/store/review-store";
 import {
   VideoCardSkeleton,
@@ -42,7 +42,25 @@ export default function TestimonialsPage() {
   const [activeReview, setActiveReview] = useState<Review | null>(null);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
+  const [showCaption, setShowCaption] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const hideCaptionTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (activeVideo) {
+      setShowCaption(true);
+      if (isPlaying) {
+        hideCaptionTimerRef.current = setTimeout(() => {
+          setShowCaption(false);
+        }, 1000);
+      }
+    }
+    return () => {
+      if (hideCaptionTimerRef.current) {
+        clearTimeout(hideCaptionTimerRef.current);
+      }
+    };
+  }, [activeVideo, isPlaying]);
 
   const videoSectionRef = useRef<HTMLDivElement>(null);
   const reviewSectionRef = useRef<HTMLDivElement>(null);
@@ -466,13 +484,15 @@ export default function TestimonialsPage() {
               </button>
               
               {/* Left Side: Video */}
-              <div className="relative w-full md:w-[320px] lg:w-[360px] bg-black shrink-0 aspect-[9/16]">
+              <div 
+                className="relative w-full md:w-[320px] lg:w-[360px] bg-black shrink-0 aspect-[9/16] group cursor-pointer"
+                onClick={togglePlay}
+              >
                 <video 
                   ref={videoRef}
                   src={activeVideo.video_url} 
                   autoPlay 
                   playsInline
-                  onClick={togglePlay}
                   onEnded={() => setIsPlaying(false)}
                   onPlay={() => setIsPlaying(true)}
                   onPause={() => setIsPlaying(false)}
@@ -482,17 +502,23 @@ export default function TestimonialsPage() {
                 {/* Desktop controls */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none hidden md:block" />
                 <div className="absolute bottom-6 left-6 gap-3 z-10 hidden md:flex">
-                  <button onClick={togglePlay} className="p-3 rounded-full bg-black/40 text-white hover:bg-black/60 backdrop-blur-md border border-white/20 transition-colors shadow-lg">
+                  <button onClick={(e) => { e.stopPropagation(); togglePlay(); }} className="p-3 rounded-full bg-black/40 text-white hover:bg-black/60 backdrop-blur-md border border-white/20 transition-colors shadow-lg">
                     {isPlaying ? <Pause className="w-5 h-5 fill-white" /> : <Play className="w-5 h-5 fill-white" />}
                   </button>
-                  <button onClick={toggleMute} className="p-3 rounded-full bg-black/40 text-white hover:bg-black/60 backdrop-blur-md border border-white/20 transition-colors shadow-lg">
+                  <button onClick={(e) => { e.stopPropagation(); toggleMute(); }} className="p-3 rounded-full bg-black/40 text-white hover:bg-black/60 backdrop-blur-md border border-white/20 transition-colors shadow-lg">
                     {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
                   </button>
                 </div>
 
-                {/* Mobile Overlay Content */}
-                <div className="absolute inset-x-0 bottom-0 pt-32 pb-6 px-5 bg-gradient-to-t from-black via-black/80 to-transparent md:hidden z-10 flex flex-col justify-end pointer-events-none rounded-b-2xl">
-                  <div className="flex gap-3 mb-4 pointer-events-auto">
+                {/* Mobile Overlay Content (Auto disappears after 1 sec of playing, visible on pause or hover) */}
+                <div 
+                  className={cn(
+                    "absolute inset-x-0 bottom-0 pt-16 pb-5 px-5 bg-gradient-to-t from-black via-black/80 to-transparent md:hidden z-10 flex flex-col justify-end rounded-b-2xl transition-opacity duration-500",
+                    showCaption || !isPlaying ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none group-hover:opacity-100"
+                  )}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex gap-3 mb-3 pointer-events-auto">
                     <button onClick={togglePlay} className="p-2.5 rounded-full bg-white/20 text-white backdrop-blur-md border border-white/30 shadow-lg">
                       {isPlaying ? <Pause className="w-5 h-5 fill-white" /> : <Play className="w-5 h-5 fill-white" />}
                     </button>
@@ -503,15 +529,15 @@ export default function TestimonialsPage() {
 
                   <div className="pointer-events-auto flex flex-col overflow-hidden">
                     {getProgramName(activeVideo.program_id) && (
-                      <div className="mb-2 shrink-0">
-                        <span className="inline-block bg-[#8C6D40]/80 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-widest shadow-sm">
+                      <div className="mb-1.5 shrink-0">
+                        <span className="inline-block bg-[#8C6D40]/80 text-white text-[10px] font-bold px-2 py-0.5 rounded-sm uppercase tracking-widest shadow-sm">
                           {getProgramName(activeVideo.program_id)}
                         </span>
                       </div>
                     )}
-                    <h4 className="text-white font-display font-semibold text-xl drop-shadow-md leading-tight shrink-0 mb-2">{activeVideo.name}</h4>
-                    <div className="overflow-y-auto pr-2" style={{ maxHeight: '150px' }}>
-                      <p className="text-white/90 text-sm drop-shadow-md leading-relaxed">{activeVideo.caption}</p>
+                    <h4 className="text-white font-display font-semibold text-lg drop-shadow-md leading-tight shrink-0 mb-1">{activeVideo.name}</h4>
+                    <div className="overflow-y-auto pr-2" style={{ maxHeight: '100px' }}>
+                      <p className="text-white/90 text-xs drop-shadow-md leading-relaxed">{activeVideo.caption}</p>
                     </div>
                   </div>
                 </div>

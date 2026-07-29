@@ -11,6 +11,8 @@ export const IMAGES = {
   ebookMockup: "/images/ebook/ebook_mockup.webp",
   ebookMockupPng: "/images/ebook/ebook_mockup.webp",
   ebookMockupWebp: "/images/ebook/ebook_mockup.webp",
+  resourcesPageHero: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80",
+  blogPageHero: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&q=80",
 
   // Hero Assets
   heroDefaultImage: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=1920&h=1080&fit=crop&q=85",
@@ -23,3 +25,5 @@ export const IMAGES = {
   contactPageOffice: "https://images.unsplash.com/photo-1542435503-956c469947f6?auto=format&fit=crop&q=80",
   contactPageProfile: "/images/coach/neha_arora_coach_contact_page.jpeg"
 };
+
+export const MEDIA = IMAGES;

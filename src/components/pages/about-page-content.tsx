@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { aboutContent, brandContent } from "@/data/about-content";
-import { IMAGES } from "@/data/images";
+import { IMAGES } from "@/data/media";
 import { Play, Pause, Volume2, VolumeX } from "lucide-react";
 
 export function AboutPageContent() {

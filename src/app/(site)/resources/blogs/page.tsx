@@ -15,7 +15,7 @@ export default async function BlogPage() {
   const posts = allPosts.filter(p => p.category !== "Podcast" && p.category !== "News Article");
 
   return (
-    <PageShell>
+    <PageShell noPadding>
       <BlogPageContent initialPosts={posts} />
     </PageShell>
   );

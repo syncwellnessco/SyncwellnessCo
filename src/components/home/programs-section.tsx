@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { GlassBadge } from "@/components/ui/glass-badge";
 import { ProgramHeroMedia } from "@/components/pages/program-hero-media";
 import { InteractiveLink } from "@/components/ui/interactive-link";
-import { IMAGES } from "@/data/images";
+import { IMAGES } from "@/data/media";
 import type { Program } from "@/types/program";
 
 export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {

@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, BookOpen } from "lucide-react";
+import { ArrowRight, BookOpen, Sparkles } from "lucide-react";
+import { PageShell } from "@/components/layout/page-shell";
 import { getAllBlogPosts } from "@/lib/blogs";
 import { ExpandableGrid } from "@/components/resources/expandable-resources-grid";
 
-import { IMAGES } from "@/data/images";
+import { IMAGES } from "@/data/media";
 
 export const metadata: Metadata = {
   title: "Resources | SyncwellnessCo",
@@ -22,22 +23,68 @@ export default async function ResourcesHubPage() {
   const latestBlogs = allPosts.filter(p => p.category !== "Podcast" && p.category !== "News Article");
 
   return (
-    <>
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#F5EFE9] via-[#FAF8F5] to-cream pt-[96px] lg:pt-28 pb-10 border-b border-[#EBE3DB]">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(140,109,64,0.06),transparent_45%)]"></div>
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center max-w-3xl mx-auto">
-            <span className="text-[#8C6D40] text-xs font-bold uppercase tracking-[0.3em] block mb-3">
-              Wellness Vault
-            </span>
-            <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-light text-charcoal mb-4 leading-[1.15]">
-              Empowering Resources for <span className="italic font-normal text-[#8C6D40]">Hormonal Harmony</span>
-            </h1>
-            <div className="w-16 h-[1.5px] bg-[#8C6D40] mx-auto mb-4"></div>
-            <p className="text-charcoal/80 text-[15px] sm:text-base leading-relaxed max-w-2xl mx-auto">
-              A curated collection of guides, video episodes, articles, and press features designed to support you on your journey.
-            </p>
+    <PageShell noPadding>
+      {/* 1. TOP ANNOUNCEMENT BAR (Brand Charcoal & Gold Accent) */}
+      <div className="bg-charcoal text-cream py-2.5 px-4 text-center text-[11px] font-semibold uppercase tracking-[0.2em] border-b border-beige-200/20">
+        <div className="mx-auto max-w-7xl flex items-center justify-center gap-2">
+          <Sparkles className="w-3.5 h-3.5 text-[#b38c50]" />
+          <span>CURATED GUIDES • EBOOKS & WELLNESS VAULT FOR WOMEN</span>
+          <Sparkles className="w-3.5 h-3.5 text-[#b38c50] hidden sm:inline" />
+        </div>
+      </div>
+
+      {/* 2. HERO WIDE BANNER (Brand Aesthetic with Dark Faded Bottom Gradient) */}
+      <section className="relative w-full bg-background overflow-hidden border-b border-beige-200">
+        {/* Landscape Hero Image Frame */}
+        <div className="relative w-full aspect-[21/9] sm:aspect-[21/7] lg:aspect-[21/6] min-h-[380px] max-h-[500px] bg-charcoal overflow-hidden">
+          <img
+            src={IMAGES.resourcesPageHero}
+            alt="Syncwellness resources and wellness vault"
+            className="w-full h-full object-cover opacity-90 transition-transform duration-1000 hover:scale-105"
+          />
+
+          {/* Dark Faded Color Gradient Emerging From Bottom */}
+          <div className="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/65 via-45% to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-r from-charcoal/70 via-transparent to-transparent pointer-events-none" />
+          
+          {/* Banner Text Content Layer */}
+          <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-12 lg:p-16 max-w-7xl mx-auto w-full z-10">
+            <div className="max-w-2xl">
+              <span className="inline-block text-[11px] sm:text-xs font-semibold uppercase tracking-[0.22em] text-[#d4b896] mb-2 drop-shadow-sm">
+                Syncwellness Vault
+              </span>
+              <h1 className="font-display text-3xl sm:text-5xl lg:text-6xl font-normal text-[#f2ece4] leading-tight drop-shadow-md mb-3">
+                Empowering Resources, <br />
+                <span className="italic text-[#d4b896]">Hormonal Harmony.</span>
+              </h1>
+              <p className="text-[#efe8df]/85 font-sans text-xs sm:text-base font-normal max-w-xl leading-relaxed drop-shadow-sm hidden sm:block">
+                A curated collection of free ebooks, video masterclasses, downloadable guides, and press features designed to support your natural healing journey.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Brand Stats / Feature Bar (All 4 in 1 row on mobile & desktop) */}
+        <div className="bg-beige-100/70 border-t border-b border-beige-200 py-4 sm:py-8">
+          <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-4 gap-1 sm:gap-6 text-center divide-x divide-beige-200">
+              <div className="px-1 sm:px-2">
+                <h3 className="font-display text-lg sm:text-3xl lg:text-4xl text-charcoal font-normal">100%</h3>
+                <p className="text-[8px] sm:text-[11px] uppercase tracking-wider text-charcoal/70 font-semibold mt-0.5 sm:mt-1 leading-tight">Free Access</p>
+              </div>
+              <div className="px-1 sm:px-2">
+                <h3 className="font-display text-lg sm:text-3xl lg:text-4xl text-charcoal font-normal">50+</h3>
+                <p className="text-[8px] sm:text-[11px] uppercase tracking-wider text-charcoal/70 font-semibold mt-0.5 sm:mt-1 leading-tight">Guides & Articles</p>
+              </div>
+              <div className="px-1 sm:px-2">
+                <h3 className="font-display text-lg sm:text-3xl lg:text-4xl text-charcoal font-normal">10k+</h3>
+                <p className="text-[8px] sm:text-[11px] uppercase tracking-wider text-charcoal/70 font-semibold mt-0.5 sm:mt-1 leading-tight">Ebook Downloads</p>
+              </div>
+              <div className="px-1 sm:px-2">
+                <h3 className="font-display text-lg sm:text-3xl lg:text-4xl text-charcoal font-normal">Expert</h3>
+                <p className="text-[8px] sm:text-[11px] uppercase tracking-wider text-charcoal/70 font-semibold mt-0.5 sm:mt-1 leading-tight">Backed Protocols</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -148,6 +195,6 @@ export default async function ResourcesHubPage() {
           </div>
         </div>
       </section>
-    </>
+    </PageShell>
   );
 }
