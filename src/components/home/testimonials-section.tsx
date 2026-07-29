@@ -18,9 +18,9 @@ export function TestimonialsSection() {
   const [programs, setPrograms] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Combine database reviews with Zustand submittedReviews
+  // Combine featured database reviews with featured Zustand submittedReviews
   const displayReviews: Review[] = [
-    ...submittedReviews,
+    ...submittedReviews.filter((sr) => sr.featured_on_home === true),
     ...reviews.filter((r) => !submittedReviews.some((sr) => sr.id === r.id)),
   ];
 

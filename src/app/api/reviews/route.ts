@@ -22,7 +22,7 @@ export async function POST(request: Request) {
           after_image: afterImage,
           rating: rating || 5,
           status: body.status || 'published',
-          featured_on_home: body.featured_on_home ?? true
+          featured_on_home: body.featured_on_home ?? false
         }
       ])
       .select();

@@ -159,6 +159,7 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
           before_image: beforeImage || null,
           after_image: afterImage || null,
           rating: rating || 5,
+          featured_on_home: false,
           created_at: new Date().toISOString()
         };
 
@@ -166,6 +167,7 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
         addReview({
           ...newReview,
           program_id: programId,
+          featured_on_home: false
         });
 
         toast.success("Thank you! Your review has been submitted.");
