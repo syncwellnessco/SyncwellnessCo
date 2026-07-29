@@ -5,6 +5,8 @@ import { cookies } from 'next/headers';
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const featured = searchParams.get('featured');
+  const limitParam = searchParams.get('limit');
+  const offsetParam = searchParams.get('offset');
   const cookieStore = await cookies();
   
   const supabase = createServerClient(
@@ -19,7 +21,7 @@ export async function GET(request: Request) {
     }
   );
 
-  let query = supabase.from('video_testimonials').select('*').order('created_at', { ascending: false });
+  let query = supabase.from('video_testimonials').select('*', { count: 'exact' }).order('created_at', { ascending: false });
   if (featured === 'true') {
     query = query.eq('featured_on_home', true);
   }
@@ -29,10 +31,26 @@ export async function GET(request: Request) {
     query = query.eq('program_id', programId);
   }
 
+  if (limitParam) {
+    const limit = parseInt(limitParam, 10);
+    const offset = offsetParam ? parseInt(offsetParam, 10) : 0;
+    query = query.range(offset, offset + limit - 1);
+
+    const { data, error, count } = await query;
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+    return NextResponse.json({
+      data: data || [],
+      total: count || 0,
+      hasMore: (offset + (data?.length || 0)) < (count || 0)
+    });
+  }
+
   const { data, error } = await query;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data);
 }
+
 
 export async function POST(request: Request) {
   const cookieStore = await cookies();

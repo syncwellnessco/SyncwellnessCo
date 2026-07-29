@@ -7,6 +7,7 @@ import Autoplay from "embla-carousel-autoplay";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, ChevronLeft, ChevronRight, Loader2, X } from "lucide-react";
 import { SectionHeading } from "@/components/ui/section-heading";
+import { ReviewCardSkeletonGrid } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useReviewStore, Review } from "@/store/review-store";
 
@@ -26,10 +27,11 @@ export function TestimonialsSection() {
 
   useEffect(() => {
     Promise.all([
-      fetch("/api/reviews?featured=true").then(res => res.json()),
+      fetch("/api/reviews?featured=true&status=published&limit=10").then(res => res.json()),
       fetch("/api/programs").then(res => res.json())
     ]).then(([revData, progData]) => {
-      setReviews(Array.isArray(revData) ? revData : []);
+      const items = Array.isArray(revData) ? revData : (Array.isArray(revData?.data) ? revData.data : []);
+      setReviews(items);
       setPrograms(Array.isArray(progData) ? progData : []);
       setLoading(false);
     });
@@ -103,7 +105,9 @@ export function TestimonialsSection() {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-[#8C6D40]" /></div>
+          <div className="mt-10">
+            <ReviewCardSkeletonGrid count={3} />
+          </div>
         ) : displayReviews.length === 0 ? (
           <div className="text-center py-20 text-charcoal/60">No featured reviews yet.</div>
         ) : (

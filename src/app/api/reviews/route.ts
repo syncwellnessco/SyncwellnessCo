@@ -41,12 +41,29 @@ export async function GET(request: Request) {
     const programId = searchParams.get('programId');
     const status = searchParams.get('status');
     const featured = searchParams.get('featured');
+    const limitParam = searchParams.get('limit');
+    const offsetParam = searchParams.get('offset');
 
-    let query = supabase.from('reviews').select('*').order('created_at', { ascending: false });
+    let query = supabase.from('reviews').select('*', { count: 'exact' }).order('created_at', { ascending: false });
     
     if (programId) query = query.eq('program_id', programId);
     if (status) query = query.eq('status', status);
     if (featured === 'true') query = query.eq('featured_on_home', true);
+
+    if (limitParam) {
+      const limit = parseInt(limitParam, 10);
+      const offset = offsetParam ? parseInt(offsetParam, 10) : 0;
+      query = query.range(offset, offset + limit - 1);
+
+      const { data, error, count } = await query;
+      if (error) throw error;
+
+      return NextResponse.json({
+        data: data || [],
+        total: count || 0,
+        hasMore: (offset + (data?.length || 0)) < (count || 0)
+      });
+    }
 
     const { data, error } = await query;
 
@@ -56,3 +73,4 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+

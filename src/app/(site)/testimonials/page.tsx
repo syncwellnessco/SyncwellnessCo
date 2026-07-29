@@ -7,6 +7,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { IMAGES } from "@/data/images";
 import { useReviewStore, Review } from "@/store/review-store";
+import {
+  VideoCardSkeleton,
+  VideoCardSkeletonGrid,
+  ReviewCardSkeleton,
+  ReviewCardSkeletonGrid,
+} from "@/components/ui/skeleton";
 
 interface VideoTestimonial {
   id: string;
@@ -18,27 +24,34 @@ interface VideoTestimonial {
 
 export default function TestimonialsPage() {
   const { submittedReviews } = useReviewStore();
+  
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [totalReviews, setTotalReviews] = useState(0);
+  const [hasMoreReviews, setHasMoreReviews] = useState(false);
+  const [reviewLoading, setReviewLoading] = useState(true);
+  const [loadingMoreReviews, setLoadingMoreReviews] = useState(false);
+
   const [videos, setVideos] = useState<VideoTestimonial[]>([]);
+  const [totalVideos, setTotalVideos] = useState(0);
+  const [hasMoreVideos, setHasMoreVideos] = useState(false);
+  const [videoLoading, setVideoLoading] = useState(true);
+  const [loadingMoreVideos, setLoadingMoreVideos] = useState(false);
+
   const [programs, setPrograms] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [activeVideo, setActiveVideo] = useState<VideoTestimonial | null>(null);
   const [activeReview, setActiveReview] = useState<Review | null>(null);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Limits for Load More functionality
+  const videoSectionRef = useRef<HTMLDivElement>(null);
+  const reviewSectionRef = useRef<HTMLDivElement>(null);
+
+  // Initial Limits: 2 rows of videos (8) and 2 rows of reviews (6)
   const INITIAL_VIDEO_LIMIT = 8;
   const VIDEO_BATCH_SIZE = 4;
   const INITIAL_REVIEW_LIMIT = 6;
   const REVIEW_BATCH_SIZE = 6;
-
-  const [videoLimit, setVideoLimit] = useState(INITIAL_VIDEO_LIMIT);
-  const [reviewLimit, setReviewLimit] = useState(INITIAL_REVIEW_LIMIT);
-
-  const videoSectionRef = useRef<HTMLDivElement>(null);
-  const reviewSectionRef = useRef<HTMLDivElement>(null);
 
   // Combine fetched reviews with Zustand submittedReviews
   const allReviews: Review[] = [
@@ -47,15 +60,35 @@ export default function TestimonialsPage() {
   ];
 
   useEffect(() => {
+    // Initial fetch: 2 rows of videos (8) and 2 rows of reviews (6)
     Promise.all([
-      fetch("/api/reviews?status=published").then((res) => res.json()),
-      fetch("/api/videos").then((res) => res.json()),
+      fetch(`/api/videos?limit=${INITIAL_VIDEO_LIMIT}&offset=0`).then((res) => res.json()),
+      fetch(`/api/reviews?status=published&limit=${INITIAL_REVIEW_LIMIT}&offset=0`).then((res) => res.json()),
       fetch("/api/programs").then((res) => res.json()),
-    ]).then(([revData, vidData, progData]) => {
-      setReviews(Array.isArray(revData) ? revData : []);
-      setVideos(Array.isArray(vidData) ? vidData : []);
+    ]).then(([vidRes, revRes, progData]) => {
+      if (vidRes && typeof vidRes === "object" && "data" in vidRes) {
+        setVideos(vidRes.data || []);
+        setTotalVideos(vidRes.total || 0);
+        setHasMoreVideos(vidRes.hasMore ?? false);
+      } else {
+        setVideos(Array.isArray(vidRes) ? vidRes : []);
+        setTotalVideos(Array.isArray(vidRes) ? vidRes.length : 0);
+        setHasMoreVideos(false);
+      }
+      setVideoLoading(false);
+
+      if (revRes && typeof revRes === "object" && "data" in revRes) {
+        setReviews(revRes.data || []);
+        setTotalReviews(revRes.total || 0);
+        setHasMoreReviews(revRes.hasMore ?? false);
+      } else {
+        setReviews(Array.isArray(revRes) ? revRes : []);
+        setTotalReviews(Array.isArray(revRes) ? revRes.length : 0);
+        setHasMoreReviews(false);
+      }
+      setReviewLoading(false);
+
       setPrograms(Array.isArray(progData) ? progData : []);
-      setLoading(false);
     });
   }, []);
 
@@ -91,19 +124,41 @@ export default function TestimonialsPage() {
     setIsMuted(!isMuted);
   };
 
-  const handleLoadMoreVideos = () => {
-    setVideoLimit((prev) => prev + VIDEO_BATCH_SIZE);
+  const handleLoadMoreVideos = async () => {
+    if (loadingMoreVideos) return;
+    setLoadingMoreVideos(true);
+    try {
+      const currentOffset = videos.length;
+      const res = await fetch(`/api/videos?limit=${VIDEO_BATCH_SIZE}&offset=${currentOffset}`).then((r) => r.json());
+      if (res && res.data) {
+        setVideos((prev) => [...prev, ...res.data]);
+        setTotalVideos(res.total || totalVideos);
+        setHasMoreVideos(res.hasMore ?? false);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingMoreVideos(false);
+    }
   };
 
-  const handleLoadMoreReviews = () => {
-    setReviewLimit((prev) => prev + REVIEW_BATCH_SIZE);
+  const handleLoadMoreReviews = async () => {
+    if (loadingMoreReviews) return;
+    setLoadingMoreReviews(true);
+    try {
+      const currentOffset = reviews.length;
+      const res = await fetch(`/api/reviews?status=published&limit=${REVIEW_BATCH_SIZE}&offset=${currentOffset}`).then((r) => r.json());
+      if (res && res.data) {
+        setReviews((prev) => [...prev, ...res.data]);
+        setTotalReviews(res.total || totalReviews);
+        setHasMoreReviews(res.hasMore ?? false);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingMoreReviews(false);
+    }
   };
-
-  const visibleVideos = videos.slice(0, videoLimit);
-  const visibleReviews = allReviews.slice(0, reviewLimit);
-
-  const hasMoreVideos = videos.length > videoLimit;
-  const hasMoreReviews = allReviews.length > reviewLimit;
 
   return (
     <PageShell noPadding>
@@ -175,23 +230,21 @@ export default function TestimonialsPage() {
       {/* 3. MAIN CONTENT AREA */}
       <div className="bg-background py-10 sm:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          
-          {loading ? (
-            <div className="flex justify-center py-20">
-              <Loader2 className="h-10 w-10 animate-spin text-[#8C6D40]" />
-            </div>
-          ) : (
-            <div className="space-y-0">
-              {/* VIDEO TESTIMONIALS SECTION */}
-              {videos.length > 0 && (
-                <section ref={videoSectionRef}>
-                  <div className="mb-6 sm:mb-8">
-                    <h3 className="font-display text-2xl sm:text-3xl font-normal text-charcoal">Video Stories</h3>
-                    <p className="mt-1 text-xs sm:text-sm text-charcoal/60">Watch their journeys unfold in their own words.</p>
-                  </div>
+          <div className="space-y-0">
+            {/* VIDEO TESTIMONIALS SECTION */}
+            <section ref={videoSectionRef}>
+              <div className="mb-6 sm:mb-8">
+                <h3 className="font-display text-2xl sm:text-3xl font-normal text-charcoal">Video Stories</h3>
+                <p className="mt-1 text-xs sm:text-sm text-charcoal/60">Watch their journeys unfold in their own words.</p>
+              </div>
 
+              {videoLoading ? (
+                /* Video Skeleton Grid Loader */
+                <VideoCardSkeletonGrid count={8} />
+              ) : videos.length > 0 ? (
+                <>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
-                    {visibleVideos.map((video) => (
+                    {videos.map((video) => (
                       <article
                         key={video.id}
                         className="group cursor-pointer overflow-hidden rounded-2xl border border-beige-200 bg-cream shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 relative aspect-[9/16] bg-black"
@@ -230,6 +283,12 @@ export default function TestimonialsPage() {
                         </div>
                       </article>
                     ))}
+
+                    {/* Next Row Skeleton Cards while loading more videos */}
+                    {loadingMoreVideos &&
+                      [...Array(4)].map((_, i) => (
+                        <VideoCardSkeleton key={`video-skel-${i}`} />
+                      ))}
                   </div>
 
                   {/* LOAD MORE BUTTON FOR VIDEOS */}
@@ -237,29 +296,35 @@ export default function TestimonialsPage() {
                     <div className="flex flex-col items-center justify-center pt-8 sm:pt-12 pb-8 sm:pb-12 gap-2 text-center">
                       <button
                         onClick={handleLoadMoreVideos}
-                        className="group inline-flex items-center gap-2 px-8 py-3.5 rounded-sm bg-charcoal text-cream text-xs font-semibold uppercase tracking-[0.18em] hover:bg-[#8C6D40] transition-all shadow-sm hover:shadow-md active:scale-95"
+                        disabled={loadingMoreVideos}
+                        className="group inline-flex items-center gap-2 px-8 py-3.5 rounded-sm bg-charcoal text-cream text-xs font-semibold uppercase tracking-[0.18em] hover:bg-[#8C6D40] disabled:opacity-60 transition-all shadow-sm hover:shadow-md active:scale-95"
                       >
-                        <span>Load More Videos</span>
+                        <span>{loadingMoreVideos ? "Loading Videos..." : "Load More Videos"}</span>
                         <ChevronDown className="w-4 h-4 transition-transform group-hover:translate-y-0.5 text-gold-light" />
                       </button>
                       <p className="text-[11px] text-charcoal/50">
-                        Showing {visibleVideos.length} of {videos.length} video testimonials
+                        Showing {videos.length} of {totalVideos || videos.length} video testimonials
                       </p>
                     </div>
                   )}
-                </section>
-              )}
+                </>
+              ) : null}
+            </section>
 
-              {/* WRITTEN REVIEWS SECTION */}
-              {allReviews.length > 0 && (
-                <section ref={reviewSectionRef} className="pt-8 sm:pt-12 border-t border-beige-200">
-                  <div className="mb-6 sm:mb-8">
-                    <h3 className="font-display text-2xl sm:text-3xl font-normal text-charcoal">Written Reviews & Results</h3>
-                    <p className="mt-1 text-xs sm:text-sm text-charcoal/60">Read client feedback and verified transformation experiences.</p>
-                  </div>
+            {/* WRITTEN REVIEWS SECTION */}
+            <section ref={reviewSectionRef} className="pt-8 sm:pt-12 border-t border-beige-200">
+              <div className="mb-6 sm:mb-8">
+                <h3 className="font-display text-2xl sm:text-3xl font-normal text-charcoal">Written Reviews & Results</h3>
+                <p className="mt-1 text-xs sm:text-sm text-charcoal/60">Read client feedback and verified transformation experiences.</p>
+              </div>
 
+              {reviewLoading ? (
+                /* Written Reviews Skeleton Grid Loader */
+                <ReviewCardSkeletonGrid count={6} />
+              ) : allReviews.length > 0 ? (
+                <>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-                    {visibleReviews.map((r) => (
+                    {allReviews.map((r) => (
                       <article
                         key={r.id}
                         className="bg-white rounded-md border border-beige-200 shadow-sm cursor-pointer hover:shadow-xl transition-all duration-500 hover:-translate-y-1 hover:border-[#8C6D40]/30 group/card flex flex-col h-full overflow-hidden"
@@ -343,6 +408,12 @@ export default function TestimonialsPage() {
                         </div>
                       </article>
                     ))}
+
+                    {/* Next Rows Skeleton Cards while loading more reviews */}
+                    {loadingMoreReviews &&
+                      [...Array(6)].map((_, i) => (
+                        <ReviewCardSkeleton key={`review-skel-${i}`} />
+                      ))}
                   </div>
 
                   {/* LOAD MORE BUTTON FOR REVIEWS */}
@@ -350,22 +421,24 @@ export default function TestimonialsPage() {
                     <div className="flex flex-col items-center justify-center pt-8 sm:pt-12 pb-4 sm:pb-8 gap-2 text-center">
                       <button
                         onClick={handleLoadMoreReviews}
-                        className="group inline-flex items-center gap-2 px-8 py-3.5 rounded-sm bg-charcoal text-cream text-xs font-semibold uppercase tracking-[0.18em] hover:bg-[#8C6D40] transition-all shadow-sm hover:shadow-md active:scale-95"
+                        disabled={loadingMoreReviews}
+                        className="group inline-flex items-center gap-2 px-8 py-3.5 rounded-sm bg-charcoal text-cream text-xs font-semibold uppercase tracking-[0.18em] hover:bg-[#8C6D40] disabled:opacity-60 transition-all shadow-sm hover:shadow-md active:scale-95"
                       >
-                        <span>Load More Reviews</span>
+                        <span>{loadingMoreReviews ? "Loading Reviews..." : "Load More Reviews"}</span>
                         <ChevronDown className="w-4 h-4 transition-transform group-hover:translate-y-0.5 text-gold-light" />
                       </button>
                       <p className="text-[11px] text-charcoal/50">
-                        Showing {visibleReviews.length} of {allReviews.length} written reviews
+                        Showing {allReviews.length} of {totalReviews || allReviews.length} written reviews
                       </p>
                     </div>
                   )}
-                </section>
-              )}
-            </div>
-          )}
+                </>
+              ) : null}
+            </section>
+          </div>
         </div>
       </div>
+
 
       {/* Video Modal */}
       <AnimatePresence>

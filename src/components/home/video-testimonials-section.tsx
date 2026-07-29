@@ -7,6 +7,7 @@ import { SectionHeading } from "@/components/ui/section-heading";
 import { useRef } from "react";
 import { InteractiveLink } from "@/components/ui/interactive-link";
 import { cn } from "@/lib/utils";
+import { VideoCardSkeletonGrid } from "@/components/ui/skeleton";
 
 interface VideoTestimonial {
   id: string;
@@ -47,10 +48,11 @@ export function VideoTestimonialsSection() {
 
   useEffect(() => {
     Promise.all([
-      fetch("/api/videos?featured=true").then(res => res.json()),
+      fetch("/api/videos?featured=true&limit=10").then(res => res.json()),
       fetch("/api/programs").then(res => res.json())
     ]).then(([vidData, progData]) => {
-      setVideos(Array.isArray(vidData) ? vidData : []);
+      const items = Array.isArray(vidData) ? vidData : (Array.isArray(vidData?.data) ? vidData.data : []);
+      setVideos(items);
       setPrograms(Array.isArray(progData) ? progData : []);
       setLoading(false);
     });
@@ -94,11 +96,14 @@ export function VideoTestimonialsSection() {
       <section className="bg-sage-100/40 pt-7 pb-1 sm:pt-12 sm:pb-2">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeading eyebrow="Video Stories" title="Watch Their Transformations Unfold" description="Hear directly from our clients about their journey in their own words." />
-          <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-[#8C6D40]" /></div>
+          <div className="mt-8">
+            <VideoCardSkeletonGrid count={4} />
+          </div>
         </div>
       </section>
     );
   }
+
 
   if (videos.length === 0) {
     return null; // Don't show section if no featured videos
