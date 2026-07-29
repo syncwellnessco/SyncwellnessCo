@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Check, X, Trash2, Eye, Star, Upload } from "lucide-react";
 import toast from "react-hot-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CldUploadWidget } from "next-cloudinary";
-import { optimizeCloudinaryUrl, deleteCloudinaryFile } from "@/lib/cloudinary-utils";
+import { deleteCloudinaryFile } from "@/lib/cloudinary-utils";
+import { MediaUploader } from "@/components/ui/media-uploader";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 
 interface Review {
@@ -23,49 +23,17 @@ interface Review {
 }
 
 const SingleImageUploader = memo(({ label, value, onUpload, onRemove, id }: { label: string, value: string, onUpload: (url: string, pId: string) => void, onRemove: () => void, id: string }) => {
-  const options = useMemo(() => ({
-    folder: 'syncwellness/reviews',
-    multiple: false,
-    tags: [id],
-    cropping: true,
-    croppingAspectRatio: 0.8, // 4:5 vertical aspect ratio
-    showSkipCropButton: false
-  }), [id]);
-
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex justify-between items-baseline">
-        <span className="text-sm font-medium text-charcoal/80">{label}</span>
-        <span className="text-[10px] text-charcoal/50 font-medium">Aspect ratio: 4:5 vertical</span>
-      </div>
-      {!value ? (
-        <CldUploadWidget 
-          uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_REVIEWS || process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "syncwellness"}
-          options={options}
-          onSuccess={(res: any) => {
-            if (res?.info?.secure_url) {
-              const optimizedUrl = optimizeCloudinaryUrl(res.info.secure_url);
-              onUpload(optimizedUrl, res.info.public_id);
-            }
-          }}
-        >
-          {({ open }) => (
-            <button type="button" onClick={(e) => { e.preventDefault(); open(); }} className="w-full aspect-[4/5] border-2 border-dashed border-[#EBE3DB] rounded-md flex flex-col items-center justify-center text-charcoal/50 hover:bg-[#FAF8F5] hover:border-[#8C6D40] transition-colors bg-[#FAF8F5]">
-              <Upload className="h-6 w-6 mb-2" />
-              <span className="text-xs">Click to upload</span>
-              <span className="text-[10px] text-charcoal/40 mt-1">4:5 vertical format only</span>
-            </button>
-          )}
-        </CldUploadWidget>
-      ) : (
-        <div className="relative w-full aspect-[4/5] rounded-md overflow-hidden border border-[#EBE3DB]">
-          <img src={value} alt="Preview" className="w-full h-full object-cover" />
-          <button type="button" onClick={(e) => { e.preventDefault(); onRemove(); }} className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full hover:bg-black/70 transition-colors z-10">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      )}
-    </div>
+    <MediaUploader
+      label={label}
+      labelPosition="bottom"
+      value={value}
+      accept="image/*"
+      preset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_REVIEWS || process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "syncwellness"}
+      aspectRatioClass="aspect-[4/5]"
+      onUpload={(url, publicId) => onUpload(url, publicId)}
+      onRemove={onRemove}
+    />
   );
 });
 SingleImageUploader.displayName = "SingleImageUploader";

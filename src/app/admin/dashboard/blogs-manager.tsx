@@ -10,8 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase-client";
-import { CldUploadWidget } from 'next-cloudinary';
-import { deleteCloudinaryFile, optimizeCloudinaryUrl } from "@/lib/cloudinary-utils";
+import { deleteCloudinaryFile } from "@/lib/cloudinary-utils";
+import { MediaUploader } from "@/components/ui/media-uploader";
 import dynamic from 'next/dynamic';
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 
@@ -178,106 +178,68 @@ export function BlogsManager() {
             <form onSubmit={(e) => { e.preventDefault(); handleSaveWithStatus(formData.published !== false); }} className="flex flex-col flex-1 min-h-0 overflow-hidden">
               {/* Scrollable Form Body */}
               <div className="p-6 sm:p-8 overflow-y-auto flex-1 space-y-6">
-                <div className="flex flex-col lg:flex-row gap-6">
+                <div className="flex flex-col lg:flex-row gap-6 items-start">
                   {/* Left Side: Cover Image */}
-                  <div className="w-full lg:w-1/3 space-y-2">
-                    <div className="flex justify-between items-baseline">
-                      <Label className="text-sm font-medium">Cover Image</Label>
-                      <span className="text-[10px] text-charcoal/50 font-medium">Aspect ratio: 3:2 landscape</span>
-                    </div>
-                    <CldUploadWidget 
-                      uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_BLOGS || "syncwellness_blogs"}
-                      onSuccess={(result: any) => {
-                        const optimizedUrl = optimizeCloudinaryUrl(result.info.secure_url);
-                        setFormData(prev => ({ ...prev, image_url: optimizedUrl }));
-                        setUploadedImageId(result.info.public_id);
-                        document.body.style.overflow = '';
+                  <div className="w-full lg:w-5/12">
+                    <MediaUploader
+                      label="Cover Image"
+                      helperText="Aspect ratio: 3:2 landscape"
+                      value={formData.image_url}
+                      accept="image/*"
+                      preset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_BLOGS || "syncwellness_blogs"}
+                      aspectRatioClass="aspect-[3/2] w-full"
+                      onUpload={(url, publicId) => {
+                        setFormData(prev => ({ ...prev, image_url: url }));
+                        setUploadedImageId(publicId);
                       }}
-                    >
-                      {({ open }) => (
-                        <div className="w-full aspect-[3/2] sm:h-[220px] lg:h-full lg:min-h-[260px]">
-                          {formData.image_url ? (
-                            <div className="relative w-full h-full rounded-md overflow-hidden border border-[#EBE3DB] group">
-                              <img src={formData.image_url} alt="Cover" className="w-full h-full object-cover" />
-                              <div className="absolute inset-0 bg-charcoal/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                <Button type="button" size="sm" onClick={(e) => { e.preventDefault(); open(); }} variant="secondary" className="rounded-none">
-                                  Change
-                                </Button>
-                                <Button 
-                                  type="button"
-                                  size="sm"
-                                  variant="outline"
-                                  className="bg-red-50 text-red-600 border-red-200 hover:bg-red-100 rounded-none"
-                                  onClick={async (e) => { 
-                                    e.preventDefault(); 
-                                    if (uploadedImageId) {
-                                      await deleteCloudinaryFile(uploadedImageId, 'image');
-                                      setUploadedImageId(null);
-                                    }
-                                    setFormData(prev => ({ ...prev, image_url: '' })); 
-                                  }}
-                                >
-                                  Remove
-                                </Button>
-                              </div>
-                            </div>
-                          ) : (
-                            <button 
-                              type="button" 
-                              onClick={(e) => { e.preventDefault(); open(); }} 
-                              className="w-full h-full flex flex-col items-center justify-center border-2 border-dashed border-[#EBE3DB] rounded-md bg-[#FAF8F5] hover:bg-[#EBE3DB]/40 hover:border-[#8C6D40] transition-colors text-charcoal/50 hover:text-charcoal"
-                            >
-                              <ImageIcon className="h-8 w-8 mb-2 opacity-50" />
-                              <span className="font-medium text-sm">Upload Cover Image</span>
-                              <span className="text-[10px] text-charcoal/40 mt-1">3:2 landscape recommended</span>
-                            </button>
-                          )}
-                        </div>
-                      )}
-                    </CldUploadWidget>
+                      onRemove={async () => {
+                        if (uploadedImageId) {
+                          await deleteCloudinaryFile(uploadedImageId, 'image');
+                          setUploadedImageId(null);
+                        }
+                        setFormData(prev => ({ ...prev, image_url: '' }));
+                      }}
+                    />
                   </div>
 
                   {/* Right Side: Title, Category, Tags */}
-                  <div className="w-full lg:w-2/3 space-y-5">
-                    <div className="space-y-2">
+                  <div className="w-full lg:w-7/12 space-y-4">
+                    <div className="space-y-1.5">
                       <Label>Title</Label>
                       <Input 
                         value={formData.title || ""}
                         onChange={(e) => setFormData({...formData, title: e.target.value})}
                         required
-                        className="text-lg font-medium h-12 rounded-none"
+                        className="text-base font-medium h-11"
                         placeholder="Enter an engaging blog title..."
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                      <div className="space-y-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
                         <Label>Category</Label>
                         <Input 
                           value={formData.category || ""}
                           onChange={(e) => setFormData({...formData, category: e.target.value})}
-                          className="rounded-none"
                           placeholder="e.g. Wellness"
                         />
                       </div>
-                      <div className="space-y-2">
+                      <div className="space-y-1.5">
                         <Label>Tags (Comma separated)</Label>
                         <Input 
                           value={formData.tags || ""}
                           onChange={(e) => setFormData({...formData, tags: e.target.value})}
-                          className="rounded-none"
                           placeholder="e.g. fitness, hormones, diet"
                         />
                       </div>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       <Label>Short Excerpt</Label>
                       <Textarea 
                         rows={3}
                         value={formData.excerpt || ""}
                         onChange={(e) => setFormData({...formData, excerpt: e.target.value})}
-                        className="rounded-none"
                         placeholder="A brief 1-2 sentence summary of the article..."
                       />
                     </div>

@@ -4,8 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { X, CheckCircle2, Upload, Loader2, Star, ChevronLeft, ChevronRight } from "lucide-react";
 import toast from "react-hot-toast";
-import { CldUploadWidget } from "next-cloudinary";
-import { optimizeCloudinaryUrl, deleteCloudinaryFile } from "@/lib/cloudinary-utils";
+import { deleteCloudinaryFile } from "@/lib/cloudinary-utils";
+import { MediaUploader } from "@/components/ui/media-uploader";
 import useEmblaCarousel from "embla-carousel-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -13,45 +13,16 @@ import { useUserStore } from "@/store/user-store";
 import { useReviewStore, Review } from "@/store/review-store";
 
 const CloudinaryBtn = ({ label, onUpload, onRemove, value }: { label: string, onUpload: (u: string, pId: string) => void, onRemove: () => void, value: string }) => (
-  <div className="flex flex-col gap-1.5">
-    <div className="flex justify-between items-baseline">
-      <span className="text-xs font-semibold text-charcoal/80">{label}</span>
-      {!value && <span className="text-[9px] text-charcoal/40 font-medium">4:5 vertical format</span>}
-    </div>
-    {value ? (
-      <div className="relative w-full h-20 sm:h-24 md:h-28 rounded-md overflow-hidden border border-[#EBE3DB] bg-beige-100/50">
-        <img src={value} alt="Preview" className="w-full h-full object-cover" />
-        <button type="button" onClick={onRemove} className="absolute top-1.5 right-1.5 bg-black/60 text-white p-1 rounded-full hover:bg-black/80 transition-colors">
-          <X className="h-3.5 w-3.5" />
-        </button>
-      </div>
-    ) : (
-      <CldUploadWidget 
-        uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_REVIEWS || process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "syncwellness"}
-        options={{ 
-          folder: 'syncwellness/reviews',
-          multiple: false,
-          cropping: true,
-          croppingAspectRatio: 0.8,
-          showSkipCropButton: false
-        }}
-        onSuccess={(res: any) => {
-          if (res?.info?.secure_url) {
-            const optimizedUrl = optimizeCloudinaryUrl(res.info.secure_url);
-            onUpload(optimizedUrl, res.info.public_id);
-          }
-        }}
-      >
-        {({ open }) => (
-          <button type="button" onClick={() => open()} className="w-full h-20 sm:h-24 md:h-28 border-2 border-dashed border-[#EBE3DB] rounded-md flex flex-col items-center justify-center p-2 text-charcoal/60 hover:bg-[#FAF8F5] hover:border-[#8C6D40] transition-colors">
-            <Upload className="h-4 w-4 sm:h-5 sm:w-5 mb-1 text-[#8C6D40]" />
-            <span className="text-[11px] font-medium leading-tight">Click to upload</span>
-            <span className="text-[9px] text-charcoal/40 mt-0.5">Vertical 4:5</span>
-          </button>
-        )}
-      </CldUploadWidget>
-    )}
-  </div>
+  <MediaUploader
+    label={label}
+    labelPosition="bottom"
+    value={value}
+    accept="image/*"
+    preset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_REVIEWS || process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "syncwellness"}
+    aspectRatioClass="aspect-[4/5] h-28 sm:h-32"
+    onUpload={(url, publicId) => onUpload(url, publicId)}
+    onRemove={onRemove}
+  />
 );
 
 export function ProgramReviewsSection({ programId }: { programId: string }) {
@@ -373,27 +344,35 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
 
                 {/* Right Column: Images & Submit */}
                 <div className="flex flex-col justify-between gap-4">
-                  <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                    <CloudinaryBtn 
-                      label="Before Image (Optional)" 
-                      value={beforeImage} 
-                      onUpload={(u, pId) => { setBeforeImage(u); setBeforePublicId(pId); }} 
-                      onRemove={async () => {
-                        if (beforePublicId) await deleteCloudinaryFile(beforePublicId, 'image');
-                        setBeforeImage("");
-                        setBeforePublicId("");
-                      }}
-                    />
-                    <CloudinaryBtn 
-                      label="After Image (Optional)" 
-                      value={afterImage} 
-                      onUpload={(u, pId) => { setAfterImage(u); setAfterPublicId(pId); }} 
-                      onRemove={async () => {
-                        if (afterPublicId) await deleteCloudinaryFile(afterPublicId, 'image');
-                        setAfterImage("");
-                        setAfterPublicId("");
-                      }}
-                    />
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-baseline mb-1">
+                      <span className="text-xs font-semibold uppercase tracking-wider text-charcoal/80">
+                        Transformation Photos <span className="text-[10px] font-normal lowercase tracking-normal text-charcoal/40 ml-0.5">(optional)</span>
+                      </span>
+                      <span className="text-[10px] text-charcoal/50 font-medium">Vertical 4:5 format</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                      <CloudinaryBtn 
+                        label="Before Image" 
+                        value={beforeImage} 
+                        onUpload={(u, pId) => { setBeforeImage(u); setBeforePublicId(pId); }} 
+                        onRemove={async () => {
+                          if (beforePublicId) await deleteCloudinaryFile(beforePublicId, 'image');
+                          setBeforeImage("");
+                          setBeforePublicId("");
+                        }}
+                      />
+                      <CloudinaryBtn 
+                        label="After Image" 
+                        value={afterImage} 
+                        onUpload={(u, pId) => { setAfterImage(u); setAfterPublicId(pId); }} 
+                        onRemove={async () => {
+                          if (afterPublicId) await deleteCloudinaryFile(afterPublicId, 'image');
+                          setAfterImage("");
+                          setAfterPublicId("");
+                        }}
+                      />
+                    </div>
                   </div>
 
                   <Button 

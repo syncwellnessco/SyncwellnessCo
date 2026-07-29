@@ -57,7 +57,7 @@ export default function Editor({ data, onChange }: EditorProps) {
     extensions: [
       StarterKit,
       Underline,
-      Link.configure({ openOnClick: false }),
+      Link.configure({ openOnClick: false, HTMLAttributes: { rel: 'noopener noreferrer' } }),
     ],
     content: initialContent,
     immediatelyRender: false,

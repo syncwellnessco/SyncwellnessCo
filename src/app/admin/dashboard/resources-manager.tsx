@@ -10,8 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase-client";
-import { CldUploadWidget } from 'next-cloudinary';
-import { deleteCloudinaryFile, optimizeCloudinaryUrl } from "@/lib/cloudinary-utils";
+import { deleteCloudinaryFile } from "@/lib/cloudinary-utils";
+import { MediaUploader } from "@/components/ui/media-uploader";
 import dynamic from 'next/dynamic';
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 
@@ -428,81 +428,41 @@ export function ResourcesManager() {
             <form onSubmit={(e) => { e.preventDefault(); handleSaveWithStatus(formData.published !== false); }} className="flex flex-col flex-1 min-h-0 overflow-hidden">
               {/* Scrollable Form Body */}
               <div className="p-6 sm:p-8 overflow-y-auto flex-1 space-y-6">
-                <div className="flex flex-col lg:flex-row gap-6">
+                <div className="flex flex-col lg:flex-row gap-6 items-start">
                   {/* Left Side: Cover Image */}
                   {subTab !== "podcasts" && (
-                    <div className={`w-full ${subTab === "media" ? "lg:w-[180px] lg:shrink-0" : "lg:w-1/3"} space-y-2`}>
-                      <div className="flex flex-col space-y-0.5">
-                        <Label className="text-sm font-medium">Cover Image / Logo</Label>
-                        <span className="text-[10px] text-charcoal/50 font-medium">
-                          {subTab === "media" ? "Aspect ratio: 4:5 portrait" : "Aspect ratio: 3:2 landscape"}
-                        </span>
-                      </div>
-                      <CldUploadWidget 
-                        uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_BLOGS || "syncwellness_blogs"}
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        onSuccess={(result: any) => {
-                          const optimizedUrl = optimizeCloudinaryUrl(result.info.secure_url);
-                          setFormData(prev => ({ ...prev, image_url: optimizedUrl }));
-                          setUploadedImageId(result.info.public_id);
-                          document.body.style.overflow = '';
+                    <div className={`w-full ${subTab === "media" ? "lg:w-4/12 max-w-[200px]" : "lg:w-5/12"}`}>
+                      <MediaUploader
+                        label="Cover Image / Logo"
+                        helperText={subTab === "media" ? "Aspect ratio: 4:5 portrait" : "Aspect ratio: 3:2 landscape"}
+                        value={formData.image_url}
+                        accept="image/*"
+                        preset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_BLOGS || "syncwellness_blogs"}
+                        aspectRatioClass={`w-full ${subTab === "media" ? "aspect-[4/5]" : "aspect-[3/2]"}`}
+                        onUpload={(url, publicId) => {
+                          setFormData(prev => ({ ...prev, image_url: url }));
+                          setUploadedImageId(publicId);
                         }}
-                      >
-                        {({ open }) => (
-                          <div className={`w-full ${subTab === "media" ? "max-w-[160px] aspect-[4/5]" : "aspect-[3/2]"} max-h-[260px]`}>
-                            {formData.image_url ? (
-                              <div className="relative w-full h-full rounded-md overflow-hidden border border-[#EBE3DB] group">
-                                <img src={formData.image_url} alt="Cover" className="w-full h-full object-cover" />
-                                <div className="absolute inset-0 bg-charcoal/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                  <Button type="button" size="sm" onClick={(e) => { e.preventDefault(); open(); }} variant="secondary">
-                                    Change
-                                  </Button>
-                                  <Button 
-                                    type="button"
-                                    size="sm"
-                                    variant="outline"
-                                    className="bg-red-50 text-red-600 border-red-200 hover:bg-red-100" 
-                                    onClick={async (e) => { 
-                                      e.preventDefault(); 
-                                      if (uploadedImageId) {
-                                        await deleteCloudinaryFile(uploadedImageId, 'image');
-                                        setUploadedImageId(null);
-                                      }
-                                      setFormData(prev => ({ ...prev, image_url: '' })); 
-                                    }}
-                                  >
-                                    Remove
-                                  </Button>
-                                </div>
-                              </div>
-                            ) : (
-                              <button 
-                                type="button" 
-                                onClick={(e) => { e.preventDefault(); open(); }} 
-                                className="w-full h-full flex flex-col items-center justify-center border-2 border-dashed border-[#EBE3DB] rounded-md bg-[#FAF8F5] hover:bg-[#EBE3DB]/40 hover:border-[#8C6D40] transition-colors text-charcoal/50 hover:text-charcoal"
-                              >
-                                <ImageIcon className="h-8 w-8 mb-2 opacity-50" />
-                                <span className="font-medium text-sm">Upload Image</span>
-                                <span className="text-[10px] text-charcoal/40 mt-1">
-                                  {subTab === "media" ? "4:5 portrait recommended" : "3:2 landscape recommended"}
-                                </span>
-                              </button>
-                            )}
-                          </div>
-                        )}
-                      </CldUploadWidget>
+                        onRemove={async () => {
+                          if (uploadedImageId) {
+                            await deleteCloudinaryFile(uploadedImageId, 'image');
+                            setUploadedImageId(null);
+                          }
+                          setFormData(prev => ({ ...prev, image_url: '' }));
+                        }}
+                      />
                     </div>
                   )}
 
                   {/* Right Side: Inputs */}
-                  <div className={`w-full ${subTab === "podcasts" ? "lg:w-full" : subTab === "media" ? "lg:flex-1" : "lg:w-2/3"} space-y-5`}>
-                    <div className="space-y-2">
+                  <div className={`w-full ${subTab === "podcasts" ? "lg:w-full" : subTab === "media" ? "lg:flex-1" : "lg:w-7/12"} space-y-4`}>
+                    <div className="space-y-1.5">
                       <Label>Title</Label>
                       <Input 
                         value={formData.title || ""}
                         onChange={(e) => setFormData({...formData, title: e.target.value})}
                         required
-                        className="text-lg font-medium h-12 border-[#EBE3DB] focus:border-[#8C6D40]"
+                        className="text-base font-medium h-11"
                         placeholder={`Enter ${subTab === "blogs" ? "blog" : subTab === "podcasts" ? "podcast" : "article"} title...`}
                       />
                     </div>

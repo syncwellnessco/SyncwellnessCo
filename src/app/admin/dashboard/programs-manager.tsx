@@ -6,35 +6,20 @@ import { Button } from "@/components/ui/button";
 import { Eye, Edit, Trash2, Plus, RefreshCw, X, Save, PlusCircle, MinusCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CldUploadWidget } from "next-cloudinary";
-import { optimizeCloudinaryUrl, deleteCloudinaryFile } from "@/lib/cloudinary-utils";
-
+import { deleteCloudinaryFile } from "@/lib/cloudinary-utils";
+import { MediaUploader } from "@/components/ui/media-uploader";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 
 const CloudinaryUploader = ({ onUpload, label }: { onUpload: (url: string) => void, label: string }) => {
+  const isVideoLabel = label.toLowerCase().includes("video");
   return (
-    <CldUploadWidget 
-      uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_PROGRAMS || process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "syncwellness"}
-      options={{ folder: 'syncwellness/programs' }}
-      onSuccess={(result: any) => {
-        if (result?.info?.secure_url) {
-          const optimizedUrl = optimizeCloudinaryUrl(result.info.secure_url);
-          onUpload(optimizedUrl);
-        }
-      }}
-    >
-      {({ open }) => (
-        <Button 
-          type="button" 
-          variant="outline" 
-          size="sm" 
-          onClick={(e) => { e.preventDefault(); open(); }}
-          className="w-full border-dashed border-[#8C6D40] text-[#8C6D40] hover:bg-[#8C6D40]/10 mt-1"
-        >
-          {label}
-        </Button>
-      )}
-    </CldUploadWidget>
+    <MediaUploader
+      label={label}
+      accept={isVideoLabel ? "video/*" : "image/*,video/*"}
+      preset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_PROGRAMS || process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "syncwellness"}
+      aspectRatioClass="aspect-video max-h-48"
+      onUpload={(url) => onUpload(url)}
+    />
   );
 };
 
@@ -87,18 +72,28 @@ const ArrayMediaEditor = ({ label, value, onChange }: { label: string, value: st
         <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40]">{label}</label>
         <span className="text-[9px] text-charcoal/50">Aspect ratio: 16:9 landscape recommended</span>
       </div>
-      <div className="space-y-2 mb-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-2">
         {(value || []).map((url, i) => (
-          <div key={i} className="flex gap-2 items-center text-xs bg-[#FAF8F5] p-2 rounded border border-[#EBE3DB]">
-            {(url.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) || url.includes('res.cloudinary.com/daw1tscqr/image')) ? (
-              <img src={url} alt="" className="h-10 w-16 object-cover rounded-sm border border-[#EBE3DB]" />
-            ) : null}
-            <span className="truncate flex-1">{url}</span>
-            <button type="button" onClick={() => onChange(value.filter((_, idx) => idx !== i))} className="text-red-500 hover:text-red-700"><MinusCircle className="w-4 h-4" /></button>
-          </div>
+          <MediaUploader
+            key={i}
+            value={url}
+            aspectRatioClass="aspect-video"
+            onUpload={(newUrl) => {
+              const copy = [...(value || [])];
+              copy[i] = newUrl;
+              onChange(copy);
+            }}
+            onRemove={() => onChange(value.filter((_, idx) => idx !== i))}
+          />
         ))}
       </div>
-      <CloudinaryUploader label={`Upload ${label}`} onUpload={(url) => onChange([...(value || []), url])} />
+      <MediaUploader
+        label={`Upload ${label}`}
+        helperText="16:9 landscape recommended"
+        accept="image/*,video/*"
+        aspectRatioClass="aspect-video max-h-32"
+        onUpload={(url) => onChange([...(value || []), url])}
+      />
     </div>
   )
 };
@@ -145,22 +140,15 @@ const ObjectArrayEditor = ({
                   {f.type === 'textarea' ? (
                      <textarea value={item[f.key] || ''} onChange={e => update(i, f.key, e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2 rounded-sm focus:border-[#8C6D40] focus:outline-none min-h-[80px]" />
                   ) : f.type === 'image' ? (
-                     <div className="space-y-2">
-                       <div className="flex justify-between items-baseline">
-                         <span className="text-[9px] text-charcoal/50">Aspect ratio: 16:9 landscape recommended</span>
-                       </div>
-                       {item[f.key] ? (
-                         <div className="flex gap-2 items-center text-xs bg-[#FAF8F5] p-2 rounded border border-[#EBE3DB]">
-                           {(item[f.key].match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) || item[f.key].includes('res.cloudinary.com/daw1tscqr/image')) ? (
-                             <img src={item[f.key]} alt="" className="h-10 w-16 object-cover rounded-sm border border-[#EBE3DB]" />
-                           ) : null}
-                           <span className="truncate flex-1">{item[f.key]}</span>
-                           <button type="button" onClick={() => update(i, f.key, '')} className="text-red-500"><MinusCircle className="w-4 h-4" /></button>
-                         </div>
-                       ) : (
-                         <CloudinaryUploader label={`Upload ${f.label}`} onUpload={(url) => update(i, f.key, url)} />
-                       )}
-                     </div>
+                     <MediaUploader
+                       label={f.label}
+                       helperText="16:9 landscape recommended"
+                       value={item[f.key] || ''}
+                       accept="image/*"
+                       aspectRatioClass="aspect-video max-h-36"
+                       onUpload={(url) => update(i, f.key, url)}
+                       onRemove={() => update(i, f.key, '')}
+                     />
                   ) : (
                      <input value={item[f.key] || ''} onChange={e => update(i, f.key, e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2 rounded-sm focus:border-[#8C6D40] focus:outline-none" />
                   )}
@@ -741,46 +729,28 @@ export function ProgramsManager() {
                       
                       <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Banner Image Box */}
-                        <div className="border-2 border-dashed border-[#8C6D40]/30 p-8 rounded-lg bg-[#FAF8F5] flex flex-col items-center justify-center text-center transition-colors hover:border-[#8C6D40]/60 hover:bg-[#8C6D40]/5">
-                          <label className="block text-xs uppercase font-bold tracking-widest text-[#8C6D40] mb-1">Banner Image</label>
-                          <span className="text-[10px] text-charcoal/50 font-medium mb-3">Aspect ratio: 16:9 landscape</span>
-                          {editForm.hero?.bannerImage ? (
-                            <div className="flex flex-col items-center gap-3 w-full">
-                              {(editForm.hero.bannerImage.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) || editForm.hero.bannerImage.includes('res.cloudinary.com/daw1tscqr/image')) ? (
-                                <img src={editForm.hero.bannerImage} alt="" className="h-32 w-auto object-cover rounded-md border border-[#EBE3DB] shadow-sm" />
-                              ) : null}
-                              <span className="text-[10px] text-charcoal/60 truncate max-w-full px-4">{editForm.hero.bannerImage}</span>
-                              <Button type="button" variant="outline" size="sm" onClick={() => updateNested(['hero', 'bannerImage'], '')} className="text-red-500 border-red-200 hover:bg-red-50">
-                                <Trash2 className="w-3 h-3 mr-1" /> Remove Image
-                              </Button>
-                            </div>
-                          ) : (
-                            <>
-                              <p className="text-[11px] text-charcoal/50 mb-4 max-w-[200px]">Upload a high-quality, wide image (16:9) to feature at the top of the program page.</p>
-                              <CloudinaryUploader label="Upload Image" onUpload={(url) => updateNested(['hero', 'bannerImage'], url)} />
-                            </>
-                          )}
-                        </div>
+                        <MediaUploader
+                          label="Banner Image"
+                          helperText="Aspect ratio: 16:9 landscape"
+                          value={editForm.hero?.bannerImage || ''}
+                          accept="image/*"
+                          preset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_PROGRAMS || "syncwellness"}
+                          aspectRatioClass="aspect-video"
+                          onUpload={(url) => updateNested(['hero', 'bannerImage'], url)}
+                          onRemove={() => updateNested(['hero', 'bannerImage'], '')}
+                        />
 
                         {/* Intro Video Box */}
-                        <div className="border-2 border-dashed border-[#8C6D40]/30 p-8 rounded-lg bg-[#FAF8F5] flex flex-col items-center justify-center text-center transition-colors hover:border-[#8C6D40]/60 hover:bg-[#8C6D40]/5">
-                          <label className="block text-xs uppercase font-bold tracking-widest text-[#8C6D40] mb-1">Intro Video (Optional)</label>
-                          <span className="text-[10px] text-charcoal/50 font-medium mb-3">Aspect ratio: 16:9 landscape</span>
-                          {editForm.hero?.introVideo ? (
-                            <div className="flex flex-col items-center gap-3 w-full">
-                              <video src={editForm.hero.introVideo} className="h-32 w-auto object-cover rounded-md border border-[#EBE3DB] shadow-sm bg-black" controls />
-                              <span className="text-[10px] text-charcoal/60 truncate max-w-full px-4">{editForm.hero.introVideo}</span>
-                              <Button type="button" variant="outline" size="sm" onClick={() => updateNested(['hero', 'introVideo'], '')} className="text-red-500 border-red-200 hover:bg-red-50">
-                                <Trash2 className="w-3 h-3 mr-1" /> Remove Video
-                              </Button>
-                            </div>
-                          ) : (
-                            <>
-                              <p className="text-[11px] text-charcoal/50 mb-4 max-w-[200px]">Upload an introductory video message (16:9 landscape).</p>
-                              <CloudinaryUploader label="Upload Video" onUpload={(url) => updateNested(['hero', 'introVideo'], url)} />
-                            </>
-                          )}
-                        </div>
+                        <MediaUploader
+                          label="Intro Video (Optional)"
+                          helperText="Aspect ratio: 16:9 landscape"
+                          value={editForm.hero?.introVideo || ''}
+                          accept="video/*"
+                          preset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_PROGRAMS || "syncwellness"}
+                          aspectRatioClass="aspect-video"
+                          onUpload={(url) => updateNested(['hero', 'introVideo'], url)}
+                          onRemove={() => updateNested(['hero', 'introVideo'], '')}
+                        />
                       </div>
 
                       <div>
