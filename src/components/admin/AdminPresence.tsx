@@ -113,10 +113,17 @@ export function AdminPresence() {
               </div>
               <div className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-green-500 border-2 border-white"></div>
             </div>
-            <div className="flex flex-col overflow-hidden">
-              <span className="text-[13px] font-semibold text-charcoal truncate">
-                {admin.name} {admin.id === user?.id ? "(You)" : ""}
-              </span>
+            <div className="flex flex-col min-w-0 flex-1 overflow-hidden">
+              <div className="flex items-center gap-1 min-w-0">
+                <span className="text-[13px] font-semibold text-charcoal truncate min-w-0">
+                  {admin.name}
+                </span>
+                {admin.id === user?.id && (
+                  <span className="text-[11px] font-medium text-charcoal/60 whitespace-nowrap flex-shrink-0">
+                    (You)
+                  </span>
+                )}
+              </div>
               <span className="text-[10px] text-charcoal/60 capitalize truncate">
                 Viewing: {admin.currentTab.replace('-', ' ')}
               </span>
