@@ -14,6 +14,7 @@ import { uploadFileToCloudinary } from "@/lib/cloudinary-utils";
 import { MediaUploader } from "@/components/ui/media-uploader";
 import dynamic from 'next/dynamic';
 import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { TagInput } from "@/components/ui/tag-input";
 
 const Editor = dynamic(() => import('@/components/admin/editor'), { ssr: false });
 
@@ -442,17 +443,18 @@ export function ResourcesManager() {
 
             <form onSubmit={(e) => { e.preventDefault(); handleSaveWithStatus(formData.published !== false); }} className="flex flex-col flex-1 min-h-0 overflow-hidden">
               {/* Scrollable Form Body */}
-              <div className="p-6 sm:p-8 overflow-y-auto flex-1 space-y-6">
-                <div className="flex flex-col lg:flex-row gap-6 items-start">
+              <div className="p-6 sm:p-8 overflow-y-auto flex-1 space-y-5">
+                <div className="flex flex-col lg:flex-row gap-6 items-stretch">
                   {/* Left Side: Cover Image */}
                   {subTab !== "podcasts" && (
-                    <div className={`w-full ${subTab === "media" ? "lg:w-4/12 max-w-[200px]" : "lg:w-5/12"}`}>
+                    <div className={`w-full ${subTab === "media" ? "lg:w-4/12 max-w-[200px]" : "lg:w-5/12"} flex flex-col`}>
                       <MediaUploader
                         label="Cover Image / Logo"
                         helperText={subTab === "media" ? "Aspect ratio: 4:5 portrait" : "Aspect ratio: 3:2 landscape"}
                         value={stagedCoverFile || formData.image_url}
                         accept="image/*"
-                        aspectRatioClass={`w-full ${subTab === "media" ? "aspect-[4/5]" : "aspect-[3/2]"}`}
+                        aspectRatioClass={`h-full min-h-[220px] flex-1 ${subTab === "media" ? "aspect-[4/5]" : ""}`}
+                        className="h-full flex-1"
                         progress={uploadProgress}
                         onSelectFile={(file) => setStagedCoverFile(file)}
                         onRemove={() => {
@@ -464,7 +466,7 @@ export function ResourcesManager() {
                   )}
 
                   {/* Right Side: Inputs */}
-                  <div className={`w-full ${subTab === "podcasts" ? "lg:w-full" : subTab === "media" ? "lg:flex-1" : "lg:w-7/12"} space-y-4`}>
+                  <div className={`w-full ${subTab === "podcasts" ? "lg:w-full" : subTab === "media" ? "lg:flex-1" : "lg:w-7/12"} space-y-3.5 flex flex-col justify-between`}>
                     <div className="space-y-1.5">
                       <Label>Title</Label>
                       <Input 
@@ -477,25 +479,14 @@ export function ResourcesManager() {
                     </div>
 
                     {subTab === "blogs" && (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        <div className="space-y-2">
-                          <Label>Category</Label>
-                          <Input 
-                            value={formData.category || ""}
-                            onChange={(e) => setFormData({...formData, category: e.target.value})}
-                            placeholder="e.g. Wellness"
-                            className="border-[#EBE3DB] focus:border-[#8C6D40]"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Tags (Comma separated)</Label>
-                          <Input 
-                            value={formData.tags || ""}
-                            onChange={(e) => setFormData({...formData, tags: e.target.value})}
-                            placeholder="e.g. fitness, hormones, diet"
-                            className="border-[#EBE3DB] focus:border-[#8C6D40]"
-                          />
-                        </div>
+                      <div className="space-y-1.5">
+                        <Label>Category</Label>
+                        <Input 
+                          value={formData.category || ""}
+                          onChange={(e) => setFormData({...formData, category: e.target.value})}
+                          placeholder="e.g. Wellness"
+                          className="border-[#EBE3DB] focus:border-[#8C6D40]"
+                        />
                       </div>
                     )}
 
@@ -550,21 +541,32 @@ export function ResourcesManager() {
                       </div>
                     )}
 
-                    <div className="space-y-2">
-                      <Label>Short Description / Excerpt</Label>
+                    <div className="space-y-1.5 flex-1 flex flex-col justify-end">
+                      <Label className="mb-1 inline-block">Short Description / Excerpt</Label>
                       <Textarea 
                         rows={3}
                         value={formData.excerpt || ""}
                         onChange={(e) => setFormData({...formData, excerpt: e.target.value})}
                         placeholder="A brief 1-2 sentence description..."
-                        className="border-[#EBE3DB] focus:border-[#8C6D40]"
+                        className="border-[#EBE3DB] focus:border-[#8C6D40] flex-1 resize-none"
                       />
                     </div>
                   </div>
                 </div>
 
                 {subTab === "blogs" && (
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
+                    <Label>Tags</Label>
+                    <TagInput 
+                      value={formData.tags || ""}
+                      onChange={(tags) => setFormData({...formData, tags})}
+                      placeholder="Add tag & press Enter or comma..."
+                    />
+                  </div>
+                )}
+
+                {subTab === "blogs" && (
+                  <div className="space-y-1.5">
                     <Label>Blog Content</Label>
                     <Editor 
                       data={formData.content || ""} 

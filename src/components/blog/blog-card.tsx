@@ -49,7 +49,7 @@ export function BlogCard({ post, className = "" }: BlogCardProps) {
           {/* Main Row: Title/Excerpt + Thumbnail */}
           <div className="flex gap-3.5 items-start justify-between">
             <div className="flex-1 min-w-0">
-              <h3 className="font-display text-base font-bold text-charcoal leading-snug group-hover:text-[#8C6D40] transition-colors line-clamp-2">
+              <h3 className="font-display text-base font-bold text-charcoal leading-snug group-hover:text-[#8C6D40] transition-colors line-clamp-2 italic">
                 {post.title}
               </h3>
               {post.excerpt && (
@@ -112,7 +112,7 @@ export function BlogCard({ post, className = "" }: BlogCardProps) {
                   </span>
                 )}
               </div>
-              <h3 className="font-display text-base md:text-lg font-bold text-charcoal leading-snug line-clamp-2 group-hover:text-[#8C6D40] transition-colors mb-2">
+              <h3 className="font-display text-base md:text-lg font-bold text-charcoal leading-snug line-clamp-2 group-hover:text-[#8C6D40] transition-colors mb-2 italic">
                 {post.title}
               </h3>
               {post.excerpt && (
