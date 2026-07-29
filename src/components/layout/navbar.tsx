@@ -202,10 +202,10 @@ export function Navbar() {
                   <Link
                     href="/admin/dashboard"
                     className={cn(
-                      "text-[10px] font-semibold uppercase tracking-[0.14em] transition-colors border-b border-transparent pb-0.5",
+                      "text-[10px] font-semibold uppercase tracking-[0.14em] transition-colors",
                       isTransparent
-                        ? "text-cream/85 hover:text-cream hover:border-cream/60"
-                        : "text-charcoal/70 hover:text-charcoal hover:border-gold/60"
+                        ? "text-cream/85 hover:text-cream"
+                        : "text-charcoal/70 hover:text-charcoal"
                     )}
                   >
                     Dashboard
