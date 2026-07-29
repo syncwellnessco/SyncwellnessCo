@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Video, ExternalLink, Play } from "lucide-react";
+import { BlogCard } from "@/components/blog/blog-card";
 
 type ResourceItem = {
   id: string;
@@ -40,38 +41,24 @@ export function ExpandableGrid({ items, type }: ExpandableGridProps) {
   if (type === "blog") {
     return (
       <div className="space-y-8">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-6">
           {visibleItems.map(blog => (
-            <Link
+            <BlogCard
               key={blog.id}
-              href={`/resources/blogs/${blog.slug || blog.id}`}
-              className="group flex flex-col bg-white border border-[#EBE3DB] hover:shadow-lg transition-all duration-300 overflow-hidden"
-            >
-              {blog.image ? (
-                <div className="relative aspect-[4/3] overflow-hidden border-b border-[#EBE3DB]">
-                  <img
-                    src={blog.image}
-                    alt={blog.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  />
-                </div>
-              ) : (
-                <div className="relative aspect-[4/3] bg-sage-50 border-b border-[#EBE3DB]" />
-              )}
-              <div className="p-3 sm:p-5 flex flex-col flex-1 text-center justify-between min-h-[90px] sm:min-h-[110px]">
-                <h3 className="font-display text-xs sm:text-base md:text-lg font-medium text-charcoal leading-snug line-clamp-2 group-hover:text-[#8C6D40] transition-colors">
-                  {blog.title}
-                </h3>
-                {blog.category && (
-                  <span className="font-display italic text-[#8C6D40] text-sm sm:text-base font-semibold mt-2.5">
-                    {blog.category}
-                  </span>
-                )}
-              </div>
-              <div className="w-full bg-[#8C6D40] py-2 sm:py-2.5 text-center text-[9px] sm:text-[10px] font-semibold uppercase tracking-[0.15em] text-white transition-colors group-hover:bg-[#B8955F]">
-                Read More
-              </div>
-            </Link>
+              post={{
+                id: blog.id,
+                slug: blog.slug || blog.id,
+                title: blog.title,
+                category: blog.category,
+                content: blog.content,
+                image: blog.image || "",
+                author: blog.author || "Sync Wellness",
+                excerpt: blog.excerpt || "",
+                published: true,
+                createdAt: "",
+                updatedAt: "",
+              }}
+            />
           ))}
         </div>
 
@@ -79,7 +66,7 @@ export function ExpandableGrid({ items, type }: ExpandableGridProps) {
           <div className="flex justify-center pt-4">
             <button
               onClick={showMore}
-              className="inline-flex items-center gap-2 px-6 py-3 border border-[#8C6D40] text-[#8C6D40] text-xs font-bold uppercase tracking-[0.15em] hover:bg-[#8C6D40] hover:text-white transition-all duration-300"
+              className="inline-flex items-center gap-2 px-6 py-3 border border-[#8C6D40] text-[#8C6D40] text-xs font-bold uppercase tracking-[0.15em] hover:bg-[#8C6D40] hover:text-white transition-all duration-300 rounded-sm"
             >
               Show More Articles <ArrowRight className="w-4 h-4" />
             </button>

@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useRef } from "react";
-import Link from "next/link";
 import type { BlogPost } from "@/types/blog";
+import { BlogCard } from "@/components/blog/blog-card";
 
-const ITEMS_PER_PAGE = 15;
+const ITEMS_PER_PAGE = 9;
 
 type BlogPageContentProps = {
   initialPosts?: BlogPost[];
@@ -47,43 +47,10 @@ export function BlogPageContent({ initialPosts = [] }: BlogPageContentProps) {
 
       <section ref={gridRef} className="pb-12 sm:pb-16 pt-4">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          {/* Sleeker 3-column blog grid with 15 items (5 rows of 3) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {/* Responsive Blog List (Mobile) / Grid (PC) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-6">
             {paginatedPosts.map((post) => (
-              <article
-                key={post.id}
-                className="flex flex-col overflow-hidden bg-[#FAF8F5] border border-[#EBE3DB] shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
-              >
-                <Link href={`/resources/blogs/${post.slug || post.id}`} className="group flex-1 flex flex-col">
-                  {post.image ? (
-                    <div className="relative aspect-[16/9] overflow-hidden border-b border-[#EBE3DB]">
-                      <img
-                        src={post.image}
-                        alt={post.title}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                    </div>
-                  ) : (
-                    <div className="relative aspect-[16/9] bg-sage-50 border-b border-[#EBE3DB]" />
-                  )}
-                  <div className="p-3 sm:p-4 flex flex-1 flex-col items-center justify-between text-center min-h-[110px] sm:min-h-[130px]">
-                    <h3 className="font-display text-sm sm:text-base md:text-lg font-bold text-charcoal leading-snug line-clamp-3 group-hover:text-[#8C6D40] transition-colors">
-                      {post.title}
-                    </h3>
-                    {post.category && (
-                      <span className="font-display italic text-[#8C6D40] text-sm sm:text-base font-semibold mt-2.5">
-                        {post.category}
-                      </span>
-                    )}
-                  </div>
-                </Link>
-                <Link 
-                  href={`/resources/blogs/${post.slug || post.id}`} 
-                  className="block w-full bg-[#8C6D40] py-2.5 text-center text-[10px] font-semibold uppercase tracking-[0.15em] text-white transition-colors hover:bg-[#B8955F]"
-                >
-                  Read More
-                </Link>
-              </article>
+              <BlogCard key={post.id} post={post} />
             ))}
           </div>
 
@@ -124,3 +91,6 @@ export function BlogPageContent({ initialPosts = [] }: BlogPageContentProps) {
     </>
   );
 }
+
+
+

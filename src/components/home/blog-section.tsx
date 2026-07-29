@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { SectionHeading } from "@/components/ui/section-heading";
 import type { BlogPost } from "@/types/blog";
+import { BlogCard } from "@/components/blog/blog-card";
 
 type BlogSectionProps = {
   blogs: BlogPost[];
@@ -15,7 +15,7 @@ export function BlogSection({ blogs }: BlogSectionProps) {
   if (!blogs || blogs.length === 0) return null;
 
   return (
-    <section className="bg-[#EBE3DB] py-6 sm:py-10" id="blog">
+    <section className="bg-[#EBE3DB] py-8 sm:py-12" id="blog">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
           eyebrow="From the Blog"
@@ -23,7 +23,7 @@ export function BlogSection({ blogs }: BlogSectionProps) {
           description="Practical reads on hormones, nutrition, and living well, curated for women like you."
         />
 
-        <div className="mt-8 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 max-w-7xl mx-auto">
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-6">
           {blogs.map((post, index) => (
             <motion.div
               key={post.id}
@@ -33,42 +33,12 @@ export function BlogSection({ blogs }: BlogSectionProps) {
               transition={{ delay: index * 0.08 }}
               className="w-full flex"
             >
-              <article className="flex flex-col overflow-hidden bg-[#FAF8F5] border border-[#EBE3DB] shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md w-full">
-                <Link href={`/resources/blogs/${post.slug || post.id}`} className="group flex-1 flex flex-col">
-                  {post.image ? (
-                    <div className="relative aspect-[16/9] overflow-hidden border-b border-[#EBE3DB]">
-                      <img
-                        src={post.image}
-                        alt={post.title}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                    </div>
-                  ) : (
-                    <div className="relative aspect-[16/9] bg-sage-50 border-b border-[#EBE3DB]" />
-                  )}
-                  <div className="p-2.5 sm:p-4 flex flex-1 flex-col items-center justify-between text-center min-h-[95px] sm:min-h-[130px]">
-                    <h3 className="font-display text-xs sm:text-base md:text-lg font-bold text-charcoal leading-snug line-clamp-3 group-hover:text-[#8C6D40] transition-colors">
-                      {post.title}
-                    </h3>
-                    {post.category && (
-                      <span className="font-display italic text-[#8C6D40] text-xs sm:text-base font-semibold mt-1.5 sm:mt-2.5">
-                        {post.category}
-                      </span>
-                    )}
-                  </div>
-                </Link>
-                <Link 
-                  href={`/resources/blogs/${post.slug || post.id}`} 
-                  className="block w-full bg-[#8C6D40] py-2 sm:py-2.5 text-center text-[9px] sm:text-[10px] font-semibold uppercase tracking-[0.12em] sm:tracking-[0.15em] text-white transition-colors hover:bg-[#B8955F]"
-                >
-                  Read More
-                </Link>
-              </article>
+              <BlogCard post={post} />
             </motion.div>
           ))}
         </div>
 
-        <div className="mt-6 text-center sm:mt-8">
+        <div className="mt-8 text-center">
           <Link
             href="/resources/blogs"
             className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-charcoal transition-colors hover:text-gold"
@@ -81,3 +51,5 @@ export function BlogSection({ blogs }: BlogSectionProps) {
     </section>
   );
 }
+
+
