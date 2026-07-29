@@ -1,12 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Loader2, Star, Play, Pause, Volume2, VolumeX, X } from "lucide-react";
-import { PageHero } from "@/components/layout/page-hero";
+import { useState, useEffect, useRef } from "react";
+import { Loader2, Star, Play, Pause, Volume2, VolumeX, X, ChevronDown, Sparkles, CheckCircle2 } from "lucide-react";
 import { PageShell } from "@/components/layout/page-shell";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { useRef } from "react";
 import { IMAGES } from "@/data/images";
 import { useReviewStore, Review } from "@/store/review-store";
 
@@ -29,9 +27,15 @@ export default function TestimonialsPage() {
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [videoPage, setVideoPage] = useState(1);
-  const [reviewPage, setReviewPage] = useState(1);
-  const ITEMS_PER_PAGE = 10;
+
+  // Limits for Load More functionality
+  const INITIAL_VIDEO_LIMIT = 8;
+  const VIDEO_BATCH_SIZE = 4;
+  const INITIAL_REVIEW_LIMIT = 6;
+  const REVIEW_BATCH_SIZE = 6;
+
+  const [videoLimit, setVideoLimit] = useState(INITIAL_VIDEO_LIMIT);
+  const [reviewLimit, setReviewLimit] = useState(INITIAL_REVIEW_LIMIT);
 
   const videoSectionRef = useRef<HTMLDivElement>(null);
   const reviewSectionRef = useRef<HTMLDivElement>(null);
@@ -44,9 +48,9 @@ export default function TestimonialsPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch("/api/reviews?status=published").then(res => res.json()),
-      fetch("/api/videos").then(res => res.json()),
-      fetch("/api/programs").then(res => res.json())
+      fetch("/api/reviews?status=published").then((res) => res.json()),
+      fetch("/api/videos").then((res) => res.json()),
+      fetch("/api/programs").then((res) => res.json()),
     ]).then(([revData, vidData, progData]) => {
       setReviews(Array.isArray(revData) ? revData : []);
       setVideos(Array.isArray(vidData) ? vidData : []);
@@ -67,7 +71,7 @@ export default function TestimonialsPage() {
   }, [activeVideo, activeReview]);
 
   const getProgramName = (id: string) => {
-    const p = programs.find(x => x.id === id);
+    const p = programs.find((x) => x.id === id);
     return p ? p.title : "Program";
   };
 
@@ -87,110 +91,122 @@ export default function TestimonialsPage() {
     setIsMuted(!isMuted);
   };
 
-  const totalVideoPages = Math.ceil(videos.length / ITEMS_PER_PAGE);
-  const paginatedVideos = videos.slice(
-    (videoPage - 1) * ITEMS_PER_PAGE,
-    videoPage * ITEMS_PER_PAGE
-  );
-
-  const totalReviewPages = Math.ceil(allReviews.length / ITEMS_PER_PAGE);
-  const paginatedReviews = allReviews.slice(
-    (reviewPage - 1) * ITEMS_PER_PAGE,
-    reviewPage * ITEMS_PER_PAGE
-  );
-
-  const handleVideoPageChange = (page: number) => {
-    setVideoPage(page);
-    if (videoSectionRef.current) {
-      videoSectionRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+  const handleLoadMoreVideos = () => {
+    setVideoLimit((prev) => prev + VIDEO_BATCH_SIZE);
   };
 
-  const handleReviewPageChange = (page: number) => {
-    setReviewPage(page);
-    if (reviewSectionRef.current) {
-      reviewSectionRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+  const handleLoadMoreReviews = () => {
+    setReviewLimit((prev) => prev + REVIEW_BATCH_SIZE);
   };
+
+  const visibleVideos = videos.slice(0, videoLimit);
+  const visibleReviews = allReviews.slice(0, reviewLimit);
+
+  const hasMoreVideos = videos.length > videoLimit;
+  const hasMoreReviews = allReviews.length > reviewLimit;
 
   return (
-    <PageShell>
-      <article className="bg-cream">
-        <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-            
-            {/* Text Content */}
-            <div className="flex flex-col">
-              <span className="mb-4 inline-block text-[10px] font-semibold uppercase tracking-[0.2em] text-[#8C6D40]">
-                Success Stories
-              </span>
-              <h1 className="font-display text-5xl lg:text-6xl font-normal text-charcoal mb-6 leading-tight">
-                Real Transformations, <br />
-                <span className="italic text-[#8C6D40]">Real Results.</span>
-              </h1>
-              <p className="text-base lg:text-lg leading-relaxed text-charcoal/80 mb-10 max-w-lg">
-                Discover how women just like you have reclaimed their health, balanced their hormones, and achieved sustainable fat loss through our personalized protocols.
-              </p>
-              
-              <div className="grid grid-cols-2 gap-6 pt-6 border-t border-[#EBE3DB]">
-                <div>
-                  <h3 className="font-display text-3xl text-charcoal mb-1">98%</h3>
-                  <p className="text-xs uppercase tracking-wider text-charcoal/60">Report higher energy</p>
-                </div>
-                <div>
-                  <h3 className="font-display text-3xl text-charcoal mb-1">500+</h3>
-                  <p className="text-xs uppercase tracking-wider text-charcoal/60">Women Transformed</p>
-                </div>
-              </div>
-            </div>
+    <PageShell noPadding>
+      {/* 1. TOP ANNOUNCEMENT BAR (Brand Charcoal & Gold Accent) */}
+      <div className="bg-charcoal text-cream py-2.5 px-4 text-center text-[11px] font-semibold uppercase tracking-[0.2em] border-b border-beige-200/20">
+        <div className="mx-auto max-w-7xl flex items-center justify-center gap-2">
+          <Sparkles className="w-3.5 h-3.5 text-[#b38c50]" />
+          <span>REAL TRANSFORMATIONS • 500+ WOMEN TRANSFORMED WORLDWIDE</span>
+          <Sparkles className="w-3.5 h-3.5 text-[#b38c50] hidden sm:inline" />
+        </div>
+      </div>
 
-            {/* Image Content */}
-            <div className="relative w-full aspect-[4/5] lg:aspect-square rounded-none overflow-hidden shadow-sm border border-[#EBE3DB]">
-              <img 
-                src={IMAGES.testimonialsPageHero} 
-                alt="Happy woman smiling"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 border-[12px] border-cream/20 mix-blend-overlay"></div>
+      {/* 2. HERO WIDE BANNER (Brand Aesthetic with Dark Faded Bottom Gradient) */}
+      <section className="relative w-full bg-background overflow-hidden border-b border-beige-200">
+        {/* Landscape Hero Image Frame */}
+        <div className="relative w-full aspect-[21/9] sm:aspect-[21/7] lg:aspect-[21/6] min-h-[380px] max-h-[500px] bg-charcoal overflow-hidden">
+          <img
+            src={IMAGES.testimonialsPageHero}
+            alt="Syncwellness transformations and client journeys"
+            className="w-full h-full object-cover opacity-90 transition-transform duration-1000 hover:scale-105"
+          />
+
+          {/* Dark Faded Color Gradient Emerging From Bottom */}
+          <div className="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/65 via-45% to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-r from-charcoal/70 via-transparent to-transparent pointer-events-none" />
+          
+          {/* Banner Text Content Layer */}
+          <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-12 lg:p-16 max-w-7xl mx-auto w-full z-10">
+            <div className="max-w-2xl">
+              <span className="inline-block text-[11px] sm:text-xs font-semibold uppercase tracking-[0.22em] text-[#d4b896] mb-2 drop-shadow-sm">
+                Syncwellness Client Showcase
+              </span>
+              <h1 className="font-display text-3xl sm:text-5xl lg:text-6xl font-normal text-[#f2ece4] leading-tight drop-shadow-md mb-3">
+                Real Transformations, <br />
+                <span className="italic text-[#d4b896]">Real Results.</span>
+              </h1>
+              <p className="text-[#efe8df]/85 font-sans text-xs sm:text-base font-normal max-w-xl leading-relaxed drop-shadow-sm hidden sm:block">
+                Discover authentic video stories and verified client reviews from women who restored their balance, energy, and overall health with our protocols.
+              </p>
             </div>
           </div>
-        </section>
-      </article>
+        </div>
 
-      <div className="bg-[#FAF8F5] py-16 sm:py-24 border-t border-[#EBE3DB]">
+        {/* Brand Stats Bar (All 4 in 1 row on mobile & desktop) */}
+        <div className="bg-beige-100/70 border-t border-b border-beige-200 py-4 sm:py-8">
+          <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-4 gap-1 sm:gap-6 text-center divide-x divide-beige-200">
+              <div className="px-1 sm:px-2">
+                <h3 className="font-display text-lg sm:text-3xl lg:text-4xl text-charcoal font-normal">98%</h3>
+                <p className="text-[8px] sm:text-[11px] uppercase tracking-wider text-charcoal/70 font-semibold mt-0.5 sm:mt-1 leading-tight">Report Higher Energy</p>
+              </div>
+              <div className="px-1 sm:px-2">
+                <h3 className="font-display text-lg sm:text-3xl lg:text-4xl text-charcoal font-normal">500+</h3>
+                <p className="text-[8px] sm:text-[11px] uppercase tracking-wider text-charcoal/70 font-semibold mt-0.5 sm:mt-1 leading-tight">Women Transformed</p>
+              </div>
+              <div className="px-1 sm:px-2">
+                <h3 className="font-display text-lg sm:text-3xl lg:text-4xl text-charcoal font-normal">4.9 / 5</h3>
+                <p className="text-[8px] sm:text-[11px] uppercase tracking-wider text-charcoal/70 font-semibold mt-0.5 sm:mt-1 leading-tight">Average Satisfaction</p>
+              </div>
+              <div className="px-1 sm:px-2">
+                <h3 className="font-display text-lg sm:text-3xl lg:text-4xl text-charcoal font-normal">100%</h3>
+                <p className="text-[8px] sm:text-[11px] uppercase tracking-wider text-charcoal/70 font-semibold mt-0.5 sm:mt-1 leading-tight">Verified Client Reviews</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. MAIN CONTENT AREA */}
+      <div className="bg-background py-10 sm:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           
           {loading ? (
-            <div className="flex justify-center py-20"><Loader2 className="h-10 w-10 animate-spin text-[#8C6D40]" /></div>
+            <div className="flex justify-center py-20">
+              <Loader2 className="h-10 w-10 animate-spin text-[#8C6D40]" />
+            </div>
           ) : (
-            <div className="space-y-24">
-              
-              {/* VIDEO TESTIMONIALS */}
+            <div className="space-y-0">
+              {/* VIDEO TESTIMONIALS SECTION */}
               {videos.length > 0 && (
                 <section ref={videoSectionRef}>
-                  <div className="text-center mb-12">
-                    <h2 className="font-display text-3xl font-bold text-charcoal sm:text-4xl">Video Stories</h2>
-                    <p className="mt-3 text-lg text-charcoal/60">Watch their journeys unfold in their own words.</p>
+                  <div className="mb-6 sm:mb-8">
+                    <h3 className="font-display text-2xl sm:text-3xl font-normal text-charcoal">Video Stories</h3>
+                    <p className="mt-1 text-xs sm:text-sm text-charcoal/60">Watch their journeys unfold in their own words.</p>
                   </div>
-                  
+
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
-                    {paginatedVideos.map((video) => (
+                    {visibleVideos.map((video) => (
                       <article
                         key={video.id}
-                        className="group cursor-pointer overflow-hidden rounded-2xl border border-beige-200 bg-cream shadow-sm transition-shadow hover:shadow-lg relative aspect-[9/16] bg-black"
+                        className="group cursor-pointer overflow-hidden rounded-2xl border border-beige-200 bg-cream shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 relative aspect-[9/16] bg-black"
                         onClick={() => setActiveVideo(video)}
                       >
-                        <video 
-                          src={video.video_url} 
+                        <video
+                          src={video.video_url}
                           className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500 group-hover:scale-105"
                           preload="metadata"
                           muted
                           playsInline
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
-                        
                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
-                        
+
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="flex h-10 w-10 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-md shadow-lg transition-transform group-hover:scale-110 border border-white/30">
                             <Play className="ml-0.5 sm:ml-1 h-4 w-4 sm:h-6 sm:w-6 fill-white text-white" />
@@ -199,7 +215,9 @@ export default function TestimonialsPage() {
 
                         <div className="absolute bottom-0 inset-x-0 p-3 sm:p-5 z-10">
                           <div className="mb-1 sm:mb-1.5">
-                            <h4 className="text-white font-bold text-xs sm:text-base mb-0.5 leading-tight drop-shadow-md">{video.name}</h4>
+                            <h4 className="text-white font-bold text-xs sm:text-base mb-0.5 leading-tight drop-shadow-md">
+                              {video.name}
+                            </h4>
                             {getProgramName(video.program_id) && (
                               <span className="text-[#D4AF37] text-[8px] sm:text-[9px] font-bold uppercase tracking-widest block drop-shadow-md">
                                 {getProgramName(video.program_id)}
@@ -214,69 +232,65 @@ export default function TestimonialsPage() {
                     ))}
                   </div>
 
-                  {totalVideoPages > 1 && (
-                    <div className="flex items-center justify-center gap-1.5 sm:gap-2 mt-10">
+                  {/* LOAD MORE BUTTON FOR VIDEOS */}
+                  {hasMoreVideos && (
+                    <div className="flex flex-col items-center justify-center pt-8 sm:pt-12 pb-8 sm:pb-12 gap-2 text-center">
                       <button
-                        onClick={() => handleVideoPageChange(Math.max(1, videoPage - 1))}
-                        disabled={videoPage === 1}
-                        className="px-3 py-1.5 rounded-sm border border-[#EBE3DB] bg-white text-xs font-semibold uppercase tracking-wider text-charcoal disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#8C6D40] hover:text-white transition-colors"
+                        onClick={handleLoadMoreVideos}
+                        className="group inline-flex items-center gap-2 px-8 py-3.5 rounded-sm bg-charcoal text-cream text-xs font-semibold uppercase tracking-[0.18em] hover:bg-[#8C6D40] transition-all shadow-sm hover:shadow-md active:scale-95"
                       >
-                        Prev
+                        <span>Load More Videos</span>
+                        <ChevronDown className="w-4 h-4 transition-transform group-hover:translate-y-0.5 text-gold-light" />
                       </button>
-                      {Array.from({ length: totalVideoPages }, (_, i) => i + 1).map((page) => (
-                        <button
-                          key={page}
-                          onClick={() => handleVideoPageChange(page)}
-                          className={`h-8 w-8 rounded-sm text-xs font-semibold transition-colors ${
-                            page === videoPage
-                              ? "bg-[#8C6D40] text-white shadow-sm"
-                              : "bg-white border border-[#EBE3DB] text-charcoal hover:bg-[#8C6D40]/10 hover:text-[#8C6D40]"
-                          }`}
-                        >
-                          {page}
-                        </button>
-                      ))}
-                      <button
-                        onClick={() => handleVideoPageChange(Math.min(totalVideoPages, videoPage + 1))}
-                        disabled={videoPage === totalVideoPages}
-                        className="px-3 py-1.5 rounded-sm border border-[#EBE3DB] bg-white text-xs font-semibold uppercase tracking-wider text-charcoal disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#8C6D40] hover:text-white transition-colors"
-                      >
-                        Next
-                      </button>
+                      <p className="text-[11px] text-charcoal/50">
+                        Showing {visibleVideos.length} of {videos.length} video testimonials
+                      </p>
                     </div>
                   )}
                 </section>
               )}
 
-              {/* TEXT REVIEWS */}
-              {reviews.length > 0 && (
-                <section ref={reviewSectionRef}>
-                  <div className="text-center mb-12">
-                    <h2 className="font-display text-3xl font-bold text-charcoal sm:text-4xl">Written Reviews</h2>
-                    <p className="mt-3 text-lg text-charcoal/60">Read what our amazing clients have to say about their experience.</p>
+              {/* WRITTEN REVIEWS SECTION */}
+              {allReviews.length > 0 && (
+                <section ref={reviewSectionRef} className="pt-8 sm:pt-12 border-t border-beige-200">
+                  <div className="mb-6 sm:mb-8">
+                    <h3 className="font-display text-2xl sm:text-3xl font-normal text-charcoal">Written Reviews & Results</h3>
+                    <p className="mt-1 text-xs sm:text-sm text-charcoal/60">Read client feedback and verified transformation experiences.</p>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-                    {paginatedReviews.map((r) => (
-                      <article 
+                    {visibleReviews.map((r) => (
+                      <article
                         key={r.id}
-                        className="bg-white rounded-md border border-[#EBE3DB] shadow-sm cursor-pointer hover:shadow-xl transition-all duration-500 hover:-translate-y-1 hover:border-[#8C6D40]/30 group/card flex flex-col h-full overflow-hidden"
+                        className="bg-white rounded-md border border-beige-200 shadow-sm cursor-pointer hover:shadow-xl transition-all duration-500 hover:-translate-y-1 hover:border-[#8C6D40]/30 group/card flex flex-col h-full overflow-hidden"
                         onClick={() => setActiveReview(r)}
                       >
                         {/* Images Top Half */}
-                        <div className="relative w-full aspect-[16/10] bg-charcoal/5 flex overflow-hidden border-b border-[#EBE3DB] shrink-0">
+                        <div className="relative w-full aspect-[16/10] bg-charcoal/5 flex overflow-hidden border-b border-beige-100 shrink-0">
                           {r.before_image || r.after_image ? (
                             <>
                               {r.before_image && (
                                 <div className={`relative h-full ${r.after_image ? "w-1/2" : "w-full"}`}>
-                                  <img src={r.before_image} alt="Before" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-105" />
-                                  <span className="absolute bottom-2 left-2 bg-black/60 text-white text-[8px] sm:text-[9px] uppercase font-bold tracking-widest px-2 py-1 rounded-sm backdrop-blur-sm z-10">Before</span>
+                                  <img
+                                    src={r.before_image}
+                                    alt="Before"
+                                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-105"
+                                  />
+                                  <span className="absolute bottom-2 left-2 bg-black/60 text-white text-[8px] sm:text-[9px] uppercase font-bold tracking-widest px-2 py-1 rounded-sm backdrop-blur-sm z-10">
+                                    Before
+                                  </span>
                                 </div>
                               )}
                               {r.after_image && (
                                 <div className={`relative h-full ${r.before_image ? "w-1/2" : "w-full"}`}>
-                                  <img src={r.after_image} alt="After" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-105" />
-                                  <span className="absolute bottom-2 right-2 bg-black/60 text-white text-[8px] sm:text-[9px] uppercase font-bold tracking-widest px-2 py-1 rounded-sm backdrop-blur-sm z-10">After</span>
+                                  <img
+                                    src={r.after_image}
+                                    alt="After"
+                                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-105"
+                                  />
+                                  <span className="absolute bottom-2 right-2 bg-black/60 text-white text-[8px] sm:text-[9px] uppercase font-bold tracking-widest px-2 py-1 rounded-sm backdrop-blur-sm z-10">
+                                    After
+                                  </span>
                                 </div>
                               )}
                             </>
@@ -285,17 +299,19 @@ export default function TestimonialsPage() {
                               <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-[#8C6D40]/10 flex items-center justify-center mb-2">
                                 <Star className="h-4 w-4 sm:h-5 sm:w-5 text-[#8C6D40] opacity-50" />
                               </div>
-                              <span className="text-[8px] sm:text-[9px] font-semibold uppercase tracking-[0.15em] text-[#8C6D40] opacity-60">Verified Experience</span>
+                              <span className="text-[8px] sm:text-[9px] font-semibold uppercase tracking-[0.15em] text-[#8C6D40] opacity-60">
+                                Verified Experience
+                              </span>
                             </div>
                           )}
-                          
+
                           {getProgramName(r.program_id) && (
                             <span className="absolute top-3 left-3 bg-white/90 text-charcoal text-[8px] sm:text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded-sm backdrop-blur-md shadow-sm z-10">
                               {getProgramName(r.program_id)}
                             </span>
                           )}
                         </div>
-                        
+
                         {/* Content Bottom Half */}
                         <div className="p-4 sm:p-6 flex flex-col flex-1 bg-white">
                           <div className="flex-1 mb-4 sm:mb-5">
@@ -303,15 +319,24 @@ export default function TestimonialsPage() {
                               "{r.testimonial}"
                             </p>
                           </div>
-                          
-                          <div className="flex items-center gap-2.5 sm:gap-3 pt-3 sm:pt-4 border-t border-[#EBE3DB]/50 mt-auto">
+
+                          <div className="flex items-center gap-2.5 sm:gap-3 pt-3 sm:pt-4 border-t border-beige-100 mt-auto">
                             <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-[#8C6D40]/10 flex items-center justify-center font-display font-semibold text-[#8C6D40] text-sm shrink-0">
                               {r.name.charAt(0).toUpperCase()}
                             </div>
                             <div>
-                              <h4 className="font-semibold text-charcoal text-xs sm:text-[13px] truncate max-w-[120px] sm:max-w-[160px]">{r.name}</h4>
+                              <h4 className="font-semibold text-charcoal text-xs sm:text-[13px] truncate max-w-[120px] sm:max-w-[160px]">
+                                {r.name}
+                              </h4>
                               <div className="flex text-[#8C6D40] mt-0.5">
-                                {[...Array(5)].map((_, i) => <Star key={i} className={`h-2.5 w-2.5 ${i < (r.rating || 5) ? 'fill-current' : 'text-gray-300'}`} />)}
+                                {[...Array(5)].map((_, i) => (
+                                  <Star
+                                    key={i}
+                                    className={`h-2.5 w-2.5 ${
+                                      i < (r.rating || 5) ? "fill-current" : "text-gray-300"
+                                    }`}
+                                  />
+                                ))}
                               </div>
                             </div>
                           </div>
@@ -320,40 +345,23 @@ export default function TestimonialsPage() {
                     ))}
                   </div>
 
-                  {totalReviewPages > 1 && (
-                    <div className="flex items-center justify-center gap-1.5 sm:gap-2 mt-10">
+                  {/* LOAD MORE BUTTON FOR REVIEWS */}
+                  {hasMoreReviews && (
+                    <div className="flex flex-col items-center justify-center pt-8 sm:pt-12 pb-4 sm:pb-8 gap-2 text-center">
                       <button
-                        onClick={() => handleReviewPageChange(Math.max(1, reviewPage - 1))}
-                        disabled={reviewPage === 1}
-                        className="px-3 py-1.5 rounded-sm border border-[#EBE3DB] bg-white text-xs font-semibold uppercase tracking-wider text-charcoal disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#8C6D40] hover:text-white transition-colors"
+                        onClick={handleLoadMoreReviews}
+                        className="group inline-flex items-center gap-2 px-8 py-3.5 rounded-sm bg-charcoal text-cream text-xs font-semibold uppercase tracking-[0.18em] hover:bg-[#8C6D40] transition-all shadow-sm hover:shadow-md active:scale-95"
                       >
-                        Prev
+                        <span>Load More Reviews</span>
+                        <ChevronDown className="w-4 h-4 transition-transform group-hover:translate-y-0.5 text-gold-light" />
                       </button>
-                      {Array.from({ length: totalReviewPages }, (_, i) => i + 1).map((page) => (
-                        <button
-                          key={page}
-                          onClick={() => handleReviewPageChange(page)}
-                          className={`h-8 w-8 rounded-sm text-xs font-semibold transition-colors ${
-                            page === reviewPage
-                              ? "bg-[#8C6D40] text-white shadow-sm"
-                              : "bg-white border border-[#EBE3DB] text-charcoal hover:bg-[#8C6D40]/10 hover:text-[#8C6D40]"
-                          }`}
-                        >
-                          {page}
-                        </button>
-                      ))}
-                      <button
-                        onClick={() => handleReviewPageChange(Math.min(totalReviewPages, reviewPage + 1))}
-                        disabled={reviewPage === totalReviewPages}
-                        className="px-3 py-1.5 rounded-sm border border-[#EBE3DB] bg-white text-xs font-semibold uppercase tracking-wider text-charcoal disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#8C6D40] hover:text-white transition-colors"
-                      >
-                        Next
-                      </button>
+                      <p className="text-[11px] text-charcoal/50">
+                        Showing {visibleReviews.length} of {allReviews.length} written reviews
+                      </p>
                     </div>
                   )}
                 </section>
               )}
-
             </div>
           )}
         </div>
@@ -398,7 +406,7 @@ export default function TestimonialsPage() {
                   className="absolute inset-0 w-full h-full object-cover cursor-pointer"
                 />
                 
-                {/* Desktop controls (Hidden on mobile) */}
+                {/* Desktop controls */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none hidden md:block" />
                 <div className="absolute bottom-6 left-6 gap-3 z-10 hidden md:flex">
                   <button onClick={togglePlay} className="p-3 rounded-full bg-black/40 text-white hover:bg-black/60 backdrop-blur-md border border-white/20 transition-colors shadow-lg">
@@ -409,7 +417,7 @@ export default function TestimonialsPage() {
                   </button>
                 </div>
 
-                {/* Mobile Overlay Content (Hidden on Desktop) */}
+                {/* Mobile Overlay Content */}
                 <div className="absolute inset-x-0 bottom-0 pt-32 pb-6 px-5 bg-gradient-to-t from-black via-black/80 to-transparent md:hidden z-10 flex flex-col justify-end pointer-events-none rounded-b-2xl">
                   <div className="flex gap-3 mb-4 pointer-events-auto">
                     <button onClick={togglePlay} className="p-2.5 rounded-full bg-white/20 text-white backdrop-blur-md border border-white/30 shadow-lg">
@@ -436,7 +444,7 @@ export default function TestimonialsPage() {
                 </div>
               </div>
 
-              {/* Right Side: Content (Desktop Only) */}
+              {/* Right Side: Content (Desktop) */}
               <div className="hidden w-full md:flex-1 p-8 md:p-12 lg:p-16 md:flex flex-col justify-center bg-[#1A1A1A] text-white overflow-y-auto">
                 {getProgramName(activeVideo.program_id) && (
                   <div className="mb-6">
@@ -490,7 +498,6 @@ export default function TestimonialsPage() {
                 )}
                 onClick={(e) => e.stopPropagation()}
               >
-                {/* Close Button */}
                 <button
                   type="button"
                   onClick={() => setActiveReview(null)}
@@ -532,7 +539,6 @@ export default function TestimonialsPage() {
                 {/* Right Side: Content */}
                 <div className="w-full md:flex-1 p-6 sm:p-8 md:p-10 flex flex-col justify-center bg-[#FAF9F7] text-charcoal">
                   <div className="flex-1 flex flex-col justify-center">
-                    {/* Program Tag */}
                     {getProgramName(activeReview.program_id) && (
                       <div className="mb-4">
                         <span className="inline-block bg-[#8C6D40]/10 text-[#8C6D40] border border-[#8C6D40]/20 text-[10px] font-bold px-3 py-1 rounded-sm uppercase tracking-wider">
@@ -541,7 +547,6 @@ export default function TestimonialsPage() {
                       </div>
                     )}
 
-                    {/* Star Rating */}
                     <div className="flex text-[#8C6D40] mb-4">
                       {[...Array(5)].map((_, i) => (
                         <Star
@@ -553,7 +558,6 @@ export default function TestimonialsPage() {
                       ))}
                     </div>
 
-                    {/* Testimonial Quote */}
                     <div className="relative mb-6">
                       <span className="absolute -top-4 -left-3 font-serif text-5xl text-[#8C6D40]/10 pointer-events-none select-none">
                         “
@@ -564,7 +568,6 @@ export default function TestimonialsPage() {
                     </div>
                   </div>
 
-                  {/* Client Profile */}
                   <div className="flex items-center gap-3 pt-5 border-t border-beige-200/60 mt-auto">
                     <div className="h-10 w-10 rounded-full bg-[#8C6D40]/10 flex items-center justify-center font-display font-semibold text-[#8C6D40] text-sm shrink-0">
                       {activeReview.name.charAt(0).toUpperCase()}
@@ -573,7 +576,8 @@ export default function TestimonialsPage() {
                       <h4 className="font-semibold text-charcoal text-sm">
                         {activeReview.name}
                       </h4>
-                      <span className="text-[10px] text-charcoal/50 uppercase tracking-widest font-semibold">
+                      <span className="text-[10px] text-charcoal/50 uppercase tracking-widest font-semibold flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3 text-[#8C6D40]" />
                         Verified Client
                       </span>
                     </div>
