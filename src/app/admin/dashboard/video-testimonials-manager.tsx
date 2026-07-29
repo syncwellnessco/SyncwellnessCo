@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Check, X, Trash2, Video, Upload } from "lucide-react";
 import toast from "react-hot-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { deleteCloudinaryFile } from "@/lib/cloudinary-utils";
+import { uploadFileToCloudinary } from "@/lib/cloudinary-utils";
 import { MediaUploader } from "@/components/ui/media-uploader";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 
@@ -19,16 +19,16 @@ interface VideoTestimonial {
   created_at: string;
 }
 
-const CloudinaryVideoBtn = memo(({ onUpload, onRemove, value }: { onUpload: (u: string, pId: string) => void, onRemove: () => void, value: string }) => {
+const CloudinaryVideoBtn = memo(({ onSelectFile, onRemove, value, progress }: { onSelectFile: (f: File) => void, onRemove: () => void, value: string | File | null, progress?: number | null }) => {
   return (
     <MediaUploader
       label="Video File"
       helperText="Aspect ratio: 9:16 vertical"
       value={value}
       accept="video/*"
-      preset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_VIDEOS || process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "syncwellness"}
       aspectRatioClass="aspect-[9/16] max-h-96"
-      onUpload={(url, publicId) => onUpload(url, publicId)}
+      progress={progress}
+      onSelectFile={onSelectFile}
       onRemove={onRemove}
     />
   );
@@ -115,27 +115,23 @@ export function VideoTestimonialsManager() {
     return p ? p.title : "Program";
   };
 
-  const handleVideoUpload = useCallback((url: string, pId: string) => {
-    setForm(prev => ({ ...prev, video_url: url, public_id: pId }));
+  const [stagedVideoFile, setStagedVideoFile] = useState<File | null>(null);
+
+  const handleVideoSelect = useCallback((file: File) => {
+    setStagedVideoFile(file);
   }, []);
 
-  const handleRemoveVideo = useCallback(async () => {
-    let publicId = "";
-    setForm(prev => {
-      publicId = prev.public_id;
-      return { ...prev, video_url: "", public_id: "" };
-    });
-    if (publicId) {
-      await deleteCloudinaryFile(publicId, 'video');
-    }
+  const handleRemoveVideo = useCallback(() => {
+    setStagedVideoFile(null);
+    setForm(prev => ({ ...prev, video_url: "", public_id: "" }));
   }, []);
 
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
   const executeCancel = () => {
-    if (form.public_id) {
-      deleteCloudinaryFile(form.public_id, 'video');
-    }
+    setStagedVideoFile(null);
+    setUploadProgress(null);
     setIsAddModalOpen(false);
     setEditingId(null);
     setForm({ video_url: "", public_id: "", caption: "", name: "", program_id: "", featured_on_home: true });
@@ -147,14 +143,29 @@ export function VideoTestimonialsManager() {
   };
 
   const handleSaveWithStatus = async (featured: boolean) => {
-    if (!form.video_url) {
-      toast.error("Please upload a video");
+    if (!stagedVideoFile && !form.video_url) {
+      toast.error("Please select a video file");
       return;
     }
     setSubmitting(true);
+    setUploadProgress(null);
     try {
+      let finalVideoUrl = form.video_url;
+
+      if (stagedVideoFile) {
+        toast.loading("Uploading testimonial video...", { id: "uploading-testimonial-video" });
+        setUploadProgress(0);
+        const { url } = await uploadFileToCloudinary(
+          stagedVideoFile,
+          process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_VIDEOS || "syncwellness",
+          (p) => setUploadProgress(p)
+        );
+        finalVideoUrl = url;
+        toast.dismiss("uploading-testimonial-video");
+      }
+
       const isEditing = !!editingId;
-      const payload = { ...form, featured_on_home: featured };
+      const payload = { ...form, video_url: finalVideoUrl, featured_on_home: featured };
       delete (payload as any).public_id;
 
       const res = await fetch(isEditing ? `/api/videos/${editingId}` : "/api/videos", {
@@ -166,22 +177,21 @@ export function VideoTestimonialsManager() {
         toast.success(isEditing ? (featured ? "Video updated & featured on Home!" : "Video saved as draft!") : (featured ? "Video added & featured on Home!" : "Video saved as draft!"));
         setIsAddModalOpen(false);
         setEditingId(null);
+        setStagedVideoFile(null);
+        setUploadProgress(null);
         setForm({ video_url: "", public_id: "", caption: "", name: "", program_id: "", featured_on_home: true });
         fetchVideos();
       } else {
         const errorData = await res.json();
         toast.error(`Database error: ${errorData.error || "Unknown error"}`);
-        if (!isEditing && form.public_id) {
-          await deleteCloudinaryFile(form.public_id, 'video');
-        }
       }
-    } catch {
-      toast.error("Error saving video");
-      if (!editingId && form.public_id) {
-        await deleteCloudinaryFile(form.public_id, 'video');
-      }
+    } catch (e: any) {
+      toast.dismiss("uploading-testimonial-video");
+      toast.error(e.message || "Error saving video");
+    } finally {
+      setSubmitting(false);
+      setUploadProgress(null);
     }
-    setSubmitting(false);
   };
 
   const handleAdd = (e: React.FormEvent) => {
@@ -328,8 +338,9 @@ export function VideoTestimonialsManager() {
               <form onSubmit={handleAdd} className="flex flex-col sm:flex-row gap-8">
                 <div className="w-full sm:w-1/2 flex flex-col gap-6 pr-0 sm:pr-8 sm:border-r border-[#EBE3DB]">
                   <CloudinaryVideoBtn 
-                    value={form.video_url} 
-                    onUpload={handleVideoUpload} 
+                    value={stagedVideoFile || form.video_url} 
+                    progress={uploadProgress}
+                    onSelectFile={handleVideoSelect} 
                     onRemove={handleRemoveVideo}
                   />
                 </div>

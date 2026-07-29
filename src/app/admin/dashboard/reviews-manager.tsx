@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Check, X, Trash2, Eye, Star, Upload } from "lucide-react";
 import toast from "react-hot-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { deleteCloudinaryFile } from "@/lib/cloudinary-utils";
+import { uploadFileToCloudinary } from "@/lib/cloudinary-utils";
 import { MediaUploader } from "@/components/ui/media-uploader";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 
@@ -22,16 +22,16 @@ interface Review {
   created_at: string;
 }
 
-const SingleImageUploader = memo(({ label, value, onUpload, onRemove, id }: { label: string, value: string, onUpload: (url: string, pId: string) => void, onRemove: () => void, id: string }) => {
+const SingleImageUploader = memo(({ label, value, progress, onSelectFile, onRemove }: { label: string, value: string | File | null, progress?: number | null, onSelectFile: (file: File) => void, onRemove: () => void }) => {
   return (
     <MediaUploader
       label={label}
       labelPosition="bottom"
       value={value}
       accept="image/*"
-      preset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_REVIEWS || process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "syncwellness"}
       aspectRatioClass="aspect-[4/5]"
-      onUpload={(url, publicId) => onUpload(url, publicId)}
+      progress={progress}
+      onSelectFile={onSelectFile}
       onRemove={onRemove}
     />
   );
@@ -50,9 +50,10 @@ export function ReviewsManager() {
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   
   // Add Form
-  const [form, setForm] = useState({ name: "", testimonial: "", programId: "", beforeImage: "", beforePublicId: "", afterImage: "", afterPublicId: "", rating: 5, published: true });
+  const [form, setForm] = useState({ name: "", testimonial: "", programId: "", beforeImage: "", afterImage: "", rating: 5, published: true });
   const [submitting, setSubmitting] = useState(false);
-  const uploadTargetRef = useRef<'before' | 'after' | null>(null);
+  const [beforeProgress, setBeforeProgress] = useState<number | null>(null);
+  const [afterProgress, setAfterProgress] = useState<number | null>(null);
 
   const fetchReviews = () => {
     fetch("/api/reviews").then(res => res.json()).then(data => setReviews(Array.isArray(data) ? data : []));
@@ -69,30 +70,28 @@ export function ReviewsManager() {
     });
   }, []);
 
-  // NOTE: these hooks were previously declared AFTER the `if (loading) return ...`
-  // early-return below. That's a Rules-of-Hooks violation: while `loading` is
-  // true, React never calls these four useCallback hooks, then the instant
-  // `loading` flips to false, React suddenly sees 4 new hooks it didn't see
-  // before and throws a hook-count-mismatch error. That error is what was
-  // tearing down and remounting the whole component (wiping `form`,
-  // `editingId`, upload state, etc). Moving them above the early return fixes it.
-  const handleBeforeUpload = useCallback((url: string, pId: string) => {
-    setForm(prev => ({...prev, beforeImage: url, beforePublicId: pId}));
+  const [beforeFile, setBeforeFile] = useState<File | null>(null);
+  const [afterFile, setAfterFile] = useState<File | null>(null);
+
+  const handleBeforeSelect = useCallback((file: File) => {
+    setBeforeFile(file);
   }, []);
 
-  const handleBeforeRemove = useCallback(async () => {
-    if (form.beforePublicId) await deleteCloudinaryFile(form.beforePublicId, 'image');
-    setForm(prev => ({...prev, beforeImage: "", beforePublicId: ""}));
-  }, [form.beforePublicId]);
-
-  const handleAfterUpload = useCallback((url: string, pId: string) => {
-    setForm(prev => ({...prev, afterImage: url, afterPublicId: pId}));
+  const handleBeforeRemove = useCallback(() => {
+    setBeforeFile(null);
+    setBeforeProgress(null);
+    setForm(prev => ({ ...prev, beforeImage: "" }));
   }, []);
 
-  const handleAfterRemove = useCallback(async () => {
-    if (form.afterPublicId) await deleteCloudinaryFile(form.afterPublicId, 'image');
-    setForm(prev => ({...prev, afterImage: "", afterPublicId: ""}));
-  }, [form.afterPublicId]);
+  const handleAfterSelect = useCallback((file: File) => {
+    setAfterFile(file);
+  }, []);
+
+  const handleAfterRemove = useCallback(() => {
+    setAfterFile(null);
+    setAfterProgress(null);
+    setForm(prev => ({ ...prev, afterImage: "" }));
+  }, []);
 
   const getProgramName = (id: string) => {
     const p = programs.find(x => x.id === id);
@@ -136,12 +135,12 @@ export function ReviewsManager() {
 
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
-  const executeCancel = async () => {
-    if (!editingId) {
-      if (form.beforePublicId) await deleteCloudinaryFile(form.beforePublicId, 'image');
-      if (form.afterPublicId) await deleteCloudinaryFile(form.afterPublicId, 'image');
-    }
-    setForm({ name: "", testimonial: "", programId: "", beforeImage: "", beforePublicId: "", afterImage: "", afterPublicId: "", rating: 5, published: true });
+  const executeCancel = () => {
+    setBeforeFile(null);
+    setAfterFile(null);
+    setBeforeProgress(null);
+    setAfterProgress(null);
+    setForm({ name: "", testimonial: "", programId: "", beforeImage: "", afterImage: "", rating: 5, published: true });
     setIsAddModalOpen(false);
     setEditingId(null);
     setShowCancelConfirm(false);
@@ -153,23 +152,54 @@ export function ReviewsManager() {
       return;
     }
     setSubmitting(true);
+    setBeforeProgress(null);
+    setAfterProgress(null);
     try {
+      let finalBeforeUrl = form.beforeImage;
+      let finalAfterUrl = form.afterImage;
+
+      if (beforeFile || afterFile) {
+        toast.loading("Uploading transformation photos...", { id: "uploading-reviews" });
+        const uploadPromises: Promise<any>[] = [];
+        if (beforeFile) {
+          setBeforeProgress(0);
+          uploadPromises.push(
+            uploadFileToCloudinary(
+              beforeFile,
+              process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_REVIEWS || "syncwellness",
+              (p) => setBeforeProgress(p)
+            ).then(res => finalBeforeUrl = res.url)
+          );
+        }
+        if (afterFile) {
+          setAfterProgress(0);
+          uploadPromises.push(
+            uploadFileToCloudinary(
+              afterFile,
+              process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_REVIEWS || "syncwellness",
+              (p) => setAfterProgress(p)
+            ).then(res => finalAfterUrl = res.url)
+          );
+        }
+        await Promise.all(uploadPromises);
+        toast.dismiss("uploading-reviews");
+      }
+
       const isEditing = !!editingId;
-      // Convert camelCase to snake_case for PATCH body to match DB schema
       const payload = isEditing ? {
         name: form.name,
         testimonial: form.testimonial,
         program_id: form.programId,
-        before_image: form.beforeImage,
-        after_image: form.afterImage,
+        before_image: finalBeforeUrl,
+        after_image: finalAfterUrl,
         rating: form.rating,
         status: publish ? 'published' : 'pending'
       } : {
         programId: form.programId,
         name: form.name,
         testimonial: form.testimonial,
-        beforeImage: form.beforeImage,
-        afterImage: form.afterImage,
+        beforeImage: finalBeforeUrl,
+        afterImage: finalAfterUrl,
         rating: form.rating,
         status: publish ? 'published' : 'pending'
       };
@@ -183,20 +213,24 @@ export function ReviewsManager() {
         toast.success(isEditing ? (publish ? "Review updated & published!" : "Review saved as draft!") : (publish ? "Review published!" : "Review saved as draft!"));
         setIsAddModalOpen(false);
         setEditingId(null);
-        setForm({ name: "", testimonial: "", programId: "", beforeImage: "", beforePublicId: "", afterImage: "", afterPublicId: "", rating: 5, published: true });
+        setBeforeFile(null);
+        setAfterFile(null);
+        setBeforeProgress(null);
+        setAfterProgress(null);
+        setForm({ name: "", testimonial: "", programId: "", beforeImage: "", afterImage: "", rating: 5, published: true });
         fetchReviews();
       } else {
         const err = await res.json();
         toast.error(`Error: ${err.error || "Unknown"}`);
-        if (!isEditing && form.beforePublicId) await deleteCloudinaryFile(form.beforePublicId, 'image');
-        if (!isEditing && form.afterPublicId) await deleteCloudinaryFile(form.afterPublicId, 'image');
       }
-    } catch {
-      toast.error("Error saving review");
-      if (!editingId && form.beforePublicId) await deleteCloudinaryFile(form.beforePublicId, 'image');
-      if (!editingId && form.afterPublicId) await deleteCloudinaryFile(form.afterPublicId, 'image');
+    } catch (e: any) {
+      toast.dismiss("uploading-reviews");
+      toast.error(e.message || "Error saving review");
+    } finally {
+      setSubmitting(false);
+      setBeforeProgress(null);
+      setAfterProgress(null);
     }
-    setSubmitting(false);
   };
 
   const handleAddReview = (e: React.FormEvent) => {
@@ -210,9 +244,7 @@ export function ReviewsManager() {
       testimonial: review.testimonial || "",
       programId: review.program_id || "",
       beforeImage: review.before_image || "",
-      beforePublicId: "", // Optional since we don't have it
       afterImage: review.after_image || "",
-      afterPublicId: "",
       rating: review.rating || 5,
       published: review.status === 'published'
     });
@@ -221,11 +253,7 @@ export function ReviewsManager() {
   };
 
   const closeModal = () => {
-    if (form.beforePublicId) deleteCloudinaryFile(form.beforePublicId, 'image');
-    if (form.afterPublicId) deleteCloudinaryFile(form.afterPublicId, 'image');
-    setIsAddModalOpen(false);
-    setEditingId(null);
-    setForm({ name: "", testimonial: "", programId: "", beforeImage: "", beforePublicId: "", afterImage: "", afterPublicId: "", rating: 5, published: true });
+    executeCancel();
   };
 
   if (loading) return <Skeleton className="h-64 w-full" />;
@@ -324,16 +352,16 @@ export function ReviewsManager() {
                 <div className="w-full md:w-1/3 flex flex-col gap-6 border-r border-[#EBE3DB] pr-8">
                   <SingleImageUploader
                     label="Before Image"
-                    id="beforeImageUpload"
-                    value={form.beforeImage}
-                    onUpload={handleBeforeUpload}
+                    value={beforeFile || form.beforeImage}
+                    progress={beforeProgress}
+                    onSelectFile={handleBeforeSelect}
                     onRemove={handleBeforeRemove}
                   />
                   <SingleImageUploader
                     label="After Image"
-                    id="afterImageUpload"
-                    value={form.afterImage}
-                    onUpload={handleAfterUpload}
+                    value={afterFile || form.afterImage}
+                    progress={afterProgress}
+                    onSelectFile={handleAfterSelect}
                     onRemove={handleAfterRemove}
                   />
                 </div>

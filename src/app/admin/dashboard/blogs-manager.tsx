@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase-client";
-import { deleteCloudinaryFile } from "@/lib/cloudinary-utils";
+import { uploadFileToCloudinary } from "@/lib/cloudinary-utils";
 import { MediaUploader } from "@/components/ui/media-uploader";
 import dynamic from 'next/dynamic';
 import { ConfirmModal } from "@/components/ui/confirm-modal";
@@ -23,9 +23,9 @@ export function BlogsManager() {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const [uploadedImageId, setUploadedImageId] = useState<string | null>(null);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   
   const [formData, setFormData] = useState<Partial<Blog>>({});
@@ -65,8 +65,12 @@ export function BlogsManager() {
     currentPage * ITEMS_PER_PAGE
   );
 
+  const [stagedCoverFile, setStagedCoverFile] = useState<File | null>(null);
+
   const handleEdit = (blog: Blog) => {
     setFormData(blog);
+    setStagedCoverFile(null);
+    setUploadProgress(null);
     setIsEditing(true);
   }
 
@@ -81,6 +85,8 @@ export function BlogsManager() {
       category: "",
       published: true
     });
+    setStagedCoverFile(null);
+    setUploadProgress(null);
     setIsEditing(true);
   }
 
@@ -101,8 +107,24 @@ export function BlogsManager() {
 
   const handleSaveWithStatus = async (publish: boolean) => {
     setSubmitting(true);
+    setUploadProgress(null);
     try {
-      const submitData = { ...formData, published: publish };
+      let finalImageUrl = formData.image_url || "";
+
+      // Upload staged file atomically on Publish / Save
+      if (stagedCoverFile) {
+        toast.loading("Uploading cover image...", { id: "uploading-cover" });
+        setUploadProgress(0);
+        const { url } = await uploadFileToCloudinary(
+          stagedCoverFile,
+          process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_BLOGS || "syncwellness_blogs",
+          (percent) => setUploadProgress(percent)
+        );
+        finalImageUrl = url;
+        toast.dismiss("uploading-cover");
+      }
+
+      const submitData = { ...formData, image_url: finalImageUrl, published: publish };
       if (!submitData.slug) {
         submitData.slug = generateSlug(submitData.title || "untitled");
       }
@@ -118,26 +140,22 @@ export function BlogsManager() {
         if (error) throw error;
         toast.success(publish ? "Blog published!" : "Blog saved as draft!");
       }
-      setUploadedImageId(null);
       setIsEditing(false);
+      setStagedCoverFile(null);
+      setUploadProgress(null);
       fetchBlogs();
     } catch (e: any) {
+      toast.dismiss("uploading-cover");
       toast.error(e.message || "Failed to save blog");
-      if (uploadedImageId) {
-        await deleteCloudinaryFile(uploadedImageId, 'image');
-        setUploadedImageId(null);
-        setFormData(prev => ({ ...prev, image_url: '' }));
-      }
     } finally {
       setSubmitting(false);
+      setUploadProgress(null);
     }
   }
 
-  const executeCancel = async () => {
-    if (uploadedImageId) {
-      await deleteCloudinaryFile(uploadedImageId, 'image');
-      setUploadedImageId(null);
-    }
+  const executeCancel = () => {
+    setStagedCoverFile(null);
+    setUploadProgress(null);
     setIsEditing(false);
     setShowCancelConfirm(false);
   }
@@ -184,19 +202,13 @@ export function BlogsManager() {
                     <MediaUploader
                       label="Cover Image"
                       helperText="Aspect ratio: 3:2 landscape"
-                      value={formData.image_url}
+                      value={stagedCoverFile || formData.image_url}
                       accept="image/*"
-                      preset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_BLOGS || "syncwellness_blogs"}
                       aspectRatioClass="aspect-[3/2] w-full"
-                      onUpload={(url, publicId) => {
-                        setFormData(prev => ({ ...prev, image_url: url }));
-                        setUploadedImageId(publicId);
-                      }}
-                      onRemove={async () => {
-                        if (uploadedImageId) {
-                          await deleteCloudinaryFile(uploadedImageId, 'image');
-                          setUploadedImageId(null);
-                        }
+                      progress={uploadProgress}
+                      onSelectFile={(file) => setStagedCoverFile(file)}
+                      onRemove={() => {
+                        setStagedCoverFile(null);
                         setFormData(prev => ({ ...prev, image_url: '' }));
                       }}
                     />

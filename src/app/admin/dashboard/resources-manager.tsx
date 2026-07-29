@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase-client";
-import { deleteCloudinaryFile } from "@/lib/cloudinary-utils";
+import { uploadFileToCloudinary } from "@/lib/cloudinary-utils";
 import { MediaUploader } from "@/components/ui/media-uploader";
 import dynamic from 'next/dynamic';
 import { ConfirmModal } from "@/components/ui/confirm-modal";
@@ -83,9 +83,9 @@ export function ResourcesManager() {
   const [loading, setLoading] = useState(true);
   const [subTab, setSubTab] = useState<SubTab>("blogs");
   const [isEditing, setIsEditing] = useState(false);
-  const [uploadedImageId, setUploadedImageId] = useState<string | null>(null);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [formData, setFormData] = useState<Partial<Blog>>({});
 
@@ -106,11 +106,9 @@ export function ResourcesManager() {
     };
   }, [isEditing]);
 
-  const closeModal = async () => {
-    if (uploadedImageId) {
-      await deleteCloudinaryFile(uploadedImageId, 'image');
-      setUploadedImageId(null);
-    }
+  const closeModal = () => {
+    setStagedCoverFile(null);
+    setUploadProgress(null);
     setIsEditing(false);
     setFormData({});
     setShowCancelConfirm(false);
@@ -140,12 +138,16 @@ export function ResourcesManager() {
     currentPage * ITEMS_PER_PAGE
   );
 
+  const [stagedCoverFile, setStagedCoverFile] = useState<File | null>(null);
+
   const handleEdit = (resource: Blog) => {
     setFormData(resource);
+    setStagedCoverFile(null);
     setIsEditing(true);
   };
 
   const handleCreateNew = () => {
+    setStagedCoverFile(null);
     if (subTab === "blogs") {
       setFormData({
         title: "",
@@ -201,8 +203,24 @@ export function ResourcesManager() {
 
   const handleSaveWithStatus = async (publish: boolean) => {
     setSubmitting(true);
+    setUploadProgress(null);
     try {
-      const submitData = { ...formData, published: publish };
+      let finalImageUrl = formData.image_url || "";
+
+      // Upload staged file atomically on Publish / Save
+      if (stagedCoverFile) {
+        toast.loading("Uploading media...", { id: "uploading-resource-media" });
+        setUploadProgress(0);
+        const { url } = await uploadFileToCloudinary(
+          stagedCoverFile,
+          process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_BLOGS || "syncwellness_blogs",
+          (percent) => setUploadProgress(percent)
+        );
+        finalImageUrl = url;
+        toast.dismiss("uploading-resource-media");
+      }
+
+      const submitData = { ...formData, image_url: finalImageUrl, published: publish };
       
       // Auto-populate attributes for Podcasts and Media
       if (subTab === "podcasts") {
@@ -233,19 +251,16 @@ export function ResourcesManager() {
         if (error) throw error;
         toast.success(publish ? "Resource published!" : "Resource saved as draft!");
       }
-      
-      setUploadedImageId(null);
       setIsEditing(false);
+      setStagedCoverFile(null);
+      setUploadProgress(null);
       fetchResources();
-    } catch (e) {
-      toast.error((e as Error)?.message || "Failed to save resource");
-      if (uploadedImageId) {
-        await deleteCloudinaryFile(uploadedImageId, 'image');
-        setUploadedImageId(null);
-        setFormData(prev => ({ ...prev, image_url: '' }));
-      }
+    } catch (e: any) {
+      toast.dismiss("uploading-resource-media");
+      toast.error(e.message || "Failed to save resource");
     } finally {
       setSubmitting(false);
+      setUploadProgress(null);
     }
   };
 
@@ -435,19 +450,13 @@ export function ResourcesManager() {
                       <MediaUploader
                         label="Cover Image / Logo"
                         helperText={subTab === "media" ? "Aspect ratio: 4:5 portrait" : "Aspect ratio: 3:2 landscape"}
-                        value={formData.image_url}
+                        value={stagedCoverFile || formData.image_url}
                         accept="image/*"
-                        preset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_BLOGS || "syncwellness_blogs"}
                         aspectRatioClass={`w-full ${subTab === "media" ? "aspect-[4/5]" : "aspect-[3/2]"}`}
-                        onUpload={(url, publicId) => {
-                          setFormData(prev => ({ ...prev, image_url: url }));
-                          setUploadedImageId(publicId);
-                        }}
-                        onRemove={async () => {
-                          if (uploadedImageId) {
-                            await deleteCloudinaryFile(uploadedImageId, 'image');
-                            setUploadedImageId(null);
-                          }
+                        progress={uploadProgress}
+                        onSelectFile={(file) => setStagedCoverFile(file)}
+                        onRemove={() => {
+                          setStagedCoverFile(null);
                           setFormData(prev => ({ ...prev, image_url: '' }));
                         }}
                       />

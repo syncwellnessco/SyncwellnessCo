@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useRef, ChangeEvent, DragEvent } from "react";
-import { Upload, Trash2, RefreshCw, Copy, Loader2, Video as VideoIcon } from "lucide-react";
-import { optimizeCloudinaryUrl } from "@/lib/cloudinary-utils";
+import { useState, useRef, useEffect, ChangeEvent, DragEvent } from "react";
+import { Upload, Trash2, RefreshCw, Copy, Video as VideoIcon } from "lucide-react";
 import toast from "react-hot-toast";
 
 interface MediaUploaderProps {
-  value?: string;
-  onUpload: (url: string, publicId: string) => void;
+  value?: string | File | null;
+  onSelectFile?: (file: File) => void;
+  onUpload?: (val: string | File, publicId?: string) => void;
   onRemove?: () => void;
   accept?: string; // "image/*", "video/*", or "image/*,video/*"
   preset?: string;
@@ -17,116 +17,92 @@ interface MediaUploaderProps {
   className?: string;
   disabled?: boolean;
   labelPosition?: "top" | "bottom";
+  progress?: number | null;
 }
 
 export function MediaUploader({
-  value = "",
+  value,
+  onSelectFile,
   onUpload,
   onRemove,
   accept = "image/*",
-  preset,
   label,
   helperText,
   aspectRatioClass = "aspect-[3/2]",
   className = "",
   disabled = false,
   labelPosition = "top",
+  progress,
 }: MediaUploaderProps) {
   const [isDragging, setIsDragging] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const [previewUrl, setPreviewUrl] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const isVideo = (url: string) => {
-    return (
-      url.match(/\.(mp4|webm|ogg|mov)$/i) ||
-      url.includes("/video/upload/")
-    );
+  // Manage Preview & Memory Cleanup
+  useEffect(() => {
+    if (!value) {
+      setPreviewUrl("");
+      return;
+    }
+
+    if (typeof value === "string") {
+      setPreviewUrl(value);
+      return;
+    }
+
+    if (value instanceof File) {
+      const objectUrl = URL.createObjectURL(value);
+      setPreviewUrl(objectUrl);
+      return () => {
+        URL.revokeObjectURL(objectUrl);
+      };
+    }
+  }, [value]);
+
+  const isVideo = (urlOrFile: string | File) => {
+    if (urlOrFile instanceof File) {
+      return urlOrFile.type.startsWith("video/");
+    }
+    if (typeof urlOrFile === "string") {
+      return (
+        urlOrFile.match(/\.(mp4|webm|ogg|mov)$/i) ||
+        urlOrFile.includes("/video/upload/") ||
+        urlOrFile.startsWith("data:video")
+      );
+    }
+    return false;
   };
 
   const handleCopyUrl = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!value) return;
-    navigator.clipboard.writeText(value);
+    if (!previewUrl || previewUrl.startsWith("blob:")) {
+      toast.error("File is not published yet.");
+      return;
+    }
+    navigator.clipboard.writeText(previewUrl);
     toast.success("Media URL copied to clipboard!");
   };
 
-  const uploadFile = async (file: File) => {
+  const handleFilePicked = (file: File) => {
     if (!file) return;
-
-    const isFileVideo = file.type.startsWith("video/") || accept.includes("video");
-    const resourceType = isFileVideo ? "video" : "image";
-
-    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "daw1tscqr";
-    const uploadPreset =
-      preset ||
-      process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET ||
-      "syncwellness";
-
-    setIsUploading(true);
-    setUploadProgress(0);
-
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("upload_preset", uploadPreset);
-
-      const xhr = new XMLHttpRequest();
-      xhr.open(
-        "POST",
-        `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`
-      );
-
-      xhr.upload.onprogress = (event) => {
-        if (event.lengthComputable) {
-          const percentComplete = Math.round((event.loaded / event.total) * 100);
-          setUploadProgress(percentComplete);
-        }
-      };
-
-      xhr.onload = () => {
-        setIsUploading(false);
-        if (xhr.status === 200) {
-          const data = JSON.parse(xhr.responseText);
-          const rawUrl = data.secure_url || data.url;
-          const publicId = data.public_id || "";
-          const optimizedUrl = optimizeCloudinaryUrl(rawUrl);
-          onUpload(optimizedUrl, publicId);
-          toast.success("Uploaded successfully!");
-        } else {
-          try {
-            const err = JSON.parse(xhr.responseText);
-            toast.error(err.error?.message || "Upload failed");
-          } catch {
-            toast.error("Upload failed. Please try again.");
-          }
-        }
-      };
-
-      xhr.onerror = () => {
-        setIsUploading(false);
-        toast.error("Network error during upload.");
-      };
-
-      xhr.send(formData);
-    } catch (error) {
-      setIsUploading(false);
-      console.error("Upload error:", error);
-      toast.error("Failed to upload file.");
+    if (onSelectFile) {
+      onSelectFile(file);
+    } else if (onUpload) {
+      onUpload(file);
     }
   };
 
   const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) uploadFile(file);
+    if (file) handleFilePicked(file);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!disabled && !isUploading) setIsDragging(true);
+    if (!disabled) setIsDragging(true);
   };
 
   const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
@@ -139,12 +115,11 @@ export function MediaUploader({
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-
-    if (disabled || isUploading) return;
+    if (disabled) return;
 
     const file = e.dataTransfer.files?.[0];
     if (file) {
-      uploadFile(file);
+      handleFilePicked(file);
     }
   };
 
@@ -167,6 +142,8 @@ export function MediaUploader({
       </label>
     );
   };
+
+  const hasMedia = Boolean(value && previewUrl);
 
   return (
     <div className={`w-full flex flex-col space-y-1.5 ${className}`}>
@@ -195,15 +172,15 @@ export function MediaUploader({
         accept={accept}
         onChange={handleFileSelect}
         className="hidden"
-        disabled={disabled || isUploading}
+        disabled={disabled}
       />
 
-      {value ? (
+      {hasMedia ? (
         /* Full Edge-to-Edge Preview State */
         <div className={`relative w-full ${aspectRatioClass} rounded-lg overflow-hidden border border-[#EBE3DB] bg-[#FAF8F5] group shadow-sm transition-all`}>
-          {isVideo(value) ? (
+          {isVideo(value!) ? (
             <video
-              src={value}
+              src={previewUrl}
               controls={false}
               autoPlay
               muted
@@ -213,14 +190,27 @@ export function MediaUploader({
             />
           ) : (
             <img
-              src={value}
+              src={previewUrl}
               alt="Uploaded preview"
               className="w-full h-full object-cover"
             />
           )}
 
-          {/* Hover Overlay with 3 Actions: Change, Copy URL, Remove */}
-          <div className="absolute inset-0 bg-charcoal/70 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center justify-center gap-2 p-2">
+          {/* Upload Progress Overlay */}
+          {progress !== undefined && progress !== null && (
+            <div className="absolute inset-0 z-20 bg-charcoal/80 backdrop-blur-xs flex flex-col items-center justify-center p-4 text-white space-y-2">
+              <span className="text-xs font-bold tracking-wider uppercase">Uploading... {progress}%</span>
+              <div className="w-full max-w-[140px] bg-white/20 h-1.5 rounded-full overflow-hidden">
+                <div
+                  className="bg-[#B8955F] h-full transition-all duration-200"
+                  style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Hover Overlay with Actions: Change, Copy URL (if remote), Remove */}
+          <div className="absolute inset-0 bg-charcoal/70 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center justify-center gap-2 p-2 z-10">
             <button
               type="button"
               onClick={(e) => {
@@ -234,15 +224,17 @@ export function MediaUploader({
               <span>Change</span>
             </button>
 
-            <button
-              type="button"
-              onClick={handleCopyUrl}
-              className="bg-cream hover:bg-white text-charcoal text-xs font-semibold px-2.5 py-1.5 rounded shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
-              title="Copy URL"
-            >
-              <Copy className="h-3.5 w-3.5 text-[#8C6D40]" />
-              <span>Copy URL</span>
-            </button>
+            {typeof value === "string" && !value.startsWith("blob:") && (
+              <button
+                type="button"
+                onClick={handleCopyUrl}
+                className="bg-cream hover:bg-white text-charcoal text-xs font-semibold px-2.5 py-1.5 rounded shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
+                title="Copy URL"
+              >
+                <Copy className="h-3.5 w-3.5 text-[#8C6D40]" />
+                <span>Copy URL</span>
+              </button>
+            )}
 
             {onRemove && (
               <button
@@ -261,10 +253,10 @@ export function MediaUploader({
           </div>
         </div>
       ) : (
-        /* Dropzone / Upload State */
+        /* Dropzone / Staged Upload State */
         <div
           onClick={() => {
-            if (!isUploading && !disabled && fileInputRef.current) {
+            if (!disabled && fileInputRef.current) {
               fileInputRef.current.click();
             }
           }}
@@ -277,33 +269,18 @@ export function MediaUploader({
               : "border-[#EBE3DB] bg-[#FAF8F5] hover:border-[#8C6D40] hover:bg-[#F5F0EB]"
           } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
         >
-          {isUploading ? (
-            <div className="flex flex-col items-center justify-center space-y-3 w-full max-w-[200px]">
-              <Loader2 className="h-7 w-7 animate-spin text-[#8C6D40]" />
-              <div className="w-full bg-[#EBE3DB] rounded-full h-1.5 overflow-hidden">
-                <div
-                  className="bg-[#8C6D40] h-full transition-all duration-200"
-                  style={{ width: `${uploadProgress}%` }}
-                />
-              </div>
-              <span className="text-xs font-medium text-charcoal/70">
-                Uploading... {uploadProgress}%
-              </span>
+          <div className="flex flex-col items-center justify-center text-charcoal/60 space-y-1.5 p-2">
+            <div className="p-2.5 rounded-full bg-cream border border-[#EBE3DB] shadow-xs text-[#8C6D40]">
+              {accept.includes("video") ? (
+                <VideoIcon className="h-4 w-4" />
+              ) : (
+                <Upload className="h-4 w-4" />
+              )}
             </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center text-charcoal/60 space-y-1.5 p-2">
-              <div className="p-2.5 rounded-full bg-cream border border-[#EBE3DB] shadow-xs text-[#8C6D40]">
-                {accept.includes("video") ? (
-                  <VideoIcon className="h-4 w-4" />
-                ) : (
-                  <Upload className="h-4 w-4" />
-                )}
-              </div>
-              <p className="text-xs font-semibold text-charcoal">
-                Click to upload
-              </p>
-            </div>
-          )}
+            <p className="text-xs font-semibold text-charcoal">
+              Click to upload
+            </p>
+          </div>
         </div>
       )}
 

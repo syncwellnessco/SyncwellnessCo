@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { X, CheckCircle2, Upload, Loader2, Star, ChevronLeft, ChevronRight } from "lucide-react";
 import toast from "react-hot-toast";
-import { deleteCloudinaryFile } from "@/lib/cloudinary-utils";
+import { uploadFileToCloudinary } from "@/lib/cloudinary-utils";
 import { MediaUploader } from "@/components/ui/media-uploader";
 import useEmblaCarousel from "embla-carousel-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -12,15 +12,15 @@ import { cn } from "@/lib/utils";
 import { useUserStore } from "@/store/user-store";
 import { useReviewStore, Review } from "@/store/review-store";
 
-const CloudinaryBtn = ({ label, onUpload, onRemove, value }: { label: string, onUpload: (u: string, pId: string) => void, onRemove: () => void, value: string }) => (
+const CloudinaryBtn = ({ label, onSelectFile, onRemove, value, progress }: { label: string, onSelectFile: (f: File) => void, onRemove: () => void, value: string | File | null, progress?: number | null }) => (
   <MediaUploader
     label={label}
     labelPosition="bottom"
     value={value}
     accept="image/*"
-    preset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_REVIEWS || process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "syncwellness"}
     aspectRatioClass="aspect-[4/5] h-28 sm:h-32"
-    onUpload={(url, publicId) => onUpload(url, publicId)}
+    progress={progress}
+    onSelectFile={onSelectFile}
     onRemove={onRemove}
   />
 );
@@ -41,10 +41,12 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
   // Form state
   const [testimonial, setTestimonial] = useState("");
   const [beforeImage, setBeforeImage] = useState("");
-  const [beforePublicId, setBeforePublicId] = useState("");
   const [afterImage, setAfterImage] = useState("");
-  const [afterPublicId, setAfterPublicId] = useState("");
   const [rating, setRating] = useState(5);
+  const [beforeFile, setBeforeFile] = useState<File | null>(null);
+  const [afterFile, setAfterFile] = useState<File | null>(null);
+  const [beforeProgress, setBeforeProgress] = useState<number | null>(null);
+  const [afterProgress, setAfterProgress] = useState<number | null>(null);
 
   // Combine database reviews with Zustand local reviews
   const combinedReviews: Review[] = [
@@ -113,11 +115,43 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
     }
 
     setSubmitting(true);
+    setBeforeProgress(null);
+    setAfterProgress(null);
     try {
+      let finalBeforeUrl = beforeImage;
+      let finalAfterUrl = afterImage;
+
+      if (beforeFile || afterFile) {
+        toast.loading("Uploading transformation photos...", { id: "uploading-review-photos" });
+        const uploadPromises: Promise<any>[] = [];
+        if (beforeFile) {
+          setBeforeProgress(0);
+          uploadPromises.push(
+            uploadFileToCloudinary(
+              beforeFile,
+              process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_REVIEWS || "syncwellness",
+              (p) => setBeforeProgress(p)
+            ).then(res => finalBeforeUrl = res.url)
+          );
+        }
+        if (afterFile) {
+          setAfterProgress(0);
+          uploadPromises.push(
+            uploadFileToCloudinary(
+              afterFile,
+              process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_REVIEWS || "syncwellness",
+              (p) => setAfterProgress(p)
+            ).then(res => finalAfterUrl = res.url)
+          );
+        }
+        await Promise.all(uploadPromises);
+        toast.dismiss("uploading-review-photos");
+      }
+
       const res = await fetch("/api/reviews", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ programId, name: displayName, testimonial, beforeImage, afterImage, rating }),
+        body: JSON.stringify({ programId, name: displayName, testimonial, beforeImage: finalBeforeUrl, afterImage: finalAfterUrl, rating }),
       });
 
       const json = await res.json().catch(() => ({}));
@@ -127,8 +161,8 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
           id: `local-${Date.now()}`,
           name: displayName,
           testimonial,
-          before_image: beforeImage || null,
-          after_image: afterImage || null,
+          before_image: finalBeforeUrl || null,
+          after_image: finalAfterUrl || null,
           rating: rating || 5,
           featured_on_home: false,
           created_at: new Date().toISOString()
@@ -145,21 +179,22 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
         setIsModalOpen(false);
         setTestimonial("");
         setBeforeImage("");
-        setBeforePublicId("");
+        setBeforeFile(null);
+        setBeforeProgress(null);
         setAfterImage("");
-        setAfterPublicId("");
+        setAfterFile(null);
+        setAfterProgress(null);
         setRating(5);
       } else {
         toast.error("Failed to submit review");
-        if (beforePublicId) await deleteCloudinaryFile(beforePublicId, 'image');
-        if (afterPublicId) await deleteCloudinaryFile(afterPublicId, 'image');
       }
-    } catch (e) {
-      toast.error("Something went wrong");
-      if (beforePublicId) await deleteCloudinaryFile(beforePublicId, 'image');
-      if (afterPublicId) await deleteCloudinaryFile(afterPublicId, 'image');
+    } catch (e: any) {
+      toast.dismiss("uploading-review-photos");
+      toast.error(e.message || "Something went wrong");
     } finally {
       setSubmitting(false);
+      setBeforeProgress(null);
+      setAfterProgress(null);
     }
   };
 
@@ -354,22 +389,24 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
                     <div className="grid grid-cols-2 gap-3 sm:gap-4">
                       <CloudinaryBtn 
                         label="Before Image" 
-                        value={beforeImage} 
-                        onUpload={(u, pId) => { setBeforeImage(u); setBeforePublicId(pId); }} 
-                        onRemove={async () => {
-                          if (beforePublicId) await deleteCloudinaryFile(beforePublicId, 'image');
+                        value={beforeFile || beforeImage} 
+                        progress={beforeProgress}
+                        onSelectFile={(f) => setBeforeFile(f)} 
+                        onRemove={() => {
+                          setBeforeFile(null);
+                          setBeforeProgress(null);
                           setBeforeImage("");
-                          setBeforePublicId("");
                         }}
                       />
                       <CloudinaryBtn 
                         label="After Image" 
-                        value={afterImage} 
-                        onUpload={(u, pId) => { setAfterImage(u); setAfterPublicId(pId); }} 
-                        onRemove={async () => {
-                          if (afterPublicId) await deleteCloudinaryFile(afterPublicId, 'image');
+                        value={afterFile || afterImage} 
+                        progress={afterProgress}
+                        onSelectFile={(f) => setAfterFile(f)} 
+                        onRemove={() => {
+                          setAfterFile(null);
+                          setAfterProgress(null);
                           setAfterImage("");
-                          setAfterPublicId("");
                         }}
                       />
                     </div>

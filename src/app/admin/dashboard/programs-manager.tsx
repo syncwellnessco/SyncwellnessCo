@@ -6,19 +6,18 @@ import { Button } from "@/components/ui/button";
 import { Eye, Edit, Trash2, Plus, RefreshCw, X, Save, PlusCircle, MinusCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { deleteCloudinaryFile } from "@/lib/cloudinary-utils";
+import { uploadFileToCloudinary } from "@/lib/cloudinary-utils";
 import { MediaUploader } from "@/components/ui/media-uploader";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 
-const CloudinaryUploader = ({ onUpload, label }: { onUpload: (url: string) => void, label: string }) => {
+const CloudinaryUploader = ({ onUpload, label }: { onUpload: (val: string | File) => void, label: string }) => {
   const isVideoLabel = label.toLowerCase().includes("video");
   return (
     <MediaUploader
       label={label}
       accept={isVideoLabel ? "video/*" : "image/*,video/*"}
-      preset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_PROGRAMS || process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "syncwellness"}
       aspectRatioClass="aspect-video max-h-48"
-      onUpload={(url) => onUpload(url)}
+      onUpload={(val) => onUpload(val)}
     />
   );
 };
@@ -65,7 +64,7 @@ const DataDisplay = ({ data }: { data: any }) => {
   return <span className="text-sm text-charcoal/80">{String(data)}</span>;
 };
 
-const ArrayMediaEditor = ({ label, value, onChange }: { label: string, value: string[], onChange: (val: string[]) => void }) => {
+const ArrayMediaEditor = ({ label, value, onChange }: { label: string, value: (string | File)[], onChange: (val: (string | File)[]) => void }) => {
   return (
     <div>
       <div className="flex justify-between items-baseline mb-1">
@@ -111,7 +110,7 @@ const ObjectArrayEditor = ({
     fields.forEach(f => newItem[f.key] = '');
     onChange([...(items || []), newItem]);
   };
-  const update = (i: number, key: string, val: string) => {
+  const update = (i: number, key: string, val: string | File) => {
     const copy = [...(items || [])];
     copy[i] = { ...copy[i], [key]: val };
     onChange(copy);
@@ -283,6 +282,30 @@ export function ProgramsManager() {
     });
   };
 
+  const [stagedBannerFile, setStagedBannerFile] = useState<File | null>(null);
+  const [stagedIntroVideoFile, setStagedIntroVideoFile] = useState<File | null>(null);
+  const [bannerProgress, setBannerProgress] = useState<number | null>(null);
+  const [videoProgress, setVideoProgress] = useState<number | null>(null);
+
+  const uploadAllStagedFiles = async (obj: any, preset: string): Promise<any> => {
+    if (!obj) return obj;
+    if (obj instanceof File) {
+      const { url } = await uploadFileToCloudinary(obj, preset);
+      return url;
+    }
+    if (Array.isArray(obj)) {
+      return Promise.all(obj.map(item => uploadAllStagedFiles(item, preset)));
+    }
+    if (typeof obj === 'object') {
+      const newObj: any = {};
+      for (const [key, val] of Object.entries(obj)) {
+        newObj[key] = await uploadAllStagedFiles(val, preset);
+      }
+      return newObj;
+    }
+    return obj;
+  };
+
   const handleSaveWithStatus = async (statusVal: 'published' | 'draft') => {
     if (editForm.featured && editForm.featured_rank) {
       const existing = programs.find(p => p.featured && p.featured_rank === editForm.featured_rank && p.id !== (isNew ? null : selectedProgram?.id) && !(p as any).isSeed);
@@ -293,15 +316,52 @@ export function ProgramsManager() {
     }
 
     setIsSaving(true);
+    setBannerProgress(null);
+    setVideoProgress(null);
     try {
       const isActuallyNew = isNew || (selectedProgram as any)?.isSeed;
       const url = isActuallyNew ? '/api/programs' : `/api/programs/${selectedProgram?.id}`;
       const method = isActuallyNew ? 'POST' : 'PUT';
-      
+
+      const preset = process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_PROGRAMS || "syncwellness";
+      let bannerUrl = editForm.hero?.bannerImage || '';
+      let introVideoUrl = editForm.hero?.introVideo || '';
+
+      if (stagedBannerFile || stagedIntroVideoFile) {
+        toast.loading("Uploading program hero media...", { id: "uploading-program-hero" });
+        const uploadPromises: Promise<any>[] = [];
+        if (stagedBannerFile) {
+          setBannerProgress(0);
+          uploadPromises.push(
+            uploadFileToCloudinary(stagedBannerFile, preset, (p) => setBannerProgress(p))
+              .then(res => bannerUrl = res.url)
+          );
+        }
+        if (stagedIntroVideoFile) {
+          setVideoProgress(0);
+          uploadPromises.push(
+            uploadFileToCloudinary(stagedIntroVideoFile, preset, (p) => setVideoProgress(p))
+              .then(res => introVideoUrl = res.url)
+          );
+        }
+        await Promise.all(uploadPromises);
+        toast.dismiss("uploading-program-hero");
+      }
+
+      // Process any nested staged File objects in editForm (such as in included, bonuses, etc.)
+      const resolvedEditForm = await uploadAllStagedFiles(editForm, preset);
+
+      const updatedHero = {
+        ...(resolvedEditForm.hero || {}),
+        bannerImage: bannerUrl,
+        introVideo: introVideoUrl,
+      };
+
       const payload = {
-        ...editForm,
+        ...resolvedEditForm,
+        hero: updatedHero,
         status: statusVal,
-        pricing: editForm.pricing ? { ...editForm.pricing, currency: "AUD" } : { price: 0, currency: "AUD", paymentType: "one-time", installmentAvailable: false }
+        pricing: resolvedEditForm.pricing ? { ...resolvedEditForm.pricing, currency: "AUD" } : { price: 0, currency: "AUD", paymentType: "one-time", installmentAvailable: false }
       };
 
       const res = await fetch(url, {
@@ -314,16 +374,23 @@ export function ProgramsManager() {
         toast.success(isNew ? (statusVal === 'published' ? "Program created & published!" : "Program saved as draft!") : (statusVal === 'published' ? "Program published!" : "Program saved as draft!"));
         setIsEditing(false);
         setSelectedProgram(null);
+        setStagedBannerFile(null);
+        setStagedIntroVideoFile(null);
+        setBannerProgress(null);
+        setVideoProgress(null);
         fetchPrograms();
       } else {
         const err = await res.json();
         toast.error(`Failed to save: ${err.error || 'Unknown error'}`);
       }
-    } catch (e) {
-      toast.error("An error occurred while saving.");
+    } catch (e: any) {
+      toast.dismiss("uploading-program-hero");
+      toast.error(e.message || "An error occurred while saving.");
       console.error(e);
     } finally {
       setIsSaving(false);
+      setBannerProgress(null);
+      setVideoProgress(null);
     }
   };
 
@@ -732,24 +799,30 @@ export function ProgramsManager() {
                         <MediaUploader
                           label="Banner Image"
                           helperText="Aspect ratio: 16:9 landscape"
-                          value={editForm.hero?.bannerImage || ''}
+                          value={stagedBannerFile || editForm.hero?.bannerImage || ''}
                           accept="image/*"
-                          preset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_PROGRAMS || "syncwellness"}
                           aspectRatioClass="aspect-video"
-                          onUpload={(url) => updateNested(['hero', 'bannerImage'], url)}
-                          onRemove={() => updateNested(['hero', 'bannerImage'], '')}
+                          progress={bannerProgress}
+                          onSelectFile={(file) => setStagedBannerFile(file)}
+                          onRemove={() => {
+                            setStagedBannerFile(null);
+                            updateNested(['hero', 'bannerImage'], '');
+                          }}
                         />
 
                         {/* Intro Video Box */}
                         <MediaUploader
                           label="Intro Video (Optional)"
                           helperText="Aspect ratio: 16:9 landscape"
-                          value={editForm.hero?.introVideo || ''}
+                          value={stagedIntroVideoFile || editForm.hero?.introVideo || ''}
                           accept="video/*"
-                          preset={process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_PROGRAMS || "syncwellness"}
                           aspectRatioClass="aspect-video"
-                          onUpload={(url) => updateNested(['hero', 'introVideo'], url)}
-                          onRemove={() => updateNested(['hero', 'introVideo'], '')}
+                          progress={videoProgress}
+                          onSelectFile={(file) => setStagedIntroVideoFile(file)}
+                          onRemove={() => {
+                            setStagedIntroVideoFile(null);
+                            updateNested(['hero', 'introVideo'], '');
+                          }}
                         />
                       </div>
 
