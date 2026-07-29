@@ -15,6 +15,7 @@ import { MediaUploader } from "@/components/ui/media-uploader";
 import dynamic from 'next/dynamic';
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { TagInput } from "@/components/ui/tag-input";
+import { Toggle } from "@/components/ui/toggle";
 
 const Editor = dynamic(() => import('@/components/admin/editor'), { ssr: false });
 
@@ -197,6 +198,24 @@ export function ResourcesManager() {
     }
   };
 
+  const [updatingIds, setUpdatingIds] = useState<Record<string, boolean>>({});
+
+  const toggleResourcePublished = async (resource: Blog) => {
+    setUpdatingIds(prev => ({ ...prev, [resource.id]: true }));
+    try {
+      const nextPublished = !resource.published;
+      const { error } = await supabase.from('resources').update({ published: nextPublished }).eq('id', resource.id);
+      if (error) throw error;
+      toast.success(nextPublished ? "Resource published!" : "Resource saved as draft!");
+      setResources(prev => prev.map(r => r.id === resource.id ? { ...r, published: nextPublished } : r));
+    } catch (e: any) {
+      toast.error("Failed to update status");
+      throw e;
+    } finally {
+      setUpdatingIds(prev => ({ ...prev, [resource.id]: false }));
+    }
+  };
+
   const generateSlug = (title: string, prefix: string) => {
     const cleanTitle = title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Math.random().toString(36).substring(2, 8);
     return `${prefix}-${cleanTitle}`;
@@ -342,9 +361,15 @@ export function ResourcesManager() {
                     <span className="text-[10px] uppercase tracking-wider font-bold">No Image</span>
                   </div>
                 )}
-                <span className={`absolute top-3 right-3 text-[9px] px-2.5 py-1 uppercase tracking-wider font-bold rounded-sm shadow-sm backdrop-blur-md ${resource.published ? 'bg-green-100/90 text-green-700' : 'bg-yellow-100/90 text-yellow-700'}`}>
-                  {resource.published ? 'Published' : 'Draft'}
-                </span>
+                <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-full shadow-sm border border-[#EBE3DB]">
+                  <Toggle
+                    size="sm"
+                    checked={!!resource.published}
+                    loading={!!updatingIds[resource.id]}
+                    onChange={() => toggleResourcePublished(resource)}
+                    label={<span className="text-[10px] uppercase font-bold tracking-wider text-charcoal">{resource.published ? 'Published' : 'Draft'}</span>}
+                  />
+                </div>
               </div>
               
               <div className="p-5 flex-1 flex flex-col justify-between">
@@ -370,7 +395,7 @@ export function ResourcesManager() {
                 <button 
                   onClick={() => handleEdit(resource)} 
                   className="flex items-center justify-center text-charcoal/60 hover:text-[#8C6D40] flex-1 hover:bg-[#8C6D40]/5 transition-colors"
-                  title="Edit"
+                  title="Edit Resource"
                 >
                   <Edit className="h-4 w-4" />
                 </button>
@@ -378,7 +403,7 @@ export function ResourcesManager() {
                 <button 
                   onClick={() => handleDelete(resource.id)} 
                   className="flex items-center justify-center text-red-400 hover:text-red-600 flex-1 hover:bg-red-50 transition-colors"
-                  title="Delete"
+                  title="Delete Resource"
                 >
                   <Trash className="h-4 w-4" />
                 </button>
@@ -428,7 +453,7 @@ export function ResourcesManager() {
             {/* Modal Header */}
             <div className="px-6 py-4 border-b border-[#EBE3DB] flex items-center justify-between bg-white shrink-0">
               <h3 className="font-display text-xl sm:text-2xl text-charcoal font-semibold">
-                {formData.id ? "Edit" : "Create"} {subTab === "blogs" ? "Blog" : subTab === "podcasts" ? "Podcast" : "Media Article"}
+                {formData.id ? "Edit Resource" : "Create New Resource"}
               </h3>
               <button 
                 type="button" 
@@ -446,27 +471,25 @@ export function ResourcesManager() {
               <div className="p-6 sm:p-8 overflow-y-auto flex-1 space-y-5">
                 <div className="flex flex-col lg:flex-row gap-6 items-stretch">
                   {/* Left Side: Cover Image */}
-                  {subTab !== "podcasts" && (
-                    <div className={`w-full ${subTab === "media" ? "lg:w-4/12 max-w-[200px]" : "lg:w-5/12"} flex flex-col`}>
-                      <MediaUploader
-                        label="Cover Image / Logo"
-                        helperText={subTab === "media" ? "Aspect ratio: 4:5 portrait" : "Aspect ratio: 3:2 landscape"}
-                        value={stagedCoverFile || formData.image_url}
-                        accept="image/*"
-                        aspectRatioClass={`h-full min-h-[220px] flex-1 ${subTab === "media" ? "aspect-[4/5]" : ""}`}
-                        className="h-full flex-1"
-                        progress={uploadProgress}
-                        onSelectFile={(file) => setStagedCoverFile(file)}
-                        onRemove={() => {
-                          setStagedCoverFile(null);
-                          setFormData(prev => ({ ...prev, image_url: '' }));
-                        }}
-                      />
-                    </div>
-                  )}
+                  <div className="w-full lg:w-5/12 flex flex-col">
+                    <MediaUploader
+                      label="Cover Image"
+                      helperText="Aspect ratio: 3:2 landscape"
+                      value={stagedCoverFile || formData.image_url}
+                      accept="image/*"
+                      aspectRatioClass="h-full min-h-[220px] flex-1"
+                      className="h-full flex-1"
+                      progress={uploadProgress}
+                      onSelectFile={(file) => setStagedCoverFile(file)}
+                      onRemove={() => {
+                        setStagedCoverFile(null);
+                        setFormData(prev => ({ ...prev, image_url: '' }));
+                      }}
+                    />
+                  </div>
 
-                  {/* Right Side: Inputs */}
-                  <div className={`w-full ${subTab === "podcasts" ? "lg:w-full" : subTab === "media" ? "lg:flex-1" : "lg:w-7/12"} space-y-3.5 flex flex-col justify-between`}>
+                  {/* Right Side: Title, Category / Author, External Link / Excerpt */}
+                  <div className="w-full lg:w-7/12 space-y-3.5 flex flex-col justify-between">
                     <div className="space-y-1.5">
                       <Label>Title</Label>
                       <Input 
@@ -474,7 +497,7 @@ export function ResourcesManager() {
                         onChange={(e) => setFormData({...formData, title: e.target.value})}
                         required
                         className="text-base font-medium h-11"
-                        placeholder={`Enter ${subTab === "blogs" ? "blog" : subTab === "podcasts" ? "podcast" : "article"} title...`}
+                        placeholder="Enter title..."
                       />
                     </div>
 
@@ -485,70 +508,42 @@ export function ResourcesManager() {
                           value={formData.category || ""}
                           onChange={(e) => setFormData({...formData, category: e.target.value})}
                           placeholder="e.g. Wellness"
-                          className="border-[#EBE3DB] focus:border-[#8C6D40]"
-                        />
-                      </div>
-                    )}
-
-                    {subTab === "podcasts" && (
-                      <div className="space-y-2">
-                        <Label>Podcast Episode Link</Label>
-                        <Input 
-                          value={formData.content || ""}
-                          onChange={async (e) => {
-                            const url = e.target.value;
-                            setFormData(prev => ({ ...prev, content: url }));
-                            
-                            const metadata = await fetchPodcastMetadata(url);
-                            if (metadata) {
-                              setFormData(prev => ({
-                                ...prev,
-                                title: prev.title || metadata.title,
-                                image_url: prev.image_url || metadata.thumbnailUrl,
-                                excerpt: prev.excerpt || metadata.excerpt
-                              }));
-                            }
-                          }}
-                          required
-                          placeholder="Enter YouTube, Spotify, or Apple Podcast link..."
-                          className="border-[#EBE3DB] focus:border-[#8C6D40]"
                         />
                       </div>
                     )}
 
                     {subTab === "media" && (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        <div className="space-y-2">
-                          <Label>Article Link (URL)</Label>
-                          <Input 
-                            value={formData.content || ""}
-                            onChange={(e) => setFormData({...formData, content: e.target.value})}
-                            required
-                            placeholder="https://vogue.com/article/..."
-                            className="border-[#EBE3DB] focus:border-[#8C6D40]"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Source / Publisher</Label>
-                          <Input 
-                            value={formData.author || ""}
-                            onChange={(e) => setFormData({...formData, author: e.target.value})}
-                            required
-                            placeholder="e.g. Vogue, Daily Mail, etc."
-                            className="border-[#EBE3DB] focus:border-[#8C6D40]"
-                          />
-                        </div>
+                      <div className="space-y-1.5">
+                        <Label>Publication / Press Outlet Name</Label>
+                        <Input 
+                          value={formData.author || ""}
+                          onChange={(e) => setFormData({...formData, author: e.target.value})}
+                          placeholder="e.g. Vogue, Forbes, Daily Mail"
+                        />
+                      </div>
+                    )}
+
+                    {subTab !== "blogs" && (
+                      <div className="space-y-1.5">
+                        <Label>{subTab === "podcasts" ? "Podcast Episode URL (Spotify, Apple, YouTube)" : "Article Link URL"}</Label>
+                        <Input 
+                          type="url"
+                          value={formData.content || ""}
+                          onChange={(e) => setFormData({...formData, content: e.target.value})}
+                          required
+                          placeholder="https://..."
+                        />
                       </div>
                     )}
 
                     <div className="space-y-1.5 flex-1 flex flex-col justify-end">
-                      <Label className="mb-1 inline-block">Short Description / Excerpt</Label>
+                      <Label className="mb-1.5 inline-block">{subTab === "blogs" ? "Short Excerpt" : "Summary / Description"}</Label>
                       <Textarea 
-                        rows={3}
+                        rows={subTab === "blogs" ? 3 : 4}
                         value={formData.excerpt || ""}
                         onChange={(e) => setFormData({...formData, excerpt: e.target.value})}
-                        placeholder="A brief 1-2 sentence description..."
-                        className="border-[#EBE3DB] focus:border-[#8C6D40] flex-1 resize-none"
+                        placeholder="Brief summary..."
+                        className="flex-1 resize-none"
                       />
                     </div>
                   </div>
@@ -579,14 +574,13 @@ export function ResourcesManager() {
               {/* Fixed Footer at the Bottom */}
               <div className="px-6 py-4 border-t border-[#EBE3DB] bg-[#FAF8F5] flex flex-wrap items-center justify-between gap-4 shrink-0">
                 <div className="flex items-center gap-2">
-                  <input 
-                    type="checkbox" 
-                    id="published" 
+                  <Toggle 
+                    id="published"
+                    size="md"
                     checked={formData.published !== false} 
-                    onChange={(e) => setFormData({...formData, published: e.target.checked})}
-                    className="h-4 w-4 rounded-none border-[#EBE3DB] text-[#8C6D40] focus:ring-[#8C6D40] cursor-pointer"
+                    onChange={(checked) => setFormData({...formData, published: checked})}
+                    label="Publish immediately"
                   />
-                  <Label htmlFor="published" className="text-sm font-medium text-charcoal cursor-pointer select-none">Publish immediately</Label>
                 </div>
 
                 <div className="flex items-center gap-3">

@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { uploadFileToCloudinary } from "@/lib/cloudinary-utils";
 import { MediaUploader } from "@/components/ui/media-uploader";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { Toggle } from "@/components/ui/toggle";
 
 interface Review {
   id: string;
@@ -98,7 +99,10 @@ export function ReviewsManager() {
     return p ? p.title : "Unknown Program";
   };
 
+  const [updatingIds, setUpdatingIds] = useState<Record<string, boolean>>({});
+
   const updateStatus = async (id: string, updates: Partial<Review>) => {
+    setUpdatingIds(prev => ({ ...prev, [id]: true }));
     try {
       const res = await fetch(`/api/reviews/${id}`, {
         method: 'PATCH',
@@ -107,15 +111,19 @@ export function ReviewsManager() {
       });
       if (res.ok) {
         toast.success(`Review updated`);
-        setReviews(reviews.map(r => r.id === id ? { ...r, ...updates } : r));
+        setReviews(prev => prev.map(r => r.id === id ? { ...r, ...updates } : r));
         if (viewReview && viewReview.id === id) {
-          setViewReview({ ...viewReview, ...updates });
+          setViewReview(prev => prev ? { ...prev, ...updates } : null);
         }
       } else {
         toast.error("Failed to update");
+        throw new Error("Failed to update");
       }
     } catch (e) {
       toast.error("Error updating");
+      throw e;
+    } finally {
+      setUpdatingIds(prev => ({ ...prev, [id]: false }));
     }
   };
 
@@ -307,11 +315,19 @@ export function ReviewsManager() {
                     {review.testimonial}
                   </td>
                   <td className="px-4 py-4">
-                    <div className="flex flex-col gap-1">
-                      <span className={`w-max text-[10px] px-2 py-1 uppercase tracking-wider font-bold rounded-sm ${review.status === 'published' ? 'bg-green-100 text-green-700' : review.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                    <div className="flex flex-col gap-1.5">
+                      <span className={`w-max text-[10px] px-2 py-0.5 uppercase tracking-wider font-bold rounded-sm ${review.status === 'published' ? 'bg-green-100 text-green-700' : review.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>
                         {review.status}
                       </span>
-                      {review.featured_on_home && <span className="w-max text-[10px] px-2 py-1 uppercase tracking-wider font-bold rounded-sm bg-blue-100 text-blue-700">Home Featured</span>}
+                      <div className="flex items-center gap-2 pt-0.5">
+                        <Toggle
+                          size="sm"
+                          checked={!!review.featured_on_home}
+                          loading={!!updatingIds[review.id]}
+                          onChange={() => updateStatus(review.id, { featured_on_home: !review.featured_on_home })}
+                          label={<span className="text-[10px] uppercase font-bold tracking-wider text-charcoal/70">Home Featured</span>}
+                        />
+                      </div>
                     </div>
                   </td>
                   <td className="px-4 py-4 text-right">
@@ -400,14 +416,13 @@ export function ReviewsManager() {
                   </div>
 
                   <div className="flex items-center gap-2 pt-2">
-                    <input 
-                      type="checkbox" 
-                      id="review-published" 
+                    <Toggle 
+                      id="review-published"
+                      size="md"
                       checked={form.published !== false} 
-                      onChange={(e) => setForm(prev => ({...prev, published: e.target.checked}))}
-                      className="h-4 w-4 rounded-none border-[#EBE3DB] text-[#8C6D40] focus:ring-[#8C6D40] cursor-pointer"
+                      onChange={(checked) => setForm(prev => ({...prev, published: checked}))}
+                      label="Publish immediately"
                     />
-                    <label htmlFor="review-published" className="text-sm font-medium text-charcoal cursor-pointer">Publish immediately</label>
                   </div>
 
                   <div className="flex items-center justify-end gap-3 pt-6 border-t border-[#EBE3DB]">
@@ -515,19 +530,12 @@ export function ReviewsManager() {
                       <span className="font-medium text-charcoal text-sm">
                         Feature this review on the Home Page
                       </span>
-                      <button
-                        type="button"
-                        onClick={() => updateStatus(viewReview.id, { featured_on_home: !viewReview.featured_on_home })}
-                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                          viewReview.featured_on_home ? "bg-[#8C6D40]" : "bg-gray-200"
-                        }`}
-                      >
-                        <span
-                          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                            viewReview.featured_on_home ? "translate-x-5" : "translate-x-0"
-                          }`}
-                        />
-                      </button>
+                      <Toggle
+                        size="md"
+                        checked={!!viewReview.featured_on_home}
+                        loading={!!updatingIds[viewReview.id]}
+                        onChange={() => updateStatus(viewReview.id, { featured_on_home: !viewReview.featured_on_home })}
+                      />
                     </div>
                   )}
                 </div>

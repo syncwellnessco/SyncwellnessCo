@@ -15,6 +15,7 @@ import { MediaUploader } from "@/components/ui/media-uploader";
 import dynamic from 'next/dynamic';
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { TagInput } from "@/components/ui/tag-input";
+import { Toggle } from "@/components/ui/toggle";
 
 const Editor = dynamic(() => import('@/components/admin/editor'), { ssr: false });
 
@@ -90,6 +91,24 @@ export function BlogsManager() {
     setUploadProgress(null);
     setIsEditing(true);
   }
+
+  const [updatingIds, setUpdatingIds] = useState<Record<string, boolean>>({});
+
+  const toggleBlogPublished = async (blog: Blog) => {
+    setUpdatingIds(prev => ({ ...prev, [blog.id]: true }));
+    try {
+      const nextPublished = !blog.published;
+      const { error } = await supabase.from('blogs').update({ published: nextPublished }).eq('id', blog.id);
+      if (error) throw error;
+      toast.success(nextPublished ? "Blog published!" : "Blog saved as draft!");
+      setBlogs(prev => prev.map(b => b.id === blog.id ? { ...b, published: nextPublished } : b));
+    } catch (e: any) {
+      toast.error("Failed to update blog status");
+      throw e;
+    } finally {
+      setUpdatingIds(prev => ({ ...prev, [blog.id]: false }));
+    }
+  };
 
   const handleDelete = async (id: string) => {
     try {
@@ -272,14 +291,13 @@ export function BlogsManager() {
               {/* Fixed Footer at the Bottom */}
               <div className="px-6 py-4 border-t border-[#EBE3DB] bg-[#FAF8F5] flex flex-wrap items-center justify-between gap-4 shrink-0">
                 <div className="flex items-center gap-2">
-                  <input 
-                    type="checkbox" 
-                    id="published" 
+                  <Toggle 
+                    id="published"
+                    size="md"
                     checked={formData.published !== false} 
-                    onChange={(e) => setFormData({...formData, published: e.target.checked})}
-                    className="h-4 w-4 rounded-none border-[#EBE3DB] text-[#8C6D40] focus:ring-[#8C6D40] cursor-pointer"
+                    onChange={(checked) => setFormData({...formData, published: checked})}
+                    label="Publish immediately"
                   />
-                  <Label htmlFor="published" className="text-sm font-medium text-charcoal cursor-pointer select-none">Publish immediately</Label>
                 </div>
 
                 <div className="flex items-center gap-3">
@@ -344,9 +362,15 @@ export function BlogsManager() {
                     <span className="text-[10px] uppercase tracking-wider font-bold">No Cover Image</span>
                   </div>
                 )}
-                <span className={`absolute top-3 right-3 text-[9px] px-2.5 py-1 uppercase tracking-wider font-bold rounded-sm shadow-sm backdrop-blur-md ${blog.published ? 'bg-green-100/90 text-green-700' : 'bg-yellow-100/90 text-yellow-700'}`}>
-                  {blog.published ? 'Published' : 'Draft'}
-                </span>
+                <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-full shadow-sm border border-[#EBE3DB]">
+                  <Toggle
+                    size="sm"
+                    checked={!!blog.published}
+                    loading={!!updatingIds[blog.id]}
+                    onChange={() => toggleBlogPublished(blog)}
+                    label={<span className="text-[10px] uppercase font-bold tracking-wider text-charcoal">{blog.published ? 'Published' : 'Draft'}</span>}
+                  />
+                </div>
               </div>
               
               <div className="p-5 flex-1 flex flex-col justify-between">

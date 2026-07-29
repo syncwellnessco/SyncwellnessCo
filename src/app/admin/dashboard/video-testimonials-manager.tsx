@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { uploadFileToCloudinary } from "@/lib/cloudinary-utils";
 import { MediaUploader } from "@/components/ui/media-uploader";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { Toggle } from "@/components/ui/toggle";
 
 interface VideoTestimonial {
   id: string;
@@ -212,7 +213,10 @@ export function VideoTestimonialsManager() {
     setIsAddModalOpen(true);
   };
 
+  const [updatingIds, setUpdatingIds] = useState<Record<string, boolean>>({});
+
   const updateStatus = async (id: string, updates: Partial<VideoTestimonial>) => {
+    setUpdatingIds(prev => ({ ...prev, [id]: true }));
     try {
       const res = await fetch(`/api/videos/${id}`, {
         method: 'PATCH',
@@ -221,10 +225,16 @@ export function VideoTestimonialsManager() {
       });
       if (res.ok) {
         toast.success(`Video updated`);
-        setVideos(videos.map(v => v.id === id ? { ...v, ...updates } : v));
+        setVideos(prev => prev.map(v => v.id === id ? { ...v, ...updates } : v));
+      } else {
+        toast.error("Failed to update video");
+        throw new Error("Failed to update video");
       }
     } catch (e) {
       toast.error("Error updating");
+      throw e;
+    } finally {
+      setUpdatingIds(prev => ({ ...prev, [id]: false }));
     }
   };
 
@@ -291,19 +301,12 @@ export function VideoTestimonialsManager() {
                   <div className="flex flex-col gap-2 border-t border-[#EBE3DB] pt-2">
                     <div className="flex items-center justify-between gap-1.5 text-[10px] font-semibold text-charcoal">
                       <span>Feature on Home</span>
-                      <button
-                        type="button"
-                        onClick={() => updateStatus(video.id, { featured_on_home: !video.featured_on_home })}
-                        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                          video.featured_on_home ? "bg-[#8C6D40]" : "bg-gray-200"
-                        }`}
-                      >
-                        <span
-                          className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                            video.featured_on_home ? "translate-x-4" : "translate-x-0"
-                          }`}
-                        />
-                      </button>
+                      <Toggle
+                        size="sm"
+                        checked={!!video.featured_on_home}
+                        loading={!!updatingIds[video.id]}
+                        onChange={() => updateStatus(video.id, { featured_on_home: !video.featured_on_home })}
+                      />
                     </div>
                     <div className="flex items-center gap-1 justify-end">
                       <Button onClick={() => openEditModal(video)} variant="ghost" size="sm" className="h-7 w-7 rounded-md p-0 text-charcoal hover:bg-[#EBE3DB]" title="Edit">
@@ -362,14 +365,13 @@ export function VideoTestimonialsManager() {
                   </div>
                   
                   <div className="flex items-center gap-2 pt-2">
-                    <input 
-                      type="checkbox" 
-                      id="video-published" 
+                    <Toggle 
+                      id="video-published"
+                      size="md"
                       checked={form.featured_on_home !== false} 
-                      onChange={(e) => setForm({...form, featured_on_home: e.target.checked})}
-                      className="h-4 w-4 rounded-none border-[#EBE3DB] text-[#8C6D40] focus:ring-[#8C6D40] cursor-pointer"
+                      onChange={(checked) => setForm({...form, featured_on_home: checked})}
+                      label="Publish immediately"
                     />
-                    <label htmlFor="video-published" className="text-sm font-medium text-charcoal cursor-pointer">Publish immediately</label>
                   </div>
 
                   <div className="flex items-center justify-end gap-3 pt-6 border-t border-[#EBE3DB]">

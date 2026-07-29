@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { uploadFileToCloudinary } from "@/lib/cloudinary-utils";
 import { MediaUploader } from "@/components/ui/media-uploader";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { Toggle } from "@/components/ui/toggle";
 
 const CloudinaryUploader = ({ onUpload, label }: { onUpload: (val: string | File) => void, label: string }) => {
   const isVideoLabel = label.toLowerCase().includes("video");
@@ -239,6 +240,36 @@ export function ProgramsManager() {
     setActiveTab("basic");
   };
 
+  const [updatingIds, setUpdatingIds] = useState<Record<string, boolean>>({});
+
+  const toggleProgramFeatured = async (prog: any) => {
+    setUpdatingIds(prev => ({ ...prev, [`feat-${prog.id}`]: true }));
+    try {
+      const nextFeatured = !prog.featured;
+      const updates = {
+        featured: nextFeatured,
+        showOnHome: nextFeatured ? true : prog.showOnHome
+      };
+      const res = await fetch(`/api/programs/${prog.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+      if (res.ok) {
+        toast.success(nextFeatured ? "Program featured on home!" : "Program unfeatured");
+        setPrograms(prev => prev.map(p => p.id === prog.id ? { ...p, ...updates } : p));
+      } else {
+        toast.error("Failed to update program");
+        throw new Error("Failed to update program");
+      }
+    } catch (e) {
+      toast.error("Error updating program");
+      throw e;
+    } finally {
+      setUpdatingIds(prev => ({ ...prev, [`feat-${prog.id}`]: false }));
+    }
+  };
+
   const handleEditClick = () => {
     setEditForm(selectedProgram || {});
     setIsEditing(true);
@@ -459,9 +490,15 @@ export function ProgramsManager() {
                   <span className={`text-[9px] px-2 py-1 uppercase tracking-wider font-bold rounded-sm ${prog.status === 'published' ? 'bg-green-100 text-green-700' : 'bg-charcoal/10 text-charcoal/60'}`}>
                     {prog.status}
                   </span>
-                  <span className="text-xs font-semibold text-[#8C6D40]">
-                    {prog.pricing?.requireConsultant ? "1:1 Consult" : (prog.pricing?.price ? `AUD ${prog.pricing.salePrice ?? prog.pricing.price}` : "Free")}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <Toggle
+                      size="sm"
+                      checked={!!prog.featured}
+                      loading={!!updatingIds[`feat-${prog.id}`]}
+                      onChange={() => toggleProgramFeatured(prog)}
+                      label={<span className="text-[9px] uppercase font-bold tracking-wider text-[#8C6D40]">Featured</span>}
+                    />
+                  </div>
                 </div>
                 <h3 className="font-display text-lg text-charcoal font-bold mb-1">{prog.title}</h3>
                 <div className="text-[10px] text-charcoal/50 font-normal uppercase tracking-wider mb-3">{prog.category || "Uncategorized"} • {prog.duration || "No duration"}</div>
@@ -675,12 +712,13 @@ export function ProgramsManager() {
                         </select>
                       </div>
                       <div className="md:col-span-2 flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                        <div className="flex items-center gap-2">
-                          <input type="checkbox" id="featured" checked={editForm.featured || false} onChange={e => {
-                            setEditForm({...editForm, featured: e.target.checked, showOnHome: e.target.checked ? true : editForm.showOnHome});
-                          }} className="w-4 h-4 text-[#8C6D40]" />
-                          <label htmlFor="featured" className="text-[10px] uppercase font-bold tracking-wider text-[#8C6D40]">Featured Program</label>
-                        </div>
+                        <Toggle
+                          id="featured"
+                          size="sm"
+                          checked={!!editForm.featured}
+                          onChange={(checked) => setEditForm({...editForm, featured: checked, showOnHome: checked ? true : editForm.showOnHome})}
+                          label={<span className="text-[10px] uppercase font-bold tracking-wider text-[#8C6D40]">Featured Program</span>}
+                        />
                         {editForm.featured && (
                           <div className="flex items-center gap-2">
                             <label htmlFor="featured_rank" className="text-[10px] uppercase font-bold tracking-wider text-[#8C6D40]">Featured Rank</label>
@@ -704,10 +742,14 @@ export function ProgramsManager() {
                             />
                           </div>
                         )}
-                        <div className="flex items-center gap-2">
-                          <input type="checkbox" id="showOnHome" disabled={editForm.featured} checked={editForm.featured ? true : (editForm.showOnHome || false)} onChange={e => setEditForm({...editForm, showOnHome: e.target.checked})} className="w-4 h-4 text-[#8C6D40] disabled:opacity-50" />
-                          <label htmlFor="showOnHome" className="text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] disabled:opacity-50">Show on Home Page</label>
-                        </div>
+                        <Toggle
+                          id="showOnHome"
+                          size="sm"
+                          disabled={!!editForm.featured}
+                          checked={editForm.featured ? true : (editForm.showOnHome || false)}
+                          onChange={(checked) => setEditForm({...editForm, showOnHome: checked})}
+                          label={<span className="text-[10px] uppercase font-bold tracking-wider text-[#8C6D40]">Show on Home Page</span>}
+                        />
                       </div>
                       <div className="md:col-span-2">
                         <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Short Description</label>
@@ -1030,14 +1072,13 @@ export function ProgramsManager() {
               ) : (
                 <div className="flex items-center justify-between w-full">
                   <div className="flex items-center gap-2">
-                    <input 
-                      type="checkbox" 
-                      id="program-published" 
+                    <Toggle 
+                      id="program-published"
+                      size="md"
                       checked={editForm.status === 'published'} 
-                      onChange={(e) => setEditForm(prev => ({ ...prev, status: e.target.checked ? 'published' : 'draft' }))}
-                      className="h-4 w-4 rounded-none border-[#EBE3DB] text-[#8C6D40] focus:ring-[#8C6D40] cursor-pointer"
+                      onChange={(checked) => setEditForm(prev => ({ ...prev, status: checked ? 'published' : 'draft' }))}
+                      label="Publish immediately"
                     />
-                    <label htmlFor="program-published" className="text-sm font-medium text-charcoal cursor-pointer">Publish immediately</label>
                   </div>
                   <div className="flex items-center gap-3">
                     <Button 
