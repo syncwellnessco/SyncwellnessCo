@@ -184,7 +184,7 @@ export default function TestimonialsPage() {
       <div className="bg-charcoal text-cream py-2.5 px-4 text-center text-[11px] font-semibold uppercase tracking-[0.2em] border-b border-beige-200/20">
         <div className="mx-auto max-w-7xl flex items-center justify-center gap-2">
           <Sparkles className="w-3.5 h-3.5 text-[#b38c50]" />
-          <span>REAL TRANSFORMATIONS • 500+ WOMEN TRANSFORMED WORLDWIDE</span>
+          <span>GLOBAL IMPACT • PROVEN RESULTS</span>
           <Sparkles className="w-3.5 h-3.5 text-[#b38c50] hidden sm:inline" />
         </div>
       </div>

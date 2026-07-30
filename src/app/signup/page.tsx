@@ -94,7 +94,7 @@ function SignupContent() {
       <div className="w-full lg:w-1/2 flex items-start lg:items-center justify-center px-6 pt-24 pb-12 sm:px-12 sm:pt-24 lg:px-16 lg:py-12">
         <div className="w-full max-w-md mt-4 lg:mt-0">
           <h2 className="font-display text-3xl font-semibold text-charcoal mb-2">Create your account</h2>
-          <p className="text-charcoal mb-8">Join SyncWellnessCo today</p>
+          <p className="text-charcoal mb-8">Join SyncwellnessCo today</p>
 
           <Button
             type="button"

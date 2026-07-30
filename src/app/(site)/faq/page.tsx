@@ -4,7 +4,7 @@ import { FAQPageContent } from "@/components/pages/faq-page-content";
 
 export const metadata: Metadata = {
   title: "FAQ",
-  description: "Frequently asked questions about SyncWellnessCo coaching programs.",
+  description: "Frequently asked questions about SyncwellnessCo coaching programs.",
 };
 
 export default function FAQPage() {

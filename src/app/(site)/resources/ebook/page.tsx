@@ -4,7 +4,7 @@ import { ResourcesPageContent } from "@/components/pages/resources-page-content"
 
 export const metadata: Metadata = {
   title: "Resources",
-  description: "Free wellness resources, Ebooks, and guides from SyncWellnessCo.",
+  description: "Free wellness resources, Ebooks, and guides from SyncwellnessCo.",
 };
 
 export default function ResourcesPage() {

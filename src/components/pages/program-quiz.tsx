@@ -575,7 +575,7 @@ export function ProgramQuiz({ programId, programSlug, programTitle }: ProgramQui
               {/* Header bar (sticky at top) */}
               <div className="w-full px-6 sm:px-8 py-5 flex items-center justify-between border-b border-[#EBE3DB]/40 bg-cream shrink-0">
                 <span className="font-display text-base tracking-widest text-[#8C6D40] uppercase font-bold">
-                  SyncWellnessCo
+                  SyncwellnessCo
                 </span>
                 <button
                   type="button"

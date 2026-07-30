@@ -1,5 +1,5 @@
 export const siteConfig = {
-  name: "SyncWellnessCo",
+  name: "SyncwellnessCo",
   tagline: "Women's Hormone, Gut Health & Weight Loss Coaching",
   founder: "Neha Arora",
   founderTitle: "Women's Hormone, Gut Health & Weight Loss Coach",

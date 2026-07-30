@@ -14,7 +14,7 @@ export function FAQPageContent() {
       <PageHero
         eyebrow="FAQ"
         title="Frequently Asked Questions"
-        description="Everything you need to know about working with SyncWellnessCo."
+        description="Everything you need to know about working with SyncwellnessCo."
       />
 
       <section className="py-12 sm:py-16">

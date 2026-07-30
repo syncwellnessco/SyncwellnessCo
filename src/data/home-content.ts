@@ -6,7 +6,7 @@ export const heroContent = {
   videoUrl: IMAGES.heroVideo,
   image: IMAGES.heroDefaultImage,
   imageAlt:
-    "Women's hormone balance, gut health, and fat loss coaching | SyncWellnessCo",
+    "Women's hormone balance, gut health, and fat loss coaching | SyncwellnessCo",
   desktopCta: "Get Started",
   mobileMemberCta: "Member",
   mobileStartCta: "Start Now",

@@ -17,6 +17,7 @@ const footerLinks = [
   { label: "Blog", href: "/resources/blogs" },
   { label: "Resources", href: "/resources" },
   { label: "FAQ", href: "/faq" },
+  { label: "Contact", href: "/contact" },
 ];
 
 export function Footer() {

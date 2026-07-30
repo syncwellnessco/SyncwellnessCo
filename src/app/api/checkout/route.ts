@@ -46,7 +46,7 @@ export async function POST(req: Request) {
             currency: currency,
             product_data: {
               name: program.title,
-              description: program.shortDescription || 'SyncWellnessCo Coaching Program',
+              description: program.shortDescription || 'SyncwellnessCo Coaching Program',
               images: program.hero?.bannerImage ? [program.hero.bannerImage] : [],
             },
             unit_amount: amountInCents,

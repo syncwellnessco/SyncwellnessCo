@@ -31,7 +31,7 @@ export const faqs: FAQ[] = [
   },
   {
     id: "5",
-    question: "What makes SyncWellnessCo different?",
+    question: "What makes SyncwellnessCo different?",
     answer:
       "We combine evidence-based functional health principles with compassionate, personalized coaching. Our holistic approach addresses hormones, gut health, metabolism, and lifestyle, not just calories in, calories out.",
   },

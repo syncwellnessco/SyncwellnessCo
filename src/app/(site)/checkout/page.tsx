@@ -227,7 +227,7 @@ function CheckoutForm({ program }: { program: ProgramDetails }) {
           </div>
 
           <p className="text-[10.5px] text-charcoal/75 leading-relaxed">
-            Your payment is processed with banking-grade SSL security via Stripe. SyncWellnessCo never stores your card credentials.
+            Your payment is processed with banking-grade SSL security via Stripe. SyncwellnessCo never stores your card credentials.
           </p>
 
           <div className="flex items-center justify-between pt-0.5">

@@ -30,7 +30,7 @@ export function AboutCoachSection() {
             <div className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-beige-200">
               <Image
                 src={coachImageSrc}
-                alt="SyncWellnessCo Women's Health Coach"
+                alt="SyncwellnessCo Women's Health Coach"
                 fill
                 className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 50vw"

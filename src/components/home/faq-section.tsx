@@ -25,7 +25,7 @@ export function FAQSection() {
           <SectionHeading
             eyebrow="FAQ"
             title="Frequently Asked Questions"
-            description="Everything you need to know about working with SyncWellnessCo."
+            description="Everything you need to know about working with SyncwellnessCo."
           />
 
           <Accordion type="single" collapsible className="mt-7 w-full sm:mt-10">

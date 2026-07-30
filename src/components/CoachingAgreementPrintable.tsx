@@ -129,7 +129,7 @@ export function CoachingAgreementPrintable({
           </div>
 
           <p className="italic text-[13px] leading-relaxed">
-            The Client Commitment & Agreement for Personal Coaching by SyncWellnessCo outlines the expectations, commitments, and responsibilities for both the client and coach.
+            The Client Commitment & Agreement for Personal Coaching by SyncwellnessCo outlines the expectations, commitments, and responsibilities for both the client and coach.
           </p>
 
           <div>
@@ -245,7 +245,7 @@ export function CoachingAgreementPrintable({
                 )}
                 <div className="pt-2 border-t border-[#EBE3DB]/60">
                   <span className="text-charcoal/50 block text-[9px] uppercase font-bold tracking-wider">Coach</span>
-                  <span className="font-semibold text-charcoal text-sm">SyncWellnessCo</span>
+                  <span className="font-semibold text-charcoal text-sm">SyncwellnessCo</span>
                 </div>
               </div>
             </div>
