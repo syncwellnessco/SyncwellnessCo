@@ -13,6 +13,7 @@ import { Toggle } from "@/components/ui/toggle";
 interface Review {
   id: string;
   program_id: string;
+  program_ids?: string[];
   name: string;
   testimonial: string;
   before_image: string | null;
@@ -51,7 +52,15 @@ export function ReviewsManager() {
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   
   // Add Form
-  const [form, setForm] = useState({ name: "", testimonial: "", programId: "", beforeImage: "", afterImage: "", rating: 5, published: true });
+  const [form, setForm] = useState<{
+    name: string;
+    testimonial: string;
+    programIds: string[];
+    beforeImage: string;
+    afterImage: string;
+    rating: number;
+    published: boolean;
+  }>({ name: "", testimonial: "", programIds: [], beforeImage: "", afterImage: "", rating: 5, published: true });
   const [submitting, setSubmitting] = useState(false);
   const [beforeProgress, setBeforeProgress] = useState<number | null>(null);
   const [afterProgress, setAfterProgress] = useState<number | null>(null);
@@ -94,9 +103,15 @@ export function ReviewsManager() {
     setForm(prev => ({ ...prev, afterImage: "" }));
   }, []);
 
-  const getProgramName = (id: string) => {
-    const p = programs.find(x => x.id === id);
-    return p ? p.title : "Unknown Program";
+  const getProgramNames = (review: Review) => {
+    const ids = Array.isArray(review.program_ids) && review.program_ids.length > 0
+      ? review.program_ids
+      : (typeof review.program_id === 'string' ? review.program_id.split(',').map(s => s.trim()).filter(Boolean) : []);
+    if (ids.length === 0) return ["General / All Programs"];
+    return ids.map(id => {
+      const p = programs.find(x => x.id === id);
+      return p ? p.title : id;
+    });
   };
 
   const [updatingIds, setUpdatingIds] = useState<Record<string, boolean>>({});
@@ -148,15 +163,15 @@ export function ReviewsManager() {
     setAfterFile(null);
     setBeforeProgress(null);
     setAfterProgress(null);
-    setForm({ name: "", testimonial: "", programId: "", beforeImage: "", afterImage: "", rating: 5, published: true });
+    setForm({ name: "", testimonial: "", programIds: [], beforeImage: "", afterImage: "", rating: 5, published: true });
     setIsAddModalOpen(false);
     setEditingId(null);
     setShowCancelConfirm(false);
   };
 
   const handleSaveWithStatus = async (publish: boolean) => {
-    if (!form.name || !form.testimonial || !form.programId) {
-      toast.error("Please fill all required fields");
+    if (!form.name || !form.testimonial || form.programIds.length === 0) {
+      toast.error("Please fill all required fields and select at least one program");
       return;
     }
     setSubmitting(true);
@@ -194,20 +209,12 @@ export function ReviewsManager() {
       }
 
       const isEditing = !!editingId;
-      const payload = isEditing ? {
+      const payload = {
         name: form.name,
         testimonial: form.testimonial,
-        program_id: form.programId,
+        program_ids: form.programIds,
         before_image: finalBeforeUrl,
         after_image: finalAfterUrl,
-        rating: form.rating,
-        status: publish ? 'published' : 'pending'
-      } : {
-        programId: form.programId,
-        name: form.name,
-        testimonial: form.testimonial,
-        beforeImage: finalBeforeUrl,
-        afterImage: finalAfterUrl,
         rating: form.rating,
         status: publish ? 'published' : 'pending'
       };
@@ -225,7 +232,7 @@ export function ReviewsManager() {
         setAfterFile(null);
         setBeforeProgress(null);
         setAfterProgress(null);
-        setForm({ name: "", testimonial: "", programId: "", beforeImage: "", afterImage: "", rating: 5, published: true });
+        setForm({ name: "", testimonial: "", programIds: [], beforeImage: "", afterImage: "", rating: 5, published: true });
         fetchReviews();
       } else {
         const err = await res.json();
@@ -247,10 +254,14 @@ export function ReviewsManager() {
   };
 
   const openEditModal = (review: Review) => {
+    const existingProgramIds = Array.isArray(review.program_ids) && review.program_ids.length > 0
+      ? review.program_ids
+      : (typeof review.program_id === 'string' ? review.program_id.split(',').map(s => s.trim()).filter(Boolean) : []);
+
     setForm({
       name: review.name || "",
       testimonial: review.testimonial || "",
-      programId: review.program_id || "",
+      programIds: existingProgramIds,
       beforeImage: review.before_image || "",
       afterImage: review.after_image || "",
       rating: review.rating || 5,
@@ -273,7 +284,7 @@ export function ReviewsManager() {
           <h2 className="text-2xl font-display text-charcoal">Reviews</h2>
           <p className="text-sm text-charcoal/60 mt-1">Manage user reviews and publish them to program pages.</p>
         </div>
-        <Button onClick={() => { setEditingId(null); setIsAddModalOpen(true); }} className="bg-[#8C6D40] hover:bg-[#B8955F] text-white rounded-none">
+        <Button onClick={() => { setEditingId(null); setForm({ name: "", testimonial: "", programIds: [], beforeImage: "", afterImage: "", rating: 5, published: true }); setIsAddModalOpen(true); }} className="bg-[#8C6D40] hover:bg-[#B8955F] text-white rounded-none">
           Add Review Manually
         </Button>
       </div>
@@ -283,7 +294,7 @@ export function ReviewsManager() {
           <thead className="bg-[#FAF8F5] text-charcoal/60 uppercase tracking-wider text-[10px]">
             <tr>
               <th className="px-4 py-3 font-semibold rounded-tl-md">User & Images</th>
-              <th className="px-4 py-3 font-semibold">Program</th>
+              <th className="px-4 py-3 font-semibold">Programs</th>
               <th className="px-4 py-3 font-semibold">Testimonial</th>
               <th className="px-4 py-3 font-semibold">Status</th>
               <th className="px-4 py-3 font-semibold text-right rounded-tr-md">Actions</th>
@@ -307,7 +318,15 @@ export function ReviewsManager() {
                       )}
                     </div>
                   </td>
-                  <td className="px-4 py-4 font-medium text-charcoal/80 text-xs">{getProgramName(review.program_id)}</td>
+                  <td className="px-4 py-4 font-medium text-charcoal/80 text-xs">
+                    <div className="flex flex-wrap gap-1 max-w-xs">
+                      {getProgramNames(review).map((pName, idx) => (
+                        <span key={idx} className="inline-block bg-[#FAF8F5] border border-[#EBE3DB] text-[#8C6D40] px-2 py-0.5 rounded text-[11px] font-medium">
+                          {pName}
+                        </span>
+                      ))}
+                    </div>
+                  </td>
                   <td className="px-4 py-4 max-w-xs truncate text-xs" title={review.testimonial}>
                     <div className="flex items-center gap-1 mb-1 text-gold">
                       {[...Array(review.rating || 5)].map((_, i) => <Star key={i} className="h-2 w-2 fill-current" />)}
@@ -385,11 +404,47 @@ export function ReviewsManager() {
                 {/* Right Side: Details */}
                 <div className="w-full md:w-2/3 space-y-5">
                   <div>
-                    <label className="block text-sm font-medium mb-1">Select Program</label>
-                    <select value={form.programId} onChange={e => setForm(prev => ({...prev, programId: e.target.value}))} required className="w-full p-2.5 border border-[#EBE3DB] rounded bg-white">
-                      <option value="">-- Choose Program --</option>
-                      {programs.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
-                    </select>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="block text-sm font-medium text-charcoal">
+                        Select Programs <span className="text-red-500">*</span>
+                      </label>
+                      <span className="text-xs text-charcoal/60">{form.programIds.length} program(s) selected</span>
+                    </div>
+                    <div className="border border-[#EBE3DB] rounded-md p-2.5 max-h-48 overflow-y-auto space-y-1 bg-white">
+                      {programs.length === 0 ? (
+                        <p className="text-xs text-charcoal/50 italic p-1">No programs available</p>
+                      ) : (
+                        programs.map(p => {
+                          const isSelected = form.programIds.includes(p.id);
+                          return (
+                            <label 
+                              key={p.id} 
+                              className={`flex items-center gap-3 px-2.5 py-2 rounded transition-colors cursor-pointer text-xs font-medium select-none ${
+                                isSelected 
+                                  ? "bg-[#8C6D40]/10 text-charcoal" 
+                                  : "text-charcoal/80 hover:bg-[#FAF8F5]"
+                              }`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={(e) => {
+                                  const checked = e.target.checked;
+                                  setForm(prev => ({
+                                    ...prev,
+                                    programIds: checked 
+                                      ? [...prev.programIds, p.id] 
+                                      : prev.programIds.filter(id => id !== p.id)
+                                  }));
+                                }}
+                                className="h-4 w-4 rounded border-[#EBE3DB] text-[#8C6D40] focus:ring-[#8C6D40] accent-[#8C6D40]"
+                              />
+                              <span className="flex-1">{p.title}</span>
+                            </label>
+                          );
+                        })
+                      )}
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">Name</label>
@@ -470,8 +525,14 @@ export function ReviewsManager() {
               
               <div className="space-y-6">
                 <div>
-                  <h4 className="text-xs uppercase tracking-wider text-charcoal/50 mb-1">Program</h4>
-                  <p className="font-medium">{getProgramName(viewReview.program_id)}</p>
+                  <h4 className="text-xs uppercase tracking-wider text-charcoal/50 mb-1">Programs</h4>
+                  <div className="flex flex-wrap gap-1.5 mt-1">
+                    {getProgramNames(viewReview).map((name, i) => (
+                      <span key={i} className="px-2.5 py-1 bg-[#FAF8F5] border border-[#EBE3DB] text-[#8C6D40] rounded text-xs font-semibold">
+                        {name}
+                      </span>
+                    ))}
+                  </div>
                 </div>
                 <div>
                   <h4 className="text-xs uppercase tracking-wider text-charcoal/50 mb-1">User & Rating</h4>

@@ -182,6 +182,7 @@ CREATE POLICY "Enable delete for everyone on calendly_bookings" ON calendly_book
 CREATE TABLE IF NOT EXISTS reviews (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   program_id TEXT,
+  program_ids TEXT[] DEFAULT '{}',
   name TEXT NOT NULL,
   testimonial TEXT NOT NULL,
   before_image TEXT,
@@ -191,6 +192,9 @@ CREATE TABLE IF NOT EXISTS reviews (
   rating INTEGER DEFAULT 5,
   featured_on_home BOOLEAN DEFAULT FALSE
 );
+
+ALTER TABLE reviews ADD COLUMN IF NOT EXISTS program_ids TEXT[] DEFAULT '{}';
+UPDATE reviews SET program_ids = ARRAY[program_id] WHERE program_id IS NOT NULL AND (program_ids IS NULL OR cardinality(program_ids) = 0);
 
 ALTER TABLE reviews ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Reviews are viewable by everyone" ON reviews;
@@ -211,9 +215,13 @@ CREATE TABLE IF NOT EXISTS video_testimonials (
   caption TEXT,
   name TEXT,
   program_id TEXT,
+  program_ids TEXT[] DEFAULT '{}',
   featured_on_home BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
+
+ALTER TABLE video_testimonials ADD COLUMN IF NOT EXISTS program_ids TEXT[] DEFAULT '{}';
+UPDATE video_testimonials SET program_ids = ARRAY[program_id] WHERE program_id IS NOT NULL AND (program_ids IS NULL OR cardinality(program_ids) = 0);
 
 ALTER TABLE video_testimonials ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Video testimonials viewable by everyone" ON video_testimonials;

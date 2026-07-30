@@ -16,6 +16,7 @@ interface VideoTestimonial {
   caption: string;
   name: string;
   program_id: string;
+  program_ids?: string[];
   featured_on_home: boolean;
   created_at: string;
 }
@@ -89,7 +90,14 @@ export function VideoTestimonialsManager() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [form, setForm] = useState({ video_url: "", public_id: "", caption: "", name: "", program_id: "", featured_on_home: true });
+  const [form, setForm] = useState<{
+    video_url: string;
+    public_id: string;
+    caption: string;
+    name: string;
+    programIds: string[];
+    featured_on_home: boolean;
+  }>({ video_url: "", public_id: "", caption: "", name: "", programIds: [], featured_on_home: true });
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
 
@@ -111,9 +119,15 @@ export function VideoTestimonialsManager() {
     });
   }, []);
 
-  const getProgramName = (id: string) => {
-    const p = programs.find(x => x.id === id);
-    return p ? p.title : "Program";
+  const getProgramNames = (video: VideoTestimonial) => {
+    const ids = Array.isArray(video.program_ids) && video.program_ids.length > 0
+      ? video.program_ids
+      : (typeof video.program_id === 'string' ? video.program_id.split(',').map(s => s.trim()).filter(Boolean) : []);
+    if (ids.length === 0) return ["General / All Programs"];
+    return ids.map(id => {
+      const p = programs.find(x => x.id === id);
+      return p ? p.title : id;
+    });
   };
 
   const [stagedVideoFile, setStagedVideoFile] = useState<File | null>(null);
@@ -135,7 +149,7 @@ export function VideoTestimonialsManager() {
     setUploadProgress(null);
     setIsAddModalOpen(false);
     setEditingId(null);
-    setForm({ video_url: "", public_id: "", caption: "", name: "", program_id: "", featured_on_home: true });
+    setForm({ video_url: "", public_id: "", caption: "", name: "", programIds: [], featured_on_home: true });
     setShowCancelConfirm(false);
   };
 
@@ -146,6 +160,10 @@ export function VideoTestimonialsManager() {
   const handleSaveWithStatus = async (featured: boolean) => {
     if (!stagedVideoFile && !form.video_url) {
       toast.error("Please select a video file");
+      return;
+    }
+    if (form.programIds.length === 0) {
+      toast.error("Please select at least one program");
       return;
     }
     setSubmitting(true);
@@ -166,8 +184,13 @@ export function VideoTestimonialsManager() {
       }
 
       const isEditing = !!editingId;
-      const payload = { ...form, video_url: finalVideoUrl, featured_on_home: featured };
-      delete (payload as any).public_id;
+      const payload = {
+        name: form.name,
+        caption: form.caption,
+        video_url: finalVideoUrl,
+        program_ids: form.programIds,
+        featured_on_home: featured
+      };
 
       const res = await fetch(isEditing ? `/api/videos/${editingId}` : "/api/videos", {
         method: isEditing ? "PATCH" : "POST",
@@ -180,7 +203,7 @@ export function VideoTestimonialsManager() {
         setEditingId(null);
         setStagedVideoFile(null);
         setUploadProgress(null);
-        setForm({ video_url: "", public_id: "", caption: "", name: "", program_id: "", featured_on_home: true });
+        setForm({ video_url: "", public_id: "", caption: "", name: "", programIds: [], featured_on_home: true });
         fetchVideos();
       } else {
         const errorData = await res.json();
@@ -201,12 +224,16 @@ export function VideoTestimonialsManager() {
   };
 
   const openEditModal = (video: VideoTestimonial) => {
+    const existingProgramIds = Array.isArray(video.program_ids) && video.program_ids.length > 0
+      ? video.program_ids
+      : (typeof video.program_id === 'string' ? video.program_id.split(',').map(s => s.trim()).filter(Boolean) : []);
+
     setForm({
       video_url: video.video_url || "",
       public_id: "",
       caption: video.caption || "",
       name: video.name || "",
-      program_id: video.program_id || "",
+      programIds: existingProgramIds,
       featured_on_home: video.featured_on_home || false
     });
     setEditingId(video.id);
@@ -260,7 +287,7 @@ export function VideoTestimonialsManager() {
           <h2 className="text-2xl font-display text-charcoal">Video Testimonials</h2>
           <p className="text-sm text-charcoal/60 mt-1">Upload and manage video testimonials for the home page.</p>
         </div>
-        <Button onClick={() => { setEditingId(null); setIsAddModalOpen(true); }} className="bg-[#8C6D40] hover:bg-[#B8955F] text-white rounded-none">
+        <Button onClick={() => { setEditingId(null); setForm({ video_url: "", public_id: "", caption: "", name: "", programIds: [], featured_on_home: true }); setIsAddModalOpen(true); }} className="bg-[#8C6D40] hover:bg-[#B8955F] text-white rounded-none">
           Add Video Testimonial
         </Button>
       </div>
@@ -272,6 +299,7 @@ export function VideoTestimonialsManager() {
           </div>
         ) : (
           videos.map(video => {
+            const programNames = getProgramNames(video);
             return (
               <div key={video.id} className="bg-white border border-[#EBE3DB] rounded-lg overflow-hidden shadow-sm flex flex-col">
                 <div className="aspect-[9/16] bg-black relative overflow-hidden group">
@@ -294,7 +322,13 @@ export function VideoTestimonialsManager() {
                 <div className="p-3 flex-1 flex flex-col justify-between">
                   <div>
                     <h4 className="font-semibold text-charcoal text-sm truncate" title={video.name}>{video.name}</h4>
-                    <p className="text-[9px] uppercase tracking-wider text-[#8C6D40] mb-1 truncate" title={getProgramName(video.program_id)}>{getProgramName(video.program_id)}</p>
+                    <div className="flex flex-wrap gap-1 my-1">
+                      {programNames.map((pName, idx) => (
+                        <span key={idx} className="text-[9px] uppercase font-bold tracking-wider text-[#8C6D40] bg-[#FAF8F5] px-1.5 py-0.5 rounded border border-[#8C6D40]/20 truncate max-w-full" title={pName}>
+                          {pName}
+                        </span>
+                      ))}
+                    </div>
                     <p className="text-xs font-medium text-charcoal/80 mb-1 line-clamp-2" title={video.caption}>{video.caption || "No caption"}</p>
                     <p className="text-[9px] text-charcoal/50 mb-2">{new Date(video.created_at).toLocaleDateString()}</p>
                   </div>
@@ -349,11 +383,47 @@ export function VideoTestimonialsManager() {
                 </div>
                 <div className="w-full sm:w-1/2 space-y-5">
                   <div>
-                    <label className="block text-sm font-medium mb-1">Select Program</label>
-                    <select value={form.program_id} onChange={e => setForm({...form, program_id: e.target.value})} required className="w-full p-2.5 border border-[#EBE3DB] rounded bg-white">
-                      <option value="">-- Choose Program --</option>
-                      {programs.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
-                    </select>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="block text-sm font-medium text-charcoal">
+                        Select Programs <span className="text-red-500">*</span>
+                      </label>
+                      <span className="text-xs text-charcoal/60">{form.programIds.length} selected</span>
+                    </div>
+                    <div className="border border-[#EBE3DB] rounded-md p-2.5 max-h-44 overflow-y-auto space-y-1 bg-white">
+                      {programs.length === 0 ? (
+                        <p className="text-xs text-charcoal/50 italic p-1">No programs available</p>
+                      ) : (
+                        programs.map(p => {
+                          const isSelected = form.programIds.includes(p.id);
+                          return (
+                            <label 
+                              key={p.id} 
+                              className={`flex items-center gap-3 px-2.5 py-2 rounded transition-colors cursor-pointer text-xs font-medium select-none ${
+                                isSelected 
+                                  ? "bg-[#8C6D40]/10 text-charcoal" 
+                                  : "text-charcoal/80 hover:bg-[#FAF8F5]"
+                              }`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={(e) => {
+                                  const checked = e.target.checked;
+                                  setForm(prev => ({
+                                    ...prev,
+                                    programIds: checked 
+                                      ? [...prev.programIds, p.id] 
+                                      : prev.programIds.filter(id => id !== p.id)
+                                  }));
+                                }}
+                                className="h-4 w-4 rounded border-[#EBE3DB] text-[#8C6D40] focus:ring-[#8C6D40] accent-[#8C6D40]"
+                              />
+                              <span className="flex-1 truncate">{p.title}</span>
+                            </label>
+                          );
+                        })
+                      )}
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">Name</label>
@@ -361,7 +431,7 @@ export function VideoTestimonialsManager() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">Caption</label>
-                    <textarea value={form.caption} onChange={e => setForm({...form, caption: e.target.value})} className="w-full p-2.5 border border-[#EBE3DB] rounded resize-none" rows={4} placeholder="e.g., Sarah's 3-month progress..." />
+                    <textarea value={form.caption} onChange={e => setForm({...form, caption: e.target.value})} className="w-full p-2.5 border border-[#EBE3DB] rounded resize-none" rows={3} placeholder="e.g., Sarah's 3-month progress..." />
                   </div>
                   
                   <div className="flex items-center gap-2 pt-2">

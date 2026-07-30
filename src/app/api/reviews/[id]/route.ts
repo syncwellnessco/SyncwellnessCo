@@ -11,15 +11,33 @@ export async function PATCH(request: Request, props: { params: Promise<{ id: str
 
     const { id } = await props.params;
     const body = await request.json();
+    const updates: any = { ...body };
+
+    if (Array.isArray(body.program_ids)) {
+      updates.program_id = body.program_ids.filter(Boolean).join(',');
+    }
+
+    delete updates.program_ids;
+    delete updates.programIds;
+    delete updates.programId;
+    delete updates.beforeImage;
+    delete updates.afterImage;
+    delete updates.published;
 
     const { data, error } = await supabase
       .from('reviews')
-      .update(body)
+      .update(updates)
       .eq('id', id)
       .select();
 
     if (error) throw error;
-    return NextResponse.json(data[0]);
+    const resItem = data?.[0];
+    if (resItem) {
+      resItem.program_ids = typeof resItem.program_id === 'string'
+        ? resItem.program_id.split(',').map((s: string) => s.trim()).filter(Boolean)
+        : [];
+    }
+    return NextResponse.json(resItem);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

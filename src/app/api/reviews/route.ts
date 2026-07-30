@@ -5,9 +5,12 @@ export async function POST(request: Request) {
   try {
     const supabase = await createClient();
     const body = await request.json();
-    const { programId, name, testimonial, beforeImage, afterImage, rating } = body;
+    const { name, testimonial, program_ids, programIds, programId, beforeImage, afterImage, rating } = body;
 
-    if (!programId || !name || !testimonial) {
+    const rawProgramIds = Array.isArray(program_ids) ? program_ids : (Array.isArray(programIds) ? programIds : (programId ? [programId] : []));
+    const selectedProgramIds = rawProgramIds.map((s: string) => s.trim()).filter(Boolean);
+
+    if (selectedProgramIds.length === 0 || !name || !testimonial) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
@@ -15,11 +18,11 @@ export async function POST(request: Request) {
       .from('reviews')
       .insert([
         {
-          program_id: programId,
+          program_id: selectedProgramIds.join(','),
           name,
           testimonial,
-          before_image: beforeImage,
-          after_image: afterImage,
+          before_image: body.before_image ?? beforeImage ?? null,
+          after_image: body.after_image ?? afterImage ?? null,
           rating: rating || 5,
           status: body.status || 'published',
           featured_on_home: body.featured_on_home ?? false
@@ -28,7 +31,13 @@ export async function POST(request: Request) {
       .select();
 
     if (error) throw error;
-    return NextResponse.json({ success: true, data: data?.[0] });
+    const resData = data?.[0];
+    if (resData) {
+      resData.program_ids = typeof resData.program_id === 'string'
+        ? resData.program_id.split(',').map((s: string) => s.trim()).filter(Boolean)
+        : [];
+    }
+    return NextResponse.json({ success: true, data: resData });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -46,9 +55,16 @@ export async function GET(request: Request) {
 
     let query = supabase.from('reviews').select('*', { count: 'exact' }).order('created_at', { ascending: false });
     
-    if (programId) query = query.eq('program_id', programId);
+    if (programId) query = query.ilike('program_id', `%${programId}%`);
     if (status) query = query.eq('status', status);
     if (featured === 'true') query = query.eq('featured_on_home', true);
+
+    const mapReview = (r: any) => ({
+      ...r,
+      program_ids: typeof r.program_id === 'string'
+        ? r.program_id.split(',').map((s: string) => s.trim()).filter(Boolean)
+        : []
+    });
 
     if (limitParam) {
       const limit = parseInt(limitParam, 10);
@@ -59,7 +75,7 @@ export async function GET(request: Request) {
       if (error) throw error;
 
       return NextResponse.json({
-        data: data || [],
+        data: (data || []).map(mapReview),
         total: count || 0,
         hasMore: (offset + (data?.length || 0)) < (count || 0)
       });
@@ -68,9 +84,8 @@ export async function GET(request: Request) {
     const { data, error } = await query;
 
     if (error) throw error;
-    return NextResponse.json(data);
+    return NextResponse.json((data || []).map(mapReview));
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
-

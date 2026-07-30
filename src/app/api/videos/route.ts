@@ -14,9 +14,7 @@ export async function GET(request: Request) {
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
+        get(name: string) { return cookieStore.get(name)?.value; },
       },
     }
   );
@@ -26,10 +24,17 @@ export async function GET(request: Request) {
     query = query.eq('featured_on_home', true);
   }
   
-  const programId = searchParams.get('program_id');
+  const programId = searchParams.get('program_id') || searchParams.get('programId');
   if (programId) {
-    query = query.eq('program_id', programId);
+    query = query.ilike('program_id', `%${programId}%`);
   }
+
+  const mapVideo = (v: any) => ({
+    ...v,
+    program_ids: typeof v.program_id === 'string'
+      ? v.program_id.split(',').map((s: string) => s.trim()).filter(Boolean)
+      : []
+  });
 
   if (limitParam) {
     const limit = parseInt(limitParam, 10);
@@ -40,7 +45,7 @@ export async function GET(request: Request) {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
     return NextResponse.json({
-      data: data || [],
+      data: (data || []).map(mapVideo),
       total: count || 0,
       hasMore: (offset + (data?.length || 0)) < (count || 0)
     });
@@ -48,9 +53,8 @@ export async function GET(request: Request) {
 
   const { data, error } = await query;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json(data);
+  return NextResponse.json((data || []).map(mapVideo));
 }
-
 
 export async function POST(request: Request) {
   const cookieStore = await cookies();
@@ -73,7 +77,8 @@ export async function POST(request: Request) {
 
   try {
     const json = await request.json();
-    const { video_url, caption, name, program_id, featured_on_home } = json;
+    const { video_url, caption, name, program_ids, featured_on_home } = json;
+    const selectedProgramIds = Array.isArray(program_ids) ? program_ids.filter(Boolean) : [];
 
     const { data, error } = await supabase
       .from('video_testimonials')
@@ -81,13 +86,18 @@ export async function POST(request: Request) {
         video_url,
         caption,
         name,
-        program_id,
+        program_id: selectedProgramIds.join(','),
         featured_on_home: featured_on_home !== undefined ? featured_on_home : true
       })
       .select()
       .single();
 
     if (error) throw error;
+    if (data) {
+      data.program_ids = typeof data.program_id === 'string'
+        ? data.program_id.split(',').map((s: string) => s.trim()).filter(Boolean)
+        : [];
+    }
     return NextResponse.json(data);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

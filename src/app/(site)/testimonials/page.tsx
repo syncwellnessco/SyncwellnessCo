@@ -126,6 +126,16 @@ export default function TestimonialsPage() {
     return p ? p.title : "Program";
   };
 
+  const getProgramNames = (item: { program_id?: string; program_ids?: string[] }) => {
+    const ids = Array.isArray(item.program_ids) && item.program_ids.length > 0
+      ? item.program_ids
+      : (typeof item.program_id === 'string' ? item.program_id.split(',').map(s => s.trim()).filter(Boolean) : []);
+    return ids.map(id => {
+      const p = programs.find(x => x.id === id);
+      return p ? p.title : "";
+    }).filter(Boolean);
+  };
+
   const togglePlay = () => {
     if (!videoRef.current) return;
     if (isPlaying) {
@@ -289,10 +299,14 @@ export default function TestimonialsPage() {
                             <h4 className="text-white font-bold text-xs sm:text-base mb-0.5 leading-tight drop-shadow-md">
                               {video.name}
                             </h4>
-                            {getProgramName(video.program_id) && (
-                              <span className="text-[#D4AF37] text-[8px] sm:text-[9px] font-bold uppercase tracking-widest block drop-shadow-md">
-                                {getProgramName(video.program_id)}
-                              </span>
+                            {getProgramNames(video).length > 0 && (
+                              <div className="flex flex-wrap gap-1">
+                                {getProgramNames(video).map((pName, idx) => (
+                                  <span key={idx} className="text-[#D4AF37] text-[8px] sm:text-[9px] font-bold uppercase tracking-widest block drop-shadow-md">
+                                    {pName}
+                                  </span>
+                                ))}
+                              </div>
                             )}
                           </div>
                           <p className="text-white/90 font-medium text-[10px] sm:text-xs line-clamp-2 leading-relaxed drop-shadow-md">
@@ -388,10 +402,14 @@ export default function TestimonialsPage() {
                             </div>
                           )}
 
-                          {getProgramName(r.program_id) && (
-                            <span className="absolute top-3 left-3 bg-white/90 text-charcoal text-[8px] sm:text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded-sm backdrop-blur-md shadow-sm z-10">
-                              {getProgramName(r.program_id)}
-                            </span>
+                          {getProgramNames(r).length > 0 && (
+                            <div className="absolute top-3 left-3 flex flex-wrap gap-1 max-w-[80%] z-10">
+                              {getProgramNames(r).map((pName, idx) => (
+                                <span key={idx} className="bg-white/90 text-charcoal text-[8px] sm:text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded-sm backdrop-blur-md shadow-sm">
+                                  {pName}
+                                </span>
+                              ))}
+                            </div>
                           )}
                         </div>
 
@@ -528,11 +546,13 @@ export default function TestimonialsPage() {
                   </div>
 
                   <div className="pointer-events-auto flex flex-col overflow-hidden">
-                    {getProgramName(activeVideo.program_id) && (
-                      <div className="mb-1.5 shrink-0">
-                        <span className="inline-block bg-[#8C6D40]/80 text-white text-[10px] font-bold px-2 py-0.5 rounded-sm uppercase tracking-widest shadow-sm">
-                          {getProgramName(activeVideo.program_id)}
-                        </span>
+                    {getProgramNames(activeVideo).length > 0 && (
+                      <div className="mb-1.5 shrink-0 flex flex-wrap gap-1">
+                        {getProgramNames(activeVideo).map((pName, idx) => (
+                          <span key={idx} className="inline-block bg-[#8C6D40]/80 text-white text-[10px] font-bold px-2 py-0.5 rounded-sm uppercase tracking-widest shadow-sm">
+                            {pName}
+                          </span>
+                        ))}
                       </div>
                     )}
                     <h4 className="text-white font-display font-semibold text-lg drop-shadow-md leading-tight shrink-0 mb-1">{activeVideo.name}</h4>
@@ -545,11 +565,13 @@ export default function TestimonialsPage() {
 
               {/* Right Side: Content (Desktop) */}
               <div className="hidden w-full md:flex-1 p-8 md:p-12 lg:p-16 md:flex flex-col justify-center bg-[#1A1A1A] text-white overflow-y-auto">
-                {getProgramName(activeVideo.program_id) && (
-                  <div className="mb-6">
-                    <span className="inline-block bg-[#8C6D40]/20 text-[#D4AF37] border border-[#8C6D40]/30 text-[10px] md:text-xs font-bold px-3 py-1.5 rounded-sm uppercase tracking-widest">
-                      {getProgramName(activeVideo.program_id)}
-                    </span>
+                {getProgramNames(activeVideo).length > 0 && (
+                  <div className="mb-6 flex flex-wrap gap-1.5">
+                    {getProgramNames(activeVideo).map((pName, idx) => (
+                      <span key={idx} className="inline-block bg-[#8C6D40]/20 text-[#D4AF37] border border-[#8C6D40]/30 text-[10px] md:text-xs font-bold px-3 py-1.5 rounded-sm uppercase tracking-widest">
+                        {pName}
+                      </span>
+                    ))}
                   </div>
                 )}
                 
@@ -638,11 +660,13 @@ export default function TestimonialsPage() {
                 {/* Right Side: Content */}
                 <div className="w-full md:flex-1 p-6 sm:p-8 md:p-10 flex flex-col justify-center bg-[#FAF9F7] text-charcoal">
                   <div className="flex-1 flex flex-col justify-center">
-                    {getProgramName(activeReview.program_id) && (
-                      <div className="mb-4">
-                        <span className="inline-block bg-[#8C6D40]/10 text-[#8C6D40] border border-[#8C6D40]/20 text-[10px] font-bold px-3 py-1 rounded-sm uppercase tracking-wider">
-                          {getProgramName(activeReview.program_id)}
-                        </span>
+                    {getProgramNames(activeReview).length > 0 && (
+                      <div className="mb-4 flex flex-wrap gap-1.5">
+                        {getProgramNames(activeReview).map((pName, idx) => (
+                          <span key={idx} className="inline-block bg-[#8C6D40]/10 text-[#8C6D40] border border-[#8C6D40]/20 text-[10px] font-bold px-3 py-1 rounded-sm uppercase tracking-wider">
+                            {pName}
+                          </span>
+                        ))}
                       </div>
                     )}
 

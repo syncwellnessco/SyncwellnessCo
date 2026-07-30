@@ -24,14 +24,30 @@ export async function PATCH(request: Request, props: { params: Promise<{ id: str
 
   try {
     const json = await request.json();
+    const updates: any = { ...json };
+
+    if (Array.isArray(json.program_ids)) {
+      updates.program_id = json.program_ids.filter(Boolean).join(',');
+    }
+
+    delete updates.program_ids;
+    delete updates.programIds;
+    delete updates.programId;
+    delete updates.public_id;
+
     const { data, error } = await supabase
       .from('video_testimonials')
-      .update(json)
+      .update(updates)
       .eq('id', params.id)
       .select()
       .single();
 
     if (error) throw error;
+    if (data) {
+      data.program_ids = typeof data.program_id === 'string'
+        ? data.program_id.split(',').map((s: string) => s.trim()).filter(Boolean)
+        : [];
+    }
     return NextResponse.json(data);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
