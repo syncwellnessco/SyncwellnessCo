@@ -1,16 +1,16 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { X, CheckCircle2, Upload, Loader2, Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, CheckCircle2, Loader2, Star, ChevronDown } from "lucide-react";
 import toast from "react-hot-toast";
 import { uploadFileToCloudinary } from "@/lib/cloudinary-utils";
 import { MediaUploader } from "@/components/ui/media-uploader";
-import useEmblaCarousel from "embla-carousel-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useUserStore } from "@/store/user-store";
 import { useReviewStore, Review } from "@/store/review-store";
+import { ReviewCardSkeleton, ReviewCardSkeletonGrid } from "@/components/ui/skeleton";
 
 const CloudinaryBtn = ({ label, onSelectFile, onRemove, value, progress }: { label: string, onSelectFile: (f: File) => void, onRemove: () => void, value: string | File | null, progress?: number | null }) => (
   <MediaUploader
@@ -33,7 +33,11 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
   const firstName = displayName.split(' ')[0];
 
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [totalReviews, setTotalReviews] = useState(0);
+  const [hasMoreReviews, setHasMoreReviews] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loadingMoreReviews, setLoadingMoreReviews] = useState(false);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeReview, setActiveReview] = useState<Review | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -48,49 +52,29 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
   const [beforeProgress, setBeforeProgress] = useState<number | null>(null);
   const [afterProgress, setAfterProgress] = useState<number | null>(null);
 
+  const INITIAL_REVIEW_LIMIT = 6; // 2 rows of 3 reviews
+  const REVIEW_BATCH_SIZE = 6;     // batch size for load more
+
   // Combine database reviews with Zustand local reviews
   const combinedReviews: Review[] = [
     ...submittedReviews.filter((sr) => !programId || sr.program_id === programId),
     ...reviews.filter((r) => !submittedReviews.some((sr) => sr.id === r.id)),
   ];
 
-  // Carousel hooks
-  const [emblaRef, emblaApi] = useEmblaCarousel({
-    loop: false,
-    align: "start",
-    slidesToScroll: 1,
-    breakpoints: {
-      '(min-width: 768px)': { slidesToScroll: 2 }
-    }
-  });
-
-  const [prevBtnEnabled, setPrevBtnEnabled] = useState(false);
-  const [nextBtnEnabled, setNextBtnEnabled] = useState(false);
-
-  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
-  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
-
-  const onSelect = useCallback((emblaApi: any) => {
-    setPrevBtnEnabled(emblaApi.canScrollPrev());
-    setNextBtnEnabled(emblaApi.canScrollNext());
-  }, []);
-
   useEffect(() => {
-    if (!emblaApi) return;
-    onSelect(emblaApi);
-    emblaApi.on("select", onSelect);
-    emblaApi.on("reInit", onSelect);
-    return () => {
-      emblaApi.off("select", onSelect);
-      emblaApi.off("reInit", onSelect);
-    };
-  }, [emblaApi, onSelect]);
-
-  useEffect(() => {
-    fetch(`/api/reviews?programId=${programId}&status=published`)
-      .then(res => res.json())
-      .then(data => {
-        setReviews(Array.isArray(data) ? data : []);
+    setLoading(true);
+    fetch(`/api/reviews?programId=${programId}&status=published&limit=${INITIAL_REVIEW_LIMIT}&offset=0`)
+      .then((res) => res.json())
+      .then((res) => {
+        if (res && typeof res === "object" && "data" in res) {
+          setReviews(res.data || []);
+          setTotalReviews(res.total || 0);
+          setHasMoreReviews(res.hasMore ?? false);
+        } else {
+          setReviews(Array.isArray(res) ? res : []);
+          setTotalReviews(Array.isArray(res) ? res.length : 0);
+          setHasMoreReviews(false);
+        }
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -106,6 +90,24 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
       document.body.style.overflow = "";
     };
   }, [activeReview]);
+
+  const handleLoadMoreReviews = async () => {
+    if (loadingMoreReviews) return;
+    setLoadingMoreReviews(true);
+    try {
+      const currentOffset = reviews.length;
+      const res = await fetch(`/api/reviews?programId=${programId}&status=published&limit=${REVIEW_BATCH_SIZE}&offset=${currentOffset}`).then((r) => r.json());
+      if (res && res.data) {
+        setReviews((prev) => [...prev, ...res.data]);
+        setTotalReviews(res.total || totalReviews);
+        setHasMoreReviews(res.hasMore ?? false);
+      }
+    } catch (e) {
+      console.error("Error loading more reviews:", e);
+    } finally {
+      setLoadingMoreReviews(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -131,7 +133,7 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
               beforeFile,
               process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_REVIEWS || "syncwellness",
               (p) => setBeforeProgress(p)
-            ).then(res => finalBeforeUrl = res.url)
+            ).then((res) => (finalBeforeUrl = res.url))
           );
         }
         if (afterFile) {
@@ -141,7 +143,7 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
               afterFile,
               process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_REVIEWS || "syncwellness",
               (p) => setAfterProgress(p)
-            ).then(res => finalAfterUrl = res.url)
+            ).then((res) => (finalAfterUrl = res.url))
           );
         }
         await Promise.all(uploadPromises);
@@ -165,14 +167,14 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
           after_image: finalAfterUrl || null,
           rating: rating || 5,
           featured_on_home: false,
-          created_at: new Date().toISOString()
+          created_at: new Date().toISOString(),
         };
 
         // Immediately add to Zustand store so it shows without refresh
         addReview({
           ...newReview,
           program_id: programId,
-          featured_on_home: false
+          featured_on_home: false,
         });
 
         toast.success("Thank you! Your review has been submitted.");
@@ -199,39 +201,15 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
   };
 
   return (
-    <div className="py-8 mt-10 border-t border-beige-200">
-      <div className="mx-auto max-w-4xl px-4">
+    <div className="py-10 sm:py-16 mt-10 border-t border-beige-200">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-4 mb-8">
           <div className="flex items-center justify-between gap-4">
             <h2 className="font-display text-2xl sm:text-3xl font-semibold text-charcoal">Program Reviews</h2>
             
-            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-              {combinedReviews.length > 1 && (
-                <div className="flex gap-1.5 sm:gap-2">
-                  <Button 
-                    onClick={scrollPrev} 
-                    disabled={!prevBtnEnabled} 
-                    variant="outline" 
-                    size="icon" 
-                    className="h-8 w-8 sm:h-10 sm:w-10 rounded-full border-beige-200 text-charcoal hover:bg-[#FAF8F5] disabled:opacity-40"
-                  >
-                    <ChevronLeft className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
-                  </Button>
-                  <Button 
-                    onClick={scrollNext} 
-                    disabled={!nextBtnEnabled} 
-                    variant="outline" 
-                    size="icon" 
-                    className="h-8 w-8 sm:h-10 sm:w-10 rounded-full border-beige-200 text-charcoal hover:bg-[#FAF8F5] disabled:opacity-40"
-                  >
-                    <ChevronRight className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
-                  </Button>
-                </div>
-              )}
-              <Button onClick={() => setIsModalOpen(true)} className="bg-charcoal hover:bg-charcoal/90 text-white rounded-full px-4 sm:px-6 py-1.5 sm:py-2 text-[11px] sm:text-sm h-8 sm:h-10">
-                Write a Review
-              </Button>
-            </div>
+            <Button onClick={() => setIsModalOpen(true)} className="bg-charcoal hover:bg-charcoal/90 text-white rounded-full px-4 sm:px-6 py-1.5 sm:py-2 text-[11px] sm:text-sm h-8 sm:h-10 shrink-0">
+              Write a Review
+            </Button>
           </div>
           
           <div className="flex items-center gap-3">
@@ -252,7 +230,8 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-[#8C6D40]" /></div>
+          /* Written Reviews Skeleton Grid Loader (6 count = 2 rows of 3) */
+          <ReviewCardSkeletonGrid count={INITIAL_REVIEW_LIMIT} />
         ) : combinedReviews.length === 0 ? (
           <div className="text-center py-10 bg-[#FAF9F7] rounded-2xl border border-beige-100">
             <Star className="h-12 w-12 text-[#8C6D40]/30 mx-auto mb-4" />
@@ -263,69 +242,92 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
             </Button>
           </div>
         ) : (
-          <div className="overflow-hidden" ref={emblaRef}>
-            <div className="flex gap-6">
-              {combinedReviews.map(r => (
-                <div key={r.id} className="flex-[0_0_100%] md:flex-[0_0_calc(50%-12px)] min-w-0 py-1">
-                  <article 
-                    className="bg-white rounded-md border border-beige-200 shadow-sm cursor-pointer flex flex-col h-full overflow-hidden text-left"
-                    onClick={() => setActiveReview(r)}
-                  >
-                    {/* Images Top Half - Shorter aspect ratio on mobile */}
-                    <div className="relative w-full aspect-[16/9] sm:aspect-[16/10] bg-charcoal/5 flex overflow-hidden border-b border-beige-100 shrink-0">
-                      {r.before_image || r.after_image ? (
-                        <>
-                          {r.before_image && (
-                            <div className={`relative h-full ${r.after_image ? "w-1/2" : "w-full"}`}>
-                              <img src={r.before_image} alt="Before" className="absolute inset-0 w-full h-full object-cover" />
-                              <span className="absolute bottom-2 left-2 bg-black/60 text-white text-[8px] sm:text-[9px] uppercase font-bold tracking-widest px-2 py-1 rounded-sm backdrop-blur-sm z-10">Before</span>
-                            </div>
-                          )}
-                          {r.after_image && (
-                            <div className={`relative h-full ${r.before_image ? "w-1/2" : "w-full"}`}>
-                              <img src={r.after_image} alt="After" className="absolute inset-0 w-full h-full object-cover" />
-                              <span className="absolute bottom-2 right-2 bg-black/60 text-white text-[8px] sm:text-[9px] uppercase font-bold tracking-widest px-2 py-1 rounded-sm backdrop-blur-sm z-10">After</span>
-                            </div>
-                          )}
-                        </>
-                      ) : (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#FAF8F5]">
-                          <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-[#8C6D40]/10 flex items-center justify-center mb-2">
-                            <Star className="h-4 w-4 sm:h-5 sm:w-5 text-[#8C6D40] opacity-50" />
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+              {combinedReviews.map((r) => (
+                <article 
+                  key={r.id}
+                  className="bg-white rounded-md border border-beige-200 shadow-sm cursor-pointer hover:shadow-xl transition-all duration-500 hover:-translate-y-1 hover:border-[#8C6D40]/30 group/card flex flex-col h-full overflow-hidden text-left"
+                  onClick={() => setActiveReview(r)}
+                >
+                  {/* Images Top Half */}
+                  <div className="relative w-full aspect-[16/10] bg-charcoal/5 flex overflow-hidden border-b border-beige-100 shrink-0">
+                    {r.before_image || r.after_image ? (
+                      <>
+                        {r.before_image && (
+                          <div className={`relative h-full ${r.after_image ? "w-1/2" : "w-full"}`}>
+                            <img src={r.before_image} alt="Before" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-105" />
+                            <span className="absolute bottom-2 left-2 bg-black/60 text-white text-[8px] sm:text-[9px] uppercase font-bold tracking-widest px-2 py-1 rounded-sm backdrop-blur-sm z-10">Before</span>
                           </div>
-                          <span className="text-[8px] sm:text-[9px] font-semibold uppercase tracking-[0.15em] text-[#8C6D40] opacity-60">Verified Experience</span>
+                        )}
+                        {r.after_image && (
+                          <div className={`relative h-full ${r.before_image ? "w-1/2" : "w-full"}`}>
+                            <img src={r.after_image} alt="After" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-105" />
+                            <span className="absolute bottom-2 right-2 bg-black/60 text-white text-[8px] sm:text-[9px] uppercase font-bold tracking-widest px-2 py-1 rounded-sm backdrop-blur-sm z-10">After</span>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#FAF8F5]">
+                        <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-[#8C6D40]/10 flex items-center justify-center mb-2">
+                          <Star className="h-4 w-4 sm:h-5 sm:w-5 text-[#8C6D40] opacity-50" />
                         </div>
-                      )}
-                    </div>
+                        <span className="text-[8px] sm:text-[9px] font-semibold uppercase tracking-[0.15em] text-[#8C6D40] opacity-60">Verified Experience</span>
+                      </div>
+                    )}
+                  </div>
 
-                    {/* Content Bottom Half - Smaller padding, sizes, and line clamps on mobile */}
-                    <div className="p-3.5 sm:p-6 flex flex-col flex-1 bg-white">
-                      <div className="flex-1 mb-3 sm:mb-5">
-                        <p className="text-charcoal/80 text-[11px] sm:text-[13px] leading-relaxed italic line-clamp-3 sm:line-clamp-4 relative z-10">
-                          "{r.testimonial}"
-                        </p>
+                  {/* Content Bottom Half */}
+                  <div className="p-4 sm:p-6 flex flex-col flex-1 bg-white">
+                    <div className="flex-1 mb-4 sm:mb-5">
+                      <p className="text-charcoal/80 text-xs sm:text-[13px] leading-relaxed italic line-clamp-4 relative z-10">
+                        "{r.testimonial}"
+                      </p>
+                    </div>
+                    
+                    <div className="flex items-center gap-2.5 sm:gap-3 pt-3 sm:pt-4 border-t border-beige-100 mt-auto">
+                      <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-[#8C6D40]/10 flex items-center justify-center font-display font-semibold text-[#8C6D40] text-sm shrink-0">
+                        {r.name.charAt(0).toUpperCase()}
                       </div>
-                      
-                      <div className="flex items-center gap-2 sm:gap-3 pt-2.5 sm:pt-4 border-t border-beige-100 mt-auto">
-                        <div className="h-7 w-7 sm:h-9 sm:w-9 rounded-full bg-[#8C6D40]/10 flex items-center justify-center font-display font-semibold text-[#8C6D40] text-xs sm:text-sm shrink-0">
-                          {r.name.charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-charcoal text-[11px] sm:text-[13px] truncate max-w-[120px] sm:max-w-[160px]">{r.name}</h4>
-                          <div className="flex text-[#8C6D40] mt-0.5">
-                            {[...Array(5)].map((_, i) => <Star key={i} className={`h-2 w-2 sm:h-2.5 sm:w-2.5 ${i < (r.rating || 5) ? 'fill-current' : 'text-gray-300'}`} />)}
-                          </div>
+                      <div>
+                        <h4 className="font-semibold text-charcoal text-xs sm:text-[13px] truncate max-w-[120px] sm:max-w-[160px]">{r.name}</h4>
+                        <div className="flex text-[#8C6D40] mt-0.5">
+                          {[...Array(5)].map((_, i) => <Star key={i} className={`h-2.5 w-2.5 ${i < (r.rating || 5) ? 'fill-current' : 'text-gray-300'}`} />)}
                         </div>
                       </div>
                     </div>
-                  </article>
-                </div>
+                  </div>
+                </article>
               ))}
+
+              {/* Skeleton Cards while loading more reviews */}
+              {loadingMoreReviews &&
+                [...Array(REVIEW_BATCH_SIZE)].map((_, i) => (
+                  <ReviewCardSkeleton key={`review-skel-${i}`} />
+                ))}
             </div>
-          </div>
+
+            {/* LOAD MORE BUTTON FOR REVIEWS */}
+            {hasMoreReviews && (
+              <div className="flex flex-col items-center justify-center pt-8 sm:pt-12 pb-4 sm:pb-8 gap-2 text-center">
+                <button
+                  onClick={handleLoadMoreReviews}
+                  disabled={loadingMoreReviews}
+                  className="group inline-flex items-center gap-2 px-8 py-3.5 rounded-sm bg-charcoal text-cream text-xs font-semibold uppercase tracking-[0.18em] hover:bg-[#8C6D40] disabled:opacity-60 transition-all shadow-sm hover:shadow-md active:scale-95"
+                >
+                  <span>{loadingMoreReviews ? "Loading Reviews..." : "Load More Reviews"}</span>
+                  <ChevronDown className="w-4 h-4 transition-transform group-hover:translate-y-0.5 text-gold-light" />
+                </button>
+                <p className="text-[11px] text-charcoal/50">
+                  Showing {combinedReviews.length} of {totalReviews || combinedReviews.length} written reviews
+                </p>
+              </div>
+            )}
+          </>
         )}
       </div>
 
+      {/* Write a Review Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-charcoal/60 backdrop-blur-sm overflow-y-auto">
           <div className="bg-white rounded-xl w-full max-w-3xl lg:max-w-4xl shadow-2xl relative my-auto max-h-[95vh] overflow-y-auto md:overflow-visible">
@@ -527,7 +529,8 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
                       <h4 className="font-semibold text-charcoal text-sm">
                         {activeReview.name}
                       </h4>
-                      <span className="text-[10px] text-charcoal/50 uppercase tracking-widest font-semibold">
+                      <span className="text-[10px] text-charcoal/50 uppercase tracking-widest font-semibold flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3 text-[#8C6D40]" />
                         Verified Client
                       </span>
                     </div>
