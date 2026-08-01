@@ -204,7 +204,7 @@ export function ResourcesManager() {
     setUpdatingIds(prev => ({ ...prev, [resource.id]: true }));
     try {
       const nextPublished = !resource.published;
-      const { error } = await supabase.from('resources').update({ published: nextPublished }).eq('id', resource.id);
+      const { error } = await supabase.from('blogs').update({ published: nextPublished }).eq('id', resource.id);
       if (error) throw error;
       toast.success(nextPublished ? "Resource published!" : "Resource saved as draft!");
       setResources(prev => prev.map(r => r.id === resource.id ? { ...r, published: nextPublished } : r));
@@ -361,15 +361,6 @@ export function ResourcesManager() {
                     <span className="text-[10px] uppercase tracking-wider font-bold">No Image</span>
                   </div>
                 )}
-                <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-full shadow-sm border border-[#EBE3DB]">
-                  <Toggle
-                    size="sm"
-                    checked={!!resource.published}
-                    loading={!!updatingIds[resource.id]}
-                    onChange={() => toggleResourcePublished(resource)}
-                    label={<span className="text-[10px] uppercase font-bold tracking-wider text-charcoal">{resource.published ? 'Published' : 'Draft'}</span>}
-                  />
-                </div>
               </div>
               
               <div className="p-5 flex-1 flex flex-col justify-between">
@@ -391,22 +382,30 @@ export function ResourcesManager() {
                 </div>
               </div>
 
-              <div className="bg-[#FAF8F5] border-t border-[#EBE3DB] flex items-stretch h-10">
-                <button 
-                  onClick={() => handleEdit(resource)} 
-                  className="flex items-center justify-center text-charcoal/60 hover:text-[#8C6D40] flex-1 hover:bg-[#8C6D40]/5 transition-colors"
-                  title="Edit Resource"
-                >
-                  <Edit className="h-4 w-4" />
-                </button>
-                <div className="w-px bg-[#EBE3DB]"></div>
-                <button 
-                  onClick={() => handleDelete(resource.id)} 
-                  className="flex items-center justify-center text-red-400 hover:text-red-600 flex-1 hover:bg-red-50 transition-colors"
-                  title="Delete Resource"
-                >
-                  <Trash className="h-4 w-4" />
-                </button>
+              <div className="bg-[#FAF8F5] border-t border-[#EBE3DB] flex items-center justify-between px-4 py-2.5">
+                <Toggle
+                  size="sm"
+                  checked={!!resource.published}
+                  loading={!!updatingIds[resource.id]}
+                  onChange={() => toggleResourcePublished(resource)}
+                  label={<span className="text-[10px] uppercase font-bold tracking-wider text-charcoal">{resource.published ? 'Published' : 'Draft'}</span>}
+                />
+                <div className="flex items-center gap-1">
+                  <button 
+                    onClick={() => handleEdit(resource)} 
+                    className="p-1.5 text-charcoal/60 hover:text-[#8C6D40] hover:bg-[#8C6D40]/10 rounded transition-colors cursor-pointer"
+                    title="Edit Resource"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </button>
+                  <button 
+                    onClick={() => handleDelete(resource.id)} 
+                    className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer"
+                    title="Delete Resource"
+                  >
+                    <Trash className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
             </div>
           ))
