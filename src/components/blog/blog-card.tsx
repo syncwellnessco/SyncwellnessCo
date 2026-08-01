@@ -27,70 +27,64 @@ export function BlogCard({ post, className = "" }: BlogCardProps) {
   const formattedDate = formatDate(post.createdAt);
   const href = `/resources/blogs/${post.slug || post.id}`;
   const categoryLabel = post.category || "Journal";
-  const authorLabel = post.author || "Sync Wellness";
 
   return (
     <div className={`w-full ${className}`}>
-      {/* Mobile View: Detailed List Card */}
-      <article className="block sm:hidden bg-[#FAF8F5] border border-[#EBE3DB] rounded-sm p-4 transition-all duration-200 shadow-sm active:scale-[0.99]">
-        <Link href={href} className="group flex flex-col gap-2.5">
-          {/* Top Row: Category & Date */}
-          <div className="flex items-center justify-between text-[10px] tracking-wider uppercase font-semibold">
-            <span className="bg-[#8C6D40]/10 text-[#8C6D40] px-2.5 py-0.5 rounded-sm">
-              {categoryLabel}
-            </span>
-            {formattedDate && (
-              <span className="text-charcoal/50 font-medium normal-case text-[11px]">
-                {formattedDate}
-              </span>
+      {/* Mobile View: Clean YouTube-Style List Card (Entire Card Clickable, Sharp Edges, No Read More Button) */}
+      <article className="block sm:hidden bg-[#FAF8F5] border border-[#EBE3DB] rounded-none transition-all duration-200 shadow-xs hover:border-[#8C6D40]/50 active:scale-[0.99] w-full cursor-pointer overflow-hidden">
+        <Link href={href} className="group flex gap-3.5 items-start p-3 w-full">
+          {/* Left Column: Full Aspect Image Preview (Sharp Edges) */}
+          <div className="relative w-[38%] max-w-[140px] shrink-0 rounded-none overflow-hidden bg-sage-50 border border-[#EBE3DB] aspect-[16/11]">
+            {post.image ? (
+              <img
+                src={post.image}
+                alt={post.title}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              />
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#FAF8F5] to-[#EBE3DB]/60 p-2 text-center">
+                <span className="font-display text-xs font-semibold text-[#8C6D40]">Sync</span>
+                <span className="text-[9px] text-charcoal/50 uppercase tracking-wider font-medium">Wellness</span>
+              </div>
             )}
           </div>
 
-          {/* Main Row: Title/Excerpt + Thumbnail */}
-          <div className="flex gap-3.5 items-start justify-between">
-            <div className="flex-1 min-w-0">
-              <h3 className="font-display text-base font-bold text-charcoal leading-snug group-hover:text-[#8C6D40] transition-colors line-clamp-2 italic">
+          {/* Right Column: Blog Content Details */}
+          <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+            <div>
+              {/* Category & Date */}
+              <div className="flex items-center justify-between text-[10px] tracking-wider uppercase font-semibold mb-1.5 flex-wrap gap-1">
+                <span className="bg-[#8C6D40]/10 text-[#8C6D40] px-2 py-0.5 rounded-none text-[9px] whitespace-normal">
+                  {categoryLabel}
+                </span>
+                {formattedDate && (
+                  <span className="text-charcoal/70 font-semibold normal-case text-[9px]">
+                    {formattedDate}
+                  </span>
+                )}
+              </div>
+
+              {/* Title */}
+              <h3 className="font-display text-xs sm:text-sm font-bold text-charcoal leading-snug group-hover:text-[#8C6D40] transition-colors line-clamp-2 italic">
                 {post.title}
               </h3>
+
+              {/* Excerpt */}
               {post.excerpt && (
-                <p className="text-xs text-charcoal/75 line-clamp-2 mt-1.5 leading-relaxed">
+                <p className="text-[11px] text-charcoal/75 line-clamp-2 mt-1 leading-relaxed">
                   {post.excerpt}
                 </p>
               )}
             </div>
-
-            {post.image ? (
-              <div className="relative w-22 h-22 sm:w-24 sm:h-24 rounded-sm overflow-hidden flex-shrink-0 border border-[#EBE3DB] bg-white">
-                <img
-                  src={post.image}
-                  alt={post.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-            ) : (
-              <div className="w-22 h-22 rounded-sm bg-sage-50 flex-shrink-0 flex items-center justify-center border border-[#EBE3DB] text-charcoal/40 font-display text-xs">
-                Sync
-              </div>
-            )}
-          </div>
-
-          {/* Footer Row: Author & Action */}
-          <div className="flex items-center justify-between text-[11px] text-charcoal/60 pt-2.5 border-t border-[#EBE3DB]/60 mt-0.5">
-            <span className="truncate max-w-[180px] font-medium">
-              By {authorLabel}
-            </span>
-            <span className="text-[#8C6D40] font-semibold flex items-center gap-1 group-hover:translate-x-0.5 transition-transform text-xs">
-              Read Article →
-            </span>
           </div>
         </Link>
       </article>
 
-      {/* Desktop/Tablet View: Grid Card */}
-      <article className="hidden sm:flex flex-col overflow-hidden rounded-sm bg-[#FAF8F5] border border-[#EBE3DB] shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md w-full h-full">
+      {/* Desktop/Tablet View: Polished Grid Card (Entire Card Clickable, Sharp Edges, No Read More Button) */}
+      <article className="hidden sm:flex flex-col overflow-hidden rounded-none bg-[#FAF8F5] border border-[#EBE3DB] shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-[#8C6D40]/40 w-full h-full cursor-pointer">
         <Link href={href} className="group flex-1 flex flex-col">
           {post.image ? (
-            <div className="relative aspect-[16/9] overflow-hidden border-b border-[#EBE3DB]">
+            <div className="relative aspect-[16/9] overflow-hidden border-b border-[#EBE3DB] rounded-none">
               <img
                 src={post.image}
                 alt={post.title}
@@ -98,16 +92,18 @@ export function BlogCard({ post, className = "" }: BlogCardProps) {
               />
             </div>
           ) : (
-            <div className="relative aspect-[16/9] bg-sage-50 border-b border-[#EBE3DB]" />
+            <div className="relative aspect-[16/9] bg-sage-50 border-b border-[#EBE3DB] rounded-none flex items-center justify-center text-charcoal/30 font-display text-sm">
+              Sync Wellness
+            </div>
           )}
           <div className="p-4 flex flex-1 flex-col justify-between">
             <div>
-              <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-wider mb-2">
-                <span className="text-[#8C6D40] bg-[#8C6D40]/10 px-2 py-0.5 rounded-sm">
+              <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-wider mb-2 gap-1 flex-wrap">
+                <span className="text-[#8C6D40] bg-[#8C6D40]/10 px-2 py-0.5 rounded-none text-[9.5px] whitespace-normal">
                   {categoryLabel}
                 </span>
                 {formattedDate && (
-                  <span className="text-charcoal/50 font-normal normal-case text-[11px]">
+                  <span className="text-charcoal/70 font-semibold normal-case text-[10px]">
                     {formattedDate}
                   </span>
                 )}
@@ -116,18 +112,10 @@ export function BlogCard({ post, className = "" }: BlogCardProps) {
                 {post.title}
               </h3>
               {post.excerpt && (
-                <p className="text-xs text-charcoal/70 line-clamp-2 leading-relaxed mb-3">
+                <p className="text-xs text-charcoal/70 line-clamp-3 leading-relaxed">
                   {post.excerpt}
                 </p>
               )}
-            </div>
-            <div className="flex items-center justify-between text-[11px] text-charcoal/60 pt-3 border-t border-[#EBE3DB]/60 mt-2">
-              <span className="font-medium truncate max-w-[140px]">
-                By {authorLabel}
-              </span>
-              <span className="text-[#8C6D40] font-semibold group-hover:translate-x-0.5 transition-transform text-xs">
-                Read More →
-              </span>
             </div>
           </div>
         </Link>
