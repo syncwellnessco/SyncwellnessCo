@@ -4,11 +4,11 @@ import type { Program } from "@/types/program";
 function mapDbToProgram(row: any): Program {
   return {
     ...row,
-    shortDescription: row.shortdescription !== undefined ? row.shortdescription : row.shortDescription,
-    problemsSolved: row.problemssolved !== undefined ? row.problemssolved : row.problemsSolved,
-    createdAt: row.createdat !== undefined ? row.createdat : row.createdAt,
-    updatedAt: row.updatedat !== undefined ? row.updatedat : row.updatedAt,
-    showOnHome: row.showonhome !== undefined ? row.showonhome : (row.showOnHome !== undefined ? row.showOnHome : true),
+    shortDescription: row.short_description !== undefined ? row.short_description : (row.shortdescription !== undefined ? row.shortdescription : row.shortDescription),
+    problemsSolved: row.problems_solved !== undefined ? row.problems_solved : (row.problemssolved !== undefined ? row.problemssolved : row.problemsSolved),
+    createdAt: row.created_at !== undefined ? row.created_at : (row.createdat !== undefined ? row.createdat : row.createdAt),
+    updatedAt: row.updated_at !== undefined ? row.updated_at : (row.updatedat !== undefined ? row.updatedat : row.updatedAt),
+    showOnHome: row.show_on_home !== undefined ? row.show_on_home : (row.showonhome !== undefined ? row.showonhome : (row.showOnHome !== undefined ? row.showOnHome : true)),
   };
 }
 

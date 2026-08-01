@@ -27,11 +27,11 @@ function mapDbToProgram(row: any): Program {
   if (!row) return {} as Program;
   return {
     ...row,
-    shortDescription: row.shortdescription !== undefined ? row.shortdescription : row.shortDescription,
-    problemsSolved: row.problemssolved !== undefined ? row.problemssolved : row.problemsSolved,
-    createdAt: row.createdat !== undefined ? row.createdat : row.createdAt,
-    updatedAt: row.updatedat !== undefined ? row.updatedat : row.updatedAt,
-    showOnHome: row.showonhome !== undefined ? row.showonhome : row.showOnHome,
+    shortDescription: row.short_description !== undefined ? row.short_description : (row.shortdescription !== undefined ? row.shortdescription : row.shortDescription),
+    problemsSolved: row.problems_solved !== undefined ? row.problems_solved : (row.problemssolved !== undefined ? row.problemssolved : row.problemsSolved),
+    createdAt: row.created_at !== undefined ? row.created_at : (row.createdat !== undefined ? row.createdat : row.createdAt),
+    updatedAt: row.updated_at !== undefined ? row.updated_at : (row.updatedat !== undefined ? row.updatedat : row.updatedAt),
+    showOnHome: row.show_on_home !== undefined ? row.show_on_home : (row.showonhome !== undefined ? row.showonhome : row.showOnHome),
   };
 }
 
@@ -45,14 +45,25 @@ function mapProgramToDb(program: any): any {
     dbObj.problemssolved = dbObj.problemsSolved;
     delete dbObj.problemsSolved;
   }
+
+  // Handle createdAt -> created_at and clean up legacy keys
   if (dbObj.createdAt !== undefined) {
-    dbObj.createdat = dbObj.createdAt;
+    dbObj.created_at = dbObj.createdAt;
     delete dbObj.createdAt;
+  } else if (dbObj.createdat !== undefined) {
+    dbObj.created_at = dbObj.createdat;
   }
+  delete dbObj.createdat;
+
+  // Handle updatedAt -> updated_at and clean up legacy keys
   if (dbObj.updatedAt !== undefined) {
-    dbObj.updatedat = dbObj.updatedAt;
+    dbObj.updated_at = dbObj.updatedAt;
     delete dbObj.updatedAt;
+  } else if (dbObj.updatedat !== undefined) {
+    dbObj.updated_at = dbObj.updatedat;
   }
+  delete dbObj.updatedat;
+
   if (dbObj.showOnHome !== undefined) {
     dbObj.showonhome = dbObj.showOnHome;
     delete dbObj.showOnHome;
