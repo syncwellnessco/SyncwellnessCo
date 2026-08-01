@@ -218,14 +218,14 @@ export function BlogsManager() {
               <div className="p-6 sm:p-8 overflow-y-auto flex-1 space-y-5">
                 <div className="flex flex-col lg:flex-row gap-6 items-stretch">
                   {/* Left Side: Cover Image */}
-                  <div className="w-full lg:w-5/12 flex flex-col">
+                  <div className="w-full lg:w-5/12 flex flex-col justify-start">
                     <MediaUploader
                       label="Cover Image"
                       helperText="Aspect ratio: 16:9 landscape"
                       value={stagedCoverFile || formData.image_url}
                       accept="image/*"
-                      aspectRatioClass="aspect-[16/9] min-h-[220px] flex-1"
-                      className="h-full flex-1"
+                      aspectRatioClass="w-full"
+                      className="w-full"
                       progress={uploadProgress}
                       onSelectFile={(file) => setStagedCoverFile(file)}
                       onRemove={() => {
@@ -235,19 +235,8 @@ export function BlogsManager() {
                     />
                   </div>
 
-                  {/* Right Side: Title, Category, Excerpt */}
-                  <div className="w-full lg:w-7/12 space-y-3.5 flex flex-col justify-between">
-                    <div className="space-y-1.5">
-                      <Label>Title</Label>
-                      <Input 
-                        value={formData.title || ""}
-                        onChange={(e) => setFormData({...formData, title: e.target.value})}
-                        required
-                        className="text-base font-medium h-11"
-                        placeholder="Enter an engaging blog title..."
-                      />
-                    </div>
-
+                  {/* Right Side: Category, Excerpt */}
+                  <div className="w-full lg:w-7/12 flex flex-col justify-between">
                     <div className="space-y-1.5">
                       <Label>Category</Label>
                       <Input 
@@ -257,17 +246,28 @@ export function BlogsManager() {
                       />
                     </div>
 
-                    <div className="space-y-1.5 flex-1 flex flex-col justify-end">
+                    <div className="space-y-1.5 flex-1 flex flex-col justify-end min-h-0 pt-2">
                       <Label className="mb-1.5 inline-block">Short Excerpt</Label>
                       <Textarea 
-                        rows={3}
                         value={formData.excerpt || ""}
                         onChange={(e) => setFormData({...formData, excerpt: e.target.value})}
                         placeholder="A brief 1-2 sentence summary of the article..."
-                        className="flex-1 resize-none"
+                        className="flex-1 h-full min-h-[80px] resize-none"
                       />
                     </div>
                   </div>
+                </div>
+
+                {/* Title (Full Width) */}
+                <div className="space-y-1.5">
+                  <Label>Title</Label>
+                  <Input 
+                    value={formData.title || ""}
+                    onChange={(e) => setFormData({...formData, title: e.target.value})}
+                    required
+                    className="text-base font-medium h-11"
+                    placeholder="Enter an engaging blog title..."
+                  />
                 </div>
 
                 <div className="space-y-1.5">
@@ -353,7 +353,7 @@ export function BlogsManager() {
         ) : (
           paginatedBlogs.map((blog) => (
             <div key={blog.id} className="bg-white border border-[#EBE3DB] rounded-lg shadow-sm hover:shadow-md transition-all flex flex-col overflow-hidden">
-              <div className="relative aspect-[16/9] w-full bg-[#FAF8F5] border-b border-[#EBE3DB]">
+              <div className="relative w-full overflow-hidden bg-[#FAF8F5] border-b border-[#EBE3DB]" style={{ aspectRatio: "16 / 9" }}>
                 {blog.image_url ? (
                   <img src={blog.image_url} alt="" className="w-full h-full object-cover" />
                 ) : (
@@ -364,10 +364,10 @@ export function BlogsManager() {
                 )}
               </div>
               
-              <div className="p-5 flex-1 flex flex-col justify-between">
+              <div className="p-3.5 sm:p-4 flex-1 flex flex-col justify-between">
                 <div>
-                  <div className="text-[10px] text-[#8C6D40] font-bold uppercase tracking-wider mb-2">{blog.category || 'General'}</div>
-                  <h3 className="font-display text-lg text-charcoal font-bold leading-tight line-clamp-2">{blog.title}</h3>
+                  <div className="text-[10px] text-[#8C6D40] font-bold uppercase tracking-wider mb-1.5">{blog.category || 'General'}</div>
+                  <h3 className="font-display text-base text-charcoal font-bold leading-snug line-clamp-2">{blog.title}</h3>
                 </div>
               </div>
 

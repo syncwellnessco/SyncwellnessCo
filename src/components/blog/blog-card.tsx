@@ -34,7 +34,7 @@ export function BlogCard({ post, className = "" }: BlogCardProps) {
       <article className="block sm:hidden w-full border-b border-[#EBE3DB] last:border-b-0">
         <Link href={href} className="group flex gap-3.5 items-start py-4">
           {/* Thumbnail */}
-          <div className="relative w-[38%] max-w-[160px] shrink-0 overflow-hidden rounded-sm bg-[#F1EAE0] aspect-[16/9]">
+          <div className="relative w-[38%] max-w-[160px] shrink-0 overflow-hidden rounded-sm bg-[#F1EAE0]" style={{ aspectRatio: "16 / 9" }}>
             {post.image ? (
               <img
                 src={post.image}
@@ -72,7 +72,7 @@ export function BlogCard({ post, className = "" }: BlogCardProps) {
       <article className="hidden sm:flex flex-col overflow-hidden rounded-sm bg-[#FAF8F5] border border-[#EBE3DB] shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md w-full h-full">
         <Link href={href} className="group flex-1 flex flex-col">
           {post.image ? (
-            <div className="relative aspect-[16/9] overflow-hidden border-b border-[#EBE3DB]">
+            <div className="relative overflow-hidden border-b border-[#EBE3DB]" style={{ aspectRatio: "16 / 9" }}>
               <img
                 src={post.image}
                 alt={post.title}
@@ -80,7 +80,7 @@ export function BlogCard({ post, className = "" }: BlogCardProps) {
               />
             </div>
           ) : (
-            <div className="relative aspect-[16/9] bg-sage-50 border-b border-[#EBE3DB]" />
+            <div className="relative bg-sage-50 border-b border-[#EBE3DB]" style={{ aspectRatio: "16 / 9" }} />
           )}
           <div className="p-4 flex flex-1 flex-col justify-between">
             <div>

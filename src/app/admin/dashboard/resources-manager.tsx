@@ -352,7 +352,7 @@ export function ResourcesManager() {
         ) : (
           paginatedList.map((resource) => (
             <div key={resource.id} className="bg-white border border-[#EBE3DB] rounded-lg shadow-sm hover:shadow-md transition-all flex flex-col overflow-hidden">
-              <div className="relative aspect-[16/9] w-full bg-[#FAF8F5] border-b border-[#EBE3DB]">
+              <div className="relative w-full overflow-hidden bg-[#FAF8F5] border-b border-[#EBE3DB]" style={{ aspectRatio: "16 / 9" }}>
                 {resource.image_url ? (
                   <img src={resource.image_url} alt="" className="w-full h-full object-cover" />
                 ) : (
@@ -363,12 +363,12 @@ export function ResourcesManager() {
                 )}
               </div>
               
-              <div className="p-5 flex-1 flex flex-col justify-between">
+              <div className="p-3.5 sm:p-4 flex-1 flex flex-col justify-between">
                 <div>
-                  <div className="text-[10px] text-[#8C6D40] font-bold uppercase tracking-wider mb-2">
+                  <div className="text-[10px] text-[#8C6D40] font-bold uppercase tracking-wider mb-1.5">
                     {subTab === "blogs" ? (resource.category || 'General') : subTab === "podcasts" ? 'Podcast' : (resource.author || 'Press')}
                   </div>
-                  <h3 className="font-display text-lg text-charcoal font-bold leading-tight line-clamp-2 mb-2">{resource.title}</h3>
+                  <h3 className="font-display text-base text-charcoal font-bold leading-snug line-clamp-2">{resource.title}</h3>
                   
                   {subTab !== "blogs" && (
                     <div className="text-[10px] text-charcoal/40 font-mono mb-3 truncate flex items-center gap-1 bg-charcoal/5 px-2 py-1 rounded-sm w-fit">
@@ -470,14 +470,14 @@ export function ResourcesManager() {
               <div className="p-6 sm:p-8 overflow-y-auto flex-1 space-y-5">
                 <div className="flex flex-col lg:flex-row gap-6 items-stretch">
                   {/* Left Side: Cover Image */}
-                  <div className="w-full lg:w-5/12 flex flex-col">
+                  <div className="w-full lg:w-5/12 flex flex-col justify-start">
                     <MediaUploader
                       label="Cover Image"
                       helperText="Aspect ratio: 16:9 landscape"
                       value={stagedCoverFile || formData.image_url}
                       accept="image/*"
-                      aspectRatioClass="aspect-[16/9] min-h-[220px] flex-1"
-                      className="h-full flex-1"
+                      aspectRatioClass="w-full"
+                      className="w-full"
                       progress={uploadProgress}
                       onSelectFile={(file) => setStagedCoverFile(file)}
                       onRemove={() => {
@@ -487,65 +487,67 @@ export function ResourcesManager() {
                     />
                   </div>
 
-                  {/* Right Side: Title, Category / Author, External Link / Excerpt */}
-                  <div className="w-full lg:w-7/12 space-y-3.5 flex flex-col justify-between">
-                    <div className="space-y-1.5">
-                      <Label>Title</Label>
-                      <Input 
-                        value={formData.title || ""}
-                        onChange={(e) => setFormData({...formData, title: e.target.value})}
-                        required
-                        className="text-base font-medium h-11"
-                        placeholder="Enter title..."
-                      />
+                  {/* Right Side: Category / Author, External Link / Excerpt */}
+                  <div className="w-full lg:w-7/12 flex flex-col justify-between space-y-3.5">
+                    <div>
+                      {subTab === "blogs" && (
+                        <div className="space-y-1.5">
+                          <Label>Category</Label>
+                          <Input 
+                            value={formData.category || ""}
+                            onChange={(e) => setFormData({...formData, category: e.target.value})}
+                            placeholder="e.g. Wellness"
+                          />
+                        </div>
+                      )}
+
+                      {subTab === "media" && (
+                        <div className="space-y-1.5">
+                          <Label>Publication / Press Outlet Name</Label>
+                          <Input 
+                            value={formData.author || ""}
+                            onChange={(e) => setFormData({...formData, author: e.target.value})}
+                            placeholder="e.g. Vogue, Forbes, Daily Mail"
+                          />
+                        </div>
+                      )}
+
+                      {subTab !== "blogs" && (
+                        <div className="space-y-1.5">
+                          <Label>{subTab === "podcasts" ? "Podcast Episode URL (Spotify, Apple, YouTube)" : "Article Link URL"}</Label>
+                          <Input 
+                            type="url"
+                            value={formData.content || ""}
+                            onChange={(e) => setFormData({...formData, content: e.target.value})}
+                            required
+                            placeholder="https://..."
+                          />
+                        </div>
+                      )}
                     </div>
 
-                    {subTab === "blogs" && (
-                      <div className="space-y-1.5">
-                        <Label>Category</Label>
-                        <Input 
-                          value={formData.category || ""}
-                          onChange={(e) => setFormData({...formData, category: e.target.value})}
-                          placeholder="e.g. Wellness"
-                        />
-                      </div>
-                    )}
-
-                    {subTab === "media" && (
-                      <div className="space-y-1.5">
-                        <Label>Publication / Press Outlet Name</Label>
-                        <Input 
-                          value={formData.author || ""}
-                          onChange={(e) => setFormData({...formData, author: e.target.value})}
-                          placeholder="e.g. Vogue, Forbes, Daily Mail"
-                        />
-                      </div>
-                    )}
-
-                    {subTab !== "blogs" && (
-                      <div className="space-y-1.5">
-                        <Label>{subTab === "podcasts" ? "Podcast Episode URL (Spotify, Apple, YouTube)" : "Article Link URL"}</Label>
-                        <Input 
-                          type="url"
-                          value={formData.content || ""}
-                          onChange={(e) => setFormData({...formData, content: e.target.value})}
-                          required
-                          placeholder="https://..."
-                        />
-                      </div>
-                    )}
-
-                    <div className="space-y-1.5 flex-1 flex flex-col justify-end">
+                    <div className="space-y-1.5 flex-1 flex flex-col justify-end min-h-0 pt-1">
                       <Label className="mb-1.5 inline-block">{subTab === "blogs" ? "Short Excerpt" : "Summary / Description"}</Label>
                       <Textarea 
-                        rows={subTab === "blogs" ? 3 : 4}
                         value={formData.excerpt || ""}
                         onChange={(e) => setFormData({...formData, excerpt: e.target.value})}
                         placeholder="Brief summary..."
-                        className="flex-1 resize-none"
+                        className="flex-1 h-full min-h-[80px] resize-none"
                       />
                     </div>
                   </div>
+                </div>
+
+                {/* Title (Full Width) */}
+                <div className="space-y-1.5">
+                  <Label>Title</Label>
+                  <Input 
+                    value={formData.title || ""}
+                    onChange={(e) => setFormData({...formData, title: e.target.value})}
+                    required
+                    className="text-base font-medium h-11"
+                    placeholder="Enter title..."
+                  />
                 </div>
 
                 {subTab === "blogs" && (

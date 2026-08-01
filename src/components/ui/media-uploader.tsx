@@ -28,7 +28,7 @@ export function MediaUploader({
   accept = "image/*",
   label,
   helperText,
-  aspectRatioClass = "aspect-[3/2]",
+  aspectRatioClass = "aspect-[16/9]",
   className = "",
   disabled = false,
   labelPosition = "top",
@@ -177,7 +177,7 @@ export function MediaUploader({
 
       {hasMedia ? (
         /* Full Edge-to-Edge Preview State */
-        <div className={`relative w-full ${aspectRatioClass} rounded-lg overflow-hidden border border-[#EBE3DB] bg-[#FAF8F5] group shadow-sm transition-all`}>
+        <div className={`relative w-full ${aspectRatioClass} rounded-lg overflow-hidden border border-[#EBE3DB] bg-[#FAF8F5] group shadow-sm transition-all`} style={{ aspectRatio: "16 / 9" }}>
           {isVideo(value!) ? (
             <video
               src={previewUrl}
