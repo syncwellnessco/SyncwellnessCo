@@ -160,7 +160,7 @@ export function QuizManager() {
               </div>
               <button 
                 onClick={() => setSelectedResponse(null)}
-                className="p-2 hover:bg-[#FAF8F5] rounded-full transition-colors text-charcoal/60 hover:text-charcoal"
+                className="p-2 hover:bg-[#FAF8F5] rounded-full transition-colors text-charcoal/60 hover:text-charcoal cursor-pointer"
               >
                 <X className="h-5 w-5" />
               </button>

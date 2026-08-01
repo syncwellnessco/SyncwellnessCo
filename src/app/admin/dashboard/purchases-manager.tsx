@@ -164,7 +164,7 @@ export function PurchasesManager() {
         <button
           onClick={() => fetchPurchases(false)}
           disabled={refreshing}
-          className="text-xs text-[#8C6D40] hover:underline font-bold uppercase tracking-wider self-start sm:self-center disabled:opacity-50 flex items-center gap-1.5"
+          className="text-xs text-[#8C6D40] hover:underline font-bold uppercase tracking-wider self-start sm:self-center disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
         >
           {refreshing ? (
             <>
@@ -366,7 +366,7 @@ export function PurchasesManager() {
 
                 <button
                   onClick={() => setSelectedPurchase(null)}
-                  className="absolute top-4 right-4 z-30 p-1.5 rounded-full text-charcoal/60 hover:text-charcoal bg-white/80 hover:bg-white backdrop-blur-md transition-all shadow-sm border border-[#EBE3DB]"
+                  className="absolute top-4 right-4 z-30 p-1.5 rounded-full text-charcoal/60 hover:text-charcoal bg-white/80 hover:bg-white backdrop-blur-md transition-all shadow-sm border border-[#EBE3DB] cursor-pointer"
                   title="Close"
                 >
                   <X className="h-5 w-5 text-charcoal/60" />

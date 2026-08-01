@@ -373,7 +373,7 @@ export function ReviewsManager() {
             <button 
               type="button" 
               onClick={() => setShowCancelConfirm(true)} 
-              className="absolute top-4 right-4 z-30 p-1.5 rounded-full text-charcoal/60 hover:text-charcoal bg-white/80 hover:bg-white backdrop-blur-md transition-all shadow-sm border border-[#EBE3DB]"
+              className="absolute top-4 right-4 z-30 p-1.5 rounded-full text-charcoal/60 hover:text-charcoal bg-white/80 hover:bg-white backdrop-blur-md transition-all shadow-sm border border-[#EBE3DB] cursor-pointer"
               aria-label="Close modal"
               title="Close"
             >
@@ -458,7 +458,7 @@ export function ReviewsManager() {
                           key={star}
                           type="button"
                           onClick={() => setForm(prev => ({...prev, rating: star}))}
-                          className={`transition-colors ${star <= form.rating ? 'text-gold' : 'text-gray-300 hover:text-gold/50'}`}
+                          className={`transition-colors cursor-pointer ${star <= form.rating ? 'text-gold' : 'text-gray-300 hover:text-gold/50'}`}
                         >
                           <Star className="h-8 w-8 fill-current" />
                         </button>
@@ -515,7 +515,7 @@ export function ReviewsManager() {
           <div className="bg-white rounded-md w-full max-w-2xl shadow-xl relative max-h-[90vh] flex flex-col overflow-hidden">
             <button 
               onClick={() => setViewReview(null)} 
-              className="absolute top-4 right-4 z-30 p-1.5 rounded-full text-charcoal/60 hover:text-charcoal bg-white/80 hover:bg-white backdrop-blur-md transition-all shadow-sm border border-[#EBE3DB]"
+              className="absolute top-4 right-4 z-30 p-1.5 rounded-full text-charcoal/60 hover:text-charcoal bg-white/80 hover:bg-white backdrop-blur-md transition-all shadow-sm border border-[#EBE3DB] cursor-pointer"
               title="Close"
             >
               <X className="h-5 w-5" />

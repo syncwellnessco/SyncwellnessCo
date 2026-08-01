@@ -155,14 +155,14 @@ const ObjectArrayEditor = ({
                 </div>
               ))}
            </div>
-           <button type="button" onClick={() => remove(i)} className="text-red-500 mt-6 hover:bg-red-50 p-1 rounded transition-colors"><MinusCircle className="h-5 w-5" /></button>
+           <button type="button" onClick={() => remove(i)} className="text-red-500 mt-6 hover:bg-red-50 p-1 rounded transition-colors cursor-pointer"><MinusCircle className="h-5 w-5" /></button>
         </div>
       ))}
       <div className="flex justify-start pt-2">
         <button 
           type="button" 
           onClick={add} 
-          className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#8C6D40] hover:text-[#B8955F] transition-colors focus:outline-none py-1.5"
+          className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#8C6D40] hover:text-[#B8955F] transition-colors focus:outline-none py-1.5 cursor-pointer"
         >
           <Plus className="h-4 w-4" />
           {getButtonText()}
@@ -538,7 +538,7 @@ export function ProgramsManager() {
               <button 
                 type="button" 
                 onClick={() => isEditing ? setShowCancelConfirm(true) : setSelectedProgram(null)} 
-                className="p-1.5 text-charcoal/60 hover:text-charcoal hover:bg-[#EBE3DB]/50 rounded-full transition-colors focus:outline-none"
+                className="p-1.5 text-charcoal/60 hover:text-charcoal hover:bg-[#EBE3DB]/50 rounded-full transition-colors focus:outline-none cursor-pointer"
                 aria-label="Close modal"
                 title="Close"
               >
@@ -551,7 +551,7 @@ export function ProgramsManager() {
                 <button 
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`px-4 py-3 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors whitespace-nowrap ${activeTab === tab.id ? "border-[#8C6D40] text-[#8C6D40]" : "border-transparent text-charcoal/60 hover:text-charcoal"}`}
+                  className={`px-4 py-3 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors whitespace-nowrap cursor-pointer ${activeTab === tab.id ? "border-[#8C6D40] text-[#8C6D40]" : "border-transparent text-charcoal/60 hover:text-charcoal"}`}
                 >
                   {tab.label}
                 </button>

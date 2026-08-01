@@ -205,7 +205,7 @@ export function BlogsManager() {
               <button 
                 type="button" 
                 onClick={() => setShowCancelConfirm(true)}
-                className="text-charcoal/50 hover:text-charcoal p-1.5 rounded-full hover:bg-charcoal/10 transition-colors focus:outline-none"
+                className="text-charcoal/50 hover:text-charcoal p-1.5 rounded-full hover:bg-charcoal/10 transition-colors focus:outline-none cursor-pointer"
                 aria-label="Close modal"
                 title="Close"
               >
@@ -407,7 +407,7 @@ export function BlogsManager() {
           <button
             onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
             disabled={currentPage === 1}
-            className="px-3 py-1.5 rounded-none border border-[#EBE3DB] bg-white text-xs font-semibold uppercase tracking-wider text-charcoal disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#8C6D40] hover:text-white transition-colors"
+            className="px-3 py-1.5 rounded-none border border-[#EBE3DB] bg-white text-xs font-semibold uppercase tracking-wider text-charcoal disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#8C6D40] hover:text-white transition-colors cursor-pointer"
           >
             Prev
           </button>
@@ -415,7 +415,7 @@ export function BlogsManager() {
             <button
               key={page}
               onClick={() => setCurrentPage(page)}
-              className={`h-8 w-8 rounded-none text-xs font-semibold transition-colors ${
+              className={`h-8 w-8 rounded-none text-xs font-semibold transition-colors cursor-pointer ${
                 page === currentPage
                   ? "bg-[#8C6D40] text-white shadow-sm"
                   : "bg-white border border-[#EBE3DB] text-charcoal hover:bg-[#8C6D40]/10 hover:text-[#8C6D40]"
@@ -427,7 +427,7 @@ export function BlogsManager() {
           <button
             onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
             disabled={currentPage === totalPages}
-            className="px-3 py-1.5 rounded-none border border-[#EBE3DB] bg-white text-xs font-semibold uppercase tracking-wider text-charcoal disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#8C6D40] hover:text-white transition-colors"
+            className="px-3 py-1.5 rounded-none border border-[#EBE3DB] bg-white text-xs font-semibold uppercase tracking-wider text-charcoal disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#8C6D40] hover:text-white transition-colors cursor-pointer"
           >
             Next
           </button>

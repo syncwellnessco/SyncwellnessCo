@@ -16,7 +16,7 @@ export function TestimonialsManager() {
       <div className="flex gap-2 border-b border-[#EBE3DB] mb-6">
         <button 
           onClick={() => setSubTab("written")}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors -mb-px ${
+          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors cursor-pointer -mb-px ${
             subTab === "written" 
               ? "border-[#8C6D40] text-[#8C6D40]" 
               : "border-transparent text-charcoal/60 hover:text-charcoal"
@@ -27,7 +27,7 @@ export function TestimonialsManager() {
         </button>
         <button 
           onClick={() => setSubTab("videos")}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors -mb-px ${
+          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors cursor-pointer -mb-px ${
             subTab === "videos" 
               ? "border-[#8C6D40] text-[#8C6D40]" 
               : "border-transparent text-charcoal/60 hover:text-charcoal"

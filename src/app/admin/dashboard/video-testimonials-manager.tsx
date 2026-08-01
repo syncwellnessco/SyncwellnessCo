@@ -370,7 +370,7 @@ export function VideoTestimonialsManager() {
             <button 
               type="button" 
               onClick={() => setShowCancelConfirm(true)} 
-              className="absolute top-4 right-4 z-30 p-1.5 rounded-full text-charcoal/60 hover:text-charcoal bg-white/80 hover:bg-white backdrop-blur-md transition-all shadow-sm border border-[#EBE3DB]"
+              className="absolute top-4 right-4 z-30 p-1.5 rounded-full text-charcoal/60 hover:text-charcoal bg-white/80 hover:bg-white backdrop-blur-md transition-all shadow-sm border border-[#EBE3DB] cursor-pointer"
               aria-label="Close modal"
               title="Close"
             >

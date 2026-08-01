@@ -133,7 +133,7 @@ export function TagInput({
                   e.stopPropagation();
                   removeTag(index);
                 }}
-                className="rounded-full p-0.5 text-[#8C6D40]/70 hover:bg-[#8C6D40]/20 hover:text-[#8C6D40] focus:outline-none transition-colors"
+                className="rounded-full p-0.5 text-[#8C6D40]/70 hover:bg-[#8C6D40]/20 hover:text-[#8C6D40] focus:outline-none transition-colors cursor-pointer"
                 title="Remove tag"
               >
                 <X className="h-3 w-3" />

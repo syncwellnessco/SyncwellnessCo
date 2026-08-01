@@ -156,14 +156,14 @@ export function EnquiriesManager() {
       <div className="flex gap-2 border-b border-[#EBE3DB] mb-8">
         <button 
           onClick={() => setSubTab("bookings")}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors -mb-px ${subTab === "bookings" ? "border-[#8C6D40] text-[#8C6D40]" : "border-transparent text-charcoal/60 hover:text-charcoal"}`}
+          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors cursor-pointer -mb-px ${subTab === "bookings" ? "border-[#8C6D40] text-[#8C6D40]" : "border-transparent text-charcoal/60 hover:text-charcoal"}`}
         >
           <Calendar className="h-4 w-4" />
           Consultation Bookings
         </button>
         <button 
           onClick={() => setSubTab("contact")}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors -mb-px ${subTab === "contact" ? "border-[#8C6D40] text-[#8C6D40]" : "border-transparent text-charcoal/60 hover:text-charcoal"}`}
+          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors cursor-pointer -mb-px ${subTab === "contact" ? "border-[#8C6D40] text-[#8C6D40]" : "border-transparent text-charcoal/60 hover:text-charcoal"}`}
         >
           <Mail className="h-4 w-4" />
           Contact Enquiries

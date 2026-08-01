@@ -311,7 +311,7 @@ export function ResourcesManager() {
       <div className="flex gap-2 border-b border-[#EBE3DB] mb-6">
         <button 
           onClick={() => { setSubTab("blogs"); setCurrentPage(1); }}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors -mb-px ${
+          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors cursor-pointer -mb-px ${
             subTab === "blogs" 
               ? "border-[#8C6D40] text-[#8C6D40]" 
               : "border-transparent text-charcoal/60 hover:text-charcoal"
@@ -322,7 +322,7 @@ export function ResourcesManager() {
         </button>
         <button 
           onClick={() => { setSubTab("podcasts"); setCurrentPage(1); }}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors -mb-px ${
+          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors cursor-pointer -mb-px ${
             subTab === "podcasts" 
               ? "border-[#8C6D40] text-[#8C6D40]" 
               : "border-transparent text-charcoal/60 hover:text-charcoal"
@@ -333,7 +333,7 @@ export function ResourcesManager() {
         </button>
         <button 
           onClick={() => { setSubTab("media"); setCurrentPage(1); }}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors -mb-px ${
+          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors cursor-pointer -mb-px ${
             subTab === "media" 
               ? "border-[#8C6D40] text-[#8C6D40]" 
               : "border-transparent text-charcoal/60 hover:text-charcoal"
@@ -418,7 +418,7 @@ export function ResourcesManager() {
           <button
             onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
             disabled={currentPage === 1}
-            className="px-3 py-1.5 rounded-none border border-[#EBE3DB] bg-white text-xs font-semibold uppercase tracking-wider text-charcoal disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#8C6D40] hover:text-white transition-colors"
+            className="px-3 py-1.5 rounded-none border border-[#EBE3DB] bg-white text-xs font-semibold uppercase tracking-wider text-charcoal disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#8C6D40] hover:text-white transition-colors cursor-pointer"
           >
             Prev
           </button>
@@ -426,7 +426,7 @@ export function ResourcesManager() {
             <button
               key={page}
               onClick={() => setCurrentPage(page)}
-              className={`h-8 w-8 rounded-none text-xs font-semibold transition-colors ${
+              className={`h-8 w-8 rounded-none text-xs font-semibold transition-colors cursor-pointer ${
                 page === currentPage
                   ? "bg-[#8C6D40] text-white shadow-sm"
                   : "bg-white border border-[#EBE3DB] text-charcoal hover:bg-[#8C6D40]/10 hover:text-[#8C6D40]"
@@ -438,7 +438,7 @@ export function ResourcesManager() {
           <button
             onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
             disabled={currentPage === totalPages}
-            className="px-3 py-1.5 rounded-none border border-[#EBE3DB] bg-white text-xs font-semibold uppercase tracking-wider text-charcoal disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#8C6D40] hover:text-white transition-colors"
+            className="px-3 py-1.5 rounded-none border border-[#EBE3DB] bg-white text-xs font-semibold uppercase tracking-wider text-charcoal disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#8C6D40] hover:text-white transition-colors cursor-pointer"
           >
             Next
           </button>
@@ -457,7 +457,7 @@ export function ResourcesManager() {
               <button 
                 type="button" 
                 onClick={() => setShowCancelConfirm(true)}
-                className="text-charcoal/50 hover:text-charcoal p-1.5 rounded-full hover:bg-charcoal/10 transition-colors focus:outline-none"
+                className="text-charcoal/50 hover:text-charcoal p-1.5 rounded-full hover:bg-charcoal/10 transition-colors focus:outline-none cursor-pointer"
                 aria-label="Close modal"
                 title="Close"
               >
