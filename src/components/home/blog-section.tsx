@@ -15,7 +15,7 @@ export function BlogSection({ blogs }: BlogSectionProps) {
   if (!blogs || blogs.length === 0) return null;
 
   return (
-    <section className="bg-[#EBE3DB] py-8 sm:py-12" id="blog">
+    <section className="bg-[#EBE3DB] py-8 sm:py-12 border-b border-charcoal/15" id="blog">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
           eyebrow="From the Blog"
@@ -23,7 +23,7 @@ export function BlogSection({ blogs }: BlogSectionProps) {
           description="Practical reads on hormones, nutrition, and living well, curated for women like you."
         />
 
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-6">
+        <div className="mt-6 sm:mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0 sm:gap-6">
           {blogs.map((post, index) => (
             <motion.div
               key={post.id}

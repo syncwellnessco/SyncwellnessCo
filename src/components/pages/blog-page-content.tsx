@@ -101,7 +101,7 @@ export function BlogPageContent({ initialPosts = [] }: BlogPageContentProps) {
       <section ref={gridRef} className="pb-12 sm:pb-16 pt-4">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           {/* Responsive Blog List (Mobile) / Grid (PC) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-0 sm:gap-6">
             {paginatedPosts.map((post) => (
               <BlogCard key={post.id} post={post} />
             ))}

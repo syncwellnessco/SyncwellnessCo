@@ -30,11 +30,11 @@ export function BlogCard({ post, className = "" }: BlogCardProps) {
 
   return (
     <div className={`w-full ${className}`}>
-      {/* Mobile View: Minimal list item — image, title, date, category. No card borders/shadows. */}
-      <article className="block sm:hidden w-full border-b border-[#EBE3DB] last:border-b-0">
+      {/* Mobile View: Minimal list item — image, title, date, category. */}
+      <article className="block sm:hidden w-full border-b border-charcoal/15 sm:border-b-0">
         <Link href={href} className="group flex gap-3.5 items-start py-4">
           {/* Thumbnail */}
-          <div className="relative w-[38%] max-w-[160px] shrink-0 overflow-hidden rounded-sm bg-[#F1EAE0]" style={{ aspectRatio: "16 / 9" }}>
+          <div className="relative w-[38%] max-w-[150px] shrink-0 overflow-hidden rounded bg-[#F1EAE0]" style={{ aspectRatio: "16 / 9" }}>
             {post.image ? (
               <img
                 src={post.image}
@@ -51,16 +51,16 @@ export function BlogCard({ post, className = "" }: BlogCardProps) {
 
           {/* Title, date, category */}
           <div className="flex-1 min-w-0 flex flex-col gap-1.5 pt-0.5">
-            <h3 className="font-display text-sm font-bold text-charcoal leading-snug line-clamp-2 group-hover:text-[#8C6D40] transition-colors">
+            <h3 className="font-display text-base font-bold text-charcoal leading-snug line-clamp-2 group-hover:text-[#8C6D40] transition-colors">
               {post.title}
             </h3>
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap mt-0.5">
               {formattedDate && (
-                <span className="text-[11px] text-charcoal/50">
+                <span className="text-xs font-medium text-charcoal/75">
                   {formattedDate}
                 </span>
               )}
-              <span className="bg-[#8C6D40]/10 text-[#8C6D40] px-2 py-0.5 rounded text-[10px] font-medium truncate max-w-[140px]">
+              <span className="bg-[#8C6D40]/15 text-[#8C6D40] px-2 py-0.5 rounded-sm text-[11px] font-bold tracking-wide uppercase truncate max-w-[140px]">
                 {categoryLabel}
               </span>
             </div>

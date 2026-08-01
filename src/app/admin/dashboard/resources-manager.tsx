@@ -476,7 +476,7 @@ export function ResourcesManager() {
                       helperText="Aspect ratio: 16:9 landscape"
                       value={stagedCoverFile || formData.image_url}
                       accept="image/*"
-                      aspectRatioClass="w-full"
+                      aspectRatioClass="w-full aspect-[16/9]"
                       className="w-full"
                       progress={uploadProgress}
                       onSelectFile={(file) => setStagedCoverFile(file)}
