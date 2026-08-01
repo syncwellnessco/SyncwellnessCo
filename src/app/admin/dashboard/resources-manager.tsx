@@ -352,7 +352,7 @@ export function ResourcesManager() {
         ) : (
           paginatedList.map((resource) => (
             <div key={resource.id} className="bg-white border border-[#EBE3DB] rounded-lg shadow-sm hover:shadow-md transition-all flex flex-col overflow-hidden">
-              <div className="relative h-40 w-full bg-[#FAF8F5] border-b border-[#EBE3DB]">
+              <div className="relative aspect-[16/9] w-full bg-[#FAF8F5] border-b border-[#EBE3DB]">
                 {resource.image_url ? (
                   <img src={resource.image_url} alt="" className="w-full h-full object-cover" />
                 ) : (
@@ -473,10 +473,10 @@ export function ResourcesManager() {
                   <div className="w-full lg:w-5/12 flex flex-col">
                     <MediaUploader
                       label="Cover Image"
-                      helperText="Aspect ratio: 3:2 landscape"
+                      helperText="Aspect ratio: 16:9 landscape"
                       value={stagedCoverFile || formData.image_url}
                       accept="image/*"
-                      aspectRatioClass="h-full min-h-[220px] flex-1"
+                      aspectRatioClass="aspect-[16/9] min-h-[220px] flex-1"
                       className="h-full flex-1"
                       progress={uploadProgress}
                       onSelectFile={(file) => setStagedCoverFile(file)}
