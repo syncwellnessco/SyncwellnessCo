@@ -17,7 +17,7 @@ export async function getAllPrograms(options?: {
 }): Promise<Program[]> {
   try {
     const supabase = publicSupabase;
-    let query = supabase.from("programs").select("*").order("featured_rank", { ascending: true });
+    let query = supabase.from("programs").select("*").order("featured_rank", { ascending: true }).order("created_at", { ascending: false });
     
     if (options?.publishedOnly) {
       query = query.eq("status", "published");

@@ -13,8 +13,10 @@ import { ProgramPriceOverride } from "@/components/ui/program-price-override";
 export async function ProgramsPageContent() {
   const programs = await getAllPrograms({ publishedOnly: true });
   const featuredPrograms = programs.filter((p) => p.featured).sort((a, b) => (a.featured_rank || 99) - (b.featured_rank || 99));
-  const featuredIds = featuredPrograms.map(p => p.id);
-  const others = programs.filter((p) => !featuredIds.includes(p.id));
+  const featuredIds = new Set(featuredPrograms.map(p => p.id));
+  const others = programs
+    .filter((p) => !featuredIds.has(p.id))
+    .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
 
   return (
     <article className="pb-12">

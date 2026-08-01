@@ -285,7 +285,7 @@ export function ProgramDetailCTA({ program, position }: ProgramDetailCTAProps) {
           theme="dark"
           className="w-full sm:w-auto bg-[#8C6D40] text-white hover:bg-white hover:text-charcoal uppercase tracking-[0.15em] text-[11px] font-bold h-14 px-10 rounded-none border-0 transition-all duration-300 cursor-pointer"
         >
-          {program.hero?.ctaText || "Join Program"}
+          Join Program
         </BookingButton>
         
         {program.pricing && (

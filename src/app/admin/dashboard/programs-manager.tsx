@@ -281,7 +281,7 @@ export function ProgramsManager() {
       title: "", slug: "", shortDescription: "", description: "", duration: "", format: "", category: "", status: "published", featured_rank: 1,
       featured: false, showOnHome: false,
       pricing: { price: 0, currency: "AUD", paymentType: "one-time", installmentAvailable: false, requireConsultant: false },
-      hero: { bannerImage: "", ctaText: "Join", ctaLink: "" },
+      hero: { bannerImage: "" },
       audience: { designedFor: [], notFor: [], idealClient: [] },
       problemsSolved: [],
       outcomes: { summary: "", physical: [], mental: [], lifestyle: [], wellness: [] },
@@ -642,14 +642,6 @@ export function ProgramsManager() {
                           <h4 className="text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Subheadline</h4>
                           <p className="text-sm">{selectedProgram.hero?.subheadline || <span className="text-charcoal/50 italic">None</span>}</p>
                         </div>
-                        <div>
-                          <h4 className="text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">CTA Text</h4>
-                          <p className="text-sm">{selectedProgram.hero?.ctaText || <span className="text-charcoal/50 italic">None</span>}</p>
-                        </div>
-                        <div>
-                          <h4 className="text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">CTA Link</h4>
-                          <p className="text-sm">{selectedProgram.hero?.ctaLink || <span className="text-charcoal/50 italic">None</span>}</p>
-                        </div>
                       </div>
                     </div>
                   )}
@@ -868,16 +860,6 @@ export function ProgramsManager() {
                           }}
                         />
                       </div>
-
-                      <div>
-                        <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">CTA Text</label>
-                        <input type="text" value={editForm.hero?.ctaText || ''} onChange={e => updateNested(['hero', 'ctaText'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40]" placeholder="e.g. Join the Program" />
-                      </div>
-                      <div>
-                        <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">CTA Link</label>
-                        <input type="text" value={editForm.hero?.ctaLink || ''} onChange={e => updateNested(['hero', 'ctaLink'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40]" placeholder="e.g. /checkout?programId=hormone-harmony" />
-                      </div>
-
                     </div>
                   )}
 

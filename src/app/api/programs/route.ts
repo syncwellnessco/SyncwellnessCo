@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const supabase = await createClient();
-    let query = supabase.from("programs").select("*").order("featured_rank", { ascending: true });
+    let query = supabase.from("programs").select("*").order("featured_rank", { ascending: true }).order("created_at", { ascending: false });
     
     if (publishedOnly) {
       query = query.eq("status", "published");
@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
     status: body.status ?? "draft",
     featured: body.featured ?? false,
     pricing: body.pricing ?? { price: 0, currency: "AUD", paymentType: "one-time", installmentAvailable: false, requireConsultant: false },
-    hero: body.hero ?? { bannerImage: "", ctaText: "Join", ctaLink: "/programs" },
+    hero: body.hero ?? { bannerImage: "" },
     audience: body.audience ?? { designedFor: [], notFor: [], idealClient: [] },
     problemsSolved: body.problemsSolved ?? [],
     outcomes: body.outcomes ?? { summary: "", physical: [], mental: [], lifestyle: [], wellness: [] },

@@ -41,8 +41,8 @@ export interface Program {
     subheadline?: string;
     bannerImage: string;
     introVideo?: string;
-    ctaText: string;
-    ctaLink: string;
+    ctaText?: string;
+    ctaLink?: string;
   };
 
   // --------------------------
