@@ -335,7 +335,7 @@ export function ReviewsManager() {
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex flex-col gap-1.5">
-                      <span className={`w-max text-[10px] px-2 py-0.5 uppercase tracking-wider font-bold rounded-sm ${review.status === 'published' ? 'bg-green-100 text-green-700' : review.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                      <span className={`w-max text-[10px] px-2 py-0.5 uppercase tracking-wider font-bold rounded-sm ${review.status === 'published' ? 'bg-green-100 text-green-700' : (review.status === 'archived' || review.status === 'rejected') ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>
                         {review.status}
                       </span>
                       <div className="flex items-center gap-2 pt-0.5">
@@ -351,10 +351,10 @@ export function ReviewsManager() {
                   </td>
                   <td className="px-4 py-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Button onClick={() => setViewReview(review)} variant="ghost" size="sm" className="h-8 w-8 rounded-full p-0 text-charcoal hover:bg-[#EBE3DB]" title="View">
+                      <Button onClick={() => setViewReview(review)} variant="ghost" size="sm" className="h-8 w-8 rounded-none p-0 text-charcoal hover:bg-[#EBE3DB]" title="View">
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button onClick={() => openEditModal(review)} variant="ghost" size="sm" className="h-8 w-8 rounded-full p-0 text-charcoal hover:bg-[#EBE3DB]" title="Edit">
+                      <Button onClick={() => openEditModal(review)} variant="ghost" size="sm" className="h-8 w-8 rounded-none p-0 text-charcoal hover:bg-[#EBE3DB]" title="Edit">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
                       </Button>
                     </div>
@@ -572,16 +572,16 @@ export function ReviewsManager() {
                   <h4 className="font-semibold text-charcoal text-[11px] uppercase tracking-widest">Moderation Actions</h4>
                   <div className="flex items-center gap-3">
                     {viewReview.status !== 'published' && (
-                      <Button onClick={() => updateStatus(viewReview.id, { status: 'published' })} className="h-9 px-5 rounded-full bg-charcoal text-white hover:bg-charcoal/90 text-[11px] font-bold tracking-wider uppercase transition-colors">
+                      <Button onClick={() => updateStatus(viewReview.id, { status: 'published' })} className="h-9 px-5 rounded-none bg-charcoal text-white hover:bg-charcoal/90 text-[11px] font-bold tracking-wider uppercase transition-colors">
                         Show / Publish
                       </Button>
                     )}
                     {viewReview.status === 'published' && (
-                      <Button onClick={() => updateStatus(viewReview.id, { status: 'rejected' })} variant="outline" className="h-9 px-5 rounded-full border-charcoal/20 text-charcoal hover:bg-charcoal/5 text-[11px] font-bold tracking-wider uppercase transition-colors">
+                      <Button onClick={() => updateStatus(viewReview.id, { status: 'archived' })} variant="outline" className="h-9 px-5 rounded-none border-charcoal/20 text-charcoal hover:bg-charcoal/5 text-[11px] font-bold tracking-wider uppercase transition-colors">
                         Hide Review
                       </Button>
                     )}
-                    <Button onClick={() => setDeleteConfirmId(viewReview.id)} variant="ghost" className="h-9 px-4 rounded-full text-red-500 hover:text-red-600 hover:bg-red-50 text-[11px] font-bold tracking-wider uppercase transition-colors ml-auto">
+                    <Button onClick={() => setDeleteConfirmId(viewReview.id)} variant="ghost" className="h-9 px-4 rounded-none text-red-500 hover:text-red-600 hover:bg-red-50 text-[11px] font-bold tracking-wider uppercase transition-colors ml-auto">
                       Delete
                     </Button>
                   </div>

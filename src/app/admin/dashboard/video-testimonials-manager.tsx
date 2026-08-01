@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo, memo } from "react";
 import { Button } from "@/components/ui/button";
-import { Check, X, Trash2, Video, Upload } from "lucide-react";
+import { Check, X, Trash2, Video, Upload, Edit } from "lucide-react";
 import toast from "react-hot-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { uploadFileToCloudinary } from "@/lib/cloudinary-utils";
@@ -330,26 +330,32 @@ export function VideoTestimonialsManager() {
                       ))}
                     </div>
                     <p className="text-xs font-medium text-charcoal/80 mb-1 line-clamp-2" title={video.caption}>{video.caption || "No caption"}</p>
-                    <p className="text-[9px] text-charcoal/50 mb-2">{new Date(video.created_at).toLocaleDateString()}</p>
+                    <p className="text-[9px] text-charcoal/50">{new Date(video.created_at).toLocaleDateString()}</p>
                   </div>
-                  <div className="flex flex-col gap-2 border-t border-[#EBE3DB] pt-2">
-                    <div className="flex items-center justify-between gap-1.5 text-[10px] font-semibold text-charcoal">
-                      <span>Feature on Home</span>
-                      <Toggle
-                        size="sm"
-                        checked={!!video.featured_on_home}
-                        loading={!!updatingIds[video.id]}
-                        onChange={() => updateStatus(video.id, { featured_on_home: !video.featured_on_home })}
-                      />
-                    </div>
-                    <div className="flex items-center gap-1 justify-end">
-                      <Button onClick={() => openEditModal(video)} variant="ghost" size="sm" className="h-7 w-7 rounded-md p-0 text-charcoal hover:bg-[#EBE3DB]" title="Edit">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
-                      </Button>
-                      <Button onClick={() => setDeleteConfirmId(video.id)} variant="ghost" size="sm" className="h-7 w-7 rounded-md p-0 text-red-500 hover:text-red-600 hover:bg-red-50" title="Delete">
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
+                </div>
+                <div className="bg-[#FAF8F5] border-t border-[#EBE3DB] flex items-center justify-between px-2.5 py-2">
+                  <Toggle
+                    size="sm"
+                    checked={!!video.featured_on_home}
+                    loading={!!updatingIds[video.id]}
+                    onChange={() => updateStatus(video.id, { featured_on_home: !video.featured_on_home })}
+                    label={<span className="text-[9px] uppercase font-bold tracking-wider text-charcoal whitespace-nowrap">Featured</span>}
+                  />
+                  <div className="flex items-center gap-1">
+                    <button 
+                      onClick={() => openEditModal(video)} 
+                      className="p-1 text-charcoal/60 hover:text-[#8C6D40] hover:bg-[#8C6D40]/10 rounded-none transition-colors cursor-pointer"
+                      title="Edit Testimonial"
+                    >
+                      <Edit className="h-3.5 w-3.5" />
+                    </button>
+                    <button 
+                      onClick={() => setDeleteConfirmId(video.id)} 
+                      className="p-1 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-none transition-colors cursor-pointer"
+                      title="Delete Testimonial"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
                   </div>
                 </div>
               </div>

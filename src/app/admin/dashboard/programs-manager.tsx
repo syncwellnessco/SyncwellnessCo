@@ -485,41 +485,42 @@ export function ProgramsManager() {
         ) : (
           programs.map((prog) => (
             <div key={prog.id} className="bg-white border border-[#EBE3DB] rounded-lg shadow-sm hover:shadow-md transition-all flex flex-col overflow-hidden">
-              <div className="p-5 flex-1">
-                <div className="flex justify-between items-start mb-3">
-                  <span className={`text-[9px] px-2 py-1 uppercase tracking-wider font-bold rounded-sm ${prog.status === 'published' ? 'bg-green-100 text-green-700' : 'bg-charcoal/10 text-charcoal/60'}`}>
-                    {prog.status}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <Toggle
-                      size="sm"
-                      checked={!!prog.featured}
-                      loading={!!updatingIds[`feat-${prog.id}`]}
-                      onChange={() => toggleProgramFeatured(prog)}
-                      label={<span className="text-[9px] uppercase font-bold tracking-wider text-[#8C6D40]">Featured</span>}
-                    />
+              <div className="p-5 flex-1 flex flex-col justify-between">
+                <div>
+                  <div className="flex justify-between items-start mb-3">
+                    <span className={`text-[9px] px-2 py-1 uppercase tracking-wider font-bold rounded-sm ${prog.status === 'published' ? 'bg-green-100 text-green-700' : 'bg-charcoal/10 text-charcoal/60'}`}>
+                      {prog.status}
+                    </span>
                   </div>
+                  <h3 className="font-display text-lg text-charcoal font-bold mb-1">{prog.title}</h3>
+                  <div className="text-[10px] text-charcoal/50 font-normal uppercase tracking-wider mb-3">{prog.category || "Uncategorized"} • {prog.duration || "No duration"}</div>
+                  <p className="text-xs text-charcoal/70 line-clamp-2">{prog.shortDescription || 'No short description provided.'}</p>
                 </div>
-                <h3 className="font-display text-lg text-charcoal font-bold mb-1">{prog.title}</h3>
-                <div className="text-[10px] text-charcoal/50 font-normal uppercase tracking-wider mb-3">{prog.category || "Uncategorized"} • {prog.duration || "No duration"}</div>
-                <p className="text-xs text-charcoal/70 line-clamp-2">{prog.shortDescription || 'No short description provided.'}</p>
               </div>
-              <div className="bg-[#FAF8F5] border-t border-[#EBE3DB] flex items-stretch h-10">
-                <button 
-                  onClick={() => handleView(prog)} 
-                  className="flex items-center justify-center text-charcoal/60 hover:text-[#8C6D40] flex-1 hover:bg-[#8C6D40]/5 transition-colors"
-                  title="View Program"
-                >
-                  <Eye className="h-4 w-4" />
-                </button>
-                <div className="w-px bg-[#EBE3DB]"></div>
-                <button 
-                  onClick={() => setDeleteConfirmId(prog.id)} 
-                  className="flex items-center justify-center text-red-400 hover:text-red-600 flex-1 hover:bg-red-50 transition-colors"
-                  title="Delete Program"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
+              <div className="bg-[#FAF8F5] border-t border-[#EBE3DB] flex items-center justify-between px-4 py-2.5">
+                <Toggle
+                  size="sm"
+                  checked={!!prog.featured}
+                  loading={!!updatingIds[`feat-${prog.id}`]}
+                  onChange={() => toggleProgramFeatured(prog)}
+                  label={<span className="text-[10px] uppercase font-bold tracking-wider text-charcoal">Featured</span>}
+                />
+                <div className="flex items-center gap-1">
+                  <button 
+                    onClick={() => handleView(prog)} 
+                    className="p-1.5 text-charcoal/60 hover:text-[#8C6D40] hover:bg-[#8C6D40]/10 rounded transition-colors cursor-pointer"
+                    title="Edit Program"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </button>
+                  <button 
+                    onClick={() => setDeleteConfirmId(prog.id)} 
+                    className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer"
+                    title="Delete Program"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
             </div>
           ))
