@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CustomSelect } from "@/components/ui/custom-select";
 import { Search, DollarSign, User, ShieldCheck, Mail, Phone, Calendar, X, FileText, Globe, Laptop } from "lucide-react";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
@@ -228,30 +229,34 @@ export function PurchasesManager() {
         <div className="flex flex-wrap gap-4 items-center w-full md:w-auto">
           <div className="flex gap-2 items-center">
             <label className="text-[10px] uppercase font-bold tracking-wider text-charcoal/60 whitespace-nowrap">Filter Status:</label>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-[#FAF8F5] border border-[#EBE3DB] px-3 py-2 text-xs font-semibold text-charcoal focus:outline-none focus:border-[#8C6D40] rounded-sm"
-            >
-              <option value="all">All Statuses</option>
-              <option value="completed">Completed</option>
-              <option value="succeeded">Succeeded</option>
-              <option value="pending">Pending</option>
-              <option value="failed">Failed</option>
-            </select>
+            <div className="w-36">
+              <CustomSelect
+                value={statusFilter}
+                onValueChange={(val) => setStatusFilter(val)}
+                options={[
+                  { value: "all", label: "All Statuses" },
+                  { value: "completed", label: "Completed" },
+                  { value: "succeeded", label: "Succeeded" },
+                  { value: "pending", label: "Pending" },
+                  { value: "failed", label: "Failed" },
+                ]}
+              />
+            </div>
           </div>
 
           <div className="flex gap-2 items-center">
             <label className="text-[10px] uppercase font-bold tracking-wider text-charcoal/60 whitespace-nowrap">Agreement:</label>
-            <select
-              value={agreementFilter}
-              onChange={(e) => setAgreementFilter(e.target.value)}
-              className="bg-[#FAF8F5] border border-[#EBE3DB] px-3 py-2 text-xs font-semibold text-charcoal focus:outline-none focus:border-[#8C6D40] rounded-sm"
-            >
-              <option value="all">All</option>
-              <option value="pending">Pending</option>
-              <option value="accepted">Accepted</option>
-            </select>
+            <div className="w-32">
+              <CustomSelect
+                value={agreementFilter}
+                onValueChange={(val) => setAgreementFilter(val)}
+                options={[
+                  { value: "all", label: "All" },
+                  { value: "pending", label: "Pending" },
+                  { value: "accepted", label: "Accepted" },
+                ]}
+              />
+            </div>
           </div>
         </div>
       </div>

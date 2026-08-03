@@ -10,6 +10,7 @@ import { uploadFileToCloudinary } from "@/lib/cloudinary-utils";
 import { MediaUploader } from "@/components/ui/media-uploader";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { Toggle } from "@/components/ui/toggle";
+import { CustomSelect } from "@/components/ui/custom-select";
 
 const CloudinaryUploader = ({ onUpload, label }: { onUpload: (val: string | File) => void, label: string }) => {
   const isVideoLabel = label.toLowerCase().includes("video");
@@ -699,10 +700,15 @@ export function ProgramsManager() {
                       </div>
                       <div>
                         <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Status</label>
-                        <select value={editForm.status || 'draft'} onChange={e => setEditForm({...editForm, status: e.target.value as any})} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40]">
-                          <option value="draft">Draft</option>
-                          <option value="published">Published</option>
-                        </select>
+                        <CustomSelect
+                          value={editForm.status || 'draft'}
+                          onValueChange={(val) => setEditForm({...editForm, status: val as any})}
+                          options={[
+                            { value: "draft", label: "Draft" },
+                            { value: "published", label: "Published" },
+                          ]}
+                          className="py-2.5"
+                        />
                       </div>
                       <div className="md:col-span-2 flex flex-col sm:flex-row items-start sm:items-center gap-6">
                         <Toggle
@@ -768,11 +774,16 @@ export function ProgramsManager() {
                       </div>
                       <div>
                         <label className="block text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-1">Payment Type</label>
-                        <select value={editForm.pricing?.paymentType || 'one-time'} onChange={e => updateNested(['pricing', 'paymentType'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40]">
-                          <option value="one-time">One-time</option>
-                          <option value="subscription">Subscription</option>
-                          <option value="custom">Custom</option>
-                        </select>
+                        <CustomSelect
+                          value={editForm.pricing?.paymentType || 'one-time'}
+                          onValueChange={(val) => updateNested(['pricing', 'paymentType'], val)}
+                          options={[
+                            { value: "one-time", label: "One-time" },
+                            { value: "subscription", label: "Subscription" },
+                            { value: "custom", label: "Custom" },
+                          ]}
+                          className="py-2.5"
+                        />
                       </div>
                       <div className="md:col-span-2 flex items-center gap-2">
                         <input type="checkbox" id="requireConsultant" checked={editForm.pricing?.requireConsultant || false} onChange={e => updateNested(['pricing', 'requireConsultant'], e.target.checked)} className="w-4 h-4 text-[#8C6D40]" />
