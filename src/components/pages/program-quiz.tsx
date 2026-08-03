@@ -18,6 +18,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { BookingButton } from "@/components/ui/booking-button";
+import { CountryCodeSelect } from "@/components/ui/country-code-select";
 import { QUESTIONS, BRISTOL_TYPES, quizIntro, calculateQuizScore } from "@/data/quiz";
 
 interface ProgramQuizProps {
@@ -397,25 +398,20 @@ export function ProgramQuiz({ programId, programSlug, programTitle }: ProgramQui
             <label className="block text-[10px] uppercase font-bold tracking-wider text-charcoal/70 mb-1.5">
               Phone Number (Optional)
             </label>
-            <div className="flex gap-2">
-              <select
-                value={countryCode}
-                onChange={(e) => setCountryCode(e.target.value)}
-                className="text-sm border border-[#EBE3DB] p-3 rounded-sm focus:outline-none focus:border-[#8C6D40] bg-white text-charcoal"
-              >
-                <option value="+91">+91 (IN)</option>
-                <option value="+61">+61 (AU)</option>
-                <option value="+1">+1 (US/CA)</option>
-                <option value="+44">+44 (UK)</option>
-                <option value="+971">+971 (AE)</option>
-                <option value="+65">+65 (SG)</option>
-              </select>
+            <div className="flex gap-2 items-center">
+              <div className="w-36 shrink-0">
+                <CountryCodeSelect
+                  value={countryCode}
+                  onChange={(e) => setCountryCode(e.target.value)}
+                  className="w-full text-sm p-2 bg-transparent text-charcoal cursor-pointer focus:outline-none"
+                />
+              </div>
               <input
                 type="tel"
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 placeholder="Phone number"
-                className="flex-1 text-sm border border-[#EBE3DB] p-3 rounded-sm focus:outline-none focus:border-[#8C6D40] bg-white text-charcoal"
+                className="flex-1 text-sm border border-[#EBE3DB] p-2.5 rounded-md focus:outline-none focus:border-[#8C6D40] bg-white text-charcoal"
               />
             </div>
           </div>

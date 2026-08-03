@@ -61,17 +61,6 @@ export function ExpandableGrid({ items, type }: ExpandableGridProps) {
             />
           ))}
         </div>
-
-        {hasMore && (
-          <div className="flex justify-center pt-4">
-            <button
-              onClick={showMore}
-              className="inline-flex items-center gap-2 px-6 py-3 border border-[#8C6D40] text-[#8C6D40] text-xs font-bold uppercase tracking-[0.15em] hover:bg-[#8C6D40] hover:text-white transition-all duration-300 rounded-sm"
-            >
-              Show More Articles <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-        )}
       </div>
     );
   }

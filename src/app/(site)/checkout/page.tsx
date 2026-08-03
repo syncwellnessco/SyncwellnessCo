@@ -15,6 +15,7 @@ import {
 import { PageShell } from "@/components/layout/page-shell";
 import { Spinner } from "@/components/ui/spinner";
 import { useUserStore } from "@/store/user-store";
+import { CountryCodeSelect } from "@/components/ui/country-code-select";
 import toast from "react-hot-toast";
 
 interface ProgramDetails {
@@ -193,25 +194,21 @@ function CheckoutForm({ program }: { program: ProgramDetails }) {
             <label className="block text-[10.5px] font-bold uppercase tracking-wider text-charcoal/80 mb-0.5">
               Phone Number <span className="text-[#8C6D40]">*</span>
             </label>
-            <div className="grid grid-cols-4 gap-1.5">
-              <select
-                value={countryCode}
-                onChange={(e) => setCountryCode(e.target.value)}
-                className="col-span-1 bg-[#FAF9F7] focus:bg-white px-2 py-2 text-[11px] font-semibold text-charcoal focus:ring-1 focus:ring-[#8C6D40] focus:outline-none rounded-md cursor-pointer transition-all border-none"
-              >
-                <option value="+61">AUS (+61)</option>
-                <option value="+1">USA (+1)</option>
-                <option value="+44">UK (+44)</option>
-                <option value="+64">NZ (+64)</option>
-                <option value="+91">IND (+91)</option>
-              </select>
+            <div className="flex gap-2 items-center">
+              <div className="w-32 shrink-0">
+                <CountryCodeSelect
+                  value={countryCode}
+                  onChange={(e) => setCountryCode(e.target.value)}
+                  className="w-full bg-transparent px-1.5 py-2 text-xs font-semibold text-charcoal focus:outline-none transition-all cursor-pointer"
+                />
+              </div>
               <input
                 type="tel"
                 required
                 value={phone}
                 onChange={(e) => setPhone(e.target.value.replace(/[^0-9\s-]/g, ""))}
                 placeholder="400 000 000"
-                className="col-span-3 bg-[#FAF9F7] focus:bg-white px-3 py-2 text-xs text-charcoal placeholder:text-charcoal/40 focus:ring-1 focus:ring-[#8C6D40] focus:outline-none rounded-md transition-all border-none"
+                className="flex-1 min-w-0 bg-[#FAF9F7] focus:bg-white px-3 py-2 text-xs text-charcoal placeholder:text-charcoal/40 focus:ring-1 focus:ring-[#8C6D40] focus:outline-none rounded-md border border-[#EBE3DB] transition-all"
               />
             </div>
           </div>

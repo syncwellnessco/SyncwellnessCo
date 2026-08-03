@@ -4,6 +4,7 @@ import { useState } from "react";
 import { BookOpen, Download } from "lucide-react";
 import toast from "react-hot-toast";
 import { Spinner } from "@/components/ui/spinner";
+import { CountryCodeSelect } from "@/components/ui/country-code-select";
 import { useUserStore } from "@/store/user-store";
 import { useRouter } from "next/navigation";
 
@@ -182,24 +183,16 @@ export function ResourcesPageContent() {
                       </div>
                     </div>
 
-                    <div className="relative flex items-end gap-4">
-                      <div className="w-24 shrink-0">
-                        <select 
+                    <div className="relative flex items-end gap-3">
+                      <div className="w-[140px] shrink-0">
+                        <CountryCodeSelect 
                           id="countryCode" 
                           name="countryCode"
-                          className="w-full bg-transparent border-0 border-b border-[#DCD3C6] py-3 px-0 text-charcoal focus:ring-0 focus:border-[#A8895C] text-[15px] transition-colors appearance-none cursor-pointer"
+                          className="w-full bg-transparent border-0 border-b border-[#DCD3C6] py-3 px-0 text-[15px] text-charcoal focus:border-[#A8895C] transition-all cursor-pointer rounded-none"
                           defaultValue="+61"
-                        >
-                          <option value="+61">AU (+61)</option>
-                          <option value="+91">IN (+91)</option>
-                          <option value="+1">US (+1)</option>
-                          <option value="+44">UK (+44)</option>
-                          <option value="+971">UAE (+971)</option>
-                          <option value="+1">CA (+1)</option>
-                          <option value="+65">SG (+65)</option>
-                        </select>
+                        />
                       </div>
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         <input 
                           type="tel" 
                           id="phoneNumber" 
@@ -215,12 +208,12 @@ export function ResourcesPageContent() {
                       <button 
                         type="submit" 
                         disabled={loading}
-                        className="flex items-center justify-center gap-2 bg-charcoal text-white hover:bg-[#8C6D40] uppercase tracking-[0.15em] text-[11px] md:text-[12px] font-medium py-5 px-12 transition-colors duration-300 rounded-sm disabled:opacity-70 w-full"
+                        className="flex items-center justify-center gap-2 bg-charcoal text-white hover:bg-[#8C6D40] uppercase tracking-[0.06em] sm:tracking-[0.12em] text-[11px] sm:text-[12px] font-semibold py-4 sm:py-5 px-3 sm:px-8 transition-colors duration-300 rounded-md disabled:opacity-70 w-full whitespace-nowrap"
                       >
                         {loading ? <Spinner className="h-4 w-4" /> : (
                           <>
-                            <Download className="h-4 w-4" />
-                            GET ACCESS NOW FOR FREE
+                            <Download className="h-4 w-4 shrink-0" />
+                            <span>GET ACCESS NOW FOR FREE</span>
                           </>
                         )}
                       </button>
