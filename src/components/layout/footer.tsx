@@ -24,7 +24,7 @@ export function Footer() {
   const pathname = usePathname();
   const year = new Date().getFullYear();
 
-  if (pathname === "/checkout") {
+  if (!pathname || pathname.startsWith("/checkout") || pathname.startsWith("/success")) {
     return null;
   }
 
