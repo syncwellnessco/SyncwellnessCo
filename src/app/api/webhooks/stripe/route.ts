@@ -40,6 +40,9 @@ export async function POST(req: NextRequest) {
     }
 
     console.log(`[Stripe Webhook] Order fulfillment succeeded for session ${session.id}`);
+  } else if (event.type === 'payment_intent.succeeded') {
+    const paymentIntent = event.data.object as any;
+    console.log(`[Stripe Webhook] PaymentIntent succeeded: ${paymentIntent.id}`);
   }
 
   return NextResponse.json({ received: true }, { status: 200 });

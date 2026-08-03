@@ -256,7 +256,7 @@ async function triggerMailerliteEnrollment(
     const programCategory = prog?.category || '';
 
     const targetGroupId = process.env.MAILERLITE_GROUP_PROGRAM_ENROLLMENT;
-    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://syncwellness-co.vercel.app').replace(/\/$/, '');
+    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.syncwellnessco.com').replace(/\/$/, '');
     const agreementUrl = agreementToken ? `${siteUrl}/agreement/${agreementToken}` : '';
 
     const subscriberPayload: any = {
