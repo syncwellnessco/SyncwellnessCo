@@ -21,6 +21,10 @@ export function EventsCarousel({ items }: EventsCarouselProps) {
   const [isMobile, setIsMobile] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
+  // Touch Swipe Gesture State
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [touchEndX, setTouchEndX] = useState<number | null>(null);
+
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 640);
@@ -39,6 +43,31 @@ export function EventsCarousel({ items }: EventsCarouselProps) {
     if (selectedIndex === null) return;
     setSelectedIndex((prev) => (prev! === rawItems.length - 1 ? 0 : prev! + 1));
   }, [selectedIndex, rawItems.length]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.targetTouches[0].clientX);
+    setTouchEndX(null);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEndX(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartX === null || touchEndX === null) return;
+    const distance = touchStartX - touchEndX;
+    const minSwipeDistance = 40; // minimum threshold in px
+
+    if (distance > minSwipeDistance) {
+      // Swiped Left -> Next item
+      handleNext();
+    } else if (distance < -minSwipeDistance) {
+      // Swiped Right -> Previous item
+      handlePrev();
+    }
+    setTouchStartX(null);
+    setTouchEndX(null);
+  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -169,35 +198,47 @@ export function EventsCarousel({ items }: EventsCarouselProps) {
         <div 
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4 sm:p-6 transition-all animate-in fade-in duration-300"
           onClick={() => setSelectedIndex(null)}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         >
+          {/* Mobile Swipe Hint Badge */}
+          {rawItems.length > 1 && (
+            <div className="sm:hidden absolute top-4 left-4 z-50 pointer-events-none">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-black/70 backdrop-blur-md border border-white/20 rounded-full text-[10px] font-bold text-[#e5caaa] uppercase tracking-wider shadow-lg animate-pulse">
+                <span>← Swipe to next →</span>
+              </div>
+            </div>
+          )}
+
           {/* Close Button */}
           <button
             type="button"
             onClick={() => setSelectedIndex(null)}
-            className="absolute top-4 right-4 sm:top-6 sm:right-6 text-white/80 hover:text-white bg-white/10 hover:bg-white/25 p-2.5 rounded-full transition-colors z-50 focus:outline-none"
+            className="absolute top-4 right-4 sm:top-6 sm:right-6 text-white bg-black/80 hover:bg-black border border-white/20 p-2.5 rounded-full shadow-lg transition-all z-50 focus:outline-none hover:scale-105 active:scale-95"
             aria-label="Close image popup"
           >
             <X className="w-6 h-6" />
           </button>
 
-          {/* Previous Button */}
+          {/* Previous Button (Desktop / Tablet only) */}
           {rawItems.length > 1 && (
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); handlePrev(); }}
-              className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 text-white/80 hover:text-white bg-white/10 hover:bg-white/25 p-3 rounded-full transition-all z-50 focus:outline-none hover:scale-110"
+              className="hidden sm:flex absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 text-white/80 hover:text-white bg-white/10 hover:bg-white/25 p-3 rounded-full transition-all z-50 focus:outline-none hover:scale-110"
               aria-label="Previous image"
             >
               <ChevronLeft className="w-6 h-6" />
             </button>
           )}
 
-          {/* Next Button */}
+          {/* Next Button (Desktop / Tablet only) */}
           {rawItems.length > 1 && (
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); handleNext(); }}
-              className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 text-white/80 hover:text-white bg-white/10 hover:bg-white/25 p-3 rounded-full transition-all z-50 focus:outline-none hover:scale-110"
+              className="hidden sm:flex absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 text-white/80 hover:text-white bg-white/10 hover:bg-white/25 p-3 rounded-full transition-all z-50 focus:outline-none hover:scale-110"
               aria-label="Next image"
             >
               <ChevronRight className="w-6 h-6" />
@@ -213,7 +254,7 @@ export function EventsCarousel({ items }: EventsCarouselProps) {
               <img
                 src={selectedEvent.image || ""}
                 alt={selectedEvent.title}
-                className="max-h-[78vh] max-w-full object-contain rounded-t-lg shadow-2xl"
+                className="max-h-[78vh] max-w-full object-contain rounded-t-lg shadow-2xl select-none"
               />
             </div>
 
