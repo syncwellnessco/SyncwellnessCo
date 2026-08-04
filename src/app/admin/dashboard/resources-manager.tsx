@@ -243,8 +243,8 @@ export function ResourcesManager() {
       if (stagedCoverFile) {
         toast.loading("Uploading media...", { id: "uploading-resource-media" });
         setUploadProgress(0);
-        // Use syncwellness preset for event images as requested
-        const uploadPreset = subTab === "events"
+        // Use syncwellness preset for event images and news article (media) images as requested
+        const uploadPreset = (subTab === "events" || subTab === "media")
           ? (process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "syncwellness")
           : (process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_BLOGS || "syncwellness_blogs");
 
