@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default async function BlogPage() {
   const allPosts = await getAllBlogPosts({ publishedOnly: true });
-  const posts = allPosts.filter(p => p.category !== "Podcast" && p.category !== "News Article");
+  const posts = allPosts.filter(p => p.category !== "Podcast" && p.category !== "News Article" && p.category !== "Event Image");
 
   return (
     <PageShell noPadding>

@@ -25,7 +25,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
   const posts = await getAllBlogPosts();
   const post = posts.find((p) => (p.slug || p.id) === slug);
 
-  if (post && (post.category === "Podcast" || post.category === "News Article")) {
+  if (post && (post.category === "Podcast" || post.category === "News Article" || post.category === "Event Image")) {
     if (post.content && (post.content.startsWith("http://") || post.content.startsWith("https://"))) {
       redirect(post.content);
     }

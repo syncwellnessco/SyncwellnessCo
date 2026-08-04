@@ -19,7 +19,7 @@ export const revalidate = 60;
 
 export default async function HomePage() {
   const blogs = await getAllBlogPosts({ publishedOnly: true });
-  const latestBlogs = blogs.filter(post => post.category !== "Podcast" && post.category !== "News Article").slice(0, 4);
+  const latestBlogs = blogs.filter(post => post.category !== "Podcast" && post.category !== "News Article" && post.category !== "Event Image").slice(0, 4);
 
   const allPrograms = await getAllPrograms({ publishedOnly: true });
 
