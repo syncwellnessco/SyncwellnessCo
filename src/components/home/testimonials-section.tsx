@@ -195,7 +195,7 @@ export function TestimonialsSection() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-charcoal/70 backdrop-blur-sm overflow-y-auto"
+              className="fixed inset-0 z-[110] flex items-center justify-center p-3 sm:p-4 bg-charcoal/70 backdrop-blur-sm overflow-y-auto"
               onClick={() => setActiveReview(null)}
             >
               <motion.div
@@ -204,23 +204,24 @@ export function TestimonialsSection() {
                 exit={{ scale: 0.96, opacity: 0, y: 15 }}
                 transition={{ duration: 0.3 }}
                 className={cn(
-                  "relative w-full overflow-hidden rounded-md bg-[#FAF9F7] shadow-2xl border border-beige-200 flex flex-col md:flex-row my-8",
+                  "relative w-full overflow-hidden rounded-md bg-[#FAF9F7] shadow-2xl border border-beige-200 flex flex-col md:flex-row my-auto max-h-[90vh] sm:max-h-[85vh]",
                   hasImages ? "max-w-4xl" : "max-w-xl"
                 )}
                 onClick={(e) => e.stopPropagation()}
               >
-                {/* Close Button */}
+                {/* Visible Opaque Close Button */}
                 <button
                   type="button"
                   onClick={() => setActiveReview(null)}
-                  className="absolute top-4 right-4 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-charcoal/10 text-charcoal hover:bg-charcoal/20 transition-colors shadow-sm"
+                  className="absolute top-3 right-3 sm:top-4 sm:right-4 z-50 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-charcoal text-white hover:bg-charcoal/80 transition-all shadow-md cursor-pointer border border-white/30"
+                  aria-label="Close review"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-4 w-4 text-white" />
                 </button>
 
                 {/* Left Side: Images */}
                 {hasImages && (
-                  <div className="relative w-full h-[300px] md:h-auto md:w-[460px] lg:w-[500px] bg-beige-100 flex overflow-hidden md:min-h-[460px] shrink-0 border-b md:border-b-0 md:border-r border-beige-200">
+                  <div className="relative w-full h-[220px] sm:h-[280px] md:h-auto md:w-[460px] lg:w-[500px] bg-beige-100 flex overflow-hidden md:min-h-[460px] shrink-0 border-b md:border-b-0 md:border-r border-beige-200">
                     {hasBefore && (
                       <div className={cn("relative h-full", hasAfter ? "w-1/2 border-r border-beige-200/50" : "w-full")}>
                         <img
@@ -228,7 +229,7 @@ export function TestimonialsSection() {
                           alt="Before"
                           className="absolute inset-0 w-full h-full object-cover"
                         />
-                        <span className="absolute bottom-4 left-4 bg-black/75 text-white text-[9px] uppercase font-bold tracking-widest px-2.5 py-1.5 rounded-sm backdrop-blur-md z-10 shadow-sm">
+                        <span className="absolute bottom-3 left-3 bg-black/75 text-white text-[8px] sm:text-[9px] uppercase font-bold tracking-widest px-2 py-1 rounded-sm backdrop-blur-md z-10 shadow-sm">
                           Before
                         </span>
                       </div>
@@ -240,7 +241,7 @@ export function TestimonialsSection() {
                           alt="After"
                           className="absolute inset-0 w-full h-full object-cover"
                         />
-                        <span className="absolute bottom-4 right-4 bg-black/75 text-white text-[9px] uppercase font-bold tracking-widest px-2.5 py-1.5 rounded-sm backdrop-blur-md z-10 shadow-sm">
+                        <span className="absolute bottom-3 right-3 bg-black/75 text-white text-[8px] sm:text-[9px] uppercase font-bold tracking-widest px-2 py-1 rounded-sm backdrop-blur-md z-10 shadow-sm">
                           After
                         </span>
                       </div>
@@ -249,50 +250,50 @@ export function TestimonialsSection() {
                 )}
 
                 {/* Right Side: Content */}
-                <div className="w-full md:flex-1 p-6 sm:p-8 md:p-10 flex flex-col justify-center bg-[#FAF9F7] text-charcoal">
-                  <div className="flex-1 flex flex-col justify-center">
+                <div className="w-full md:flex-1 p-5 sm:p-6 md:p-8 flex flex-col justify-between bg-[#FAF9F7] text-charcoal min-h-0 overflow-hidden">
+                  <div className="flex-1 flex flex-col justify-start min-h-0 overflow-hidden">
                     {/* Program Tag */}
                     {getProgramName(activeReview.program_id) && (
-                      <div className="mb-4">
-                        <span className="inline-block bg-[#8C6D40]/10 text-[#8C6D40] border border-[#8C6D40]/20 text-[10px] font-bold px-3 py-1 rounded-sm uppercase tracking-wider">
+                      <div className="mb-3 shrink-0">
+                        <span className="inline-block bg-[#8C6D40]/10 text-[#8C6D40] border border-[#8C6D40]/20 text-[10px] font-bold px-2.5 py-0.5 rounded-sm uppercase tracking-wider">
                           {getProgramName(activeReview.program_id)}
                         </span>
                       </div>
                     )}
 
                     {/* Star Rating */}
-                    <div className="flex text-[#8C6D40] mb-4">
+                    <div className="flex text-[#8C6D40] mb-3 shrink-0">
                       {[...Array(5)].map((_, i) => (
                         <Star
                           key={i}
-                          className={`h-4.5 w-4.5 ${
+                          className={`h-4 w-4 sm:h-4.5 sm:w-4.5 ${
                             i < (activeReview.rating || 5) ? "fill-current" : "text-gray-300"
                           }`}
                         />
                       ))}
                     </div>
 
-                    {/* Testimonial Quote */}
-                    <div className="relative mb-6">
-                      <span className="absolute -top-4 -left-3 font-serif text-5xl text-[#8C6D40]/10 pointer-events-none select-none">
+                    {/* Scrollable Testimonial Quote */}
+                    <div className="relative mb-4 sm:mb-6 overflow-y-auto max-h-[160px] sm:max-h-[220px] md:max-h-none pr-1">
+                      <span className="absolute -top-3 -left-2 font-serif text-4xl sm:text-5xl text-[#8C6D40]/10 pointer-events-none select-none">
                         “
                       </span>
-                      <p className="text-charcoal/90 text-sm sm:text-base leading-relaxed italic relative z-10 font-serif whitespace-pre-wrap">
+                      <p className="text-charcoal/90 text-xs sm:text-sm md:text-base leading-relaxed italic relative z-10 font-serif whitespace-pre-wrap">
                         "{activeReview.testimonial}"
                       </p>
                     </div>
                   </div>
 
                   {/* Client Profile */}
-                  <div className="flex items-center gap-3 pt-5 border-t border-beige-200/60 mt-auto">
-                    <div className="h-10 w-10 rounded-full bg-[#8C6D40]/10 flex items-center justify-center font-display font-semibold text-[#8C6D40] text-sm shrink-0">
+                  <div className="flex items-center gap-3 pt-3 border-t border-beige-200/60 mt-auto shrink-0">
+                    <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-[#8C6D40]/10 flex items-center justify-center font-display font-semibold text-[#8C6D40] text-xs sm:text-sm shrink-0">
                       {activeReview.name.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <h4 className="font-semibold text-charcoal text-sm">
+                      <h4 className="font-semibold text-charcoal text-xs sm:text-sm">
                         {activeReview.name}
                       </h4>
-                      <span className="text-[10px] text-charcoal/50 uppercase tracking-widest font-semibold">
+                      <span className="text-[9px] sm:text-[10px] text-charcoal/50 uppercase tracking-widest font-semibold">
                         Verified Client
                       </span>
                     </div>

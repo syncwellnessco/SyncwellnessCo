@@ -3,10 +3,11 @@
 import { ReactNode, useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { BookOpen, Calendar, LayoutDashboard, MessageSquare, ExternalLink, CreditCard, ClipboardList } from "lucide-react";
+import { BookOpen, Calendar, LayoutDashboard, MessageSquare, ExternalLink, CreditCard, ClipboardList, LogOut } from "lucide-react";
 import { useUserStore } from "@/store/user-store";
 import { Spinner } from "@/components/ui/spinner";
 import { AdminPresence } from "@/components/admin/AdminPresence";
+import { createClient } from "@/lib/supabase-client";
 
 const navItems = [
   { label: "Overview", tab: "overview", href: "/admin/dashboard", icon: LayoutDashboard },
@@ -68,7 +69,7 @@ function AdminNavFallback() {
 }
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
-  const { user } = useUserStore();
+  const { user, logout } = useUserStore();
   const router = useRouter();
   const [isChecking, setIsChecking] = useState(true);
 
@@ -87,6 +88,22 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
     setIsChecking(false);
   }, [user, router]);
+
+  const handleLogout = async () => {
+    try {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.error("Error signing out:", err);
+    }
+    if (typeof window !== "undefined") {
+      localStorage.clear();
+      sessionStorage.clear();
+    }
+    logout();
+    router.push("/login");
+    router.refresh();
+  };
 
   if (isChecking) {
     return (
@@ -118,29 +135,39 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       {/* Desktop Dashboard */}
       <div className="hidden lg:flex min-h-screen bg-[#FAF8F5]">
         {/* Sidebar */}
-        <aside className="w-64 bg-white border-r border-[#EBE3DB] fixed h-screen overflow-hidden shadow-sm">
+        <aside className="w-64 bg-white border-r border-[#EBE3DB] fixed h-screen overflow-y-auto shadow-sm">
           <div className="p-6 h-full flex flex-col">
             <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-[#8C6D40] mb-6">Admin Panel</h2>
             <Suspense fallback={<AdminNavFallback />}>
               <AdminSidebarNav />
             </Suspense>
             
-            <div className="mt-auto pt-6 border-t border-[#EBE3DB]">
-              <Link 
-                href="/" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="flex items-center justify-center gap-2 px-4 py-2.5 border border-[#8C6D40] text-[#8C6D40] hover:bg-[#8C6D40] hover:text-white transition-colors text-xs font-bold uppercase tracking-wider rounded-sm shadow-sm"
-              >
-                <ExternalLink className="h-3.5 w-3.5" />
-                View Website
-              </Link>
-            </div>
-            
-            <div className="mt-4">
-              <Suspense fallback={null}>
-                <AdminPresence />
-              </Suspense>
+            <div className="mt-auto pt-4 border-t border-[#EBE3DB] space-y-3.5">
+              <div className="space-y-2">
+                <Link 
+                  href="/" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="flex items-center justify-center gap-2 px-4 py-2 border border-[#8C6D40] text-[#8C6D40] hover:bg-[#8C6D40] hover:text-white transition-colors text-xs font-bold uppercase tracking-wider rounded-sm shadow-sm w-full"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  View Website
+                </Link>
+                <button 
+                  type="button"
+                  onClick={handleLogout}
+                  className="flex items-center justify-center gap-2 px-4 py-2 border border-red-200 bg-red-50/50 text-red-700 hover:bg-red-600 hover:text-white hover:border-red-600 transition-colors text-xs font-bold uppercase tracking-wider rounded-sm shadow-sm w-full cursor-pointer"
+                >
+                  <LogOut className="h-3.5 w-3.5" />
+                  Log Out
+                </button>
+              </div>
+
+              <div className="pt-3 border-t border-[#EBE3DB]/60">
+                <Suspense fallback={null}>
+                  <AdminPresence />
+                </Suspense>
+              </div>
             </div>
           </div>
         </aside>

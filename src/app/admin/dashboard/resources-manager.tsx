@@ -76,7 +76,7 @@ async function fetchPodcastMetadata(url: string) {
   return null;
 }
 
-type SubTab = "blogs" | "podcasts" | "media";
+type SubTab = "blogs" | "podcasts" | "media" | "events";
 
 const ITEMS_PER_PAGE = 15;
 
@@ -129,11 +129,12 @@ export function ResourcesManager() {
   };
 
   // Filter based on selected subtab
-  const blogs = resources.filter(r => r.category !== "Podcast" && r.category !== "News Article");
+  const blogs = resources.filter(r => r.category !== "Podcast" && r.category !== "News Article" && r.category !== "Event Image");
   const podcasts = resources.filter(r => r.category === "Podcast");
   const media = resources.filter(r => r.category === "News Article");
+  const events = resources.filter(r => r.category === "Event Image");
 
-  const currentList = subTab === "blogs" ? blogs : subTab === "podcasts" ? podcasts : media;
+  const currentList = subTab === "blogs" ? blogs : subTab === "podcasts" ? podcasts : subTab === "media" ? media : events;
   const totalPages = Math.ceil(currentList.length / ITEMS_PER_PAGE);
   const paginatedList = currentList.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
@@ -181,6 +182,17 @@ export function ResourcesManager() {
         image_url: "",
         author: "", // Source / Publisher
         category: "News Article",
+        published: true
+      });
+    } else if (subTab === "events") {
+      setFormData({
+        title: "",
+        slug: "",
+        excerpt: "",
+        content: "",
+        image_url: "",
+        author: "Admin",
+        category: "Event Image",
         published: true
       });
     }
@@ -231,9 +243,14 @@ export function ResourcesManager() {
       if (stagedCoverFile) {
         toast.loading("Uploading media...", { id: "uploading-resource-media" });
         setUploadProgress(0);
+        // Use syncwellness preset for event images as requested
+        const uploadPreset = subTab === "events"
+          ? (process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "syncwellness")
+          : (process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_BLOGS || "syncwellness_blogs");
+
         const { url } = await uploadFileToCloudinary(
           stagedCoverFile,
-          process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_BLOGS || "syncwellness_blogs",
+          uploadPreset,
           (percent) => setUploadProgress(percent)
         );
         finalImageUrl = url;
@@ -242,7 +259,7 @@ export function ResourcesManager() {
 
       const submitData = { ...formData, image_url: finalImageUrl, published: publish };
       
-      // Auto-populate attributes for Podcasts and Media
+      // Auto-populate attributes for Podcasts, Media, and Events
       if (subTab === "podcasts") {
         submitData.category = "Podcast";
         submitData.author = "Admin";
@@ -253,6 +270,14 @@ export function ResourcesManager() {
         submitData.category = "News Article";
         if (!submitData.slug) {
           submitData.slug = generateSlug(submitData.title || "media", "media");
+        }
+      } else if (subTab === "events") {
+        submitData.category = "Event Image";
+        if (!submitData.title) {
+          submitData.title = "Event Highlight";
+        }
+        if (!submitData.slug) {
+          submitData.slug = generateSlug(submitData.title || "event", "event");
         }
       } else {
         if (!submitData.slug) {
@@ -300,15 +325,15 @@ export function ResourcesManager() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
           <h2 className="text-2xl font-display text-charcoal">Resources Manager</h2>
-          <p className="text-sm text-charcoal/60 mt-0.5">Manage blogs, podcasts, and media appearances from one place.</p>
+          <p className="text-sm text-charcoal/60 mt-0.5">Manage blogs, podcasts, news articles, and event images from one place.</p>
         </div>
         <Button onClick={handleCreateNew} className="bg-[#8C6D40] hover:bg-[#B8955F] text-white text-[11px] uppercase tracking-widest px-6 h-10 rounded-none">
-          <Plus className="h-4 w-4 mr-2" /> Add {subTab === "blogs" ? "Blog" : subTab === "podcasts" ? "Podcast" : "Media Article"}
+          <Plus className="h-4 w-4 mr-2" /> {subTab === "blogs" ? "Add Blog" : subTab === "podcasts" ? "Add Podcast" : subTab === "media" ? "Add News Articles" : "Add Image"}
         </Button>
       </div>
 
       {/* Sub-tabs */}
-      <div className="flex gap-2 border-b border-[#EBE3DB] mb-6">
+      <div className="flex flex-wrap gap-2 border-b border-[#EBE3DB] mb-6">
         <button 
           onClick={() => { setSubTab("blogs"); setCurrentPage(1); }}
           className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors cursor-pointer -mb-px ${
@@ -340,19 +365,36 @@ export function ResourcesManager() {
           }`}
         >
           <Newspaper className="h-4 w-4" />
-          Media Articles ({media.length})
+          News Articles ({media.length})
+        </button>
+        <button 
+          onClick={() => { setSubTab("events"); setCurrentPage(1); }}
+          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors cursor-pointer -mb-px ${
+            subTab === "events" 
+              ? "border-[#8C6D40] text-[#8C6D40]" 
+              : "border-transparent text-charcoal/60 hover:text-charcoal"
+          }`}
+        >
+          <ImageIcon className="h-4 w-4" />
+          Event Carousel ({events.length})
         </button>
       </div>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className={`grid gap-4 sm:gap-5 ${
+        subTab === "events" || subTab === "media" 
+          ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5" 
+          : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+      }`}>
         {currentList.length === 0 ? (
-          <div className="col-span-full py-12 text-center text-charcoal/50 border border-dashed border-[#EBE3DB] rounded-lg bg-white">
-            No items found. Click &quot;Add&quot; to create one.
+          <div className="col-span-full min-h-[350px] sm:min-h-[420px] flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-[#EBE3DB] rounded-xl bg-white/70 shadow-xs">
+            <p className="text-sm font-semibold text-charcoal/60">No items found. Click &quot;Add&quot; to create one.</p>
           </div>
         ) : (
           paginatedList.map((resource) => (
             <div key={resource.id} className="bg-white border border-[#EBE3DB] rounded-lg shadow-sm hover:shadow-md transition-all flex flex-col overflow-hidden">
-              <div className="relative w-full overflow-hidden bg-[#FAF8F5] border-b border-[#EBE3DB]" style={{ aspectRatio: "16 / 9" }}>
+              <div className={`relative w-full overflow-hidden bg-[#FAF8F5] border-b border-[#EBE3DB] ${
+                subTab === "events" ? "aspect-[9/16]" : subTab === "media" ? "aspect-[4/5]" : "aspect-[16/9]"
+              }`}>
                 {resource.image_url ? (
                   <img src={resource.image_url} alt="" className="w-full h-full object-cover" />
                 ) : (
@@ -363,21 +405,21 @@ export function ResourcesManager() {
                 )}
               </div>
               
-              <div className="p-3.5 sm:p-4 flex-1 flex flex-col justify-between">
+              <div className="p-3 sm:p-3.5 flex-1 flex flex-col justify-between">
                 <div>
-                  <div className="text-[10px] text-[#8C6D40] font-bold uppercase tracking-wider mb-1.5">
-                    {subTab === "blogs" ? (resource.category || 'General') : subTab === "podcasts" ? 'Podcast' : (resource.author || 'Press')}
+                  <div className="text-[9px] sm:text-[10px] text-[#8C6D40] font-bold uppercase tracking-wider mb-1">
+                    {subTab === "blogs" ? (resource.category || 'General') : subTab === "podcasts" ? 'Podcast' : subTab === "events" ? 'Event Highlight' : (resource.author || 'Press')}
                   </div>
-                  <h3 className="font-display text-base text-charcoal font-bold leading-snug line-clamp-2">{resource.title}</h3>
+                  <h3 className="font-display text-xs sm:text-sm text-charcoal font-bold leading-snug line-clamp-2">{resource.title}</h3>
                   
-                  {subTab !== "blogs" && (
-                    <div className="text-[10px] text-charcoal/40 font-mono mb-3 truncate flex items-center gap-1 bg-charcoal/5 px-2 py-1 rounded-sm w-fit">
+                  {subTab !== "blogs" && subTab !== "events" && (
+                    <div className="text-[9px] text-charcoal/40 font-mono mb-2 truncate flex items-center gap-1 bg-charcoal/5 px-1.5 py-0.5 rounded-sm w-fit mt-1">
                       <ExternalLink className="h-2.5 w-2.5" />
                       {resource.content ? new URL(resource.content).hostname : "no-link"}
                     </div>
                   )}
-                  {subTab !== "blogs" && (
-                    <p className="text-xs text-charcoal/70 line-clamp-3 mt-auto">{resource.excerpt || 'No description provided.'}</p>
+                  {subTab !== "blogs" && subTab !== "events" && (
+                    <p className="text-[11px] text-charcoal/70 line-clamp-2 mt-auto pt-1">{resource.excerpt || 'No description provided.'}</p>
                   )}
                 </div>
               </div>
@@ -448,11 +490,13 @@ export function ResourcesManager() {
       {/* Add / Edit Modal */}
       {isEditing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-charcoal/60 backdrop-blur-sm">
-          <div className="bg-white rounded-lg w-full max-w-4xl shadow-2xl relative max-h-[90vh] flex flex-col overflow-hidden border border-[#EBE3DB]">
+          <div className={`bg-white rounded-lg w-full shadow-2xl relative max-h-[90vh] flex flex-col overflow-hidden border border-[#EBE3DB] ${
+            subTab === "events" ? "max-w-md" : "max-w-4xl"
+          }`}>
             {/* Modal Header */}
             <div className="px-6 py-4 border-b border-[#EBE3DB] flex items-center justify-between bg-white shrink-0">
               <h3 className="font-display text-xl sm:text-2xl text-charcoal font-semibold">
-                {formData.id ? "Edit Resource" : "Create New Resource"}
+                {formData.id ? "Edit Resource" : (subTab === "events" ? "Create Event Image" : "Create New Resource")}
               </h3>
               <button 
                 type="button" 
@@ -468,87 +512,125 @@ export function ResourcesManager() {
             <form onSubmit={(e) => { e.preventDefault(); handleSaveWithStatus(formData.published !== false); }} className="flex flex-col flex-1 min-h-0 overflow-hidden">
               {/* Scrollable Form Body */}
               <div className="p-6 sm:p-8 overflow-y-auto flex-1 space-y-5">
-                <div className="flex flex-col lg:flex-row gap-6 items-stretch">
-                  {/* Left Side: Cover Image */}
-                  <div className="w-full lg:w-5/12 flex flex-col justify-start">
-                    <MediaUploader
-                      label="Cover Image"
-                      helperText="Aspect ratio: 16:9 landscape"
-                      value={stagedCoverFile || formData.image_url}
-                      accept="image/*"
-                      aspectRatioClass="w-full aspect-[16/9]"
-                      className="w-full"
-                      progress={uploadProgress}
-                      onSelectFile={(file) => setStagedCoverFile(file)}
-                      onRemove={() => {
-                        setStagedCoverFile(null);
-                        setFormData(prev => ({ ...prev, image_url: '' }));
-                      }}
-                    />
-                  </div>
-
-                  {/* Right Side: Category / Author, External Link / Excerpt */}
-                  <div className="w-full lg:w-7/12 flex flex-col justify-between space-y-3.5">
-                    <div>
-                      {subTab === "blogs" && (
-                        <div className="space-y-1.5">
-                          <Label>Category</Label>
-                          <Input 
-                            value={formData.category || ""}
-                            onChange={(e) => setFormData({...formData, category: e.target.value})}
-                            placeholder="e.g. Wellness"
-                          />
-                        </div>
-                      )}
-
-                      {subTab === "media" && (
-                        <div className="space-y-1.5">
-                          <Label>Publication / Press Outlet Name</Label>
-                          <Input 
-                            value={formData.author || ""}
-                            onChange={(e) => setFormData({...formData, author: e.target.value})}
-                            placeholder="e.g. Vogue, Forbes, Daily Mail"
-                          />
-                        </div>
-                      )}
-
-                      {subTab !== "blogs" && (
-                        <div className="space-y-1.5">
-                          <Label>{subTab === "podcasts" ? "Podcast Episode URL (Spotify, Apple, YouTube)" : "Article Link URL"}</Label>
-                          <Input 
-                            type="url"
-                            value={formData.content || ""}
-                            onChange={(e) => setFormData({...formData, content: e.target.value})}
-                            required
-                            placeholder="https://..."
-                          />
-                        </div>
-                      )}
+                {subTab === "events" ? (
+                  /* Dedicated Vertical Layout for Event Carousel */
+                  <div className="flex flex-col space-y-4 w-full">
+                    {/* 1. Title Input (On Top) */}
+                    <div className="space-y-1.5 w-full">
+                      <Label>Title</Label>
+                      <Input 
+                        value={formData.title || ""}
+                        onChange={(e) => setFormData({...formData, title: e.target.value})}
+                        required
+                        className="text-sm sm:text-base font-medium h-10 w-full"
+                        placeholder="Enter event title..."
+                      />
                     </div>
 
-                    <div className="space-y-1.5 flex-1 flex flex-col justify-end min-h-0 pt-1">
-                      <Label className="mb-1.5 inline-block">{subTab === "blogs" ? "Short Excerpt" : "Summary / Description"}</Label>
-                      <Textarea 
-                        value={formData.excerpt || ""}
-                        onChange={(e) => setFormData({...formData, excerpt: e.target.value})}
-                        placeholder="Brief summary..."
-                        className="flex-1 h-full min-h-[80px] resize-none"
+                    {/* 2. Vertical Image Uploader (Full Width) */}
+                    <div className="w-full">
+                      <MediaUploader
+                        label="Event Image"
+                        helperText="Saved to Cloudinary preset: syncwellness"
+                        value={stagedCoverFile || formData.image_url}
+                        accept="image/*"
+                        aspectRatioClass="w-full aspect-[9/16]"
+                        className="w-full"
+                        progress={uploadProgress}
+                        onSelectFile={(file) => setStagedCoverFile(file)}
+                        onRemove={() => {
+                          setStagedCoverFile(null);
+                          setFormData(prev => ({ ...prev, image_url: '' }));
+                        }}
                       />
                     </div>
                   </div>
-                </div>
+                ) : (
+                  /* Standard 2-Column Layout for Blogs, Podcasts, Media */
+                  <>
+                    <div className="flex flex-col lg:flex-row gap-6 items-stretch">
+                      {/* Left Side: Cover Image */}
+                      <div className="w-full lg:w-5/12 flex flex-col justify-start">
+                        <MediaUploader
+                          label="Cover Image"
+                          helperText={subTab === "media" ? "Aspect ratio: 4:5 vertical" : "Aspect ratio: 16:9 landscape"}
+                          value={stagedCoverFile || formData.image_url}
+                          accept="image/*"
+                          aspectRatioClass={subTab === "media" ? "w-full aspect-[4/5]" : "w-full aspect-[16/9]"}
+                          className="w-full"
+                          progress={uploadProgress}
+                          onSelectFile={(file) => setStagedCoverFile(file)}
+                          onRemove={() => {
+                            setStagedCoverFile(null);
+                            setFormData(prev => ({ ...prev, image_url: '' }));
+                          }}
+                        />
+                      </div>
 
-                {/* Title (Full Width) */}
-                <div className="space-y-1.5">
-                  <Label>Title</Label>
-                  <Input 
-                    value={formData.title || ""}
-                    onChange={(e) => setFormData({...formData, title: e.target.value})}
-                    required
-                    className="text-base font-medium h-11"
-                    placeholder="Enter title..."
-                  />
-                </div>
+                      {/* Right Side: Category / Author, External Link / Excerpt */}
+                      <div className="w-full lg:w-7/12 flex flex-col justify-between space-y-3.5">
+                        <div>
+                          {subTab === "blogs" && (
+                            <div className="space-y-1.5">
+                              <Label>Category</Label>
+                              <Input 
+                                value={formData.category || ""}
+                                onChange={(e) => setFormData({...formData, category: e.target.value})}
+                                placeholder="e.g. Wellness"
+                              />
+                            </div>
+                          )}
+
+                          {subTab === "media" && (
+                            <div className="space-y-1.5">
+                              <Label>Publication / Press Outlet Name</Label>
+                              <Input 
+                                value={formData.author || ""}
+                                onChange={(e) => setFormData({...formData, author: e.target.value})}
+                                placeholder="e.g. Vogue, Forbes, Daily Mail"
+                              />
+                            </div>
+                          )}
+
+                          {subTab !== "blogs" && (
+                            <div className="space-y-1.5">
+                              <Label>{subTab === "podcasts" ? "Podcast Episode URL (Spotify, Apple, YouTube)" : "Article Link URL"}</Label>
+                              <Input 
+                                type="url"
+                                value={formData.content || ""}
+                                onChange={(e) => setFormData({...formData, content: e.target.value})}
+                                required
+                                placeholder="https://..."
+                              />
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="space-y-1.5 flex-1 flex flex-col justify-end min-h-0 pt-1">
+                          <Label className="mb-1.5 inline-block">{subTab === "blogs" ? "Short Excerpt" : "Summary / Description"}</Label>
+                          <Textarea 
+                            value={formData.excerpt || ""}
+                            onChange={(e) => setFormData({...formData, excerpt: e.target.value})}
+                            placeholder="Brief description..."
+                            className="flex-1 h-full min-h-[80px] resize-none"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Title (Full Width) */}
+                    <div className="space-y-1.5">
+                      <Label>Title</Label>
+                      <Input 
+                        value={formData.title || ""}
+                        onChange={(e) => setFormData({...formData, title: e.target.value})}
+                        required
+                        className="text-base font-medium h-11"
+                        placeholder="Enter title..."
+                      />
+                    </div>
+                  </>
+                )}
 
                 {subTab === "blogs" && (
                   <div className="space-y-1.5">

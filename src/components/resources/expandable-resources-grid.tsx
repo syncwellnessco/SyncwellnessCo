@@ -141,37 +141,37 @@ export function ExpandableGrid({ items, type }: ExpandableGridProps) {
 
   return (
     <div className="space-y-8">
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 sm:gap-4">
         {visibleItems.map(article => (
           <a
             key={article.id}
             href={article.content}
             target="_blank"
             rel="noopener noreferrer"
-            className="group flex flex-col bg-[#FAF8F5] border border-[#EBE3DB] p-3 md:p-5 hover:shadow-md hover:bg-white transition-all duration-300 relative w-full"
+            className="group flex flex-col bg-[#FAF8F5] border border-[#EBE3DB] p-2.5 sm:p-3 hover:shadow-md hover:bg-white transition-all duration-300 relative w-full rounded-sm"
           >
-            <div className="flex items-center justify-between mb-2 md:mb-4">
-              <span className="font-display text-[10px] sm:text-xs md:text-base font-bold tracking-widest text-[#8C6D40] uppercase truncate max-w-[80%]">
+            <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+              <span className="font-display text-[9px] sm:text-xs font-bold tracking-wider text-[#8C6D40] uppercase truncate max-w-[80%]">
                 {article.author || "Press"}
               </span>
-              <div className="w-6 h-6 md:w-7 md:h-7 rounded-full bg-white flex items-center justify-center border border-[#EBE3DB] text-charcoal/40 group-hover:text-[#8C6D40] group-hover:border-[#8C6D40] transition-colors shadow-sm">
-                <ExternalLink className="w-2.5 h-2.5 md:w-3 md:h-3" />
+              <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-white flex items-center justify-center border border-[#EBE3DB] text-charcoal/40 group-hover:text-[#8C6D40] group-hover:border-[#8C6D40] transition-colors shadow-sm shrink-0">
+                <ExternalLink className="w-2 h-2 sm:w-2.5 sm:h-2.5" />
               </div>
             </div>
             {article.image && (
-              <div className="w-full aspect-[4/5] mb-3 md:mb-4 overflow-hidden rounded-sm border border-[#EBE3DB]/60 bg-white">
+              <div className="w-full aspect-[4/5] mb-2 overflow-hidden rounded-sm border border-[#EBE3DB]/60 bg-white">
                 <img
                   src={article.image}
-                  alt={article.author || ""}
-                  className="w-full h-full object-cover opacity-95 group-hover:scale-102 transition-transform duration-300"
+                  alt={article.author || article.title}
+                  className="w-full h-full object-cover opacity-95 group-hover:scale-105 transition-transform duration-500"
                 />
               </div>
             )}
-            <h3 className="font-display text-xs sm:text-sm md:text-lg text-charcoal leading-snug mb-2 group-hover:text-[#8C6D40] transition-colors line-clamp-2">
+            <h3 className="font-display text-[11px] sm:text-xs font-semibold text-charcoal leading-tight mb-1 group-hover:text-[#8C6D40] transition-colors line-clamp-2">
               "{article.title}"
             </h3>
             {article.excerpt && (
-              <p className="text-charcoal/70 text-[10px] sm:text-xs md:text-sm line-clamp-2 md:line-clamp-3 leading-relaxed border-t border-[#EBE3DB] pt-2 md:pt-3 mt-auto">
+              <p className="text-charcoal/70 text-[10px] line-clamp-2 leading-normal border-t border-[#EBE3DB]/80 pt-1.5 mt-auto">
                 {article.excerpt}
               </p>
             )}

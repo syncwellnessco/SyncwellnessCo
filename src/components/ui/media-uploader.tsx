@@ -177,7 +177,7 @@ export function MediaUploader({
 
       {hasMedia ? (
         /* Full Edge-to-Edge Preview State */
-        <div className={`relative w-full ${aspectRatioClass} rounded-lg overflow-hidden border border-[#EBE3DB] bg-[#FAF8F5] group shadow-sm transition-all`} style={{ aspectRatio: "16 / 9" }}>
+        <div className={`relative w-full ${aspectRatioClass} rounded-lg overflow-hidden border border-[#EBE3DB] bg-[#FAF8F5] group shadow-sm transition-all`}>
           {isVideo(value!) ? (
             <video
               src={previewUrl}
@@ -268,7 +268,6 @@ export function MediaUploader({
               ? "border-[#8C6D40] bg-[#8C6D40]/10 scale-[0.99]"
               : "border-[#EBE3DB] bg-[#FAF8F5] hover:border-[#8C6D40] hover:bg-[#F5F0EB]"
           } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
-          style={{ aspectRatio: "16 / 9" }}
         >
           <div className="flex flex-col items-center justify-center text-charcoal/60 space-y-1.5 p-2">
             <div className="p-2.5 rounded-full bg-cream border border-[#EBE3DB] shadow-xs text-[#8C6D40]">

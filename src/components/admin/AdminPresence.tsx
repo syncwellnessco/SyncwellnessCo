@@ -89,42 +89,42 @@ export function AdminPresence() {
   if (onlineAdmins.length === 0) return null;
 
   return (
-    <div className="mt-8 pt-6 border-t border-[#EBE3DB]">
-      <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#8C6D40] mb-4 px-4">
+    <div>
+      <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#8C6D40] mb-2.5">
         Active Admins ({onlineAdmins.length})
       </h3>
-      <div className="space-y-4 px-4 pb-4">
+      <div className="space-y-2.5">
         {onlineAdmins.map(admin => (
-          <div key={admin.id} className="flex items-center gap-3">
+          <div key={admin.id} className="flex items-center gap-2.5">
             <div className="relative flex-shrink-0">
               {admin.avatar_url ? (
                 <img 
                   src={admin.avatar_url} 
                   alt={admin.name} 
-                  className="h-8 w-8 rounded-full object-cover border border-[#EBE3DB]"
+                  className="h-7 w-7 rounded-full object-cover border border-[#EBE3DB]"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                     e.currentTarget.nextElementSibling?.classList.remove('hidden');
                   }}
                 />
               ) : null}
-              <div className={`h-8 w-8 rounded-full bg-[#FAF8F5] items-center justify-center text-charcoal/40 border border-[#EBE3DB] ${admin.avatar_url ? 'hidden flex' : 'flex'}`}>
-                <User className="h-4 w-4" />
+              <div className={`h-7 w-7 rounded-full bg-[#FAF8F5] items-center justify-center text-charcoal/40 border border-[#EBE3DB] ${admin.avatar_url ? 'hidden flex' : 'flex'}`}>
+                <User className="h-3.5 w-3.5" />
               </div>
-              <div className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-green-500 border-2 border-white"></div>
+              <div className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-green-500 border-2 border-white"></div>
             </div>
             <div className="flex flex-col min-w-0 flex-1 overflow-hidden">
               <div className="flex items-center gap-1 min-w-0">
-                <span className="text-[13px] font-semibold text-charcoal truncate min-w-0">
+                <span className="text-[12px] font-semibold text-charcoal truncate min-w-0 leading-tight">
                   {admin.name}
                 </span>
                 {admin.id === user?.id && (
-                  <span className="text-[11px] font-medium text-charcoal/60 whitespace-nowrap flex-shrink-0">
+                  <span className="text-[10px] font-medium text-charcoal/60 whitespace-nowrap flex-shrink-0">
                     (You)
                   </span>
                 )}
               </div>
-              <span className="text-[10px] text-charcoal/60 capitalize truncate">
+              <span className="text-[10px] text-charcoal/60 capitalize truncate leading-tight">
                 Viewing: {admin.currentTab.replace('-', ' ')}
               </span>
             </div>

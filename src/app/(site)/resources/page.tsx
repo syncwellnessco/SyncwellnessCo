@@ -4,6 +4,7 @@ import { ArrowRight, BookOpen, Sparkles } from "lucide-react";
 import { PageShell } from "@/components/layout/page-shell";
 import { getAllBlogPosts } from "@/lib/blogs";
 import { ExpandableGrid } from "@/components/resources/expandable-resources-grid";
+import { EventsCarousel } from "@/components/resources/events-carousel";
 
 import { IMAGES } from "@/data/media";
 
@@ -20,7 +21,8 @@ export default async function ResourcesHubPage() {
   // Categorize resources
   const podcasts = allPosts.filter(p => p.category === "Podcast");
   const mediaArticles = allPosts.filter(p => p.category === "News Article");
-  const latestBlogs = allPosts.filter(p => p.category !== "Podcast" && p.category !== "News Article");
+  const eventImages = allPosts.filter(p => p.category === "Event Image");
+  const latestBlogs = allPosts.filter(p => p.category !== "Podcast" && p.category !== "News Article" && p.category !== "Event Image");
 
   return (
     <PageShell noPadding>
@@ -170,6 +172,9 @@ export default async function ResourcesHubPage() {
           </div>
         </section>
       )}
+
+      {/* Featured in Events Carousel Section */}
+      <EventsCarousel items={eventImages} />
 
       {/* Latest Blogs Section */}
       <section className="py-12 bg-cream">

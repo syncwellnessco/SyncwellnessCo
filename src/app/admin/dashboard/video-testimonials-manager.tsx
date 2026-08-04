@@ -25,10 +25,10 @@ const CloudinaryVideoBtn = memo(({ onSelectFile, onRemove, value, progress }: { 
   return (
     <MediaUploader
       label="Video File"
-      helperText="Aspect ratio: 9:16 vertical"
+      helperText="Aspect ratio: 9:16 vertical full"
       value={value}
       accept="video/*"
-      aspectRatioClass="aspect-[9/16] max-h-96"
+      aspectRatioClass="aspect-[9/16] w-full max-w-[260px] mx-auto min-h-[420px]"
       progress={progress}
       onSelectFile={onSelectFile}
       onRemove={onRemove}
@@ -88,6 +88,7 @@ export function VideoTestimonialsManager() {
   const [programs, setPrograms] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [viewingVideo, setViewingVideo] = useState<VideoTestimonial | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState<{
@@ -99,7 +100,6 @@ export function VideoTestimonialsManager() {
     featured_on_home: boolean;
   }>({ video_url: "", public_id: "", caption: "", name: "", programIds: [], featured_on_home: true });
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
-  const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
 
   const fetchVideos = () => {
     fetch("/api/videos").then(res => res.json()).then(data => {
@@ -198,7 +198,7 @@ export function VideoTestimonialsManager() {
         body: JSON.stringify(payload)
       });
       if (res.ok) {
-        toast.success(isEditing ? (featured ? "Video updated & featured on Home!" : "Video saved as draft!") : (featured ? "Video added & featured on Home!" : "Video saved as draft!"));
+        toast.success(isEditing ? (featured ? "Video updated & published!" : "Video saved as draft!") : (featured ? "Video added & published!" : "Video saved as draft!"));
         setIsAddModalOpen(false);
         setEditingId(null);
         setStagedVideoFile(null);
@@ -303,21 +303,11 @@ export function VideoTestimonialsManager() {
             return (
               <div key={video.id} className="bg-white border border-[#EBE3DB] rounded-lg overflow-hidden shadow-sm flex flex-col">
                 <div className="aspect-[9/16] bg-black relative overflow-hidden group">
-                  {playingVideoId === video.id ? (
-                    <video 
-                      src={video.video_url} 
-                      className="w-full h-full object-cover" 
-                      controls 
-                      autoPlay 
-                      preload="auto" 
-                    />
-                  ) : (
-                    <VideoCardThumbnail 
-                      url={video.video_url} 
-                      name={video.name} 
-                      onPlay={() => setPlayingVideoId(video.id)} 
-                    />
-                  )}
+                  <VideoCardThumbnail 
+                    url={video.video_url} 
+                    name={video.name} 
+                    onPlay={() => setViewingVideo(video)} 
+                  />
                 </div>
                 <div className="p-3 flex-1 flex flex-col justify-between">
                   <div>
@@ -364,9 +354,139 @@ export function VideoTestimonialsManager() {
         )}
       </div>
 
+      {/* View Mode Lightbox Modal (Identical in layout to Edit Popup) */}
+      {viewingVideo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/60 backdrop-blur-sm">
+          <div className="bg-white rounded-md w-full max-w-3xl shadow-xl relative max-h-[90vh] flex flex-col overflow-hidden border border-[#EBE3DB]">
+            <button 
+              type="button" 
+              onClick={() => setViewingVideo(null)} 
+              className="absolute top-4 right-4 z-30 p-1.5 rounded-full text-charcoal/60 hover:text-charcoal bg-white/80 hover:bg-white backdrop-blur-md transition-all shadow-sm border border-[#EBE3DB] cursor-pointer"
+              aria-label="Close modal"
+              title="Close"
+            >
+              <X className="h-5 w-5 text-charcoal/60" />
+            </button>
+            <div className="p-6 sm:p-8 overflow-y-auto flex-1">
+              <h3 className="font-display text-2xl text-charcoal mb-6 border-b border-[#EBE3DB] pb-4">View Video Testimonial</h3>
+              <div className="flex flex-col md:flex-row gap-8 items-start">
+                {/* Left Column: Vertical Video Player */}
+                <div className="w-full md:w-5/12 flex flex-col items-center justify-start pr-0 md:pr-6 md:border-r border-[#EBE3DB]">
+                  <div className="w-full max-w-[260px] aspect-[9/16] bg-black rounded-lg overflow-hidden border border-[#EBE3DB] shadow-md relative">
+                    <video 
+                      src={viewingVideo.video_url} 
+                      controls 
+                      autoPlay 
+                      playsInline
+                      className="w-full h-full object-cover" 
+                    />
+                  </div>
+                </div>
+
+                {/* Right Column: Read-Only Form Fields */}
+                <div className="w-full md:w-7/12 space-y-5">
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="block text-sm font-medium text-charcoal">
+                        Selected Programs
+                      </label>
+                      <span className="text-xs text-charcoal/60">
+                        {(Array.isArray(viewingVideo.program_ids) && viewingVideo.program_ids.length > 0 ? viewingVideo.program_ids : (typeof viewingVideo.program_id === 'string' ? viewingVideo.program_id.split(',').map(s => s.trim()).filter(Boolean) : [])).length} selected
+                      </span>
+                    </div>
+                    <div className="border border-[#EBE3DB] rounded-md p-2.5 max-h-44 overflow-y-auto space-y-1 bg-[#FAF8F5]">
+                      {programs.length === 0 ? (
+                        <p className="text-xs text-charcoal/50 italic p-1">No programs available</p>
+                      ) : (
+                        programs.map(p => {
+                          const vProgIds = Array.isArray(viewingVideo.program_ids) && viewingVideo.program_ids.length > 0
+                            ? viewingVideo.program_ids
+                            : (typeof viewingVideo.program_id === 'string' ? viewingVideo.program_id.split(',').map(s => s.trim()).filter(Boolean) : []);
+                          const isSelected = vProgIds.includes(p.id);
+                          return (
+                            <label 
+                              key={p.id} 
+                              className={`flex items-center gap-3 px-2.5 py-2 rounded text-xs font-medium select-none ${
+                                isSelected 
+                                  ? "bg-[#8C6D40]/10 text-charcoal" 
+                                  : "text-charcoal/40"
+                              }`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                disabled
+                                className="h-4 w-4 rounded border-[#EBE3DB] text-[#8C6D40] accent-[#8C6D40]"
+                              />
+                              <span className="flex-1 truncate">{p.title}</span>
+                            </label>
+                          );
+                        })
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1 text-charcoal">Name</label>
+                    <input 
+                      type="text" 
+                      value={viewingVideo.name} 
+                      disabled 
+                      className="w-full p-2.5 border border-[#EBE3DB] rounded bg-[#FAF8F5] text-charcoal cursor-not-allowed" 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1 text-charcoal">Caption</label>
+                    <textarea 
+                      value={viewingVideo.caption || ""} 
+                      disabled 
+                      className="w-full p-2.5 border border-[#EBE3DB] rounded resize-none bg-[#FAF8F5] text-charcoal cursor-not-allowed" 
+                      rows={3} 
+                    />
+                  </div>
+                  
+                  <div className="flex items-center gap-2 pt-2">
+                    <Toggle 
+                      id="video-view-published"
+                      size="md"
+                      disabled
+                      checked={viewingVideo.featured_on_home !== false} 
+                      onChange={() => {}}
+                      label={viewingVideo.featured_on_home ? "Published" : "Draft"}
+                    />
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-end gap-3 pt-6 border-t border-[#EBE3DB]">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => setViewingVideo(null)}
+                      className="rounded-none border border-[#EBE3DB] hover:bg-charcoal/5 text-charcoal/80 text-xs uppercase tracking-wider font-semibold h-10 px-4"
+                    >
+                      Close
+                    </Button>
+                    <Button 
+                      type="button" 
+                      onClick={() => {
+                        const v = viewingVideo;
+                        setViewingVideo(null);
+                        openEditModal(v);
+                      }} 
+                      className="rounded-none text-xs uppercase tracking-wider font-semibold h-10 px-5 bg-[#8C6D40] hover:bg-[#B8955F] text-white flex items-center gap-2 cursor-pointer"
+                    >
+                      <Edit className="h-4 w-4" /> Edit
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Mode Modal */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/60 backdrop-blur-sm">
-          <div className="bg-white rounded-md w-full max-w-2xl shadow-xl relative max-h-[90vh] flex flex-col overflow-hidden">
+          <div className="bg-white rounded-md w-full max-w-3xl shadow-xl relative max-h-[90vh] flex flex-col overflow-hidden border border-[#EBE3DB]">
             <button 
               type="button" 
               onClick={() => setShowCancelConfirm(true)} 
@@ -376,10 +496,10 @@ export function VideoTestimonialsManager() {
             >
               <X className="h-5 w-5 text-charcoal/60" />
             </button>
-            <div className="p-8 overflow-y-auto flex-1">
-              <h3 className="font-display text-2xl text-charcoal mb-6 border-b pb-4">{editingId ? 'Edit' : 'Upload'} Video Testimonial</h3>
-              <form onSubmit={handleAdd} className="flex flex-col sm:flex-row gap-8">
-                <div className="w-full sm:w-1/2 flex flex-col gap-6 pr-0 sm:pr-8 sm:border-r border-[#EBE3DB]">
+            <div className="p-6 sm:p-8 overflow-y-auto flex-1">
+              <h3 className="font-display text-2xl text-charcoal mb-6 border-b border-[#EBE3DB] pb-4">{editingId ? 'Edit' : 'Upload'} Video Testimonial</h3>
+              <form onSubmit={handleAdd} className="flex flex-col md:flex-row gap-8 items-start">
+                <div className="w-full md:w-5/12 flex flex-col items-center justify-start pr-0 md:pr-6 md:border-r border-[#EBE3DB]">
                   <CloudinaryVideoBtn 
                     value={stagedVideoFile || form.video_url} 
                     progress={uploadProgress}
@@ -387,7 +507,7 @@ export function VideoTestimonialsManager() {
                     onRemove={handleRemoveVideo}
                   />
                 </div>
-                <div className="w-full sm:w-1/2 space-y-5">
+                <div className="w-full md:w-7/12 space-y-5">
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
                       <label className="block text-sm font-medium text-charcoal">
@@ -432,11 +552,11 @@ export function VideoTestimonialsManager() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">Name</label>
+                    <label className="block text-sm font-medium mb-1 text-charcoal">Name</label>
                     <input type="text" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required className="w-full p-2.5 border border-[#EBE3DB] rounded" placeholder="e.g., Sarah" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">Caption</label>
+                    <label className="block text-sm font-medium mb-1 text-charcoal">Caption</label>
                     <textarea value={form.caption} onChange={e => setForm({...form, caption: e.target.value})} className="w-full p-2.5 border border-[#EBE3DB] rounded resize-none" rows={3} placeholder="e.g., Sarah's 3-month progress..." />
                   </div>
                   
@@ -450,26 +570,30 @@ export function VideoTestimonialsManager() {
                     />
                   </div>
 
-                  <div className="flex items-center justify-end gap-3 pt-6 border-t border-[#EBE3DB]">
+                  <div className="flex flex-wrap items-center justify-end gap-3 pt-6 border-t border-[#EBE3DB]">
                     <Button 
                       type="button" 
                       variant="outline" 
                       onClick={() => setShowCancelConfirm(true)}
-                      className="rounded-none border border-[#EBE3DB] hover:bg-red-50 hover:border-red-200 hover:text-red-600 text-charcoal/80 text-xs uppercase tracking-wider font-semibold h-11 px-5"
+                      className="rounded-none border border-[#EBE3DB] hover:bg-red-50 hover:border-red-200 hover:text-red-600 text-charcoal/80 text-xs uppercase tracking-wider font-semibold h-10 px-4"
                     >
                       Cancel
                     </Button>
                     <Button 
                       type="button" 
                       disabled={submitting}
-                      onClick={() => handleSaveWithStatus(form.featured_on_home !== false)} 
-                      className={`rounded-none text-xs uppercase tracking-wider font-semibold h-11 px-6 ${
-                        form.featured_on_home !== false 
-                          ? "bg-[#8C6D40] hover:bg-[#B8955F] text-white" 
-                          : "bg-charcoal hover:bg-charcoal/80 text-white"
-                      }`}
+                      onClick={() => handleSaveWithStatus(false)} 
+                      className="rounded-none text-xs uppercase tracking-wider font-semibold h-10 px-5 bg-charcoal hover:bg-charcoal/80 text-white"
                     >
-                      {submitting ? "Saving..." : (form.featured_on_home !== false ? "Publish Immediately" : "Save Draft")}
+                      {submitting ? "Saving..." : "Save Draft"}
+                    </Button>
+                    <Button 
+                      type="button" 
+                      disabled={submitting}
+                      onClick={() => handleSaveWithStatus(true)} 
+                      className="rounded-none text-xs uppercase tracking-wider font-semibold h-10 px-5 bg-[#8C6D40] hover:bg-[#B8955F] text-white"
+                    >
+                      {submitting ? "Saving..." : "Publish"}
                     </Button>
                   </div>
                 </div>
