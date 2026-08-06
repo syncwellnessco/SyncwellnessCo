@@ -1,9 +1,9 @@
 import { Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export function Spinner({ className = "" }: { className?: string }) {
   return (
-    <div className={`flex items-center justify-center ${className}`}>
-      <Loader2 className="h-6 w-6 animate-spin text-[#8C6D40]" />
-    </div>
+    <Loader2 className={cn("h-6 w-6 animate-spin text-[#8C6D40]", className)} />
   );
 }
+

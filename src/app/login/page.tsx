@@ -94,10 +94,15 @@ function LoginContent() {
             type="button"
             variant="outline"
             onClick={handleGoogleLogin}
-            disabled={googleLoading}
-            className="w-full flex justify-center items-center gap-3 py-4 px-4 border border-[#DCD3C6] rounded-none bg-transparent hover:bg-[#FAF8F5] hover:border-[#A8895C] transition-colors text-charcoal font-medium"
+            disabled={googleLoading || loading}
+            className="w-full flex justify-center items-center gap-3 py-4 px-4 border border-[#DCD3C6] rounded-none bg-transparent hover:bg-[#FAF8F5] hover:border-[#A8895C] transition-colors text-charcoal font-medium disabled:opacity-75 disabled:cursor-not-allowed min-h-[48px]"
           >
-            {googleLoading ? <Spinner className="h-4 w-4" /> : (
+            {googleLoading ? (
+              <span className="flex items-center justify-center gap-2 text-charcoal text-sm">
+                <Spinner className="h-4 w-4 text-[#8C6D40]" />
+                <span>Connecting to Google...</span>
+              </span>
+            ) : (
               <>
                 <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
                   <path d="M12.0003 4.75C13.7703 4.75 15.3553 5.36002 16.6053 6.54998L20.0303 3.125C17.9502 1.19 15.2353 0 12.0003 0C7.31028 0 3.25527 2.69 1.28027 6.60998L5.27028 9.70498C6.21525 6.86002 8.87028 4.75 12.0003 4.75Z" fill="#EA4335"/>
@@ -122,9 +127,10 @@ function LoginContent() {
                 id="email"
                 type="email"
                 required
+                disabled={loading || googleLoading}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-transparent border-0 border-b border-[#DCD3C6] py-3 px-3 text-charcoal placeholder:text-slate-400 focus:ring-0 focus:border-[#A8895C] text-[15px] transition-colors"
+                className="w-full bg-transparent border-0 border-b border-[#DCD3C6] py-3 px-3 text-charcoal placeholder:text-slate-400 focus:ring-0 focus:border-[#A8895C] text-[15px] transition-colors disabled:opacity-60"
                 placeholder="*Email Address"
               />
             </div>
@@ -133,15 +139,17 @@ function LoginContent() {
                 id="password"
                 type={showPassword ? "text" : "password"}
                 required
+                disabled={loading || googleLoading}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-transparent border-0 border-b border-[#DCD3C6] py-3 pr-12 pl-3 text-charcoal placeholder:text-slate-400 focus:ring-0 focus:border-[#A8895C] text-[15px] transition-colors"
+                className="w-full bg-transparent border-0 border-b border-[#DCD3C6] py-3 pr-12 pl-3 text-charcoal placeholder:text-slate-400 focus:ring-0 focus:border-[#A8895C] text-[15px] transition-colors disabled:opacity-60"
                 placeholder="*Password"
               />
               <button
                 type="button"
+                disabled={loading || googleLoading}
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-charcoal/60 hover:text-charcoal transition-all p-2 rounded-full hover:bg-beige-200/60 flex items-center justify-center cursor-pointer"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-charcoal/60 hover:text-charcoal transition-all p-2 rounded-full hover:bg-beige-200/60 flex items-center justify-center cursor-pointer disabled:opacity-50"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -149,17 +157,25 @@ function LoginContent() {
             </div>
 
             {error && (
-              <div className="text-red-600 text-sm font-medium p-3 rounded-lg bg-red-50 border border-red-100">
-                {error}
+              <div className="text-red-600 text-sm font-medium p-3 rounded-lg bg-red-50 border border-red-100 flex items-center gap-2">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                <span>{error}</span>
               </div>
             )}
 
             <Button
               type="submit"
-              disabled={loading}
-              className="w-full bg-[#8C6D40] text-white hover:bg-[#B8955F] uppercase tracking-[0.15em] text-[11px] font-semibold py-4 rounded-none transition-colors mt-6 disabled:opacity-70 flex justify-center"
+              disabled={loading || googleLoading}
+              className="w-full bg-[#8C6D40] text-white hover:bg-[#B8955F] uppercase tracking-[0.15em] text-[11px] font-semibold py-4 rounded-none transition-all mt-6 disabled:opacity-75 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[48px]"
             >
-              {loading ? <Spinner className="h-4 w-4 text-white" /> : "SIGN IN"}
+              {loading ? (
+                <span className="flex items-center justify-center gap-2.5">
+                  <Spinner className="h-4 w-4 text-white" />
+                  <span>SIGNING IN...</span>
+                </span>
+              ) : (
+                "SIGN IN"
+              )}
             </Button>
           </form>
 
