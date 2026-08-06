@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
     // 3. Add to MailerLite
     if (process.env.MAILERLITE_API_KEY) {
       try {
-        const targetGroupId = process.env.MAILERLITE_GROUP_ID;
+        const targetGroupId = process.env.MAILERLITE_GROUP_EBOOK || process.env.MAILERLITE_GROUP_ID;
         let subId: string | undefined;
 
         // Fetch/create subscriber to get their MailerLite ID and pre-remove from the group

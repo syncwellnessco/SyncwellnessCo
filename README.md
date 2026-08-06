@@ -213,7 +213,7 @@ CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 
 # MailerLite Email Automation
 MAILERLITE_API_KEY=your_mailerlite_api_key
-MAILERLITE_GROUP_ID=your_ebook_group_id
+MAILERLITE_GROUP_EBOOK=your_ebook_group_id
 MAILERLITE_GROUP_PROGRAM_ENROLLMENT=your_program_enrollment_group_id
 
 # Stripe Configuration

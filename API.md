@@ -235,7 +235,7 @@ Processes free e-book download requests and syncs leads to MailerLite.
 * **Backend Behavior:**
   * Checks for duplicate requests (`409 Conflict` if already requested).
   * Saves record to `ebook_requests` table.
-  * Upserts subscriber to MailerLite and assigns to `MAILERLITE_GROUP_ID` to trigger automated PDF delivery email.
+  * Upserts subscriber to MailerLite and assigns to `MAILERLITE_GROUP_EBOOK` to trigger automated PDF delivery email.
 
 ---
 
