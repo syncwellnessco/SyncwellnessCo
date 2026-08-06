@@ -363,12 +363,12 @@ export function BookingButton({
     <Button 
       className={cn("relative overflow-hidden select-none", className)} 
       onClick={handleClick} 
+      isLoading={loading}
       disabled={loading}
     >
-      <span className={cn("inline-flex items-center justify-center gap-2 w-full h-full transition-opacity", loading && "opacity-75")}>
+      <span className="inline-flex items-center justify-center gap-2 w-full h-full">
         {requireConsultant && (consultationCompleted || bookingDetail) ? "Book Again" : (children || "Join Program")}
       </span>
-      {loading && <span className="shimmer-bg-light" />}
     </Button>
   );
 }

@@ -1080,6 +1080,7 @@ export function ProgramsManager() {
                     <Button 
                       type="button" 
                       onClick={() => handleSaveWithStatus(editForm.status === 'published' ? 'published' : 'draft')} 
+                      isLoading={isSaving}
                       disabled={isSaving} 
                       className={`rounded-none text-xs uppercase tracking-wider font-semibold h-10 px-6 ${
                         editForm.status === 'published' 
@@ -1087,7 +1088,7 @@ export function ProgramsManager() {
                           : "bg-charcoal hover:bg-charcoal/80 text-white"
                       }`}
                     >
-                      {isSaving ? "Saving..." : (editForm.status === 'published' ? "Publish Immediately" : "Save Draft")}
+                      {editForm.status === 'published' ? "Publish Immediately" : "Save Draft"}
                     </Button>
                   </div>
                 </div>

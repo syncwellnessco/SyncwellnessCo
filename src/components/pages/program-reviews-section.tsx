@@ -416,11 +416,12 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
 
                   <Button 
                     type="submit" 
+                    isLoading={submitting}
                     disabled={submitting} 
                     className="w-full bg-[#8C6D40] hover:bg-[#B8955F] text-white h-10 sm:h-12 text-sm sm:text-base font-semibold rounded-full mt-2"
                   >
-                    {submitting ? <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin mr-2" /> : <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />}
-                    {submitting ? "Submitting..." : "Submit Review"}
+                    <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                    Submit Review
                   </Button>
                 </div>
               </form>

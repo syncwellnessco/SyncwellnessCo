@@ -491,6 +491,7 @@ export function ReviewsManager() {
                     </Button>
                     <Button 
                       type="button" 
+                      isLoading={submitting}
                       disabled={submitting}
                       onClick={() => handleSaveWithStatus(form.published !== false)} 
                       className={`rounded-none text-xs uppercase tracking-wider font-semibold h-11 px-6 ${
@@ -499,7 +500,7 @@ export function ReviewsManager() {
                           : "bg-charcoal hover:bg-charcoal/80 text-white"
                       }`}
                     >
-                      {submitting ? "Saving..." : (form.published !== false ? "Publish Immediately" : "Save Draft")}
+                      {form.published !== false ? "Publish Immediately" : "Save Draft"}
                     </Button>
                   </div>
                 </div>

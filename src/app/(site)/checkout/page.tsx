@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { PageShell } from "@/components/layout/page-shell";
 import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@/components/ui/button";
 import { useUserStore } from "@/store/user-store";
 import { CountryCodeSelect } from "@/components/ui/country-code-select";
 import toast from "react-hot-toast";
@@ -268,20 +269,13 @@ function CheckoutForm({ program }: { program: ProgramDetails }) {
             CANCEL
           </button>
 
-          <button
+          <Button
             type="submit"
-            disabled={loading}
-            className="col-span-3 bg-charcoal text-white hover:bg-charcoal/90 uppercase tracking-wider text-[11px] sm:text-xs font-bold py-2.5 px-3.5 transition-all disabled:opacity-70 flex items-center justify-center rounded-md cursor-pointer shadow-md group relative overflow-hidden text-center border-none whitespace-nowrap"
+            isLoading={loading}
+            className="col-span-3 bg-charcoal text-white hover:bg-charcoal/90 uppercase tracking-wider text-[11px] sm:text-xs font-bold py-2.5 px-3.5 transition-all flex items-center justify-center rounded-md cursor-pointer shadow-md group relative overflow-hidden text-center border-none whitespace-nowrap h-auto"
           >
-            {loading ? (
-              <>
-                <Spinner className="h-3.5 w-3.5 text-white animate-spin mr-1.5 shrink-0" />
-                <span className="whitespace-nowrap">PREPARING...</span>
-              </>
-            ) : (
-              <span className="whitespace-nowrap">PROCEED TO PAYMENT</span>
-            )}
-          </button>
+            PROCEED TO PAYMENT
+          </Button>
         </div>
 
         <div className="flex items-center justify-center gap-2 text-[8.5px] sm:text-[9px] uppercase font-bold tracking-widest text-charcoal/50 flex-wrap pt-0.5">

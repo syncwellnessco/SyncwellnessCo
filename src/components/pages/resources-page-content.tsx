@@ -4,6 +4,7 @@ import { useState } from "react";
 import { BookOpen, Download } from "lucide-react";
 import toast from "react-hot-toast";
 import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@/components/ui/button";
 import { CountryCodeSelect } from "@/components/ui/country-code-select";
 import { useUserStore } from "@/store/user-store";
 import { useRouter } from "next/navigation";
@@ -205,18 +206,15 @@ export function ResourcesPageContent() {
                     </div>
                     
                     <div className="pt-6">
-                      <button 
+                      <Button 
                         type="submit" 
+                        isLoading={loading}
                         disabled={loading}
-                        className="flex items-center justify-center gap-2 bg-charcoal text-white hover:bg-[#8C6D40] uppercase tracking-[0.06em] sm:tracking-[0.12em] text-[11px] sm:text-[12px] font-semibold py-4 sm:py-5 px-3 sm:px-8 transition-colors duration-300 rounded-md disabled:opacity-70 w-full whitespace-nowrap"
+                        className="flex items-center justify-center gap-2 bg-charcoal text-white hover:bg-[#8C6D40] uppercase tracking-[0.06em] sm:tracking-[0.12em] text-[11px] sm:text-[12px] font-semibold py-4 sm:py-5 px-3 sm:px-8 transition-colors duration-300 rounded-md disabled:opacity-70 w-full whitespace-nowrap h-auto"
                       >
-                        {loading ? <Spinner className="h-4 w-4" /> : (
-                          <>
-                            <Download className="h-4 w-4 shrink-0" />
-                            <span>GET ACCESS NOW FOR FREE</span>
-                          </>
-                        )}
-                      </button>
+                        <Download className="h-4 w-4 shrink-0 mr-1" />
+                        <span>GET ACCESS NOW FOR FREE</span>
+                      </Button>
                       <p className="text-[11px] text-charcoal/60 mt-4 leading-relaxed text-center">
                         🔒 By providing us with your information you are consenting to the collection and use of your information in accordance with our Terms of Service and Privacy Policy.
                       </p>

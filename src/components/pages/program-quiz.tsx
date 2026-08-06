@@ -422,10 +422,11 @@ export function ProgramQuiz({ programId, programSlug, programTitle }: ProgramQui
 
           <Button
             type="submit"
+            isLoading={isSubmitting}
             disabled={isSubmitting}
             className="w-full bg-[#8C6D40] text-white hover:bg-charcoal uppercase tracking-[0.2em] text-[11px] font-bold h-14 rounded-none border-0 transition-colors mt-6"
           >
-            {isSubmitting ? "Saving & Analyzing..." : "Get My Results"}
+            Get My Results
           </Button>
         </form>
       </div>

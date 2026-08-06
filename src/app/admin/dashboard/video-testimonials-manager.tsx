@@ -585,19 +585,21 @@ export function VideoTestimonialsManager() {
                     </Button>
                     <Button 
                       type="button" 
+                      isLoading={submitting}
                       disabled={submitting}
                       onClick={() => handleSaveWithStatus(false)} 
                       className="rounded-none text-xs uppercase tracking-wider font-semibold h-10 px-5 bg-charcoal hover:bg-charcoal/80 text-white"
                     >
-                      {submitting ? "Saving..." : "Save Draft"}
+                      Save Draft
                     </Button>
                     <Button 
                       type="button" 
+                      isLoading={submitting}
                       disabled={submitting}
                       onClick={() => handleSaveWithStatus(true)} 
                       className="rounded-none text-xs uppercase tracking-wider font-semibold h-10 px-5 bg-[#8C6D40] hover:bg-[#B8955F] text-white"
                     >
-                      {submitting ? "Saving..." : "Publish"}
+                      Publish
                     </Button>
                   </div>
                 </div>

@@ -313,6 +313,7 @@ export function BlogsManager() {
                   </Button>
                   <Button 
                     type="button" 
+                    isLoading={submitting}
                     disabled={submitting}
                     onClick={() => handleSaveWithStatus(formData.published !== false)} 
                     className={`rounded-none text-xs uppercase tracking-wider font-semibold h-10 px-6 transition-colors ${
@@ -321,7 +322,7 @@ export function BlogsManager() {
                         : "bg-charcoal hover:bg-charcoal/80 text-white"
                     }`}
                   >
-                    {submitting ? "Saving..." : (formData.published !== false ? "Publish" : "Save Draft")}
+                    {formData.published !== false ? "Publish" : "Save Draft"}
                   </Button>
                 </div>
               </div>
