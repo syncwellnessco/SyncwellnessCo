@@ -78,7 +78,7 @@ export async function ProgramsPageContent() {
                 </p>
                 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-auto pt-4 border-t border-beige-200 gap-4">
-                  <div className="flex flex-row flex-nowrap items-center gap-1.5 sm:gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <span className="text-[9px] sm:text-xs font-semibold uppercase tracking-wider text-[#8C6D40] border border-[#A8895C]/20 px-2.5 py-1 rounded-full whitespace-nowrap bg-[#FAF8F5]">
                       {featured.duration}
                     </span>
@@ -88,13 +88,16 @@ export async function ProgramsPageContent() {
                       </span>
                     )}
                   </div>
-                  <InteractiveLink
-                    href={`/programs/${featured.slug || featured.id}`}
-                    variant="raw"
-                    className="w-full sm:w-auto justify-center text-center bg-[#8C6D40] text-white hover:bg-[#B8955F] uppercase tracking-[0.15em] text-[10px] font-bold h-12 px-8 rounded-sm border-0 transition-colors inline-flex items-center"
-                  >
-                    Explore Program
-                  </InteractiveLink>
+                  <div className="flex items-center gap-4 flex-wrap sm:flex-nowrap justify-between sm:justify-end w-full sm:w-auto">
+                    <ProgramPriceOverride program={featured} />
+                    <InteractiveLink
+                      href={`/programs/${featured.slug || featured.id}`}
+                      variant="raw"
+                      className="w-full sm:w-auto justify-center text-center bg-[#8C6D40] text-white hover:bg-[#B8955F] uppercase tracking-[0.15em] text-[10px] font-bold h-12 px-8 rounded-sm border-0 transition-colors inline-flex items-center shrink-0"
+                    >
+                      Explore Program
+                    </InteractiveLink>
+                  </div>
                 </div>
               </div>
               

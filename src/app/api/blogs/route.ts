@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { verifyApiSecret } from "@/lib/api-auth";
 import { getBlogPosts, saveBlogPost } from "@/lib/content-store";
 import type { BlogPost, CreateBlogInput } from "@/types/blog";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 function slugify(text: string) {
   return text
@@ -55,5 +59,12 @@ export async function POST(request: NextRequest) {
   };
 
   const saved = await saveBlogPost(post);
+  try {
+    revalidatePath("/resources/blogs");
+    revalidatePath("/resources");
+    revalidatePath("/", "layout");
+  } catch (revErr) {
+    console.error("Revalidation error:", revErr);
+  }
   return NextResponse.json(saved, { status: 201 });
 }

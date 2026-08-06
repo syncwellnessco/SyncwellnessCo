@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { verifyApiSecret } from "@/lib/api-auth";
 import {
   deleteBlogPost,
@@ -6,6 +7,9 @@ import {
   saveBlogPost,
 } from "@/lib/content-store";
 import type { UpdateBlogInput } from "@/types/blog";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 type RouteContext = { params: Promise<{ slug: string }> };
 
@@ -54,6 +58,14 @@ export async function PUT(request: NextRequest, context: RouteContext) {
   };
 
   const saved = await saveBlogPost(updated);
+  try {
+    revalidatePath("/resources/blogs");
+    revalidatePath(`/resources/blogs/${slug}`);
+    revalidatePath("/resources");
+    revalidatePath("/", "layout");
+  } catch (revErr) {
+    console.error("Revalidation error:", revErr);
+  }
   return NextResponse.json(saved);
 }
 
@@ -72,6 +84,15 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
   const deleted = await deleteBlogPost(existing.id);
   if (!deleted) {
     return NextResponse.json({ error: "Blog post not found" }, { status: 404 });
+  }
+
+  try {
+    revalidatePath("/resources/blogs");
+    revalidatePath(`/resources/blogs/${slug}`);
+    revalidatePath("/resources");
+    revalidatePath("/", "layout");
+  } catch (revErr) {
+    console.error("Revalidation error:", revErr);
   }
 
   return NextResponse.json({ success: true });

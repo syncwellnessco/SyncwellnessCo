@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase-server";
 import type { Program } from "@/types/program";
 
@@ -105,6 +106,18 @@ export async function PUT(request: NextRequest, context: RouteContext) {
       .select();
 
     if (error) throw error;
+
+    try {
+      revalidatePath("/programs");
+      revalidatePath(`/programs/${slug}`);
+      if (data && data[0]?.slug) {
+        revalidatePath(`/programs/${data[0].slug}`);
+      }
+      revalidatePath("/");
+    } catch (revErr) {
+      console.error("Revalidation error:", revErr);
+    }
+
     if (!data || data.length === 0) {
       return NextResponse.json(updatedBody);
     }
@@ -127,6 +140,14 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
     const { error } = await supabase.from("programs").delete().or(`id.eq.${slug},slug.eq.${slug}`);
     if (error) throw error;
     
+    try {
+      revalidatePath("/programs");
+      revalidatePath(`/programs/${slug}`);
+      revalidatePath("/");
+    } catch (revErr) {
+      console.error("Revalidation error:", revErr);
+    }
+
     return NextResponse.json({ success: true });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });

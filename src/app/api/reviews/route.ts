@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase-server";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function POST(request: Request) {
   try {
@@ -36,6 +40,12 @@ export async function POST(request: Request) {
       resData.program_ids = typeof resData.program_id === 'string'
         ? resData.program_id.split(',').map((s: string) => s.trim()).filter(Boolean)
         : [];
+    }
+    try {
+      revalidatePath('/testimonials');
+      revalidatePath('/', 'layout');
+    } catch (revErr) {
+      console.error("Revalidation error:", revErr);
     }
     return NextResponse.json({ success: true, data: resData });
   } catch (error: any) {

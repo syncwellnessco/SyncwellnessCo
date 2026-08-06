@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -97,6 +101,12 @@ export async function POST(request: Request) {
       data.program_ids = typeof data.program_id === 'string'
         ? data.program_id.split(',').map((s: string) => s.trim()).filter(Boolean)
         : [];
+    }
+    try {
+      revalidatePath('/testimonials');
+      revalidatePath('/', 'layout');
+    } catch (revErr) {
+      console.error("Revalidation error:", revErr);
     }
     return NextResponse.json(data);
   } catch (error: any) {

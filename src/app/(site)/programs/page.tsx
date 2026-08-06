@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { PageShell } from "@/components/layout/page-shell";
 import { ProgramsPageContent } from "@/components/pages/programs-page-content";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: "Programs",
   description:
@@ -15,3 +18,4 @@ export default function ProgramsPage() {
     </PageShell>
   );
 }
+

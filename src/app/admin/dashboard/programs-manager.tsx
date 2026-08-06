@@ -11,6 +11,7 @@ import { MediaUploader } from "@/components/ui/media-uploader";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { Toggle } from "@/components/ui/toggle";
 import { CustomSelect } from "@/components/ui/custom-select";
+import { revalidateWebsite } from "@/app/actions/revalidate";
 
 const CloudinaryUploader = ({ onUpload, label }: { onUpload: (val: string | File) => void, label: string }) => {
   const isVideoLabel = label.toLowerCase().includes("video");
@@ -257,6 +258,7 @@ export function ProgramsManager() {
         body: JSON.stringify(updates)
       });
       if (res.ok) {
+        await revalidateWebsite("/programs");
         toast.success(nextFeatured ? "Program featured on home!" : "Program unfeatured");
         setPrograms(prev => prev.map(p => p.id === prog.id ? { ...p, ...updates } : p));
       } else {
@@ -403,6 +405,7 @@ export function ProgramsManager() {
       });
       
       if (res.ok) {
+        await revalidateWebsite("/programs");
         toast.success(isNew ? (statusVal === 'published' ? "Program created & published!" : "Program saved as draft!") : (statusVal === 'published' ? "Program published!" : "Program saved as draft!"));
         setIsEditing(false);
         setSelectedProgram(null);
@@ -433,6 +436,7 @@ export function ProgramsManager() {
     try {
       const res = await fetch(`/api/programs/${deleteConfirmId}`, { method: 'DELETE' });
       if (res.ok) {
+        await revalidateWebsite("/programs");
         toast.success("Program deleted successfully");
         fetchPrograms();
       } else {

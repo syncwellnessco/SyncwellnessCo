@@ -3,6 +3,7 @@ import { PageShell } from "@/components/layout/page-shell";
 import { BlogPageContent } from "@/components/pages/blog-page-content";
 import { getAllBlogPosts } from "@/lib/blogs";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export const metadata: Metadata = {

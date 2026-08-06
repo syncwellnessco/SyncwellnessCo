@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase-server";
 import type { Program } from "@/types/program";
 
@@ -170,6 +171,15 @@ export async function POST(request: NextRequest) {
     if (error) {
       return NextResponse.json({ error: `Database Error: ${error.message}. Did you create the table?` }, { status: 500 });
     }
+
+    try {
+      revalidatePath("/programs");
+      revalidatePath(`/programs/${program.slug}`);
+      revalidatePath("/");
+    } catch (revErr) {
+      console.error("Revalidation error:", revErr);
+    }
+
     if (!data || data.length === 0) {
       return NextResponse.json(program, { status: 201 });
     }

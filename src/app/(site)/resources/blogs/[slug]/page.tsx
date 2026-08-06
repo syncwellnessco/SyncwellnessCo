@@ -4,6 +4,9 @@ import { PageShell } from "@/components/layout/page-shell";
 import { BlogDetailContent } from "@/components/pages/blog-detail-content";
 import { getAllBlogPosts } from "@/lib/blogs";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 type PageProps = {
   params: Promise<{ slug: string }>;
 };

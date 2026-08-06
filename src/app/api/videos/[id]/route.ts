@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -48,6 +52,12 @@ export async function PATCH(request: Request, props: { params: Promise<{ id: str
         ? data.program_id.split(',').map((s: string) => s.trim()).filter(Boolean)
         : [];
     }
+    try {
+      revalidatePath('/testimonials');
+      revalidatePath('/', 'layout');
+    } catch (revErr) {
+      console.error("Revalidation error:", revErr);
+    }
     return NextResponse.json(data);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -80,5 +90,11 @@ export async function DELETE(request: Request, props: { params: Promise<{ id: st
     .eq('id', params.id);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  try {
+    revalidatePath('/testimonials');
+    revalidatePath('/', 'layout');
+  } catch (revErr) {
+    console.error("Revalidation error:", revErr);
+  }
   return NextResponse.json({ success: true });
 }

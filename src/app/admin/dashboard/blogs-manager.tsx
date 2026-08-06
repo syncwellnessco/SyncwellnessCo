@@ -16,6 +16,7 @@ import dynamic from 'next/dynamic';
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { TagInput } from "@/components/ui/tag-input";
 import { Toggle } from "@/components/ui/toggle";
+import { revalidateWebsite } from "@/app/actions/revalidate";
 
 const Editor = dynamic(() => import('@/components/admin/editor'), { ssr: false });
 
@@ -100,6 +101,7 @@ export function BlogsManager() {
       const nextPublished = !blog.published;
       const { error } = await supabase.from('blogs').update({ published: nextPublished }).eq('id', blog.id);
       if (error) throw error;
+      await revalidateWebsite("/resources/blogs");
       toast.success(nextPublished ? "Blog published!" : "Blog saved as draft!");
       setBlogs(prev => prev.map(b => b.id === blog.id ? { ...b, published: nextPublished } : b));
     } catch (e: any) {
@@ -114,6 +116,7 @@ export function BlogsManager() {
     try {
       const { error } = await supabase.from('blogs').delete().eq('id', id);
       if (error) throw error;
+      await revalidateWebsite("/resources/blogs");
       toast.success("Blog deleted");
       fetchBlogs();
     } catch (e: any) {
@@ -160,6 +163,7 @@ export function BlogsManager() {
         if (error) throw error;
         toast.success(publish ? "Blog published!" : "Blog saved as draft!");
       }
+      await revalidateWebsite("/resources/blogs");
       setIsEditing(false);
       setStagedCoverFile(null);
       setUploadProgress(null);
