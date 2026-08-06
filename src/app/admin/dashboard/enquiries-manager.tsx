@@ -5,7 +5,7 @@ import { ContactEnquiry } from "@/types/dashboard";
 import { Mail, Clock, Calendar, User, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
-import { Skeleton } from "@/components/ui/skeleton";
+import { TableSkeleton } from "@/components/ui/skeleton";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 
 type SubTab = "bookings" | "contact";
@@ -128,22 +128,7 @@ export function EnquiriesManager() {
     return (
       <div>
         <h2 className="text-2xl font-display text-charcoal mb-6">Enquiries & Bookings</h2>
-        <div className="space-y-4">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="p-5 border border-[#EBE3DB] rounded-md bg-[#FAF8F5] flex gap-6">
-              <div className="flex-1 space-y-3">
-                <Skeleton className="h-5 w-48" />
-                <Skeleton className="h-3 w-32" />
-                <Skeleton className="h-4 w-3/4 mt-4" />
-                <Skeleton className="h-4 w-full" />
-              </div>
-              <div className="w-32 space-y-2">
-                <Skeleton className="h-8 w-full" />
-                <Skeleton className="h-8 w-full" />
-              </div>
-            </div>
-          ))}
-        </div>
+        <TableSkeleton rows={5} columns={4} />
       </div>
     );
   }

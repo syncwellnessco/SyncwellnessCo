@@ -5,7 +5,7 @@ import { EbookRequest } from "@/types/dashboard";
 import { Mail, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
-import { Skeleton } from "@/components/ui/skeleton";
+import { TableSkeleton } from "@/components/ui/skeleton";
 
 export function EbooksManager() {
   const [requests, setRequests] = useState<EbookRequest[]>([]);
@@ -46,11 +46,7 @@ export function EbooksManager() {
     return (
       <div>
         <h2 className="text-2xl font-display text-charcoal mb-6">Ebook Requests</h2>
-        <div className="space-y-2">
-          {[1, 2, 3, 4].map(i => (
-            <Skeleton key={i} className="h-16 w-full" />
-          ))}
-        </div>
+        <TableSkeleton rows={5} columns={4} />
       </div>
     );
   }

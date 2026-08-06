@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, memo, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, X, Trash2, Eye, Star, Upload } from "lucide-react";
 import toast from "react-hot-toast";
-import { Skeleton } from "@/components/ui/skeleton";
+import { TableSkeleton } from "@/components/ui/skeleton";
 import { uploadFileToCloudinary } from "@/lib/cloudinary-utils";
 import { MediaUploader } from "@/components/ui/media-uploader";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
@@ -275,7 +275,7 @@ export function ReviewsManager() {
     executeCancel();
   };
 
-  if (loading) return <Skeleton className="h-64 w-full" />;
+  if (loading) return <TableSkeleton rows={5} columns={5} />;
 
   return (
     <div>

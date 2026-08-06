@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, X, Trash2, Video, Upload, Edit } from "lucide-react";
 import toast from "react-hot-toast";
-import { Skeleton } from "@/components/ui/skeleton";
+import { VideoCardSkeletonGrid } from "@/components/ui/skeleton";
 import { uploadFileToCloudinary } from "@/lib/cloudinary-utils";
 import { MediaUploader } from "@/components/ui/media-uploader";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
@@ -278,7 +278,7 @@ export function VideoTestimonialsManager() {
     }
   };
 
-  if (loading) return <Skeleton className="h-64 w-full" />;
+  if (loading) return <VideoCardSkeletonGrid count={6} />;
 
   return (
     <div>
@@ -292,12 +292,15 @@ export function VideoTestimonialsManager() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-        {videos.length === 0 ? (
-          <div className="col-span-full py-12 text-center text-charcoal/50 border border-dashed border-[#EBE3DB] rounded-md">
-            No video testimonials found.
-          </div>
-        ) : (
+      {loading ? (
+        <VideoCardSkeletonGrid count={6} />
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+          {videos.length === 0 ? (
+            <div className="col-span-full py-12 text-center text-charcoal/50 border border-dashed border-[#EBE3DB] rounded-md">
+              No video testimonials found.
+            </div>
+          ) : (
           videos.map(video => {
             const programNames = getProgramNames(video);
             return (
@@ -353,6 +356,7 @@ export function VideoTestimonialsManager() {
           })
         )}
       </div>
+      )}
 
       {/* View Mode Lightbox Modal (Identical in layout to Edit Popup) */}
       {viewingVideo && (

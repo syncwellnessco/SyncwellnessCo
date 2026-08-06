@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { StatsCardSkeleton, TableSkeleton } from "@/components/ui/skeleton";
 import { CustomSelect } from "@/components/ui/custom-select";
 import { Search, DollarSign, User, ShieldCheck, Mail, Phone, Calendar, X, FileText, Globe, Laptop } from "lucide-react";
 import toast from "react-hot-toast";
@@ -140,16 +140,12 @@ export function PurchasesManager() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <Skeleton className="h-8 w-48" />
-          <Skeleton className="h-10 w-24" />
-        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Skeleton className="h-24 w-full" />
-          <Skeleton className="h-24 w-full" />
-          <Skeleton className="h-24 w-full" />
+          <StatsCardSkeleton />
+          <StatsCardSkeleton />
+          <StatsCardSkeleton />
         </div>
-        <Skeleton className="h-[400px] w-full" />
+        <TableSkeleton rows={5} columns={5} />
       </div>
     );
   }

@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
-import { Skeleton } from "@/components/ui/skeleton";
+import { BlogGridSkeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase-client";
 import { uploadFileToCloudinary } from "@/lib/cloudinary-utils";
 import { MediaUploader } from "@/components/ui/media-uploader";
@@ -188,9 +188,7 @@ export function BlogsManager() {
     return (
       <div>
         <h2 className="text-2xl font-display text-charcoal mb-6">Blog Manager</h2>
-        <div className="space-y-2">
-          {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 w-full" />)}
-        </div>
+        <BlogGridSkeleton count={6} />
       </div>
     );
   }
@@ -348,13 +346,16 @@ export function BlogsManager() {
           <Plus className="h-4 w-4 mr-2" /> New Blog
         </Button>
       </div>
-      
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {blogs.length === 0 ? (
-          <div className="col-span-full py-12 text-center text-charcoal/50 border border-dashed border-[#EBE3DB] rounded-lg bg-white">
-            No blogs found. Click &quot;New Blog&quot; to create one.
-          </div>
-        ) : (
+
+      {loading ? (
+        <BlogGridSkeleton count={6} />
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {blogs.length === 0 ? (
+            <div className="col-span-full py-12 text-center text-charcoal/50 border border-dashed border-[#EBE3DB] rounded-lg bg-white">
+              No blogs found. Click &quot;New Blog&quot; to create one.
+            </div>
+          ) : (
           paginatedBlogs.map((blog) => (
             <div key={blog.id} className="bg-white border border-[#EBE3DB] rounded-lg shadow-sm hover:shadow-md transition-all flex flex-col overflow-hidden">
               <div className="relative w-full overflow-hidden bg-[#FAF8F5] border-b border-[#EBE3DB]" style={{ aspectRatio: "16 / 9" }}>
@@ -404,6 +405,7 @@ export function BlogsManager() {
           ))
         )}
       </div>
+      )}
 
       {/* Pagination Controls */}
       {totalPages > 1 && (

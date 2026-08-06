@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useUserStore } from "@/store/user-store";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ProgramPriceOverrideProps {
   program: any;
@@ -28,6 +29,10 @@ export function ProgramPriceOverride({ program }: ProgramPriceOverrideProps) {
       setLoading(false);
     }
   }, [user]);
+
+  if (loading && user?.email) {
+    return <Skeleton className="h-5 w-24 bg-[#EBE3DB]" />;
+  }
 
   const requireConsultant = program.pricing?.requireConsultant && !consultationCompleted;
 

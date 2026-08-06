@@ -5,7 +5,7 @@ import { Program } from "@/types/program";
 import { Button } from "@/components/ui/button";
 import { Eye, Edit, Trash2, Plus, RefreshCw, X, Save, PlusCircle, MinusCircle } from "lucide-react";
 import toast from "react-hot-toast";
-import { Skeleton } from "@/components/ui/skeleton";
+import { TableSkeleton } from "@/components/ui/skeleton";
 import { uploadFileToCloudinary } from "@/lib/cloudinary-utils";
 import { MediaUploader } from "@/components/ui/media-uploader";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
@@ -451,19 +451,8 @@ export function ProgramsManager() {
   if (loading) {
     return (
       <div>
-        <div className="flex justify-between mb-6">
-          <Skeleton className="h-8 w-32" />
-          <div className="flex gap-3">
-            <Skeleton className="h-9 w-32" />
-            <Skeleton className="h-9 w-32" />
-          </div>
-        </div>
-        <div className="space-y-2">
-          <Skeleton className="h-10 w-full" />
-          {[1, 2, 3].map(i => (
-            <Skeleton key={i} className="h-20 w-full" />
-          ))}
-        </div>
+        <h2 className="text-2xl font-display text-charcoal mb-6">Program Management</h2>
+        <TableSkeleton rows={5} columns={5} />
       </div>
     );
   }

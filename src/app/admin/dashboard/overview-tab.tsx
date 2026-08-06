@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { StatsCardSkeleton, CardSkeleton } from "@/components/ui/skeleton";
 import { Users, BookOpen, MessageSquare, Star, ArrowRight, DollarSign } from "lucide-react";
 import Link from "next/link";
 
@@ -31,12 +31,12 @@ export function OverviewTab() {
     return (
       <div className="space-y-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          {[1, 2, 3, 4, 5].map(i => <Skeleton key={i} className="h-24 w-full" />)}
+          {[1, 2, 3, 4, 5].map(i => <StatsCardSkeleton key={i} />)}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Skeleton className="h-64 w-full" />
-          <Skeleton className="h-64 w-full" />
-          <Skeleton className="h-64 w-full" />
+          <CardSkeleton hasImage={false} className="h-64" />
+          <CardSkeleton hasImage={false} className="h-64" />
+          <CardSkeleton hasImage={false} className="h-64" />
         </div>
       </div>
     );

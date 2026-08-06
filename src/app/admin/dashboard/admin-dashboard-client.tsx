@@ -2,16 +2,17 @@
 
 import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
-import { Skeleton } from "@/components/ui/skeleton";
+import { StatsCardSkeleton, TableSkeleton } from "@/components/ui/skeleton";
 
 // Reusable elegant loader fallback skeleton structure while lazy loading tabs
 const LoadingFallback = () => (
   <div className="space-y-6">
-    <div className="flex justify-between items-center">
-      <Skeleton className="h-8 w-48" />
-      <Skeleton className="h-10 w-24" />
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <StatsCardSkeleton />
+      <StatsCardSkeleton />
+      <StatsCardSkeleton />
     </div>
-    <Skeleton className="h-[380px] w-full" />
+    <TableSkeleton rows={4} columns={4} />
   </div>
 );
 

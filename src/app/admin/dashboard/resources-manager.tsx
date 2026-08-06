@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
-import { Skeleton } from "@/components/ui/skeleton";
+import { TableSkeleton, BlogGridSkeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase-client";
 import { uploadFileToCloudinary } from "@/lib/cloudinary-utils";
 import { MediaUploader } from "@/components/ui/media-uploader";
@@ -313,9 +313,7 @@ export function ResourcesManager() {
     return (
       <div>
         <h2 className="text-2xl font-display text-charcoal mb-6">Resources Manager</h2>
-        <div className="space-y-2">
-          {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 w-full" />)}
-        </div>
+        <BlogGridSkeleton count={6} />
       </div>
     );
   }

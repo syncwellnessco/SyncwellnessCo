@@ -6,13 +6,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { User, LogOut, BookOpen, ArrowRight, PlayCircle } from "lucide-react";
 import { useUserStore } from "@/store/user-store";
-import { Spinner } from "@/components/ui/spinner";
-import { Skeleton } from "@/components/ui/skeleton";
+import { ProfileSkeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase-client";
 import { Button } from "@/components/ui/button";
 import { getProgramsAction } from "@/app/actions/programs";
-
-
 
 export default function ProfilePage() {
   const { user, purchasedPrograms, logout } = useUserStore();
@@ -52,21 +49,7 @@ export default function ProfilePage() {
   };
 
   if (!user || loading) {
-    return (
-      <div className="min-h-screen bg-cream pt-24 pb-16">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row gap-8">
-            <div className="w-full md:w-64">
-              <Skeleton className="h-64 w-full" />
-            </div>
-            <div className="flex-1 space-y-6">
-              <Skeleton className="h-40 w-full" />
-              <Skeleton className="h-40 w-full" />
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <ProfileSkeleton />;
   }
 
   const myProgramsData = allPrograms.filter(p => purchasedPrograms.includes(p.id));
