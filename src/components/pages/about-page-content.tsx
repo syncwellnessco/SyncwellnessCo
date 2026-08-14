@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { aboutContent, brandContent } from "@/data/about-content";
 import { IMAGES } from "@/data/media";
-import { Play, Pause, Volume2, VolumeX } from "lucide-react";
+import { Play, Pause, Volume2, VolumeX, X } from "lucide-react";
 
 export function AboutPageContent() {
   const coachImageSrc = IMAGES.aboutPageProfile;
@@ -14,6 +14,7 @@ export function AboutPageContent() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -71,13 +72,6 @@ export function AboutPageContent() {
     }
   };
 
-  const formatTime = (time: number) => {
-    if (isNaN(time)) return "0:00";
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-  };
-
   const progressPercent = duration ? (currentTime / duration) * 100 : 0;
 
   return (
@@ -98,10 +92,11 @@ export function AboutPageContent() {
         </h2>
       </section>
 
-      {/* Standalone Video Player Section */}
-      <section className="px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto mb-6 sm:mb-8">
+      {/* Standalone Horizontal Video Player Section */}
+      <section className="px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto mb-8 sm:mb-12">
         <div 
-          className="relative aspect-video w-full rounded-2xl overflow-hidden bg-charcoal shadow-2xl border border-beige-200 group select-none"
+          onClick={() => setIsModalOpen(true)}
+          className="relative aspect-[16/10] sm:aspect-[16/9] min-h-[320px] sm:min-h-[440px] w-full rounded-2xl overflow-hidden bg-charcoal shadow-2xl border border-beige-200 group select-none cursor-pointer"
         >
           <video
             ref={videoRef}
@@ -122,28 +117,24 @@ export function AboutPageContent() {
             Your browser does not support the video tag.
           </video>
 
-          {/* Clickable overlay to toggle play/pause */}
+          {/* Center Play/Pause Overlay - Visible when paused OR when hovered */}
           <div 
-            onClick={() => handlePlayPause()}
-            className="absolute inset-0 bg-black/10 group-hover:bg-black/5 transition-all duration-300 cursor-pointer"
-          />
-
-          {/* Custom Controls Layout */}
-          
-          {/* Center Play/Pause Button */}
-          <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+            className={`absolute inset-0 flex items-center justify-center transition-all duration-300 z-10 ${
+              isPlaying 
+                ? "opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto" 
+                : "opacity-100 pointer-events-auto"
+            }`}
+          >
             <button
-              onClick={() => handlePlayPause()}
               type="button"
-              className={`p-6 rounded-full bg-white/15 hover:bg-white/25 border border-white/20 backdrop-blur-md shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] text-white active:scale-95 transition-all duration-300 pointer-events-auto focus:outline-none flex items-center justify-center ${
-                isPlaying ? "opacity-0 scale-75 pointer-events-none" : "opacity-100 scale-100 pointer-events-auto"
-              }`}
+              onClick={handlePlayPause}
+              className="p-5 rounded-full bg-white/20 hover:bg-white/30 border border-white/30 backdrop-blur-md shadow-xl text-white active:scale-95 transition-all duration-300 flex items-center justify-center cursor-pointer"
               aria-label={isPlaying ? "Pause" : "Play"}
             >
               {isPlaying ? (
                 <Pause className="w-8 h-8 fill-white text-white" />
               ) : (
-                <Play className="w-8 h-8 fill-white text-white translate-x-[1.5px]" />
+                <Play className="w-8 h-8 fill-white text-white translate-x-[2px]" />
               )}
             </button>
           </div>
@@ -153,7 +144,7 @@ export function AboutPageContent() {
             <button
               onClick={handleMuteUnmute}
               type="button"
-              className="p-2.5 rounded-full bg-white/15 hover:bg-white/25 border border-white/20 backdrop-blur-md shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] text-white active:scale-95 cursor-pointer focus:outline-none flex items-center justify-center transition-all duration-300 opacity-100 pointer-events-auto"
+              className="p-2.5 rounded-full bg-white/15 hover:bg-white/25 border border-white/20 backdrop-blur-md shadow-lg text-white active:scale-95 cursor-pointer focus:outline-none flex items-center justify-center transition-all duration-300"
               aria-label={isMuted ? "Unmute" : "Mute"}
             >
               {isMuted ? (
@@ -167,11 +158,7 @@ export function AboutPageContent() {
           {/* Bottom Seekbar */}
           <div 
             onClick={(e) => e.stopPropagation()} 
-            className={`absolute bottom-0 left-0 right-0 z-20 px-4 pb-3 transition-all duration-300 ${
-              isPlaying 
-                ? "opacity-0 pointer-events-none translate-y-1 group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0" 
-                : "opacity-100 pointer-events-auto translate-y-0"
-            }`}
+            className="absolute bottom-0 left-0 right-0 z-20 px-4 pb-3 opacity-90 hover:opacity-100 transition-all duration-300"
           >
             <input
               type="range"
@@ -188,6 +175,36 @@ export function AboutPageContent() {
           </div>
         </div>
       </section>
+
+      {/* Lightbox Video Modal */}
+      {isModalOpen && (
+        <div 
+          className="fixed inset-0 z-[200] flex items-center justify-center pt-20 sm:pt-24 pb-6 sm:pb-8 px-4 sm:px-6 bg-charcoal/95 backdrop-blur-md animate-in fade-in duration-200"
+          onClick={() => setIsModalOpen(false)}
+        >
+          <button 
+            type="button"
+            onClick={() => setIsModalOpen(false)}
+            className="absolute top-4 right-4 sm:top-6 sm:right-6 text-white hover:text-gray-300 transition-colors p-2.5 z-[210] bg-charcoal/60 hover:bg-charcoal/90 rounded-full cursor-pointer border border-white/10 shadow-lg"
+            aria-label="Close video modal"
+          >
+            <X className="w-6 h-6 sm:w-8 sm:h-8" />
+          </button>
+          
+          <div 
+            className="relative z-[205] max-h-[75vh] sm:max-h-[80vh] max-w-[90vw] rounded-2xl overflow-hidden shadow-2xl bg-black flex items-center justify-center border border-white/10 my-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <video 
+              autoPlay 
+              controls 
+              playsInline
+              className="max-h-[75vh] sm:max-h-[80vh] max-w-[90vw] w-auto h-auto rounded-2xl object-contain" 
+              src={coachVideoSrc} 
+            />
+          </div>
+        </div>
+      )}
 
       {/* Story details */}
       <section className="pt-0 pb-16 sm:pb-24 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">

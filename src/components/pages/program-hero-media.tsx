@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Volume2, VolumeX, X } from "lucide-react";
+import { Play, Volume2, VolumeX, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ProgramHeroMediaProps {
@@ -21,11 +21,11 @@ export function ProgramHeroMedia({ videoUrl, imageUrl, title, hideVideoOnMobile 
   };
 
   return (
-    <div className="relative flex flex-col gap-8 w-full max-w-lg mx-auto lg:ml-auto">
-      {videoUrl && (
+    <div className="relative w-full max-w-sm sm:max-w-md mx-auto lg:ml-auto">
+      {videoUrl ? (
         <div 
           className={cn(
-            "relative w-full aspect-video rounded-lg overflow-hidden shadow-2xl ring-1 ring-white/10 group cursor-pointer",
+            "relative w-full aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 group cursor-pointer bg-charcoal",
             hideVideoOnMobile && "hidden lg:block"
           )}
           onClick={() => {
@@ -38,64 +38,69 @@ export function ProgramHeroMedia({ videoUrl, imageUrl, title, hideVideoOnMobile 
             muted={isMuted || activeModal === 'video'} 
             loop 
             playsInline 
+            poster={imageUrl}
             className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" 
             src={videoUrl} 
           />
 
-          {/* Mute / Unmute Button at Bottom Right */}
-          <button 
-            type="button"
-            onClick={toggleMute}
-            className="absolute bottom-4 right-4 z-10 w-10 h-10 rounded-full bg-charcoal/80 flex items-center justify-center backdrop-blur-md text-white hover:bg-white hover:text-charcoal transition-colors shadow-lg"
-            aria-label={isMuted ? "Unmute video" : "Mute video"}
-          >
-            {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
-          </button>
-        </div>
-      )}
+          {/* Center Play Icon Overlay */}
+          <div className="absolute inset-0 flex items-center justify-center transition-all duration-300 z-10 opacity-0 group-hover:opacity-100 bg-black/20 pointer-events-none">
+            <div className="p-4 rounded-full bg-white/20 border border-white/30 backdrop-blur-md shadow-xl text-white">
+              <Play className="w-8 h-8 fill-white text-white translate-x-[2px]" />
+            </div>
+          </div>
 
-      {imageUrl && (
+          {/* Mute / Unmute Button at Top Right */}
+          <div className="absolute top-4 right-4 z-20">
+            <button 
+              type="button"
+              onClick={toggleMute}
+              className="p-2.5 rounded-full bg-black/40 hover:bg-black/60 border border-white/20 backdrop-blur-md shadow-lg text-white active:scale-95 cursor-pointer transition-all duration-300 flex items-center justify-center"
+              aria-label={isMuted ? "Unmute video" : "Mute video"}
+            >
+              {isMuted ? <VolumeX className="w-4 h-4 text-white" /> : <Volume2 className="w-4 h-4 text-white" />}
+            </button>
+          </div>
+        </div>
+      ) : imageUrl ? (
         <div 
-          className="relative w-full aspect-video rounded-lg overflow-hidden shadow-2xl ring-1 ring-white/10 group cursor-pointer"
+          className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 group cursor-pointer bg-charcoal"
           onClick={() => setActiveModal('image')}
         >
           <img src={imageUrl} alt={title} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
           <div className="absolute inset-0 bg-charcoal/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </div>
-      )}
-
-      {!videoUrl && !imageUrl && (
-        <div className="relative w-full aspect-video rounded-lg overflow-hidden shadow-2xl ring-1 ring-white/10 bg-charcoal/50 flex items-center justify-center">
+      ) : (
+        <div className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 bg-charcoal/50 flex items-center justify-center">
           <span className="text-white/50 font-display">No media</span>
         </div>
       )}
 
-      {/* Decorative element */}
-      <div className="absolute -bottom-6 -left-6 w-24 h-24 bg-[#8C6D40] rounded-none mix-blend-multiply opacity-50 blur-2xl z-[-1]" />
-
-      {/* Modal */}
+      {/* Lightbox Video / Image Modal */}
       {activeModal && (
         <div 
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-charcoal/95 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-[200] flex items-center justify-center pt-20 sm:pt-24 pb-6 sm:pb-8 px-4 sm:px-6 bg-charcoal/95 backdrop-blur-md animate-in fade-in duration-200"
           onClick={() => setActiveModal(null)}
         >
           <button 
             type="button"
             onClick={() => setActiveModal(null)}
-            className="absolute top-6 right-6 text-white hover:text-gray-300 transition-colors p-2 z-[110] bg-charcoal/40 rounded-full"
+            className="absolute top-4 right-4 sm:top-6 sm:right-6 text-white hover:text-gray-300 transition-colors p-2.5 z-[210] bg-charcoal/60 hover:bg-charcoal/90 rounded-full cursor-pointer border border-white/10 shadow-lg"
+            aria-label="Close modal"
           >
-            <X className="w-8 h-8" />
+            <X className="w-6 h-6 sm:w-8 sm:h-8" />
           </button>
           
           <div 
-            className={`w-full max-w-5xl rounded-none overflow-hidden shadow-2xl bg-black relative z-[100] ${activeModal === 'video' ? 'aspect-video' : 'max-h-[90vh]'}`}
+            className="relative z-[205] max-h-[75vh] sm:max-h-[80vh] max-w-[90vw] aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl bg-black flex items-center justify-center border border-white/10 my-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {activeModal === 'video' && videoUrl && (
               <video 
                 autoPlay 
                 controls 
-                className="absolute inset-0 h-full w-full object-contain" 
+                playsInline
+                className="w-full h-full object-cover rounded-2xl" 
                 src={videoUrl} 
               />
             )}
@@ -104,7 +109,7 @@ export function ProgramHeroMedia({ videoUrl, imageUrl, title, hideVideoOnMobile 
               <img 
                 src={imageUrl} 
                 alt={title} 
-                className="w-full h-full max-h-[90vh] object-contain" 
+                className="w-full h-full object-cover rounded-2xl" 
               />
             )}
           </div>
@@ -113,3 +118,4 @@ export function ProgramHeroMedia({ videoUrl, imageUrl, title, hideVideoOnMobile 
     </div>
   );
 }
+

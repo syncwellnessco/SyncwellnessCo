@@ -9,6 +9,7 @@ import { InteractiveLink } from "@/components/ui/interactive-link";
 import { cn } from "@/lib/utils";
 import { IMAGES } from "@/data/media";
 import { ProgramPriceOverride } from "@/components/ui/program-price-override";
+import { ProgramHeroMedia } from "@/components/pages/program-hero-media";
 
 export async function ProgramsPageContent() {
   const programs = await getAllPrograms({ publishedOnly: true });
@@ -57,9 +58,9 @@ export async function ProgramsPageContent() {
         return (
           <section key={featured.id} className="relative bg-cream py-12 lg:py-16 border-b border-beige-200">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+              <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-stretch">
                 
-                <div className="flex flex-col justify-center order-2 lg:order-2">
+                <div className="flex flex-col justify-center order-2 lg:order-2 py-2">
                   <div className="mb-6">
                     <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-charcoal mb-2">
                       #{fIdx + 1} Featured Program
@@ -77,7 +78,7 @@ export async function ProgramsPageContent() {
                   {featured.description}
                 </p>
                 
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-auto pt-4 border-t border-beige-200 gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-auto pt-6 border-t border-beige-200 gap-4 flex-wrap sm:flex-nowrap">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-[9px] sm:text-xs font-semibold uppercase tracking-wider text-[#8C6D40] border border-[#A8895C]/20 px-2.5 py-1 rounded-full whitespace-nowrap bg-[#FAF8F5]">
                       {featured.duration}
@@ -88,12 +89,12 @@ export async function ProgramsPageContent() {
                       </span>
                     )}
                   </div>
-                  <div className="flex items-center gap-4 flex-wrap sm:flex-nowrap justify-between sm:justify-end w-full sm:w-auto">
+                  <div className="flex items-center gap-4 sm:gap-6 shrink-0 justify-between sm:justify-end w-full sm:w-auto">
                     <ProgramPriceOverride program={featured} />
                     <InteractiveLink
                       href={`/programs/${featured.slug || featured.id}`}
                       variant="raw"
-                      className="w-full sm:w-auto justify-center text-center bg-[#8C6D40] text-white hover:bg-[#B8955F] uppercase tracking-[0.15em] text-[10px] font-bold h-12 px-8 rounded-sm border-0 transition-colors inline-flex items-center shrink-0"
+                      className="w-full sm:w-auto justify-center text-center bg-[#8C6D40] text-white hover:bg-[#B8955F] uppercase tracking-[0.15em] text-[10px] font-bold h-12 px-6 sm:px-8 rounded-sm border-0 transition-colors inline-flex items-center shrink-0"
                     >
                       Explore Program
                     </InteractiveLink>
@@ -101,34 +102,12 @@ export async function ProgramsPageContent() {
                 </div>
               </div>
               
-              <div className="relative order-1 lg:order-1 aspect-video w-full rounded-sm overflow-hidden border border-beige-200 shadow-sm group bg-cream flex items-center justify-center">
-                {featured.hero?.introVideo && (
-                  <video 
-                    autoPlay 
-                    muted 
-                    loop 
-                    playsInline 
-                    src={featured.hero.introVideo} 
-                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 hidden lg:block" 
-                  />
-                )}
-                {featured.hero?.bannerImage ? (
-                  <Image 
-                    src={featured.hero.bannerImage} 
-                    className={cn(
-                      "absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105",
-                      featured.hero?.introVideo ? "lg:hidden" : ""
-                    )} 
-                    alt={featured.title} 
-                    fill
-                    unoptimized
-                  />
-                ) : (
-                  <div className="flex flex-col items-center justify-center text-sage-200">
-                    <Star className="w-16 h-16 mb-4 opacity-50" />
-                    <span className="font-display tracking-widest uppercase text-xs">Featured Program</span>
-                  </div>
-                )}
+              <div className="relative order-1 lg:order-1 w-full my-auto flex items-center justify-center">
+                <ProgramHeroMedia 
+                  videoUrl={featured.hero?.introVideo} 
+                  imageUrl={featured.hero?.bannerImage} 
+                  title={featured.title} 
+                />
               </div>
 
             </div>

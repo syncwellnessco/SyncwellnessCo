@@ -38,11 +38,11 @@ export function ProgramPriceOverride({ program }: ProgramPriceOverrideProps) {
 
   if (requireConsultant) {
     return (
-      <div className="flex flex-col gap-0.5 min-w-0">
-        <span className="font-semibold text-xs sm:text-sm text-[#8C6D40] uppercase tracking-wider truncate">
+      <div className="flex flex-col gap-0.5 shrink-0">
+        <span className="font-semibold text-xs sm:text-sm text-[#8C6D40] uppercase tracking-wider whitespace-nowrap">
           1:1 Consultation
         </span>
-        <span className="text-[9px] sm:text-[10px] text-slate-500 font-medium">
+        <span className="text-[9px] sm:text-[10px] text-slate-500 font-medium whitespace-nowrap">
           Free to book
         </span>
       </div>

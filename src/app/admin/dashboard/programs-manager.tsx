@@ -623,7 +623,7 @@ export function ProgramsManager() {
                         <div>
                           <h4 className="text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-3">Intro Video</h4>
                           {selectedProgram.hero?.introVideo ? (
-                            <video src={selectedProgram.hero.introVideo} controls className="w-full aspect-video object-cover rounded border border-[#EBE3DB] shadow-sm bg-black" />
+                            <video src={selectedProgram.hero.introVideo} controls className="w-full max-w-[200px] aspect-[4/5] object-cover rounded border border-[#EBE3DB] shadow-sm bg-black" />
                           ) : <span className="text-sm text-charcoal/50">No video</span>}
                         </div>
                       </div>
@@ -852,10 +852,10 @@ export function ProgramsManager() {
                         {/* Intro Video Box */}
                         <MediaUploader
                           label="Intro Video (Optional)"
-                          helperText="Aspect ratio: 16:9 landscape"
+                          helperText="Aspect ratio: 4:5 vertical"
                           value={stagedIntroVideoFile || editForm.hero?.introVideo || ''}
                           accept="video/*"
-                          aspectRatioClass="aspect-video"
+                          aspectRatioClass="aspect-[4/5]"
                           progress={videoProgress}
                           onSelectFile={(file) => setStagedIntroVideoFile(file)}
                           onRemove={() => {
