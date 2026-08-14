@@ -18,26 +18,28 @@ export function AboutPageContent() {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.play()
-        .then(() => setIsPlaying(true))
-        .catch((err) => {
-          console.log("Autoplay was blocked or failed:", err);
-          setIsPlaying(false);
-        });
+    if (isModalOpen) {
+      if (videoRef.current) {
+        videoRef.current.pause();
+        videoRef.current.muted = true;
+        setIsMuted(true);
+      }
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
     }
-  }, []);
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isModalOpen]);
 
   const handlePlayPause = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause();
-        setIsPlaying(false);
+      if (videoRef.current.paused) {
+        videoRef.current.play().catch(() => {});
       } else {
-        videoRef.current.play()
-          .then(() => setIsPlaying(true))
-          .catch((err) => console.log(err));
+        videoRef.current.pause();
       }
     }
   };
@@ -48,18 +50,6 @@ export function AboutPageContent() {
       const nextMuted = !videoRef.current.muted;
       videoRef.current.muted = nextMuted;
       setIsMuted(nextMuted);
-    }
-  };
-
-  const handleTimeUpdate = () => {
-    if (videoRef.current) {
-      setCurrentTime(videoRef.current.currentTime);
-    }
-  };
-
-  const handleDurationChange = () => {
-    if (videoRef.current) {
-      setDuration(videoRef.current.duration || 0);
     }
   };
 
@@ -102,14 +92,14 @@ export function AboutPageContent() {
             ref={videoRef}
             className="w-full h-full object-cover"
             autoPlay
-            muted={isMuted}
+            muted={isMuted || isModalOpen}
             loop
             playsInline
             preload="metadata"
             poster={coachImageSrc}
-            onTimeUpdate={handleTimeUpdate}
-            onDurationChange={handleDurationChange}
-            onLoadedMetadata={handleDurationChange}
+            onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
+            onDurationChange={(e) => setDuration(e.currentTarget.duration || 0)}
+            onLoadedMetadata={(e) => setDuration(e.currentTarget.duration || 0)}
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
           >
@@ -201,6 +191,11 @@ export function AboutPageContent() {
               playsInline
               className="max-h-[75vh] sm:max-h-[80vh] max-w-[90vw] w-auto h-auto rounded-2xl object-contain" 
               src={coachVideoSrc} 
+              onLoadedMetadata={(e) => {
+                if (currentTime > 0 && currentTime < (duration || 9999)) {
+                  e.currentTarget.currentTime = currentTime;
+                }
+              }}
             />
           </div>
         </div>
