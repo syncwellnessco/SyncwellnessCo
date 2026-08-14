@@ -47,7 +47,5 @@ export async function getProgram(id: string): Promise<Program | undefined> {
 export async function getProgramBySlug(slug: string): Promise<Program | undefined> {
   const programs = await getAllPrograms();
   const searchSlug = slug.toLowerCase();
-  const match = programs.find((p) => (p.slug || "").toLowerCase() === searchSlug || (p.id || "").toLowerCase() === searchSlug);
-  console.log("DEBUG getProgramBySlug:", { inputSlug: slug, searchSlug, foundMatch: !!match, totalPrograms: programs.length });
-  return match;
+  return programs.find((p) => (p.slug || "").toLowerCase() === searchSlug || (p.id || "").toLowerCase() === searchSlug);
 }
