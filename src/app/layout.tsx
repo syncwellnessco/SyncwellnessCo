@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Cormorant_Garamond, Open_Sans } from "next/font/google";
 import "./globals.css";
 import { JsonLd } from "@/components/seo/json-ld";
+import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { SiteLoader } from "@/components/layout/site-loader";
 import { siteConfig } from "@/data/site";
 import { AuthProvider } from "@/components/providers/auth-provider";
@@ -61,6 +62,7 @@ export default function RootLayout({
         <JsonLd />
       </head>
       <body className="min-h-screen bg-cream font-sans text-sage-800 antialiased" suppressHydrationWarning>
+        <GoogleAnalytics />
         <AuthProvider>
           <Toaster 
             position="top-center" 
