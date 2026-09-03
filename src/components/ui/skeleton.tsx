@@ -282,13 +282,46 @@ export function HeroSkeleton({ className }: { className?: string }) {
 }
 
 /**
+ * Video Hero Skeleton for 4:5 Hero media video containers
+ */
+export function VideoHeroSkeleton({ className }: { className?: string }) {
+  return (
+    <div
+      className={cn(
+        "relative w-full h-full aspect-[4/5] rounded-2xl overflow-hidden bg-[#1E2325] animate-pulse border border-white/10 shadow-2xl flex flex-col justify-between p-6",
+        className
+      )}
+    >
+      {/* Top right mute button skeleton */}
+      <div className="flex justify-end">
+        <div className="h-9 w-9 rounded-full bg-white/10 border border-white/15" />
+      </div>
+
+      {/* Center play icon skeleton */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div className="h-16 w-16 rounded-full bg-white/15 border border-white/20 flex items-center justify-center shadow-lg">
+          <div className="h-6 w-6 rounded-full bg-[#8C6D40]/50" />
+        </div>
+      </div>
+
+      {/* Bottom control skeleton */}
+      <div className="w-full space-y-2 pt-4">
+        <div className="h-1.5 w-full rounded-full bg-white/15 overflow-hidden">
+          <div className="h-full w-1/3 bg-[#8C6D40]/60 rounded-full" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
  * Video Card Skeleton component matching Video Testimonial Cards
  */
 export function VideoCardSkeleton({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "group overflow-hidden rounded-2xl border border-beige-200 bg-charcoal shadow-sm relative aspect-[9/16] animate-pulse",
+        "group overflow-hidden rounded-2xl border border-beige-200 bg-[#1E2325] shadow-sm relative aspect-[9/16] animate-pulse",
         className
       )}
     >

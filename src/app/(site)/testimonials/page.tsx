@@ -22,6 +22,81 @@ interface VideoTestimonial {
   program_id: string;
 }
 
+function TestimonialCardItem({
+  video,
+  programNames,
+  onClick,
+}: {
+  video: VideoTestimonial;
+  programNames: string[];
+  onClick: () => void;
+}) {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const optimizedUrl = video.video_url.includes("#t=")
+    ? video.video_url
+    : `${video.video_url}#t=0.001`;
+
+  return (
+    <article
+      className="group cursor-pointer overflow-hidden rounded-2xl border border-beige-200 bg-[#1A1F21] shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 relative aspect-[9/16]"
+      onClick={onClick}
+      role="button"
+      tabIndex={0}
+    >
+      {/* Boneyard Skeleton Overlay while video loads */}
+      <div
+        className={cn(
+          "absolute inset-0 z-10 transition-opacity duration-500",
+          isLoaded ? "opacity-0 pointer-events-none" : "opacity-100"
+        )}
+      >
+        <VideoCardSkeleton className="h-full w-full rounded-none border-0 shadow-none" />
+      </div>
+
+      <video
+        src={optimizedUrl}
+        className={cn(
+          "w-full h-full object-cover transition-all duration-500 group-hover:scale-105",
+          isLoaded ? "opacity-80 group-hover:opacity-100" : "opacity-0"
+        )}
+        preload="auto"
+        muted
+        playsInline
+        onLoadedData={() => setIsLoaded(true)}
+        onCanPlay={() => setIsLoaded(true)}
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
+
+      <div className={cn("absolute inset-0 flex items-center justify-center transition-opacity duration-300", !isLoaded && "opacity-0")}>
+        <div className="flex h-10 w-10 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-md shadow-lg transition-transform group-hover:scale-110 border border-white/30">
+          <Play className="ml-0.5 sm:ml-1 h-4 w-4 sm:h-6 sm:w-6 fill-white text-white" />
+        </div>
+      </div>
+
+      <div className={cn("absolute bottom-0 inset-x-0 p-3 sm:p-5 z-10 transition-opacity duration-300", !isLoaded && "opacity-0")}>
+        <div className="mb-1 sm:mb-1.5">
+          <h4 className="text-white font-bold text-xs sm:text-base mb-0.5 leading-tight drop-shadow-md">
+            {video.name}
+          </h4>
+          {programNames.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {programNames.map((pName, idx) => (
+                <span key={idx} className="text-[#D4AF37] text-[8px] sm:text-[9px] font-bold uppercase tracking-widest block drop-shadow-md">
+                  {pName}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+        <p className="text-white/90 font-medium text-[10px] sm:text-xs line-clamp-2 leading-relaxed drop-shadow-md">
+          {video.caption}
+        </p>
+      </div>
+    </article>
+  );
+}
+
 export default function TestimonialsPage() {
   const { submittedReviews } = useReviewStore();
   
@@ -43,11 +118,13 @@ export default function TestimonialsPage() {
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
   const [showCaption, setShowCaption] = useState(true);
+  const [isModalVideoReady, setIsModalVideoReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const hideCaptionTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (activeVideo) {
+      setIsModalVideoReady(false);
       setShowCaption(true);
       if (isPlaying) {
         hideCaptionTimerRef.current = setTimeout(() => {
@@ -273,47 +350,12 @@ export default function TestimonialsPage() {
                 <>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
                     {videos.map((video) => (
-                      <article
+                      <TestimonialCardItem
                         key={video.id}
-                        className="group cursor-pointer overflow-hidden rounded-2xl border border-beige-200 bg-cream shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 relative aspect-[9/16] bg-black"
+                        video={video}
+                        programNames={getProgramNames(video)}
                         onClick={() => setActiveVideo(video)}
-                      >
-                        <video
-                          src={video.video_url}
-                          className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500 group-hover:scale-105"
-                          preload="metadata"
-                          muted
-                          playsInline
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
-
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="flex h-10 w-10 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-md shadow-lg transition-transform group-hover:scale-110 border border-white/30">
-                            <Play className="ml-0.5 sm:ml-1 h-4 w-4 sm:h-6 sm:w-6 fill-white text-white" />
-                          </div>
-                        </div>
-
-                        <div className="absolute bottom-0 inset-x-0 p-3 sm:p-5 z-10">
-                          <div className="mb-1 sm:mb-1.5">
-                            <h4 className="text-white font-bold text-xs sm:text-base mb-0.5 leading-tight drop-shadow-md">
-                              {video.name}
-                            </h4>
-                            {getProgramNames(video).length > 0 && (
-                              <div className="flex flex-wrap gap-1">
-                                {getProgramNames(video).map((pName, idx) => (
-                                  <span key={idx} className="text-[#D4AF37] text-[8px] sm:text-[9px] font-bold uppercase tracking-widest block drop-shadow-md">
-                                    {pName}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                          <p className="text-white/90 font-medium text-[10px] sm:text-xs line-clamp-2 leading-relaxed drop-shadow-md">
-                            {video.caption}
-                          </p>
-                        </div>
-                      </article>
+                      />
                     ))}
 
                     {/* Next Row Skeleton Cards while loading more videos */}
@@ -506,15 +548,33 @@ export default function TestimonialsPage() {
                 className="relative w-full md:w-[320px] lg:w-[360px] bg-black shrink-0 aspect-[9/16] group cursor-pointer"
                 onClick={togglePlay}
               >
+                <div
+                  className={cn(
+                    "absolute inset-0 z-10 transition-opacity duration-500",
+                    isModalVideoReady ? "opacity-0 pointer-events-none" : "opacity-100"
+                  )}
+                >
+                  <VideoCardSkeleton className="h-full w-full rounded-none border-0 shadow-none" />
+                </div>
+
                 <video 
                   ref={videoRef}
-                  src={activeVideo.video_url} 
+                  src={activeVideo.video_url.includes("#t=") ? activeVideo.video_url : `${activeVideo.video_url}#t=0.001`} 
                   autoPlay 
                   playsInline
+                  preload="auto"
+                  onLoadedData={() => setIsModalVideoReady(true)}
+                  onCanPlay={() => setIsModalVideoReady(true)}
+                  onPlaying={() => {
+                    setIsModalVideoReady(true);
+                    setIsPlaying(true);
+                  }}
                   onEnded={() => setIsPlaying(false)}
-                  onPlay={() => setIsPlaying(true)}
                   onPause={() => setIsPlaying(false)}
-                  className="absolute inset-0 w-full h-full object-cover cursor-pointer"
+                  className={cn(
+                    "absolute inset-0 w-full h-full object-cover cursor-pointer transition-opacity duration-300",
+                    isModalVideoReady ? "opacity-100" : "opacity-0"
+                  )}
                 />
                 
                 {/* Desktop controls */}

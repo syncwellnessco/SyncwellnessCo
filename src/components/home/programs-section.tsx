@@ -115,6 +115,7 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
                     imageUrl={featured.hero?.bannerImage} 
                     title={featured.title} 
                     hideVideoOnMobile={true}
+                    linkHref={`/programs/${featured.slug || featured.id}`}
                   />
                 </div>
               </div>
@@ -131,7 +132,10 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
               className="lg:col-span-6 group relative flex flex-col rounded-xl border border-beige-200 bg-white p-5 sm:p-6 shadow-sm transition-all hover:shadow-xl hover:-translate-y-1 duration-300"
             >
               {program.hero?.bannerImage && (
-                <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-lg mb-4 shadow-md border border-beige-100">
+                <Link
+                  href={`/programs/${program.slug || program.id}`}
+                  className="block relative w-full aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-lg mb-4 shadow-md border border-beige-100 cursor-pointer"
+                >
                   <Image
                     src={program.hero.bannerImage}
                     alt={program.title}
@@ -141,7 +145,7 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
                     unoptimized
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-charcoal/40 to-transparent pointer-events-none" />
-                </div>
+                </Link>
               )}
               
               <div className="flex flex-1 flex-col">
@@ -149,9 +153,11 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
                   {program.category || "Signature Program"}
                 </span>
                 
-                <h3 className="font-display text-2xl font-semibold text-charcoal sm:text-3xl mb-4 group-hover:text-[#8C6D40] transition-colors">
-                  {program.title}
-                </h3>
+                <Link href={`/programs/${program.slug || program.id}`}>
+                  <h3 className="font-display text-2xl font-semibold text-charcoal sm:text-3xl mb-4 group-hover:text-[#8C6D40] transition-colors">
+                    {program.title}
+                  </h3>
+                </Link>
                 
                 <p className="text-base leading-relaxed text-charcoal/80 mb-6 line-clamp-3">
                   {program.description}

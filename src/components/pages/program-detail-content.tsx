@@ -34,45 +34,45 @@ export async function ProgramDetailContent({ slug }: ProgramDetailContentProps) 
   const originalPrice = listPrice || 0;
 
   return (
-    <article className="pb-0">
+    <article className="pb-0 w-full overflow-hidden">
       {/* Hero Section */}
       <section 
-        className="relative min-h-[70vh] flex items-center bg-cover bg-center overflow-hidden pt-32 sm:pt-36 lg:pt-40 pb-12"
+        className="relative min-h-[60vh] sm:min-h-[70vh] flex items-center bg-cover bg-center overflow-hidden pt-24 sm:pt-32 lg:pt-40 pb-10 sm:pb-16"
         style={{ backgroundImage: `url(${IMAGES.shadowBackground})` }}
       >
         <div className="absolute inset-0 bg-[#4A5D5E]/70 mix-blend-multiply" />
         <div className="absolute inset-0 bg-slate-900/20" />
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center mb-12">
+          <div className="grid lg:grid-cols-12 gap-8 sm:gap-12 lg:gap-8 items-center mb-6 sm:mb-12">
             
             <div className="lg:col-span-7 flex flex-col justify-center">
               {program.category && (
-                <span className="mb-6 w-fit bg-[#8C6D40] text-white px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] rounded-sm">
+                <span className="mb-4 sm:mb-6 w-fit bg-[#8C6D40] text-white px-3.5 py-1 text-[10px] font-bold uppercase tracking-[0.2em] rounded-sm">
                   {program.category}
                 </span>
               )}
               
-              <h1 className="font-display text-5xl lg:text-[4.5rem] font-medium leading-[1.05] text-white mb-6">
+              <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-[4.25rem] font-medium leading-[1.1] text-white mb-4 sm:mb-6 break-words">
                 {program.title}
               </h1>
               
-              <p className="font-display italic text-2xl lg:text-3xl text-white/90 mb-8 font-light">
+              <p className="font-display italic text-lg sm:text-2xl lg:text-3xl text-white/90 mb-6 sm:mb-8 font-light leading-snug">
                 {program.shortDescription}
               </p>
               
-              <div className="space-y-6 text-[1.1rem] leading-relaxed text-white/80 max-w-xl">
+              <div className="space-y-4 sm:space-y-6 text-sm sm:text-base lg:text-[1.1rem] leading-relaxed text-white/80 max-w-xl">
                 <p>{program.description}</p>
               </div>
               
-              <div className="mt-10 flex flex-wrap items-center gap-3">
-                <GlassBadge variant="dark" className="bg-white/10 text-white border-white/20 rounded-none tracking-widest uppercase text-[10px]">{program.duration}</GlassBadge>
-                <GlassBadge variant="dark" className="bg-white/10 text-white border-white/20 rounded-none tracking-widest uppercase text-[10px]">{program.format}</GlassBadge>
+              <div className="mt-6 sm:mt-8 flex flex-wrap items-center gap-2.5 sm:gap-3">
+                <GlassBadge variant="dark" className="bg-white/10 text-white border-white/20 rounded-none tracking-widest uppercase text-[9px] sm:text-[10px]">{program.duration}</GlassBadge>
+                <GlassBadge variant="dark" className="bg-white/10 text-white border-white/20 rounded-none tracking-widest uppercase text-[9px] sm:text-[10px]">{program.format}</GlassBadge>
               </div>
 
               <ProgramDetailCTA program={program} position="hero" />
             </div>
 
-            <div className="lg:col-span-5 relative">
+            <div className="lg:col-span-5 relative mt-4 lg:mt-0 w-full flex justify-center">
               <ProgramHeroMedia 
                 videoUrl={program.hero?.introVideo} 
                 imageUrl={program.hero?.bannerImage} 
@@ -85,16 +85,14 @@ export async function ProgramDetailContent({ slug }: ProgramDetailContentProps) 
         </div>
       </section>
 
-
-
       {/* Stats / Keypoints */}
-      <section className="bg-charcoal py-8 border-y border-white/5">
+      <section className="bg-charcoal py-6 sm:py-8 border-y border-white/5">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 sm:gap-12">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-3 sm:gap-x-8 sm:gap-y-4 lg:gap-12">
             {[program.duration, program.format, program.category, "Evidence Based", "Custom Approach"].filter(Boolean).map((stat, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <Star className="h-3 w-3 text-[#8C6D40]" />
-                <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/90">
+              <div key={i} className="flex items-center gap-2 sm:gap-3">
+                <Star className="h-3 w-3 text-[#8C6D40] shrink-0" />
+                <span className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.2em] text-white/90">
                   {stat}
                 </span>
               </div>
@@ -113,23 +111,23 @@ export async function ProgramDetailContent({ slug }: ProgramDetailContentProps) 
       )}
 
       {/* Is This For You? (The Problem) */}
-      <section className="py-12 lg:py-16 bg-[#FAF8F5]">
+      <section className="py-10 sm:py-14 lg:py-16 bg-[#FAF8F5]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-start">
+          <div className="grid lg:grid-cols-2 gap-10 sm:gap-16 lg:gap-24 items-start">
             <div className="lg:sticky lg:top-32">
-              <span className="text-[#8C6D40] text-[11px] font-bold uppercase tracking-[0.2em] mb-4 block">The Reality</span>
-              <h2 className="font-display text-4xl lg:text-[3.5rem] leading-[1.1] text-charcoal mb-8">
+              <span className="text-[#8C6D40] text-[11px] font-bold uppercase tracking-[0.2em] mb-3 sm:mb-4 block">The Reality</span>
+              <h2 className="font-display text-2xl sm:text-4xl lg:text-[3.5rem] leading-[1.15] text-charcoal mb-4 sm:mb-8">
                 Is this you right now?
               </h2>
-              <p className="text-lg text-charcoal/80 leading-relaxed max-w-md">
+              <p className="text-base sm:text-lg text-charcoal/80 leading-relaxed max-w-md">
                 You’re doing everything "right" but still feeling exhausted, out of balance, and overwhelmed. It's not your fault. The conventional approach often misses the root cause.
               </p>
             </div>
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {program.problemsSolved?.map((problem, i) => (
-                <div key={i} className="flex items-start gap-5 p-6 bg-white rounded-none shadow-[0_2px_10px_rgba(0,0,0,0.03)] border-l-2 border-[#8C6D40] transition-all hover:translate-x-2 duration-300">
-                  <span className="text-[#8C6D40] font-display text-xl opacity-50 italic mt-0.5">{String(i + 1).padStart(2, '0')}</span>
-                  <p className="text-[1.1rem] text-charcoal leading-relaxed font-medium">
+                <div key={i} className="flex items-start gap-4 sm:gap-5 p-4 sm:p-6 bg-white rounded-none shadow-[0_2px_10px_rgba(0,0,0,0.03)] border-l-2 border-[#8C6D40] transition-all hover:translate-x-2 duration-300">
+                  <span className="text-[#8C6D40] font-display text-lg sm:text-xl opacity-50 italic mt-0.5">{String(i + 1).padStart(2, '0')}</span>
+                  <p className="text-sm sm:text-[1.1rem] text-charcoal leading-relaxed font-medium">
                     {problem}
                   </p>
                 </div>
@@ -140,56 +138,56 @@ export async function ProgramDetailContent({ slug }: ProgramDetailContentProps) 
       </section>
 
       {/* Perfect For & Curriculum */}
-      <section className="py-12 lg:py-16 bg-white border-t border-[#EBE3DB]">
+      <section className="py-10 sm:py-14 lg:py-16 bg-white border-t border-[#EBE3DB]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <span className="text-[#8C6D40] text-[11px] font-bold uppercase tracking-[0.2em] mb-4 block">The Solution</span>
-            <h2 className="font-display text-4xl lg:text-[3.5rem] leading-[1.1] text-charcoal">
+          <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
+            <span className="text-[#8C6D40] text-[11px] font-bold uppercase tracking-[0.2em] mb-3 sm:mb-4 block">The Solution</span>
+            <h2 className="font-display text-2xl sm:text-4xl lg:text-[3.5rem] leading-[1.15] text-charcoal">
               A Better Way Forward
             </h2>
-            <div className="mt-6 space-y-4 text-lg text-charcoal/80">
+            <div className="mt-4 sm:mt-6 space-y-3 sm:space-y-4 text-sm sm:text-lg text-charcoal/80">
               <p>{program.shortDescription}</p>
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-12 gap-12 lg:gap-16">
+          <div className="grid lg:grid-cols-12 gap-8 sm:gap-12 lg:gap-16">
             
             <div className="lg:col-span-5">
-              <h3 className="font-display text-3xl text-charcoal mb-8 border-b border-[#EBE3DB] pb-4">Perfect For...</h3>
-              <ul className="space-y-4">
+              <h3 className="font-display text-2xl sm:text-3xl text-charcoal mb-6 sm:mb-8 border-b border-[#EBE3DB] pb-3 sm:pb-4">Perfect For...</h3>
+              <ul className="space-y-3 sm:space-y-4">
                 {program.audience?.designedFor?.map((item, i) => (
-                  <li key={i} className="flex items-start gap-4">
+                  <li key={i} className="flex items-start gap-3 sm:gap-4">
                     <CheckCircle2 className="h-5 w-5 text-[#8C6D40] shrink-0 mt-0.5" strokeWidth={1.5} />
-                    <span className="text-base text-charcoal/90 leading-relaxed">{item}</span>
+                    <span className="text-sm sm:text-base text-charcoal/90 leading-relaxed">{item}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
             <div className="lg:col-span-7">
-              <h3 className="font-display text-3xl text-charcoal mb-8 border-b border-[#EBE3DB] pb-4">What's Included</h3>
-              <div className="grid sm:grid-cols-2 gap-6">
+              <h3 className="font-display text-2xl sm:text-3xl text-charcoal mb-6 sm:mb-8 border-b border-[#EBE3DB] pb-3 sm:pb-4">What's Included</h3>
+              <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
                 {program.included?.map((feature, i) => (
-                  <div key={i} className="bg-[#FAF8F5] p-6 flex items-center gap-4 rounded-none">
-                    <div className="w-8 h-8 rounded-full bg-[#EBE3DB] flex items-center justify-center shrink-0">
-                      <Check className="h-4 w-4 text-[#8C6D40]" strokeWidth={2} />
+                  <div key={i} className="bg-[#FAF8F5] p-4 sm:p-6 flex items-center gap-3 sm:gap-4 rounded-none">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#EBE3DB] flex items-center justify-center shrink-0">
+                      <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#8C6D40]" strokeWidth={2} />
                     </div>
-                    <p className="text-[15px] text-charcoal font-medium leading-snug">{feature.title}</p>
+                    <p className="text-sm sm:text-[15px] text-charcoal font-medium leading-snug">{feature.title}</p>
                   </div>
                 ))}
               </div>
 
               {program.bonuses && program.bonuses.length > 0 && (
-                <div className="mt-10 p-8 bg-charcoal text-white rounded-none">
-                  <h4 className="font-display text-2xl mb-6 flex items-center gap-3">
-                    <Star className="h-5 w-5 text-[#8C6D40] fill-current" />
+                <div className="mt-8 sm:mt-10 p-5 sm:p-8 bg-charcoal text-white rounded-none">
+                  <h4 className="font-display text-xl sm:text-2xl mb-4 sm:mb-6 flex items-center gap-2.5 sm:gap-3">
+                    <Star className="h-4 w-4 sm:h-5 sm:w-5 text-[#8C6D40] fill-current" />
                     Exclusive Bonuses
                   </h4>
-                  <ul className="space-y-4">
+                  <ul className="space-y-3 sm:space-y-4">
                     {program.bonuses.map((bonus, i) => (
-                      <li key={i} className="flex items-start gap-3">
-                        <Check className="h-5 w-5 text-[#8C6D40] shrink-0 mt-0.5" />
-                        <span className="text-[15px] text-white/90 leading-relaxed">{bonus.title}</span>
+                      <li key={i} className="flex items-start gap-2.5 sm:gap-3">
+                        <Check className="h-4 w-4 sm:h-5 sm:w-5 text-[#8C6D40] shrink-0 mt-0.5" />
+                        <span className="text-sm sm:text-[15px] text-white/90 leading-relaxed">{bonus.title}</span>
                       </li>
                     ))}
                   </ul>
@@ -204,26 +202,26 @@ export async function ProgramDetailContent({ slug }: ProgramDetailContentProps) 
       {/* Program Timeline */}
       {program.structure?.weeks && program.structure.weeks.length > 0 && (
         <section 
-          className="relative py-12 lg:py-16 bg-cover bg-center overflow-hidden"
+          className="relative py-10 sm:py-14 lg:py-16 bg-cover bg-center overflow-hidden"
           style={{ backgroundImage: `url(${IMAGES.shadowBackground})` }}
         >
           <div className="absolute inset-0 bg-[#4A5D5E]/90 mix-blend-multiply" />
           <div className="absolute inset-0 bg-charcoal/60" />
           <div className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <span className="text-[#8C6D40] tracking-[0.2em] uppercase text-[11px] font-bold mb-4 block">The Journey</span>
-              <h2 className="font-display text-4xl lg:text-5xl font-medium text-white">Program Timeline</h2>
+            <div className="text-center mb-10 sm:mb-16">
+              <span className="text-[#8C6D40] tracking-[0.2em] uppercase text-[10px] sm:text-[11px] font-bold mb-3 sm:mb-4 block">The Journey</span>
+              <h2 className="font-display text-2xl sm:text-4xl lg:text-5xl font-medium text-white">Program Timeline</h2>
             </div>
             
-            <div className="relative border-l border-white/20 ml-4 sm:ml-8">
+            <div className="relative border-l border-white/20 ml-2 sm:ml-8">
               {program.structure.weeks.map((step, i) => (
-                <div key={i} className="mb-12 relative pl-8 sm:pl-12 last:mb-0">
+                <div key={i} className="mb-8 sm:mb-12 relative pl-6 sm:pl-12 last:mb-0">
                   <div className="absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full bg-[#8C6D40] shadow-[0_0_10px_#8C6D40]" />
-                  <span className="inline-block px-3 py-1 mb-3 text-[10px] font-bold uppercase tracking-widest text-charcoal bg-[#8C6D40] rounded-none">
+                  <span className="inline-block px-2.5 py-0.5 sm:px-3 sm:py-1 mb-2 sm:mb-3 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-charcoal bg-[#8C6D40] rounded-none">
                     {step.week}
                   </span>
-                  <h3 className="text-2xl font-display font-medium text-white mb-3">{step.title}</h3>
-                  <p className="text-white/70 text-base leading-relaxed">{step.description}</p>
+                  <h3 className="text-xl sm:text-2xl font-display font-medium text-white mb-2 sm:mb-3">{step.title}</h3>
+                  <p className="text-white/70 text-sm sm:text-base leading-relaxed">{step.description}</p>
                 </div>
               ))}
             </div>
@@ -232,19 +230,19 @@ export async function ProgramDetailContent({ slug }: ProgramDetailContentProps) 
       )}
 
       {/* Outcomes & Methodology */}
-      <section className="py-12 lg:py-16 bg-[#FAF8F5]">
+      <section className="py-10 sm:py-14 lg:py-16 bg-[#FAF8F5]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-8 md:grid-cols-2">
-            <div className="bg-white p-10 lg:p-14 rounded-none shadow-sm border border-[#EBE3DB]">
-              <span className="text-[#8C6D40] text-[10px] font-bold uppercase tracking-[0.2em] mb-4 block">The Result</span>
-              <h3 className="font-display text-3xl text-charcoal mb-6">Expected Outcomes</h3>
-              <p className="text-charcoal/80 leading-relaxed text-lg">{program.outcomes?.summary}</p>
+          <div className="grid gap-6 sm:gap-8 md:grid-cols-2">
+            <div className="bg-white p-6 sm:p-10 lg:p-14 rounded-none shadow-sm border border-[#EBE3DB]">
+              <span className="text-[#8C6D40] text-[10px] font-bold uppercase tracking-[0.2em] mb-3 sm:mb-4 block">The Result</span>
+              <h3 className="font-display text-2xl sm:text-3xl text-charcoal mb-4 sm:mb-6">Expected Outcomes</h3>
+              <p className="text-charcoal/80 leading-relaxed text-sm sm:text-lg">{program.outcomes?.summary}</p>
             </div>
             {program.methodology && (
-              <div className="bg-charcoal p-10 lg:p-14 rounded-none shadow-sm">
-                <span className="text-[#8C6D40] text-[10px] font-bold uppercase tracking-[0.2em] mb-4 block">The Science</span>
-                <h3 className="font-display text-3xl text-white mb-6">Our Methodology</h3>
-                <p className="text-white/80 leading-relaxed text-lg">{program.methodology.process}</p>
+              <div className="bg-charcoal p-6 sm:p-10 lg:p-14 rounded-none shadow-sm">
+                <span className="text-[#8C6D40] text-[10px] font-bold uppercase tracking-[0.2em] mb-3 sm:mb-4 block">The Science</span>
+                <h3 className="font-display text-2xl sm:text-3xl text-white mb-4 sm:mb-6">Our Methodology</h3>
+                <p className="text-white/80 leading-relaxed text-sm sm:text-lg">{program.methodology.process}</p>
               </div>
             )}
           </div>
@@ -253,19 +251,19 @@ export async function ProgramDetailContent({ slug }: ProgramDetailContentProps) 
 
       {/* FAQ */}
       {program.faqs && program.faqs.length > 0 && (
-        <section className="py-12 lg:py-16 bg-white border-t border-[#EBE3DB]">
+        <section className="py-10 sm:py-14 lg:py-16 bg-white border-t border-[#EBE3DB]">
           <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <span className="text-[#8C6D40] text-[11px] font-bold uppercase tracking-[0.2em] mb-4 block">Clarity</span>
-              <h2 className="font-display text-4xl lg:text-5xl font-medium text-charcoal">Frequently Asked Questions</h2>
+            <div className="text-center mb-8 sm:mb-16">
+              <span className="text-[#8C6D40] text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.2em] mb-3 sm:mb-4 block">Clarity</span>
+              <h2 className="font-display text-2xl sm:text-4xl lg:text-5xl font-medium text-charcoal">Frequently Asked Questions</h2>
             </div>
             <Accordion type="single" collapsible className="w-full">
               {program.faqs.map((faq, i) => (
                 <AccordionItem key={i} value={`faq-${i}`} className="border-[#EBE3DB]">
-                  <AccordionTrigger className="text-left font-display text-xl sm:text-2xl text-charcoal hover:text-[#8C6D40] py-6 transition-colors">
+                  <AccordionTrigger className="text-left font-display text-lg sm:text-2xl text-charcoal hover:text-[#8C6D40] py-4 sm:py-6 transition-colors">
                     {faq.question}
                   </AccordionTrigger>
-                  <AccordionContent className="text-charcoal/80 text-base leading-relaxed pb-6">
+                  <AccordionContent className="text-charcoal/80 text-sm sm:text-base leading-relaxed pb-4 sm:pb-6">
                     {faq.answer}
                   </AccordionContent>
                 </AccordionItem>
@@ -282,12 +280,12 @@ export async function ProgramDetailContent({ slug }: ProgramDetailContentProps) 
       <ProgramVideoTestimonials programId={program.id} programTitle={program.title} />
 
       {/* Final CTA */}
-      <section className="py-12 lg:py-16 bg-[#EBE3DB]/40 text-center">
+      <section className="py-10 sm:py-14 lg:py-16 bg-[#EBE3DB]/40 text-center">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-          <h2 className="font-display text-4xl lg:text-[4rem] leading-[1.1] font-medium text-charcoal mb-6">
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-[4rem] leading-[1.15] font-medium text-charcoal mb-4 sm:mb-6">
             Ready to Transform?
           </h2>
-          <p className="text-xl text-charcoal/80 mb-10 max-w-2xl mx-auto font-light">
+          <p className="text-base sm:text-xl text-charcoal/80 mb-8 sm:mb-10 max-w-2xl mx-auto font-light">
             Take the first step towards a healthier, more balanced you. Spots are limited to ensure personalized attention.
           </p>
           <ProgramDetailCTA program={program} position="bottom" />

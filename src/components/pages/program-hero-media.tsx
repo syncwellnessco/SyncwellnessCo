@@ -1,26 +1,51 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Play, Pause, Volume2, VolumeX, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { VideoHeroSkeleton } from "@/components/ui/skeleton";
 
 interface ProgramHeroMediaProps {
   videoUrl?: string;
   imageUrl?: string;
   title: string;
   hideVideoOnMobile?: boolean;
+  linkHref?: string;
 }
 
-export function ProgramHeroMedia({ videoUrl, imageUrl, title, hideVideoOnMobile }: ProgramHeroMediaProps) {
+export function ProgramHeroMedia({
+  videoUrl,
+  imageUrl,
+  title,
+  hideVideoOnMobile,
+  linkHref,
+}: ProgramHeroMediaProps) {
+  const router = useRouter();
   const [isMuted, setIsMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [isVideoReady, setIsVideoReady] = useState(false);
+  const [isModalVideoReady, setIsModalVideoReady] = useState(false);
   const [activeModal, setActiveModal] = useState<'video' | 'image' | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  // Optimized video URL with keyframe fragment for immediate browser decoding
+  const optimizedVideoUrl = videoUrl
+    ? (videoUrl.includes("#t=") ? videoUrl : `${videoUrl}#t=0.001`)
+    : undefined;
+
+  useEffect(() => {
+    // If video element is already ready (e.g. cached)
+    if (videoRef.current && videoRef.current.readyState >= 2) {
+      setIsVideoReady(true);
+    }
+  }, [videoUrl]);
+
   useEffect(() => {
     if (activeModal) {
+      setIsModalVideoReady(false);
       if (videoRef.current) {
         videoRef.current.pause();
         videoRef.current.muted = true;
@@ -34,6 +59,22 @@ export function ProgramHeroMedia({ videoUrl, imageUrl, title, hideVideoOnMobile 
       document.body.style.overflow = "";
     };
   }, [activeModal]);
+
+  const handleContainerClick = () => {
+    if (linkHref) {
+      router.push(linkHref);
+    } else {
+      setActiveModal('video');
+    }
+  };
+
+  const handleImageContainerClick = () => {
+    if (linkHref) {
+      router.push(linkHref);
+    } else {
+      setActiveModal('image');
+    }
+  };
 
   const handlePlayPause = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
@@ -71,35 +112,58 @@ export function ProgramHeroMedia({ videoUrl, imageUrl, title, hideVideoOnMobile 
       {videoUrl ? (
         <div 
           className={cn(
-            "relative w-full aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 group cursor-pointer bg-charcoal select-none",
+            "relative w-full aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 group cursor-pointer bg-[#1A1F21] select-none",
             hideVideoOnMobile && "hidden lg:block"
           )}
-          onClick={() => setActiveModal('video')}
+          onClick={handleContainerClick}
         >
+          {/* Boneyard Skeleton Loader while video loads */}
+          <div
+            className={cn(
+              "absolute inset-0 z-10 transition-opacity duration-500",
+              isVideoReady ? "opacity-0 pointer-events-none" : "opacity-100"
+            )}
+          >
+            <VideoHeroSkeleton className="rounded-none border-0 shadow-none h-full w-full" />
+          </div>
+
           <video 
             ref={videoRef}
             autoPlay 
             muted={isMuted || activeModal === 'video'} 
             loop 
             playsInline 
-            poster={imageUrl}
-            preload="metadata"
-            onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
+            preload="auto"
+            onLoadedData={() => setIsVideoReady(true)}
+            onCanPlay={() => setIsVideoReady(true)}
+            onPlaying={() => {
+              setIsVideoReady(true);
+              setIsPlaying(true);
+            }}
+            onTimeUpdate={(e) => {
+              if (!isVideoReady) setIsVideoReady(true);
+              setCurrentTime(e.currentTarget.currentTime);
+            }}
             onDurationChange={(e) => setDuration(e.currentTarget.duration || 0)}
             onLoadedMetadata={(e) => setDuration(e.currentTarget.duration || 0)}
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" 
-            src={videoUrl} 
+            className={cn(
+              "absolute inset-0 h-full w-full object-cover transition-all duration-700 group-hover:scale-105",
+              isVideoReady ? "opacity-100" : "opacity-0"
+            )}
+            src={optimizedVideoUrl} 
           />
 
           {/* Center Play/Pause Icon Overlay */}
           <div 
-            className={`absolute inset-0 flex items-center justify-center transition-all duration-300 z-10 ${
+            className={cn(
+              "absolute inset-0 flex items-center justify-center transition-all duration-300 z-20",
+              !isVideoReady && "hidden",
               isPlaying 
                 ? "opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto" 
                 : "opacity-100 pointer-events-auto"
-            }`}
+            )}
           >
             <button
               type="button"
@@ -116,7 +180,7 @@ export function ProgramHeroMedia({ videoUrl, imageUrl, title, hideVideoOnMobile 
           </div>
 
           {/* Mute / Unmute Button at Top Right */}
-          <div className="absolute top-4 right-4 z-20">
+          <div className={cn("absolute top-4 right-4 z-20 transition-opacity duration-300", !isVideoReady && "opacity-0 pointer-events-none")}>
             <button 
               type="button"
               onClick={handleMuteUnmute}
@@ -130,7 +194,10 @@ export function ProgramHeroMedia({ videoUrl, imageUrl, title, hideVideoOnMobile 
           {/* Bottom Seekbar */}
           <div 
             onClick={(e) => e.stopPropagation()} 
-            className="absolute bottom-0 left-0 right-0 z-20 px-4 pb-3 opacity-90 hover:opacity-100 transition-all duration-300"
+            className={cn(
+              "absolute bottom-0 left-0 right-0 z-20 px-4 pb-3 opacity-90 hover:opacity-100 transition-all duration-300",
+              !isVideoReady && "opacity-0 pointer-events-none"
+            )}
           >
             <input
               type="range"
@@ -149,7 +216,7 @@ export function ProgramHeroMedia({ videoUrl, imageUrl, title, hideVideoOnMobile 
       ) : imageUrl ? (
         <div 
           className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 group cursor-pointer bg-charcoal"
-          onClick={() => setActiveModal('image')}
+          onClick={handleImageContainerClick}
         >
           <img src={imageUrl} alt={title} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
           <div className="absolute inset-0 bg-charcoal/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -176,29 +243,46 @@ export function ProgramHeroMedia({ videoUrl, imageUrl, title, hideVideoOnMobile 
           </button>
           
           <div 
-            className="relative z-[205] max-h-[75vh] sm:max-h-[80vh] max-w-[90vw] rounded-2xl overflow-hidden shadow-2xl bg-black flex items-center justify-center border border-white/10 my-auto"
+            className="relative z-[205] max-h-[75vh] sm:max-h-[80vh] max-w-[95vw] sm:max-w-[90vw] rounded-2xl overflow-hidden shadow-2xl bg-black flex items-center justify-center border border-white/10 my-auto min-w-[280px] min-h-[360px]"
             onClick={(e) => e.stopPropagation()}
           >
             {activeModal === 'video' && videoUrl && (
-              <video 
-                autoPlay 
-                controls 
-                playsInline
-                className="max-h-[75vh] sm:max-h-[80vh] max-w-[90vw] w-auto h-auto rounded-2xl object-contain" 
-                src={videoUrl} 
-                onLoadedMetadata={(e) => {
-                  if (currentTime > 0 && currentTime < (duration || 9999)) {
-                    e.currentTarget.currentTime = currentTime;
-                  }
-                }}
-              />
+              <>
+                <div
+                  className={cn(
+                    "absolute inset-0 z-10 transition-opacity duration-500",
+                    isModalVideoReady ? "opacity-0 pointer-events-none" : "opacity-100"
+                  )}
+                >
+                  <VideoHeroSkeleton className="rounded-none border-0 shadow-none h-full w-full" />
+                </div>
+                <video 
+                  autoPlay 
+                  controls 
+                  playsInline
+                  preload="auto"
+                  onLoadedData={() => setIsModalVideoReady(true)}
+                  onCanPlay={() => setIsModalVideoReady(true)}
+                  onPlaying={() => setIsModalVideoReady(true)}
+                  className={cn(
+                    "max-h-[75vh] sm:max-h-[80vh] max-w-[95vw] sm:max-w-[90vw] w-auto h-auto rounded-2xl object-contain transition-opacity duration-300",
+                    isModalVideoReady ? "opacity-100" : "opacity-0"
+                  )} 
+                  src={optimizedVideoUrl} 
+                  onLoadedMetadata={(e) => {
+                    if (currentTime > 0 && currentTime < (duration || 9999)) {
+                      e.currentTarget.currentTime = currentTime;
+                    }
+                  }}
+                />
+              </>
             )}
             
             {activeModal === 'image' && imageUrl && (
               <img 
                 src={imageUrl} 
                 alt={title} 
-                className="max-h-[75vh] sm:max-h-[80vh] max-w-[90vw] w-auto h-auto rounded-2xl object-contain" 
+                className="max-h-[75vh] sm:max-h-[80vh] max-w-[95vw] sm:max-w-[90vw] w-auto h-auto rounded-2xl object-contain" 
               />
             )}
           </div>

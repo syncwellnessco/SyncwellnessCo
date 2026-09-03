@@ -20,22 +20,30 @@ export async function ProgramsPageContent() {
     .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
 
   return (
-    <article className="pb-12">
+    <article className="pb-12 w-full overflow-hidden">
       {/* Hero */}
       <section 
-        className="relative overflow-hidden bg-cover bg-center pt-16 pb-16 sm:pt-24 sm:pb-24 lg:pt-28 lg:pb-28"
+        className="relative overflow-hidden bg-cover bg-center pt-16 pb-12 sm:pt-24 sm:pb-20 lg:pt-28 lg:pb-28"
         style={{ backgroundImage: `url(${IMAGES.shadowBackground})` }}
       >
         <div className="absolute inset-0 bg-[#4A5D5E]/60 mix-blend-multiply" />
         <div className="absolute inset-0 bg-slate-900/10" />
         <div className="relative z-10 mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-          <span className="mb-6 block text-[13px] font-semibold italic text-white/90 tracking-wide">
+          <span className="mb-4 sm:mb-6 block text-xs sm:text-[13px] font-semibold italic text-white/90 tracking-wide">
             Whether you're new to the journey or have been trying for years, one thing is clear:
           </span>
-          <h1 className="font-display text-4xl font-normal leading-tight text-white sm:text-5xl lg:text-[4rem]">
-            Transform Your <span className="bg-[#B38C50] text-white px-3 py-1">Health</span> with <em className="italic bg-[#B38C50] text-white px-3 py-1">Expert</em> Guidance
+          <h1 className="font-display text-3xl sm:text-5xl lg:text-[4rem] font-normal leading-tight text-white">
+            Transform Your{" "}
+            <span className="inline-block bg-[#B38C50] text-white px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-sm my-1">
+              Health
+            </span>{" "}
+            with{" "}
+            <em className="inline-block italic bg-[#B38C50] text-white px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-sm my-1">
+              Expert
+            </em>{" "}
+            Guidance
           </h1>
-          <div className="mx-auto mt-8 max-w-2xl space-y-4 text-base text-white/90 sm:text-lg">
+          <div className="mx-auto mt-6 sm:mt-8 max-w-2xl space-y-3 sm:space-y-4 text-sm sm:text-base text-white/90 sm:text-lg">
             <p>
               Hormones are at the core of women's health, and yet most solutions barely scratch the surface, leaving you piecing things together on your own.
             </p>
@@ -56,79 +64,91 @@ export async function ProgramsPageContent() {
         const remainingTitle = hasMultipleWords ? titleWords.slice(0, -1).join(" ") : "";
 
         return (
-          <section key={featured.id} className="relative bg-cream py-12 lg:py-16 border-b border-beige-200">
+          <section key={featured.id} className="relative bg-cream py-10 sm:py-14 lg:py-16 border-b border-beige-200">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-stretch">
+              <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-20 items-stretch">
                 
-                <div className="flex flex-col justify-center order-2 lg:order-2 py-2">
-                  <div className="mb-6">
+                <div className="flex flex-col justify-center order-2 lg:order-1 py-2">
+                  <div className="mb-4 sm:mb-6">
                     <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-charcoal mb-2">
                       #{fIdx + 1} Featured Program
                     </span>
                   </div>
                   
-                  <h2 className="font-display text-4xl lg:text-5xl font-medium leading-[1.15] text-charcoal mb-6">
+                  <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-medium leading-[1.2] text-charcoal mb-4 sm:mb-6">
                     {remainingTitle ? `${remainingTitle} ` : ""}
-                    <span className="box-decoration-clone bg-[#EBE3DB] px-3 py-1">
+                    <span className="inline-block bg-[#EBE3DB] px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-sm">
                       {lastWord}
                     </span>
                   </h2>
                 
-                <p className="text-lg leading-relaxed text-charcoal mb-8 max-w-lg">
-                  {featured.description}
-                </p>
+                  <p className="text-base sm:text-lg leading-relaxed text-charcoal mb-6 sm:mb-8 max-w-lg">
+                    {featured.description}
+                  </p>
                 
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-auto pt-6 border-t border-beige-200 gap-4 flex-wrap sm:flex-nowrap">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[9px] sm:text-xs font-semibold uppercase tracking-wider text-[#8C6D40] border border-[#A8895C]/20 px-2.5 py-1 rounded-full whitespace-nowrap bg-[#FAF8F5]">
-                      {featured.duration}
-                    </span>
-                    {featured.format && (
-                      <span className="text-[9px] sm:text-xs font-semibold uppercase tracking-wider text-[#8C6D40] border border-[#A8895C]/20 px-2.5 py-1 rounded-full whitespace-nowrap bg-[#FAF8F5]">
-                        {featured.format}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-4 sm:gap-6 shrink-0 justify-between sm:justify-end w-full sm:w-auto">
-                    <ProgramPriceOverride program={featured} />
-                    <InteractiveLink
-                      href={`/programs/${featured.slug || featured.id}`}
-                      variant="raw"
-                      className="w-full sm:w-auto justify-center text-center bg-[#8C6D40] text-white hover:bg-[#B8955F] uppercase tracking-[0.15em] text-[10px] font-bold h-12 px-6 sm:px-8 rounded-sm border-0 transition-colors inline-flex items-center shrink-0"
-                    >
-                      Explore Program
-                    </InteractiveLink>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-auto pt-6 border-t border-beige-200 gap-4">
+                    <div className="flex items-center justify-between sm:justify-start gap-2 flex-1 w-full sm:w-auto">
+                      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                        <span className="text-[9px] sm:text-xs font-semibold uppercase tracking-wider text-[#8C6D40] border border-[#A8895C]/20 px-2.5 py-1 rounded-full whitespace-nowrap bg-[#FAF8F5]">
+                          {featured.duration}
+                        </span>
+                        {featured.format && (
+                          <span className="text-[9px] sm:text-xs font-semibold uppercase tracking-wider text-[#8C6D40] border border-[#A8895C]/20 px-2.5 py-1 rounded-full whitespace-nowrap bg-[#FAF8F5]">
+                            {featured.format}
+                          </span>
+                        )}
+                      </div>
+                      <div className="sm:hidden shrink-0">
+                        <ProgramPriceOverride program={featured} />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-4 sm:gap-6 shrink-0 w-full sm:w-auto justify-end">
+                      <div className="hidden sm:block shrink-0">
+                        <ProgramPriceOverride program={featured} />
+                      </div>
+                      <InteractiveLink
+                        href={`/programs/${featured.slug || featured.id}`}
+                        variant="raw"
+                        className="w-full sm:w-auto justify-center text-center bg-[#8C6D40] text-white hover:bg-[#B8955F] uppercase tracking-[0.15em] text-[10px] font-bold h-11 sm:h-12 px-6 sm:px-8 rounded-sm border-0 transition-colors inline-flex items-center shrink-0"
+                      >
+                        Explore Program
+                      </InteractiveLink>
+                    </div>
                   </div>
                 </div>
-              </div>
-              
-              <div className="relative order-1 lg:order-1 w-full my-auto flex items-center justify-center">
-                <ProgramHeroMedia 
-                  videoUrl={featured.hero?.introVideo} 
-                  imageUrl={featured.hero?.bannerImage} 
-                  title={featured.title} 
-                />
-              </div>
+                
+                <div className="relative order-1 lg:order-2 w-full my-auto flex items-center justify-center">
+                  <ProgramHeroMedia 
+                    videoUrl={featured.hero?.introVideo} 
+                    imageUrl={featured.hero?.bannerImage} 
+                    title={featured.title} 
+                    linkHref={`/programs/${featured.slug || featured.id}`}
+                  />
+                </div>
 
+              </div>
             </div>
-          </div>
-        </section>
-      );
+          </section>
+        );
       })}
 
       {/* Other Programs */}
-      <section className="py-12 lg:py-16 bg-[#FAF9F7]">
+      <section className="py-10 sm:py-14 lg:py-16 bg-[#FAF9F7]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeading eyebrow="More Options" title="Find Your Perfect Fit" align="center" />
           
-          <div className="mt-16 grid gap-12 lg:grid-cols-2">
+          <div className="mt-10 sm:mt-16 grid gap-8 sm:gap-12 lg:grid-cols-2">
             {others.map((program) => (
               <article
                 key={program.id}
-                className="group relative flex flex-col bg-white border border-beige-200 p-6 sm:p-8 rounded-xl transition-all hover:shadow-xl duration-300 overflow-hidden"
+                className="group relative flex flex-col bg-white border border-beige-200 p-5 sm:p-8 rounded-xl transition-all hover:shadow-xl duration-300 overflow-hidden"
               >
                 {program.hero?.bannerImage && (
-                  <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-lg mb-4 shadow-md border border-beige-100">
+                  <Link
+                    href={`/programs/${program.slug || program.id}`}
+                    className="block relative w-full aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-lg mb-4 shadow-md border border-beige-100 cursor-pointer"
+                  >
                     <Image
                       src={program.hero.bannerImage}
                       alt={program.title}
@@ -138,7 +158,7 @@ export async function ProgramsPageContent() {
                       unoptimized
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-charcoal/40 to-transparent pointer-events-none" />
-                  </div>
+                  </Link>
                 )}
                 
                 <div className="flex flex-1 flex-col">
@@ -157,21 +177,23 @@ export async function ProgramsPageContent() {
                     {program.category || "Signature Program"}
                   </span>
                   
-                  <h3 className="font-display text-3xl font-medium text-charcoal sm:text-4xl mb-6 group-hover:text-[#8C6D40] transition-colors">
-                    {program.title}
-                  </h3>
+                  <Link href={`/programs/${program.slug || program.id}`}>
+                    <h3 className="font-display text-2xl sm:text-3xl lg:text-4xl font-medium text-charcoal mb-4 sm:mb-6 group-hover:text-[#8C6D40] transition-colors">
+                      {program.title}
+                    </h3>
+                  </Link>
                   
-                  <p className="text-base leading-relaxed text-charcoal/85 mb-8 line-clamp-3">
+                  <p className="text-sm sm:text-base leading-relaxed text-charcoal/85 mb-6 sm:mb-8 line-clamp-3">
                     {program.description}
                   </p>
                   
-                  <div className="mb-8">
+                  <div className="mb-6 sm:mb-8">
                     <h4 className="font-semibold text-xs text-charcoal uppercase tracking-widest mb-4">Core Focus</h4>
-                    <ul className="space-y-4">
+                    <ul className="space-y-3 sm:space-y-4">
                       {program.included?.slice(0, 3).map((f: any, idx: number) => (
                         <li
                           key={idx}
-                          className="flex items-start gap-4 text-sm text-charcoal/90"
+                          className="flex items-start gap-3 sm:gap-4 text-xs sm:text-sm text-charcoal/90"
                         >
                           <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#8C6D40]" />
                           <span className="leading-relaxed">{f.title}</span>
@@ -180,10 +202,12 @@ export async function ProgramsPageContent() {
                     </ul>
                   </div>
                   
-                  <div className="flex items-center justify-between border-t border-beige-200 pt-6 mt-auto gap-4 w-full">
-                    <ProgramPriceOverride program={program} />
+                  <div className="flex items-center justify-between border-t border-beige-200 pt-5 sm:pt-6 mt-auto gap-3 w-full">
+                    <div className="min-w-0 flex-1">
+                      <ProgramPriceOverride program={program} />
+                    </div>
                     <Button asChild variant="ghost" className="group/btn text-[#8C6D40] hover:text-[#B8955F] hover:bg-transparent px-0 font-semibold tracking-wide uppercase text-xs shrink-0">
-                      <Link href={`/programs/${program.slug || program.id}`} className="flex items-center">
+                      <Link href={`/programs/${program.slug || program.id}`} className="flex items-center whitespace-nowrap">
                         View Details
                         <ArrowRight className="ml-1.5 h-3.5 w-3.5 transition-transform group-hover/btn:translate-x-1" />
                       </Link>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Pause, Volume2, VolumeX, X, ChevronDown } from "lucide-react";
+import { Play, Pause, Volume2, VolumeX, X, ChevronDown, Loader2 } from "lucide-react";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { VideoCardSkeleton, VideoCardSkeletonGrid } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -23,6 +23,88 @@ interface ProgramVideoTestimonialsProps {
   programTitle: string;
 }
 
+function ProgramVideoCard({
+  video,
+  programTitle,
+  onClick,
+}: {
+  video: VideoTestimonial;
+  programTitle: string;
+  onClick: () => void;
+}) {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const optimizedUrl = video.video_url.includes("#t=")
+    ? video.video_url
+    : `${video.video_url}#t=0.001`;
+
+  return (
+    <article
+      className="group cursor-pointer overflow-hidden rounded-2xl border border-beige-200 bg-[#1A1F21] shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 relative aspect-[9/16]"
+      onClick={onClick}
+      role="button"
+      tabIndex={0}
+    >
+      {/* Boneyard Skeleton Overlay while video is loading/buffering */}
+      <div
+        className={cn(
+          "absolute inset-0 z-10 transition-opacity duration-500",
+          isLoaded ? "opacity-0 pointer-events-none" : "opacity-100"
+        )}
+      >
+        <VideoCardSkeleton className="h-full w-full rounded-none border-0 shadow-none" />
+      </div>
+
+      <video
+        ref={videoRef}
+        src={optimizedUrl}
+        preload="auto"
+        muted
+        playsInline
+        onLoadedData={() => setIsLoaded(true)}
+        onCanPlay={() => setIsLoaded(true)}
+        className={cn(
+          "w-full h-full object-cover transition-all duration-500 group-hover:scale-105",
+          isLoaded ? "opacity-80 group-hover:opacity-100" : "opacity-0"
+        )}
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
+
+      <div
+        className={cn(
+          "absolute inset-0 flex items-center justify-center transition-opacity duration-300",
+          !isLoaded && "opacity-0"
+        )}
+      >
+        <div className="flex h-10 w-10 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-md shadow-lg transition-transform group-hover:scale-110 border border-white/30">
+          <Play className="ml-0.5 sm:ml-1 h-4 w-4 sm:h-6 sm:w-6 fill-white text-white" />
+        </div>
+      </div>
+
+      <div
+        className={cn(
+          "absolute bottom-0 inset-x-0 p-3 sm:p-5 z-10 transition-opacity duration-300",
+          !isLoaded && "opacity-0"
+        )}
+      >
+        <div className="mb-1 sm:mb-1.5">
+          <h4 className="text-white font-bold text-xs sm:text-base mb-0.5 leading-tight drop-shadow-md">
+            {video.name}
+          </h4>
+          <span className="text-[#D4AF37] text-[8px] sm:text-[9px] font-bold uppercase tracking-widest block drop-shadow-md">
+            {programTitle}
+          </span>
+        </div>
+        <p className="text-white/90 font-medium text-[10px] sm:text-xs line-clamp-2 leading-relaxed drop-shadow-md">
+          {video.caption}
+        </p>
+      </div>
+    </article>
+  );
+}
+
 export function ProgramVideoTestimonials({ programId, programTitle }: ProgramVideoTestimonialsProps) {
   const [videos, setVideos] = useState<VideoTestimonial[]>([]);
   const [totalVideos, setTotalVideos] = useState(0);
@@ -34,6 +116,7 @@ export function ProgramVideoTestimonials({ programId, programTitle }: ProgramVid
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
   const [showCaption, setShowCaption] = useState(true);
+  const [isModalVideoReady, setIsModalVideoReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const hideCaptionTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -42,6 +125,7 @@ export function ProgramVideoTestimonials({ programId, programTitle }: ProgramVid
 
   useEffect(() => {
     if (activeVideo) {
+      setIsModalVideoReady(false);
       setShowCaption(true);
       if (isPlaying) {
         hideCaptionTimerRef.current = setTimeout(() => {
@@ -134,43 +218,12 @@ export function ProgramVideoTestimonials({ programId, programTitle }: ProgramVid
           <>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
               {videos.map((video) => (
-                <article
+                <ProgramVideoCard
                   key={video.id}
-                  className="group cursor-pointer overflow-hidden rounded-2xl border border-beige-200 bg-cream shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 relative aspect-[9/16] bg-black"
+                  video={video}
+                  programTitle={programTitle}
                   onClick={() => setActiveVideo(video)}
-                  role="button"
-                  tabIndex={0}
-                >
-                  <video
-                    src={video.video_url}
-                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500 group-hover:scale-105"
-                    preload="metadata"
-                    muted
-                    playsInline
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
-
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="flex h-10 w-10 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-md shadow-lg transition-transform group-hover:scale-110 border border-white/30">
-                      <Play className="ml-0.5 sm:ml-1 h-4 w-4 sm:h-6 sm:w-6 fill-white text-white" />
-                    </div>
-                  </div>
-
-                  <div className="absolute bottom-0 inset-x-0 p-3 sm:p-5 z-10">
-                    <div className="mb-1 sm:mb-1.5">
-                      <h4 className="text-white font-bold text-xs sm:text-base mb-0.5 leading-tight drop-shadow-md">
-                        {video.name}
-                      </h4>
-                      <span className="text-[#D4AF37] text-[8px] sm:text-[9px] font-bold uppercase tracking-widest block drop-shadow-md">
-                        {programTitle}
-                      </span>
-                    </div>
-                    <p className="text-white/90 font-medium text-[10px] sm:text-xs line-clamp-2 leading-relaxed drop-shadow-md">
-                      {video.caption}
-                    </p>
-                  </div>
-                </article>
+                />
               ))}
 
               {/* Skeleton Cards while loading more videos */}
@@ -207,7 +260,7 @@ export function ProgramVideoTestimonials({ programId, programTitle }: ProgramVid
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 md:p-8 backdrop-blur-md"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-3 sm:p-4 md:p-8 backdrop-blur-md"
             onClick={() => setActiveVideo(null)}
           >
             <motion.div
@@ -221,6 +274,7 @@ export function ProgramVideoTestimonials({ programId, programTitle }: ProgramVid
                 type="button"
                 onClick={() => setActiveVideo(null)}
                 className="absolute top-4 right-4 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60 backdrop-blur-md border border-white/10 transition-colors"
+                aria-label="Close video"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -230,15 +284,33 @@ export function ProgramVideoTestimonials({ programId, programTitle }: ProgramVid
                 className="relative w-full md:w-[320px] lg:w-[360px] bg-black shrink-0 aspect-[9/16] group cursor-pointer"
                 onClick={togglePlay}
               >
+                <div
+                  className={cn(
+                    "absolute inset-0 z-10 transition-opacity duration-500",
+                    isModalVideoReady ? "opacity-0 pointer-events-none" : "opacity-100"
+                  )}
+                >
+                  <VideoCardSkeleton className="h-full w-full rounded-none border-0 shadow-none" />
+                </div>
+
                 <video
                   ref={videoRef}
-                  src={activeVideo.video_url}
+                  src={activeVideo.video_url.includes("#t=") ? activeVideo.video_url : `${activeVideo.video_url}#t=0.001`}
                   autoPlay
                   playsInline
+                  preload="auto"
+                  onLoadedData={() => setIsModalVideoReady(true)}
+                  onCanPlay={() => setIsModalVideoReady(true)}
+                  onPlaying={() => {
+                    setIsModalVideoReady(true);
+                    setIsPlaying(true);
+                  }}
                   onEnded={() => setIsPlaying(false)}
-                  onPlay={() => setIsPlaying(true)}
                   onPause={() => setIsPlaying(false)}
-                  className="absolute inset-0 w-full h-full object-cover cursor-pointer"
+                  className={cn(
+                    "absolute inset-0 w-full h-full object-cover cursor-pointer transition-opacity duration-300",
+                    isModalVideoReady ? "opacity-100" : "opacity-0"
+                  )}
                 />
 
                 {/* Desktop controls */}
@@ -247,12 +319,14 @@ export function ProgramVideoTestimonials({ programId, programTitle }: ProgramVid
                   <button
                     onClick={(e) => { e.stopPropagation(); togglePlay(); }}
                     className="p-3 rounded-full bg-black/40 text-white hover:bg-black/60 backdrop-blur-md border border-white/20 transition-colors shadow-lg"
+                    aria-label={isPlaying ? "Pause" : "Play"}
                   >
                     {isPlaying ? <Pause className="w-5 h-5 fill-white" /> : <Play className="w-5 h-5 fill-white" />}
                   </button>
                   <button
                     onClick={(e) => { e.stopPropagation(); toggleMute(); }}
                     className="p-3 rounded-full bg-black/40 text-white hover:bg-black/60 backdrop-blur-md border border-white/20 transition-colors shadow-lg"
+                    aria-label={isMuted ? "Unmute" : "Mute"}
                   >
                     {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
                   </button>
@@ -270,12 +344,14 @@ export function ProgramVideoTestimonials({ programId, programTitle }: ProgramVid
                     <button
                       onClick={togglePlay}
                       className="p-2.5 rounded-full bg-white/20 text-white backdrop-blur-md border border-white/30 shadow-lg"
+                      aria-label={isPlaying ? "Pause" : "Play"}
                     >
                       {isPlaying ? <Pause className="w-5 h-5 fill-white" /> : <Play className="w-5 h-5 fill-white" />}
                     </button>
                     <button
                       onClick={toggleMute}
                       className="p-2.5 rounded-full bg-white/20 text-white backdrop-blur-md border border-white/30 shadow-lg"
+                      aria-label={isMuted ? "Unmute" : "Mute"}
                     >
                       {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
                     </button>
