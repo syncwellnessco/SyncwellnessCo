@@ -60,13 +60,14 @@ export function MediaUploader({
   }, [value]);
 
   const isVideo = (urlOrFile: string | File) => {
+    if (accept.startsWith("video") || accept === "video/*") return true;
     if (urlOrFile instanceof File) {
       return urlOrFile.type.startsWith("video/");
     }
     if (typeof urlOrFile === "string") {
       return (
-        urlOrFile.match(/\.(mp4|webm|ogg|mov)$/i) ||
-        urlOrFile.includes("/video/upload/") ||
+        urlOrFile.match(/\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/i) !== null ||
+        urlOrFile.includes("/videos/") ||
         urlOrFile.startsWith("data:video")
       );
     }
@@ -186,6 +187,7 @@ export function MediaUploader({
               muted
               loop
               playsInline
+              preload="metadata"
               className="w-full h-full object-cover"
             />
           ) : (

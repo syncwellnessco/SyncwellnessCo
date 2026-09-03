@@ -6,7 +6,7 @@
 
 ## 📌 1. Overview & Architecture
 
-The **SyncwellnessCo** backend is built on top of **Next.js 16 App Router Route Handlers** (`/api/*`), interacting seamlessly with **Supabase (PostgreSQL)**, **Stripe**, **MailerLite**, **Calendly**, and **Cloudinary**.
+The **SyncwellnessCo** backend is built on top of **Next.js 16 App Router Route Handlers** (`/api/*`), interacting seamlessly with **Supabase (PostgreSQL)**, **Stripe**, **MailerLite**, **Calendly**, and **Cloudflare R2**.
 
 ### Base URL
 * Local: `http://localhost:3000/api`
@@ -31,7 +31,7 @@ All endpoints return standard HTTP status codes. In case of an error, response b
 The API enforces three primary authorization strategies depending on the route target:
 
 ### 1. Admin Auth (Supabase Auth Session Cookies)
-* **Used for:** Admin Dashboard endpoints (`/api/admin/*`, `POST/PUT/DELETE /api/programs`, `POST /api/videos`, `GET /api/purchases`, `GET /api/enquiries`, `GET /api/ebook-requests`, `GET /api/quiz-responses`, `POST /api/cloudinary`, `POST /api/purchases/[id]/resend`).
+* **Used for:** Admin Dashboard endpoints (`/api/admin/*`, `POST/PUT/DELETE /api/programs`, `POST /api/videos`, `GET /api/purchases`, `GET /api/enquiries`, `GET /api/ebook-requests`, `GET /api/quiz-responses`, `POST /api/media/delete`, `POST /api/purchases/[id]/resend`).
 * **Mechanism:** Checks the active user session via `@supabase/ssr` cookies (`await createClient()`). Verifies `session.user.user_metadata.role === 'admin'`.
 * **Failure:** Returns `401 Unauthorized` if no active session exists or the user is not an admin.
 
@@ -91,7 +91,8 @@ The API enforces three primary authorization strategies depending on the route t
 | | `GET` | `/api/videos` | Public | Fetch video testimonials |
 | | `POST` | `/api/videos` | Admin Session | Create a new video testimonial entry |
 | | `DELETE` | `/api/videos/[id]` | Admin Session | Delete a video testimonial entry |
-| | `POST` | `/api/cloudinary` | Admin Session | Generate SHA1 signature and delete asset from Cloudinary |
+| | `POST` | `/api/media/presign` | Admin / Review Submit | Generate presigned direct upload URL for Cloudflare R2 |
+| | `POST` | `/api/media/delete` | Admin Session | Delete media asset from Cloudflare R2 bucket |
 | **Webhooks** | `POST` | `/api/webhooks/stripe` | Stripe Webhook | Webhook handler for `checkout.session.completed` & `payment_intent.succeeded` |
 | | `POST` | `/api/webhooks/calendly` | Calendly Webhook | Webhook handler for `invitee.created` & `invitee.canceled` |
 
@@ -266,22 +267,42 @@ Checks if a user has completed a consultation call or has an active booking.
 
 ---
 
-### 🗂 Cloudinary Asset Management API
+### 🗂 Cloudflare R2 Media Management APIs
 
-#### `POST /api/cloudinary`
-Deletes orphaned images/videos from Cloudinary using server-side HMAC SHA-1 signature generation.
-* **Authentication:** Required (`admin` role session).
+#### `POST /api/media/presign`
+Generates a presigned S3-compatible PUT URL for direct browser-to-R2 upload with progress tracking.
+* **Authentication:** Required (`admin` role session, or public client for `folder: "reviews"` image submissions).
 * **Request Body:**
 ```json
 {
-  "public_id": "syncwellness/blogs/sample_image",
-  "resource_type": "image"
+  "filename": "transformation-before.jpg",
+  "contentType": "image/jpeg",
+  "folder": "reviews"
 }
 ```
 * **Response Body (200 OK):**
 ```json
 {
-  "success": true
+  "uploadUrl": "https://<account-id>.r2.cloudflarestorage.com/syncwellness-media/images/reviews/...",
+  "publicUrl": "https://media.syncwellnessco.com/images/reviews/...",
+  "key": "images/reviews/uuid-transformation-before.jpg"
+}
+```
+
+#### `POST /api/media/delete`
+Deletes an image or video object from Cloudflare R2 storage.
+* **Authentication:** Required (`admin` role session).
+* **Request Body:**
+```json
+{
+  "key": "images/blogs/sample_image.webp"
+}
+```
+* **Response Body (200 OK):**
+```json
+{
+  "success": true,
+  "key": "images/blogs/sample_image.webp"
 }
 ```
 

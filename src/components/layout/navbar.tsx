@@ -197,20 +197,6 @@ export function Navbar() {
           <div className="hidden items-center gap-4 sm:gap-5 lg:flex">
             {user ? (
               <div className="flex items-center gap-4">
-                {/* Minimal Dashboard link — plain text, no box */}
-                {isAdmin && (
-                  <Link
-                    href="/admin/dashboard"
-                    className={cn(
-                      "text-[10px] font-semibold uppercase tracking-[0.14em] transition-colors",
-                      isTransparent
-                        ? "text-cream/85 hover:text-cream"
-                        : "text-charcoal/70 hover:text-charcoal"
-                    )}
-                  >
-                    Dashboard
-                  </Link>
-                )}
 
                 {/* Profile Badge with Dropdown — lighter, less boxed */}
                 <div className="relative" ref={dropdownRef}>
@@ -297,6 +283,8 @@ export function Navbar() {
                           {isAdmin && (
                             <Link
                               href="/admin/dashboard"
+                              target="_blank"
+                              rel="noopener noreferrer"
                               onClick={() => setDropdownOpen(false)}
                               className="block rounded-lg px-3 py-2 text-xs font-semibold text-charcoal/90 hover:bg-beige-100 hover:text-charcoal transition-colors"
                             >
@@ -433,6 +421,8 @@ export function Navbar() {
                           {isAdmin && (
                             <Link
                               href="/admin/dashboard"
+                              target="_blank"
+                              rel="noopener noreferrer"
                               onClick={() => setMobileOpen(false)}
                               className="block w-full rounded-md py-3 text-center text-sm font-semibold uppercase tracking-[0.14em] text-charcoal/80 transition-colors hover:bg-beige-100"
                             >

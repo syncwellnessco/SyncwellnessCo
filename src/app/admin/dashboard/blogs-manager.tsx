@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
 import { BlogGridSkeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase-client";
-import { uploadFileToCloudinary } from "@/lib/cloudinary-utils";
+import { uploadFile } from "@/lib/media-utils";
 import { MediaUploader } from "@/components/ui/media-uploader";
 import dynamic from 'next/dynamic';
 import { ConfirmModal } from "@/components/ui/confirm-modal";
@@ -138,9 +138,9 @@ export function BlogsManager() {
       if (stagedCoverFile) {
         toast.loading("Uploading cover image...", { id: "uploading-cover" });
         setUploadProgress(0);
-        const { url } = await uploadFileToCloudinary(
+        const { url } = await uploadFile(
           stagedCoverFile,
-          process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_BLOGS || "syncwellness_blogs",
+          "blogs",
           (percent) => setUploadProgress(percent)
         );
         finalImageUrl = url;

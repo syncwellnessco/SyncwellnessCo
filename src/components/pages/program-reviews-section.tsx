@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { X, CheckCircle2, Loader2, Star, ChevronDown } from "lucide-react";
 import toast from "react-hot-toast";
-import { uploadFileToCloudinary } from "@/lib/cloudinary-utils";
+import { uploadFile } from "@/lib/media-utils";
 import { MediaUploader } from "@/components/ui/media-uploader";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -12,7 +12,7 @@ import { useUserStore } from "@/store/user-store";
 import { useReviewStore, Review } from "@/store/review-store";
 import { ReviewCardSkeleton, ReviewCardSkeletonGrid } from "@/components/ui/skeleton";
 
-const CloudinaryBtn = ({ label, onSelectFile, onRemove, value, progress }: { label: string, onSelectFile: (f: File) => void, onRemove: () => void, value: string | File | null, progress?: number | null }) => (
+const ReviewPhotoUploader = ({ label, onSelectFile, onRemove, value, progress }: { label: string, onSelectFile: (f: File) => void, onRemove: () => void, value: string | File | null, progress?: number | null }) => (
   <MediaUploader
     label={label}
     labelPosition="bottom"
@@ -129,9 +129,9 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
         if (beforeFile) {
           setBeforeProgress(0);
           uploadPromises.push(
-            uploadFileToCloudinary(
+            uploadFile(
               beforeFile,
-              process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_REVIEWS || "syncwellness",
+              "reviews",
               (p) => setBeforeProgress(p)
             ).then((res) => (finalBeforeUrl = res.url))
           );
@@ -139,9 +139,9 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
         if (afterFile) {
           setAfterProgress(0);
           uploadPromises.push(
-            uploadFileToCloudinary(
+            uploadFile(
               afterFile,
-              process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_REVIEWS || "syncwellness",
+              "reviews",
               (p) => setAfterProgress(p)
             ).then((res) => (finalAfterUrl = res.url))
           );
@@ -389,7 +389,7 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
                       <span className="text-[10px] text-charcoal/50 font-medium">Vertical 4:5 format</span>
                     </div>
                     <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                      <CloudinaryBtn 
+                      <ReviewPhotoUploader 
                         label="Before Image" 
                         value={beforeFile || beforeImage} 
                         progress={beforeProgress}
@@ -400,7 +400,7 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
                           setBeforeImage("");
                         }}
                       />
-                      <CloudinaryBtn 
+                      <ReviewPhotoUploader 
                         label="After Image" 
                         value={afterFile || afterImage} 
                         progress={afterProgress}

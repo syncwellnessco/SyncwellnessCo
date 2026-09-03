@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Check, X, Trash2, Eye, Star, Upload } from "lucide-react";
 import toast from "react-hot-toast";
 import { TableSkeleton } from "@/components/ui/skeleton";
-import { uploadFileToCloudinary } from "@/lib/cloudinary-utils";
+import { uploadFile } from "@/lib/media-utils";
 import { MediaUploader } from "@/components/ui/media-uploader";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { Toggle } from "@/components/ui/toggle";
@@ -187,9 +187,9 @@ export function ReviewsManager() {
         if (beforeFile) {
           setBeforeProgress(0);
           uploadPromises.push(
-            uploadFileToCloudinary(
+            uploadFile(
               beforeFile,
-              process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_REVIEWS || "syncwellness",
+              "reviews",
               (p) => setBeforeProgress(p)
             ).then(res => finalBeforeUrl = res.url)
           );
@@ -197,9 +197,9 @@ export function ReviewsManager() {
         if (afterFile) {
           setAfterProgress(0);
           uploadPromises.push(
-            uploadFileToCloudinary(
+            uploadFile(
               afterFile,
-              process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_REVIEWS || "syncwellness",
+              "reviews",
               (p) => setAfterProgress(p)
             ).then(res => finalAfterUrl = res.url)
           );

@@ -6,14 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Eye, Edit, Trash2, Plus, RefreshCw, X, Save, PlusCircle, MinusCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import { TableSkeleton } from "@/components/ui/skeleton";
-import { uploadFileToCloudinary } from "@/lib/cloudinary-utils";
+import { uploadFile } from "@/lib/media-utils";
 import { MediaUploader } from "@/components/ui/media-uploader";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { Toggle } from "@/components/ui/toggle";
 import { CustomSelect } from "@/components/ui/custom-select";
 import { revalidateWebsite } from "@/app/actions/revalidate";
 
-const CloudinaryUploader = ({ onUpload, label }: { onUpload: (val: string | File) => void, label: string }) => {
+const MediaUploaderField = ({ onUpload, label }: { onUpload: (val: string | File) => void, label: string }) => {
   const isVideoLabel = label.toLowerCase().includes("video");
   return (
     <MediaUploader
@@ -49,7 +49,7 @@ const DataDisplay = ({ data }: { data: any }) => {
               <span className="text-[10px] uppercase font-bold text-[#8C6D40] block mb-1">{k.replace(/([A-Z])/g, ' $1').trim()}</span>
               {typeof v === 'object' ? <DataDisplay data={v} /> : (
                 String(v).startsWith('http') ? (
-                  String(v).match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) || String(v).includes('res.cloudinary.com/daw1tscqr/image') ? (
+                  String(v).match(/\.(jpeg|jpg|gif|png|webp|svg|avif)$/i) || String(v).includes('/images/') ? (
                     <img src={String(v)} alt="" className="w-full max-w-[200px] rounded-sm border border-[#EBE3DB]" />
                   ) : (
                     <a href={String(v)} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline break-all text-xs">{String(v)}</a>
@@ -321,19 +321,19 @@ export function ProgramsManager() {
   const [bannerProgress, setBannerProgress] = useState<number | null>(null);
   const [videoProgress, setVideoProgress] = useState<number | null>(null);
 
-  const uploadAllStagedFiles = async (obj: any, preset: string): Promise<any> => {
+  const uploadAllStagedFiles = async (obj: any): Promise<any> => {
     if (!obj) return obj;
     if (obj instanceof File) {
-      const { url } = await uploadFileToCloudinary(obj, preset);
+      const { url } = await uploadFile(obj, "programs");
       return url;
     }
     if (Array.isArray(obj)) {
-      return Promise.all(obj.map(item => uploadAllStagedFiles(item, preset)));
+      return Promise.all(obj.map(item => uploadAllStagedFiles(item)));
     }
     if (typeof obj === 'object') {
       const newObj: any = {};
       for (const [key, val] of Object.entries(obj)) {
-        newObj[key] = await uploadAllStagedFiles(val, preset);
+        newObj[key] = await uploadAllStagedFiles(val);
       }
       return newObj;
     }
@@ -357,7 +357,6 @@ export function ProgramsManager() {
       const url = isActuallyNew ? '/api/programs' : `/api/programs/${selectedProgram?.id}`;
       const method = isActuallyNew ? 'POST' : 'PUT';
 
-      const preset = process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_PROGRAMS || "syncwellness";
       let bannerUrl = editForm.hero?.bannerImage || '';
       let introVideoUrl = editForm.hero?.introVideo || '';
 
@@ -367,14 +366,14 @@ export function ProgramsManager() {
         if (stagedBannerFile) {
           setBannerProgress(0);
           uploadPromises.push(
-            uploadFileToCloudinary(stagedBannerFile, preset, (p) => setBannerProgress(p))
+            uploadFile(stagedBannerFile, "programs", (p) => setBannerProgress(p))
               .then(res => bannerUrl = res.url)
           );
         }
         if (stagedIntroVideoFile) {
           setVideoProgress(0);
           uploadPromises.push(
-            uploadFileToCloudinary(stagedIntroVideoFile, preset, (p) => setVideoProgress(p))
+            uploadFile(stagedIntroVideoFile, "programs", (p) => setVideoProgress(p))
               .then(res => introVideoUrl = res.url)
           );
         }
@@ -383,7 +382,7 @@ export function ProgramsManager() {
       }
 
       // Process any nested staged File objects in editForm (such as in included, bonuses, etc.)
-      const resolvedEditForm = await uploadAllStagedFiles(editForm, preset);
+      const resolvedEditForm = await uploadAllStagedFiles(editForm);
 
       const updatedHero = {
         ...(resolvedEditForm.hero || {}),
@@ -613,18 +612,22 @@ export function ProgramsManager() {
 
                   {activeTab === 'hero' && (
                     <div className="bg-[#FAF8F5] p-6 rounded-sm border border-[#EBE3DB] space-y-6">
-                      <div className="grid grid-cols-2 gap-6">
-                        <div>
-                          <h4 className="text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-3">Banner Image</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                        <div className="bg-white p-4 rounded border border-[#EBE3DB] shadow-xs">
+                          <h4 className="text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-2">Banner Image</h4>
                           {selectedProgram.hero?.bannerImage ? (
-                            <img src={selectedProgram.hero.bannerImage} alt="Banner" className="w-full aspect-video object-cover rounded border border-[#EBE3DB] shadow-sm" />
-                          ) : <span className="text-sm text-charcoal/50">No image</span>}
+                            <div className="aspect-video w-full rounded overflow-hidden bg-black/5 border border-[#EBE3DB]">
+                              <img src={selectedProgram.hero.bannerImage} alt="Banner" className="w-full h-full object-cover" />
+                            </div>
+                          ) : <span className="text-xs text-charcoal/50 italic">No banner image</span>}
                         </div>
-                        <div>
-                          <h4 className="text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-3">Intro Video</h4>
+                        <div className="bg-white p-4 rounded border border-[#EBE3DB] shadow-xs">
+                          <h4 className="text-[10px] uppercase font-bold tracking-wider text-[#8C6D40] mb-2">Intro Video</h4>
                           {selectedProgram.hero?.introVideo ? (
-                            <video src={selectedProgram.hero.introVideo} controls className="w-full max-w-[200px] aspect-[4/5] object-cover rounded border border-[#EBE3DB] shadow-sm bg-black" />
-                          ) : <span className="text-sm text-charcoal/50">No video</span>}
+                            <div className="aspect-video w-full rounded overflow-hidden bg-black border border-[#EBE3DB]">
+                              <video src={selectedProgram.hero.introVideo} controls className="w-full h-full object-contain bg-black" />
+                            </div>
+                          ) : <span className="text-xs text-charcoal/50 italic">No video</span>}
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-6">
@@ -833,36 +836,40 @@ export function ProgramsManager() {
                         <textarea value={editForm.hero?.subheadline || ''} onChange={e => updateNested(['hero', 'subheadline'], e.target.value)} className="w-full text-sm border border-[#EBE3DB] p-2.5 rounded-sm focus:outline-none focus:border-[#8C6D40] min-h-[80px]" placeholder="e.g. A 12-week comprehensive program designed to restore your energy and balance your body..." />
                       </div>
                       
-                      <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                         {/* Banner Image Box */}
-                        <MediaUploader
-                          label="Banner Image"
-                          helperText="Aspect ratio: 16:9 landscape"
-                          value={stagedBannerFile || editForm.hero?.bannerImage || ''}
-                          accept="image/*"
-                          aspectRatioClass="aspect-video"
-                          progress={bannerProgress}
-                          onSelectFile={(file) => setStagedBannerFile(file)}
-                          onRemove={() => {
-                            setStagedBannerFile(null);
-                            updateNested(['hero', 'bannerImage'], '');
-                          }}
-                        />
+                        <div className="bg-white p-4 rounded-md border border-[#EBE3DB] shadow-xs">
+                          <MediaUploader
+                            label="Banner Image"
+                            helperText="16:9 widescreen recommended"
+                            value={stagedBannerFile || editForm.hero?.bannerImage || ''}
+                            accept="image/*"
+                            aspectRatioClass="aspect-video w-full"
+                            progress={bannerProgress}
+                            onSelectFile={(file) => setStagedBannerFile(file)}
+                            onRemove={() => {
+                              setStagedBannerFile(null);
+                              updateNested(['hero', 'bannerImage'], '');
+                            }}
+                          />
+                        </div>
 
                         {/* Intro Video Box */}
-                        <MediaUploader
-                          label="Intro Video (Optional)"
-                          helperText="Aspect ratio: 4:5 vertical"
-                          value={stagedIntroVideoFile || editForm.hero?.introVideo || ''}
-                          accept="video/*"
-                          aspectRatioClass="aspect-[4/5]"
-                          progress={videoProgress}
-                          onSelectFile={(file) => setStagedIntroVideoFile(file)}
-                          onRemove={() => {
-                            setStagedIntroVideoFile(null);
-                            updateNested(['hero', 'introVideo'], '');
-                          }}
-                        />
+                        <div className="bg-white p-4 rounded-md border border-[#EBE3DB] shadow-xs">
+                          <MediaUploader
+                            label="Intro Video (Optional)"
+                            helperText="16:9 widescreen or vertical"
+                            value={stagedIntroVideoFile || editForm.hero?.introVideo || ''}
+                            accept="video/*"
+                            aspectRatioClass="aspect-video w-full"
+                            progress={videoProgress}
+                            onSelectFile={(file) => setStagedIntroVideoFile(file)}
+                            onRemove={() => {
+                              setStagedIntroVideoFile(null);
+                              updateNested(['hero', 'introVideo'], '');
+                            }}
+                          />
+                        </div>
                       </div>
                     </div>
                   )}

@@ -1,6 +1,6 @@
 # 🌿 SyncwellnessCo
 
-> **A luxury, holistic women's wellness and metabolic fat loss platform engineered with Next.js 16, Supabase, Stripe, MailerLite, Calendly, and Cloudinary.**
+> **A luxury, holistic women's wellness and metabolic fat loss platform engineered with Next.js 16, Supabase, Stripe, MailerLite, Calendly, and Cloudflare R2.**
 
 SyncwellnessCo is a full-stack web application designed with a high-end, minimalist editorial aesthetic. It serves as both a high-converting, interactive landing page for wellness programs and a robust custom Content Management System (CMS) for administrative operations.
 
@@ -27,8 +27,8 @@ SyncwellnessCo integrates a modern tech stack and specialized cloud services to 
                          │            │             │            │
                          ▼            ▼             ▼            ▼
                  ┌───────────┐  ┌───────────┐  ┌──────────┐ ┌───────────┐
-                 │ Supabase  │  │  Stripe   │  │MailerLite│ │ Cloudinary│
-                 │ PostgreSQL│  │ Checkout  │  │Automations│ │   Media   │
+                 │ Supabase  │  │  Stripe   │  │MailerLite│ │Cloudflare │
+                 │ PostgreSQL│  │ Checkout  │  │Automations│ │ R2 Storage│
                  └───────────┘  └───────────┘  └──────────┘ └───────────┘
                                       │             │
                                       ▼             ▼
@@ -57,7 +57,7 @@ SyncwellnessCo integrates a modern tech stack and specialized cloud services to 
 * **Payment Gateway ([Stripe](https://stripe.com/)):** Handles one-time checkout sessions and PaymentIntents for coaching programs. Includes webhook handling (`checkout.session.completed`) and client-side payment verification.
 * **Email Marketing & CRM ([MailerLite](https://www.mailerlite.com/)):** Automatically subscribes buyers to program onboarding groups, sends download links for e-books, and dispatches automated coaching agreement emails.
 * **Appointment Scheduling ([Calendly](https://calendly.com/)):** Integrated consultation booking widget with webhook synchronization (`invitee.created`, `invitee.canceled`) and signature verification.
-* **Media Cloud CDN ([Cloudinary](https://cloudinary.com/)):** High-performance image and video delivery with unsigned upload presets and backend API deletion.
+* **Object Storage & CDN ([Cloudflare R2](https://www.cloudflare.com/developer-platform/r2/)):** S3-compatible, zero egress-fee media storage with presigned direct uploads, CDN edge delivery, and secure asset deletion.
 * **Rich Content Authoring ([Tiptap Editor](https://tiptap.dev/)):** Notion-style WYSIWYG editor for blog and program content management.
 
 ---
@@ -84,9 +84,9 @@ SyncwellnessCo/
 │   │       ├── blogs/          # Blog CRUD endpoints
 │   │       ├── bookings/       # Calendly booking management
 │   │       ├── checkout/       # Stripe session & order verification
-│   │       ├── cloudinary/     # Media removal endpoint
 │   │       ├── ebook-requests/ # Lead capture endpoint
 │   │       ├── enquiries/      # Contact form submission endpoint
+│   │       ├── media/          # Cloudflare R2 presigned upload & delete endpoints
 │   │       ├── payment-intent/ # Stripe PaymentIntent endpoint
 │   │       ├── programs/       # Program management endpoints
 │   │       ├── purchases/      # Purchase history & resend API
@@ -107,10 +107,11 @@ SyncwellnessCo/
 │   ├── lib/                    # Helper Utilities & Service SDK Wrappers
 │   │   ├── api-auth.ts         # Bearer token verification helper
 │   │   ├── blogs.ts            # Blog data fetching logic
-│   │   ├── cloudinary-utils.ts # Media helper functions
 │   │   ├── content-store.ts    # Fallback content store
+│   │   ├── media-utils.ts      # Client media upload and URL helpers
 │   │   ├── order-fulfillment.ts# Idempotent Stripe order processor
 │   │   ├── programs.ts         # Program queries & data mappers
+│   │   ├── r2.ts               # Cloudflare R2 S3 SDK integration & presigning
 │   │   ├── stripe.ts           # Stripe SDK initialization
 │   │   ├── supabase-client.ts  # Browser Supabase client
 │   │   └── supabase-server.ts  # Server SSR Supabase client
@@ -182,7 +183,7 @@ The Admin Dashboard provides full operational control over the platform:
 
 * **Summary Tab:** Displays total revenue, pending enquiries, ebook requests, active programs, and recent transaction history.
 * **Programs Manager:** Add, edit, or archive programs, configure pricing plans, FAQs, hero images, and feature ranks.
-* **Blogs Manager:** Author and edit blog posts using the Tiptap rich-text editor with automatic Cloudinary image uploads.
+* **Blogs Manager:** Author and edit blog posts using the Tiptap rich-text editor with direct Cloudflare R2 media uploads.
 * **Reviews & Video Testimonials:** Manage written client reviews and upload video URLs for home and testimonial page carousels.
 * **Leads & Enquiries:** Review user submissions, mark contact enquiries as read/replied, and manage e-book requests.
 * **Purchases & Agreements:** View transaction history and trigger manual resend of Coaching Agreement signing links via MailerLite.
@@ -205,11 +206,15 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 # Site Base URL
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
-# Cloudinary Configuration
-NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name
-NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=your_upload_preset
-CLOUDINARY_API_KEY=your_cloudinary_api_key
-CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+# Cloudflare R2 Configuration (Server-Side)
+R2_ACCOUNT_ID=your_cloudflare_account_id
+R2_ACCESS_KEY_ID=your_r2_access_key_id
+R2_SECRET_ACCESS_KEY=your_r2_secret_access_key
+R2_BUCKET_NAME=your_r2_bucket_name
+
+# Cloudflare R2 Public Media URL (CDN / Custom Domain or Public Bucket URL)
+R2_PUBLIC_URL=https://media.syncwellness.co
+NEXT_PUBLIC_R2_PUBLIC_URL=https://media.syncwellness.co
 
 # MailerLite Email Automation
 MAILERLITE_API_KEY=your_mailerlite_api_key
@@ -249,7 +254,7 @@ npm install
 
 # 3. Setup environment variables
 cp .env.example .env.local
-# (Fill in your Supabase, Stripe, MailerLite, Calendly, and Cloudinary keys)
+# (Fill in your Supabase, Stripe, MailerLite, Calendly, and Cloudflare R2 keys)
 
 # 4. Start local development server
 npm run dev

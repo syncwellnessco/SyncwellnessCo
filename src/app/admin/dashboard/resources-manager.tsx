@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
 import { TableSkeleton, BlogGridSkeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase-client";
-import { uploadFileToCloudinary } from "@/lib/cloudinary-utils";
+import { uploadFile } from "@/lib/media-utils";
 import { MediaUploader } from "@/components/ui/media-uploader";
 import dynamic from 'next/dynamic';
 import { ConfirmModal } from "@/components/ui/confirm-modal";
@@ -243,14 +243,9 @@ export function ResourcesManager() {
       if (stagedCoverFile) {
         toast.loading("Uploading media...", { id: "uploading-resource-media" });
         setUploadProgress(0);
-        // Use syncwellness preset for event images and news article (media) images as requested
-        const uploadPreset = (subTab === "events" || subTab === "media")
-          ? (process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "syncwellness")
-          : (process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_BLOGS || "syncwellness_blogs");
-
-        const { url } = await uploadFileToCloudinary(
+        const { url } = await uploadFile(
           stagedCoverFile,
-          uploadPreset,
+          "resources",
           (percent) => setUploadProgress(percent)
         );
         finalImageUrl = url;
@@ -529,7 +524,7 @@ export function ResourcesManager() {
                     <div className="w-full">
                       <MediaUploader
                         label="Event Image"
-                        helperText="Saved to Cloudinary preset: syncwellness"
+                        helperText="Aspect ratio: 9:16 vertical recommended"
                         value={stagedCoverFile || formData.image_url}
                         accept="image/*"
                         aspectRatioClass="w-full aspect-[9/16]"

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Check, X, Trash2, Video, Upload, Edit } from "lucide-react";
 import toast from "react-hot-toast";
 import { VideoCardSkeletonGrid } from "@/components/ui/skeleton";
-import { uploadFileToCloudinary } from "@/lib/cloudinary-utils";
+import { uploadFile } from "@/lib/media-utils";
 import { MediaUploader } from "@/components/ui/media-uploader";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { Toggle } from "@/components/ui/toggle";
@@ -21,7 +21,7 @@ interface VideoTestimonial {
   created_at: string;
 }
 
-const CloudinaryVideoBtn = memo(({ onSelectFile, onRemove, value, progress }: { onSelectFile: (f: File) => void, onRemove: () => void, value: string | File | null, progress?: number | null }) => {
+const VideoUploaderBtn = memo(({ onSelectFile, onRemove, value, progress }: { onSelectFile: (f: File) => void, onRemove: () => void, value: string | File | null, progress?: number | null }) => {
   return (
     <MediaUploader
       label="Video File"
@@ -35,37 +35,24 @@ const CloudinaryVideoBtn = memo(({ onSelectFile, onRemove, value, progress }: { 
     />
   );
 });
-CloudinaryVideoBtn.displayName = "CloudinaryVideoBtn";
-
-const getVideoThumbnailUrl = (url: string) => {
-  if (!url) return "";
-  if (url.includes('/video/upload/')) {
-    const baseUrl = url.split('?')[0];
-    const lastDot = baseUrl.lastIndexOf('.');
-    if (lastDot !== -1) {
-      const jpgUrl = baseUrl.substring(0, lastDot) + '.jpg';
-      return jpgUrl.replace('/video/upload/', '/video/upload/c_fill,w_300,h_533,so_1,q_auto,f_auto/');
-    }
-  }
-  return "";
-};
+VideoUploaderBtn.displayName = "VideoUploaderBtn";
 
 const VideoCardThumbnail = ({ url, name, onPlay }: { url: string, name: string, onPlay: () => void }) => {
   const [hasError, setHasError] = useState(false);
-  const thumbnail = getVideoThumbnailUrl(url);
 
   return (
     <div 
       onClick={onPlay} 
-      className="absolute inset-0 cursor-pointer flex items-center justify-center"
+      className="absolute inset-0 cursor-pointer flex items-center justify-center bg-black"
     >
-      {thumbnail && !hasError ? (
-        <img 
-          src={thumbnail} 
-          alt={name} 
+      {url && !hasError ? (
+        <video 
+          src={url} 
           onError={() => setHasError(true)}
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
-          loading="lazy"
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 pointer-events-none" 
+          preload="metadata"
+          muted
+          playsInline
         />
       ) : (
         <div className="w-full h-full flex flex-col items-center justify-center bg-charcoal/90 text-white/40">
@@ -174,9 +161,9 @@ export function VideoTestimonialsManager() {
       if (stagedVideoFile) {
         toast.loading("Uploading testimonial video...", { id: "uploading-testimonial-video" });
         setUploadProgress(0);
-        const { url } = await uploadFileToCloudinary(
+        const { url } = await uploadFile(
           stagedVideoFile,
-          process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_VIDEOS || "syncwellness",
+          "testimonials",
           (p) => setUploadProgress(p)
         );
         finalVideoUrl = url;
@@ -504,7 +491,7 @@ export function VideoTestimonialsManager() {
               <h3 className="font-display text-2xl text-charcoal mb-6 border-b border-[#EBE3DB] pb-4">{editingId ? 'Edit' : 'Upload'} Video Testimonial</h3>
               <form onSubmit={handleAdd} className="flex flex-col md:flex-row gap-8 items-start">
                 <div className="w-full md:w-5/12 flex flex-col items-center justify-start pr-0 md:pr-6 md:border-r border-[#EBE3DB]">
-                  <CloudinaryVideoBtn 
+                  <VideoUploaderBtn 
                     value={stagedVideoFile || form.video_url} 
                     progress={uploadProgress}
                     onSelectFile={handleVideoSelect} 
