@@ -200,11 +200,13 @@ export function MediaUploader({
 
           {/* Upload Progress Overlay */}
           {progress !== undefined && progress !== null && (
-            <div className="absolute inset-0 z-20 bg-charcoal/80 backdrop-blur-xs flex flex-col items-center justify-center p-4 text-white space-y-2">
-              <span className="text-xs font-bold tracking-wider uppercase">Uploading... {progress}%</span>
-              <div className="w-full max-w-[140px] bg-white/20 h-1.5 rounded-full overflow-hidden">
+            <div className="absolute inset-0 z-20 bg-charcoal/85 backdrop-blur-xs flex flex-col items-center justify-center p-4 text-white space-y-2.5 transition-all">
+              <span className="text-xs font-bold tracking-wider uppercase">
+                {progress >= 100 ? "Processing Complete!" : `Uploading... ${progress}%`}
+              </span>
+              <div className="w-full max-w-[160px] bg-white/20 h-2 rounded-full overflow-hidden p-0.5">
                 <div
-                  className="bg-[#B8955F] h-full transition-all duration-200"
+                  className="bg-[#B8955F] h-full rounded-full transition-all duration-300 ease-out"
                   style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
                 />
               </div>
@@ -265,24 +267,38 @@ export function MediaUploader({
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          className={`relative w-full ${aspectRatioClass} border-2 border-dashed rounded-lg flex flex-col items-center justify-center p-3 text-center cursor-pointer transition-all duration-300 ${
+          className={`relative w-full ${aspectRatioClass} border-2 border-dashed rounded-lg flex flex-col items-center justify-center p-3 text-center cursor-pointer transition-all duration-300 overflow-hidden ${
             isDragging
               ? "border-[#8C6D40] bg-[#8C6D40]/10 scale-[0.99]"
               : "border-[#EBE3DB] bg-[#FAF8F5] hover:border-[#8C6D40] hover:bg-[#F5F0EB]"
           } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
         >
-          <div className="flex flex-col items-center justify-center text-charcoal/60 space-y-1.5 p-2">
-            <div className="p-2.5 rounded-full bg-cream border border-[#EBE3DB] shadow-xs text-[#8C6D40]">
-              {accept.includes("video") ? (
-                <VideoIcon className="h-4 w-4" />
-              ) : (
-                <Upload className="h-4 w-4" />
-              )}
+          {progress !== undefined && progress !== null ? (
+            <div className="absolute inset-0 z-20 bg-[#FAF8F5]/95 backdrop-blur-xs flex flex-col items-center justify-center p-4 text-charcoal space-y-2.5">
+              <span className="text-xs font-bold tracking-wider uppercase text-charcoal">
+                {progress >= 100 ? "Processing Complete!" : `Uploading... ${progress}%`}
+              </span>
+              <div className="w-full max-w-[160px] bg-[#EBE3DB] h-2 rounded-full overflow-hidden p-0.5">
+                <div
+                  className="bg-[#8C6D40] h-full rounded-full transition-all duration-300 ease-out"
+                  style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
+                />
+              </div>
             </div>
-            <p className="text-xs font-semibold text-charcoal">
-              Click to upload
-            </p>
-          </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center text-charcoal/60 space-y-1.5 p-2">
+              <div className="p-2.5 rounded-full bg-cream border border-[#EBE3DB] shadow-xs text-[#8C6D40]">
+                {accept.includes("video") ? (
+                  <VideoIcon className="h-4 w-4" />
+                ) : (
+                  <Upload className="h-4 w-4" />
+                )}
+              </div>
+              <p className="text-xs font-semibold text-charcoal">
+                Click to upload
+              </p>
+            </div>
+          )}
         </div>
       )}
 
