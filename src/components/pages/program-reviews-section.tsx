@@ -43,6 +43,7 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
   const [submitting, setSubmitting] = useState(false);
 
   // Form state
+  const [reviewerName, setReviewerName] = useState(displayName);
   const [testimonial, setTestimonial] = useState("");
   const [beforeImage, setBeforeImage] = useState("");
   const [afterImage, setAfterImage] = useState("");
@@ -51,6 +52,13 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
   const [afterFile, setAfterFile] = useState<File | null>(null);
   const [beforeProgress, setBeforeProgress] = useState<number | null>(null);
   const [afterProgress, setAfterProgress] = useState<number | null>(null);
+
+  // Keep reviewerName synced with user state unless customized
+  useEffect(() => {
+    if (rawName && (!reviewerName || reviewerName === "Valued Member")) {
+      setReviewerName(rawName.trim());
+    }
+  }, [rawName]);
 
   const INITIAL_REVIEW_LIMIT = 6; // 2 rows of 3 reviews
   const REVIEW_BATCH_SIZE = 6;     // batch size for load more
@@ -150,10 +158,12 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
         toast.dismiss("uploading-review-photos");
       }
 
+      const finalReviewerName = (reviewerName.trim() || displayName || "Valued Member").trim();
+
       const res = await fetch("/api/reviews", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ programId, name: displayName, testimonial, beforeImage: finalBeforeUrl, afterImage: finalAfterUrl, rating }),
+        body: JSON.stringify({ programId, name: finalReviewerName, testimonial, beforeImage: finalBeforeUrl, afterImage: finalAfterUrl, rating }),
       });
 
       const json = await res.json().catch(() => ({}));
@@ -161,7 +171,7 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
       if (res.ok) {
         const newReview: Review = json?.data || {
           id: `local-${Date.now()}`,
-          name: displayName,
+          name: finalReviewerName,
           testimonial,
           before_image: finalBeforeUrl || null,
           after_image: finalAfterUrl || null,
@@ -343,13 +353,27 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
               <div className="mb-4 sm:mb-6 pr-8">
                 <h3 className="font-display text-xl sm:text-2xl font-semibold text-charcoal mb-1">Write a Review</h3>
                 <p className="text-charcoal/80 text-xs sm:text-sm font-medium">
-                  Hi {firstName}! How has your experience been with this program?
+                  Hi {reviewerName ? reviewerName.trim().split(' ')[0] : firstName}! How has your experience been with this program?
                 </p>
               </div>
               
               <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 text-left">
                 {/* Left Column: Form Details */}
                 <div className="space-y-3.5 sm:space-y-4">
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-charcoal/80 mb-1">
+                      Your Name
+                    </label>
+                    <input 
+                      type="text" 
+                      value={reviewerName} 
+                      onChange={e => setReviewerName(e.target.value)} 
+                      required 
+                      placeholder="Enter your name" 
+                      className="w-full px-3.5 py-2 text-sm rounded-md border border-beige-200 focus:border-[#8C6D40] focus:ring-1 focus:ring-[#8C6D40] outline-none transition-colors" 
+                    />
+                  </div>
+
                   <div>
                     <label className="block text-xs sm:text-sm font-medium text-charcoal/80 mb-1.5">Rating</label>
                     <div className="flex gap-1.5 sm:gap-2">
@@ -372,7 +396,7 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
                       value={testimonial} 
                       onChange={e => setTestimonial(e.target.value)} 
                       required 
-                      rows={4} 
+                      rows={3} 
                       className="w-full px-3.5 py-2.5 text-sm rounded-md border border-beige-200 focus:border-[#8C6D40] focus:ring-1 focus:ring-[#8C6D40] outline-none transition-colors resize-none" 
                       placeholder="Tell us what you loved about this program, the transformation you experienced, or how it helped your health..." 
                     />
