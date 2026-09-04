@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, X, Trash2, Video, Upload, Edit } from "lucide-react";
 import toast from "react-hot-toast";
-import { VideoCardSkeletonGrid } from "@/components/ui/skeleton";
+import { AdminVideoCardSkeletonGrid } from "@/components/ui/skeleton";
 import { uploadFile } from "@/lib/media-utils";
 import { MediaUploader } from "@/components/ui/media-uploader";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
@@ -265,7 +265,7 @@ export function VideoTestimonialsManager() {
     }
   };
 
-  if (loading) return <VideoCardSkeletonGrid count={6} />;
+  if (loading) return <AdminVideoCardSkeletonGrid count={6} />;
 
   return (
     <div>
@@ -280,7 +280,7 @@ export function VideoTestimonialsManager() {
       </div>
 
       {loading ? (
-        <VideoCardSkeletonGrid count={6} />
+        <AdminVideoCardSkeletonGrid count={6} />
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
           {videos.length === 0 ? (

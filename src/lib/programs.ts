@@ -49,3 +49,71 @@ export async function getProgramBySlug(slug: string): Promise<Program | undefine
   const searchSlug = slug.toLowerCase();
   return programs.find((p) => (p.slug || "").toLowerCase() === searchSlug || (p.id || "").toLowerCase() === searchSlug);
 }
+
+export async function getProgramReviews(programId: string, limit = 6): Promise<{ data: any[]; total: number }> {
+  try {
+    const supabase = publicSupabase;
+    let query = supabase
+      .from('reviews')
+      .select('*', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .eq('status', 'published');
+
+    if (programId) {
+      query = query.ilike('program_id', `%${programId}%`);
+    }
+
+    query = query.range(0, limit - 1);
+    const { data, error, count } = await query;
+    if (error) {
+      console.error("Error fetching program reviews:", error.message);
+      return { data: [], total: 0 };
+    }
+
+    const mapped = (data || []).map((r: any) => ({
+      ...r,
+      program_ids: typeof r.program_id === 'string'
+        ? r.program_id.split(',').map((s: string) => s.trim()).filter(Boolean)
+        : []
+    }));
+
+    return { data: mapped, total: count || 0 };
+  } catch (err) {
+    console.error("Error in getProgramReviews:", err);
+    return { data: [], total: 0 };
+  }
+}
+
+export async function getProgramVideos(programId: string, limit = 8): Promise<{ data: any[]; total: number }> {
+  try {
+    const supabase = publicSupabase;
+    let query = supabase
+      .from('video_testimonials')
+      .select('*', { count: 'exact' })
+      .order('created_at', { ascending: false });
+
+    if (programId) {
+      query = query.ilike('program_id', `%${programId}%`);
+    }
+
+    query = query.range(0, limit - 1);
+    const { data, error, count } = await query;
+    if (error) {
+      console.error("Error fetching program videos:", error.message);
+      return { data: [], total: 0 };
+    }
+
+    const mapped = (data || []).map((v: any) => ({
+      ...v,
+      program_ids: typeof v.program_id === 'string'
+        ? v.program_id.split(',').map((s: string) => s.trim()).filter(Boolean)
+        : []
+    }));
+
+    return { data: mapped, total: count || 0 };
+  } catch (err) {
+    console.error("Error in getProgramVideos:", err);
+    return { data: [], total: 0 };
+  }
+}
+

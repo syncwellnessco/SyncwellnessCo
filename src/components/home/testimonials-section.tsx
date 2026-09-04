@@ -26,13 +26,21 @@ export function TestimonialsSection() {
   ];
 
   useEffect(() => {
-    Promise.all([
+    Promise.allSettled([
       fetch("/api/reviews?featured=true&status=published&limit=10").then(res => res.json()),
       fetch("/api/programs").then(res => res.json())
-    ]).then(([revData, progData]) => {
-      const items = Array.isArray(revData) ? revData : (Array.isArray(revData?.data) ? revData.data : []);
-      setReviews(items);
-      setPrograms(Array.isArray(progData) ? progData : []);
+    ]).then(([revSettled, progSettled]) => {
+      if (revSettled.status === "fulfilled") {
+        const revData = revSettled.value;
+        const items = Array.isArray(revData) ? revData : (Array.isArray(revData?.data) ? revData.data : []);
+        setReviews(items);
+      }
+      if (progSettled.status === "fulfilled") {
+        const progData = progSettled.value;
+        setPrograms(Array.isArray(progData) ? progData : []);
+      }
+      setLoading(false);
+    }).catch(() => {
       setLoading(false);
     });
   }, []);

@@ -31,7 +31,6 @@ function TestimonialCardItem({
   programNames: string[];
   onClick: () => void;
 }) {
-  const [isLoaded, setIsLoaded] = useState(false);
   const optimizedUrl = video.video_url.includes("#t=")
     ? video.video_url
     : `${video.video_url}#t=0.001`;
@@ -43,38 +42,23 @@ function TestimonialCardItem({
       role="button"
       tabIndex={0}
     >
-      {/* Boneyard Skeleton Overlay while video loads */}
-      <div
-        className={cn(
-          "absolute inset-0 z-10 transition-opacity duration-500",
-          isLoaded ? "opacity-0 pointer-events-none" : "opacity-100"
-        )}
-      >
-        <VideoCardSkeleton className="h-full w-full rounded-none border-0 shadow-none" />
-      </div>
-
       <video
         src={optimizedUrl}
-        className={cn(
-          "w-full h-full object-cover transition-all duration-500 group-hover:scale-105",
-          isLoaded ? "opacity-80 group-hover:opacity-100" : "opacity-0"
-        )}
-        preload="auto"
+        className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105 opacity-90 group-hover:opacity-100"
+        preload="metadata"
         muted
         playsInline
-        onLoadedData={() => setIsLoaded(true)}
-        onCanPlay={() => setIsLoaded(true)}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
 
-      <div className={cn("absolute inset-0 flex items-center justify-center transition-opacity duration-300", !isLoaded && "opacity-0")}>
-        <div className="flex h-10 w-10 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-md shadow-lg transition-transform group-hover:scale-110 border border-white/30">
+      <div className="absolute inset-0 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+        <div className="flex h-10 w-10 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-white/20 backdrop-blur-md shadow-lg border border-white/30">
           <Play className="ml-0.5 sm:ml-1 h-4 w-4 sm:h-6 sm:w-6 fill-white text-white" />
         </div>
       </div>
 
-      <div className={cn("absolute bottom-0 inset-x-0 p-3 sm:p-5 z-10 transition-opacity duration-300", !isLoaded && "opacity-0")}>
+      <div className="absolute bottom-0 inset-x-0 p-3 sm:p-5 z-10">
         <div className="mb-1 sm:mb-1.5">
           <h4 className="text-white font-bold text-xs sm:text-base mb-0.5 leading-tight drop-shadow-md">
             {video.name}
@@ -126,11 +110,17 @@ export default function TestimonialsPage() {
     if (activeVideo) {
       setIsModalVideoReady(false);
       setShowCaption(true);
-      if (isPlaying) {
-        hideCaptionTimerRef.current = setTimeout(() => {
-          setShowCaption(false);
-        }, 1000);
-      }
+      setIsPlaying(true);
+    }
+  }, [activeVideo?.id]);
+
+  useEffect(() => {
+    if (activeVideo && isPlaying) {
+      hideCaptionTimerRef.current = setTimeout(() => {
+        setShowCaption(false);
+      }, 1200);
+    } else {
+      setShowCaption(true);
     }
     return () => {
       if (hideCaptionTimerRef.current) {
@@ -156,34 +146,46 @@ export default function TestimonialsPage() {
 
   useEffect(() => {
     // Initial fetch: 2 rows of videos (8) and 2 rows of reviews (6)
-    Promise.all([
+    Promise.allSettled([
       fetch(`/api/videos?limit=${INITIAL_VIDEO_LIMIT}&offset=0`).then((res) => res.json()),
       fetch(`/api/reviews?status=published&limit=${INITIAL_REVIEW_LIMIT}&offset=0`).then((res) => res.json()),
       fetch("/api/programs").then((res) => res.json()),
-    ]).then(([vidRes, revRes, progData]) => {
-      if (vidRes && typeof vidRes === "object" && "data" in vidRes) {
-        setVideos(vidRes.data || []);
-        setTotalVideos(vidRes.total || 0);
-        setHasMoreVideos(vidRes.hasMore ?? false);
-      } else {
-        setVideos(Array.isArray(vidRes) ? vidRes : []);
-        setTotalVideos(Array.isArray(vidRes) ? vidRes.length : 0);
-        setHasMoreVideos(false);
+    ]).then(([vidSettled, revSettled, progSettled]) => {
+      if (vidSettled.status === "fulfilled") {
+        const vidRes = vidSettled.value;
+        if (vidRes && typeof vidRes === "object" && "data" in vidRes) {
+          setVideos(vidRes.data || []);
+          setTotalVideos(vidRes.total || 0);
+          setHasMoreVideos(vidRes.hasMore ?? false);
+        } else {
+          setVideos(Array.isArray(vidRes) ? vidRes : []);
+          setTotalVideos(Array.isArray(vidRes) ? vidRes.length : 0);
+          setHasMoreVideos(false);
+        }
       }
       setVideoLoading(false);
 
-      if (revRes && typeof revRes === "object" && "data" in revRes) {
-        setReviews(revRes.data || []);
-        setTotalReviews(revRes.total || 0);
-        setHasMoreReviews(revRes.hasMore ?? false);
-      } else {
-        setReviews(Array.isArray(revRes) ? revRes : []);
-        setTotalReviews(Array.isArray(revRes) ? revRes.length : 0);
-        setHasMoreReviews(false);
+      if (revSettled.status === "fulfilled") {
+        const revRes = revSettled.value;
+        if (revRes && typeof revRes === "object" && "data" in revRes) {
+          setReviews(revRes.data || []);
+          setTotalReviews(revRes.total || 0);
+          setHasMoreReviews(revRes.hasMore ?? false);
+        } else {
+          setReviews(Array.isArray(revRes) ? revRes : []);
+          setTotalReviews(Array.isArray(revRes) ? revRes.length : 0);
+          setHasMoreReviews(false);
+        }
       }
       setReviewLoading(false);
 
-      setPrograms(Array.isArray(progData) ? progData : []);
+      if (progSettled.status === "fulfilled") {
+        const progData = progSettled.value;
+        setPrograms(Array.isArray(progData) ? progData : []);
+      }
+    }).catch(() => {
+      setVideoLoading(false);
+      setReviewLoading(false);
     });
   }, []);
 
@@ -548,21 +550,13 @@ export default function TestimonialsPage() {
                 className="relative w-full md:w-[320px] lg:w-[360px] bg-black shrink-0 aspect-[9/16] group cursor-pointer"
                 onClick={togglePlay}
               >
-                <div
-                  className={cn(
-                    "absolute inset-0 z-10 transition-opacity duration-500",
-                    isModalVideoReady ? "opacity-0 pointer-events-none" : "opacity-100"
-                  )}
-                >
-                  <VideoCardSkeleton className="h-full w-full rounded-none border-0 shadow-none" />
-                </div>
-
                 <video 
                   ref={videoRef}
                   src={activeVideo.video_url.includes("#t=") ? activeVideo.video_url : `${activeVideo.video_url}#t=0.001`} 
                   autoPlay 
                   playsInline
                   preload="auto"
+                  onLoadedMetadata={() => setIsModalVideoReady(true)}
                   onLoadedData={() => setIsModalVideoReady(true)}
                   onCanPlay={() => setIsModalVideoReady(true)}
                   onPlaying={() => {
@@ -571,10 +565,7 @@ export default function TestimonialsPage() {
                   }}
                   onEnded={() => setIsPlaying(false)}
                   onPause={() => setIsPlaying(false)}
-                  className={cn(
-                    "absolute inset-0 w-full h-full object-cover cursor-pointer transition-opacity duration-300",
-                    isModalVideoReady ? "opacity-100" : "opacity-0"
-                  )}
+                  className="absolute inset-0 w-full h-full object-cover cursor-pointer"
                 />
                 
                 {/* Desktop controls */}

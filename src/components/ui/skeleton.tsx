@@ -350,6 +350,50 @@ export function VideoCardSkeletonGrid({ count = 8 }: { count?: number }) {
 }
 
 /**
+ * Admin Video Card Skeleton matching admin video testimonials manager grid & cards
+ */
+export function AdminVideoCardSkeleton({ className }: { className?: string }) {
+  return (
+    <div
+      className={cn(
+        "bg-white border border-[#EBE3DB] rounded-lg overflow-hidden shadow-sm flex flex-col animate-pulse",
+        className
+      )}
+    >
+      <div className="aspect-[9/16] bg-[#1E2325] relative overflow-hidden flex items-center justify-center">
+        <div className="h-8 w-8 rounded-full bg-white/20 border border-white/30 backdrop-blur-sm" />
+      </div>
+      <div className="p-3 flex-1 flex flex-col justify-between space-y-2">
+        <div className="space-y-1.5">
+          <Skeleton className="h-4 w-3/4 bg-charcoal/20 rounded" />
+          <Skeleton className="h-3 w-1/2 bg-[#8C6D40]/20 rounded" />
+          <Skeleton className="h-3 w-full bg-[#EBE3DB]" />
+          <Skeleton className="h-3 w-4/5 bg-[#EBE3DB]" />
+        </div>
+        <Skeleton className="h-2.5 w-16 bg-[#EBE3DB]/60" />
+      </div>
+      <div className="bg-[#FAF8F5] border-t border-[#EBE3DB] flex items-center justify-between px-2.5 py-2">
+        <Skeleton className="h-4 w-16 bg-[#EBE3DB]" />
+        <div className="flex items-center gap-1.5">
+          <Skeleton className="h-5 w-5 rounded bg-[#EBE3DB]" />
+          <Skeleton className="h-5 w-5 rounded bg-[#EBE3DB]" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function AdminVideoCardSkeletonGrid({ count = 6 }: { count?: number }) {
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+      {Array.from({ length: count }).map((_, i) => (
+        <AdminVideoCardSkeleton key={i} />
+      ))}
+    </div>
+  );
+}
+
+/**
  * Written Review Card Skeleton
  */
 export function ReviewCardSkeleton({ className }: { className?: string }) {

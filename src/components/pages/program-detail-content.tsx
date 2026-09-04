@@ -20,12 +20,18 @@ type ProgramDetailContentProps = {
 };
 
 export async function ProgramDetailContent({ slug }: ProgramDetailContentProps) {
-  const { getProgramBySlug } = await import("@/lib/programs");
+  const { getProgramBySlug, getProgramReviews, getProgramVideos } = await import("@/lib/programs");
   const program = await getProgramBySlug(slug);
 
   if (!program || program.status !== "published") {
     notFound();
   }
+
+  // Fetch reviews and videos concurrently on the server for instant client rendering
+  const [reviewsResult, videosResult] = await Promise.all([
+    getProgramReviews(program.id, 6),
+    getProgramVideos(program.id, 8),
+  ]);
 
   const listPrice = program.pricing?.price ? Number(program.pricing.price) : null;
   const salePrice = program.pricing?.salePrice ? Number(program.pricing.salePrice) : null;
@@ -274,10 +280,19 @@ export async function ProgramDetailContent({ slug }: ProgramDetailContentProps) 
       )}
 
       {/* Program Reviews */}
-      <ProgramReviewsSection programId={program.id} />
+      <ProgramReviewsSection 
+        programId={program.id} 
+        initialReviews={reviewsResult.data} 
+        initialTotal={reviewsResult.total} 
+      />
 
       {/* Program Video Testimonials */}
-      <ProgramVideoTestimonials programId={program.id} programTitle={program.title} />
+      <ProgramVideoTestimonials 
+        programId={program.id} 
+        programTitle={program.title} 
+        initialVideos={videosResult.data} 
+        initialTotal={videosResult.total} 
+      />
 
       {/* Final CTA */}
       <section className="py-10 sm:py-14 lg:py-16 bg-[#EBE3DB]/40 text-center">

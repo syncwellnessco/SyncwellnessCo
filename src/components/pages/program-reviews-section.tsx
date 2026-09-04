@@ -25,17 +25,25 @@ const ReviewPhotoUploader = ({ label, onSelectFile, onRemove, value, progress }:
   />
 );
 
-export function ProgramReviewsSection({ programId }: { programId: string }) {
+export function ProgramReviewsSection({
+  programId,
+  initialReviews,
+  initialTotal,
+}: {
+  programId: string;
+  initialReviews?: Review[];
+  initialTotal?: number;
+}) {
   const { user } = useUserStore();
   const { submittedReviews, addReview } = useReviewStore();
   const rawName = user?.user_metadata?.full_name || user?.user_metadata?.name || (user?.email ? user.email.split('@')[0] : "");
   const displayName = rawName ? rawName.trim() : "Valued Member";
   const firstName = displayName.split(' ')[0];
 
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [totalReviews, setTotalReviews] = useState(0);
-  const [hasMoreReviews, setHasMoreReviews] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [reviews, setReviews] = useState<Review[]>(initialReviews || []);
+  const [totalReviews, setTotalReviews] = useState(initialTotal ?? (initialReviews ? initialReviews.length : 0));
+  const [hasMoreReviews, setHasMoreReviews] = useState((initialReviews?.length || 0) < (initialTotal ?? 0));
+  const [loading, setLoading] = useState(initialReviews === undefined);
   const [loadingMoreReviews, setLoadingMoreReviews] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -70,6 +78,7 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
   ];
 
   useEffect(() => {
+    if (initialReviews !== undefined) return;
     setLoading(true);
     fetch(`/api/reviews?programId=${programId}&status=published&limit=${INITIAL_REVIEW_LIMIT}&offset=0`)
       .then((res) => res.json())
@@ -86,7 +95,7 @@ export function ProgramReviewsSection({ programId }: { programId: string }) {
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, [programId]);
+  }, [programId, initialReviews]);
 
   useEffect(() => {
     if (activeReview || isModalOpen) {

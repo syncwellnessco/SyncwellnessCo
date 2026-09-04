@@ -21,6 +21,8 @@ interface VideoTestimonial {
 interface ProgramVideoTestimonialsProps {
   programId: string;
   programTitle: string;
+  initialVideos?: VideoTestimonial[];
+  initialTotal?: number;
 }
 
 function ProgramVideoCard({
@@ -32,9 +34,6 @@ function ProgramVideoCard({
   programTitle: string;
   onClick: () => void;
 }) {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-
   const optimizedUrl = video.video_url.includes("#t=")
     ? video.video_url
     : `${video.video_url}#t=0.001`;
@@ -46,49 +45,23 @@ function ProgramVideoCard({
       role="button"
       tabIndex={0}
     >
-      {/* Boneyard Skeleton Overlay while video is loading/buffering */}
-      <div
-        className={cn(
-          "absolute inset-0 z-10 transition-opacity duration-500",
-          isLoaded ? "opacity-0 pointer-events-none" : "opacity-100"
-        )}
-      >
-        <VideoCardSkeleton className="h-full w-full rounded-none border-0 shadow-none" />
-      </div>
-
       <video
-        ref={videoRef}
         src={optimizedUrl}
-        preload="auto"
+        className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105 opacity-90 group-hover:opacity-100"
+        preload="metadata"
         muted
         playsInline
-        onLoadedData={() => setIsLoaded(true)}
-        onCanPlay={() => setIsLoaded(true)}
-        className={cn(
-          "w-full h-full object-cover transition-all duration-500 group-hover:scale-105",
-          isLoaded ? "opacity-80 group-hover:opacity-100" : "opacity-0"
-        )}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
 
-      <div
-        className={cn(
-          "absolute inset-0 flex items-center justify-center transition-opacity duration-300",
-          !isLoaded && "opacity-0"
-        )}
-      >
-        <div className="flex h-10 w-10 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-md shadow-lg transition-transform group-hover:scale-110 border border-white/30">
-          <Play className="ml-0.5 sm:ml-1 h-4 w-4 sm:h-6 sm:w-6 fill-white text-white" />
+      <div className="absolute inset-0 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+        <div className="flex h-10 w-10 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-white/20 backdrop-blur-md shadow-lg border border-white/30">
+          <Play className="ml-0.5 sm:ml-1 h-4 w-4 sm:h-5 sm:w-5 fill-white text-white" />
         </div>
       </div>
 
-      <div
-        className={cn(
-          "absolute bottom-0 inset-x-0 p-3 sm:p-5 z-10 transition-opacity duration-300",
-          !isLoaded && "opacity-0"
-        )}
-      >
+      <div className="absolute bottom-0 inset-x-0 p-3 sm:p-5 z-10">
         <div className="mb-1 sm:mb-1.5">
           <h4 className="text-white font-bold text-xs sm:text-base mb-0.5 leading-tight drop-shadow-md">
             {video.name}
@@ -105,11 +78,11 @@ function ProgramVideoCard({
   );
 }
 
-export function ProgramVideoTestimonials({ programId, programTitle }: ProgramVideoTestimonialsProps) {
-  const [videos, setVideos] = useState<VideoTestimonial[]>([]);
-  const [totalVideos, setTotalVideos] = useState(0);
-  const [hasMoreVideos, setHasMoreVideos] = useState(false);
-  const [loading, setLoading] = useState(true);
+export function ProgramVideoTestimonials({ programId, programTitle, initialVideos, initialTotal }: ProgramVideoTestimonialsProps) {
+  const [videos, setVideos] = useState<VideoTestimonial[]>(initialVideos || []);
+  const [totalVideos, setTotalVideos] = useState(initialTotal ?? (initialVideos ? initialVideos.length : 0));
+  const [hasMoreVideos, setHasMoreVideos] = useState((initialVideos?.length || 0) < (initialTotal ?? 0));
+  const [loading, setLoading] = useState(initialVideos === undefined);
   const [loadingMoreVideos, setLoadingMoreVideos] = useState(false);
 
   const [activeVideo, setActiveVideo] = useState<VideoTestimonial | null>(null);
@@ -127,11 +100,17 @@ export function ProgramVideoTestimonials({ programId, programTitle }: ProgramVid
     if (activeVideo) {
       setIsModalVideoReady(false);
       setShowCaption(true);
-      if (isPlaying) {
-        hideCaptionTimerRef.current = setTimeout(() => {
-          setShowCaption(false);
-        }, 1000);
-      }
+      setIsPlaying(true);
+    }
+  }, [activeVideo?.id]);
+
+  useEffect(() => {
+    if (activeVideo && isPlaying) {
+      hideCaptionTimerRef.current = setTimeout(() => {
+        setShowCaption(false);
+      }, 1200);
+    } else {
+      setShowCaption(true);
     }
     return () => {
       if (hideCaptionTimerRef.current) {
@@ -141,6 +120,7 @@ export function ProgramVideoTestimonials({ programId, programTitle }: ProgramVid
   }, [activeVideo, isPlaying]);
 
   useEffect(() => {
+    if (initialVideos !== undefined) return;
     setLoading(true);
     fetch(`/api/videos?program_id=${programId}&limit=${INITIAL_VIDEO_LIMIT}&offset=0`)
       .then((res) => res.json())
@@ -160,7 +140,7 @@ export function ProgramVideoTestimonials({ programId, programTitle }: ProgramVid
         console.error("Error fetching program video testimonials:", err);
         setLoading(false);
       });
-  }, [programId]);
+  }, [programId, initialVideos]);
 
   const handleLoadMoreVideos = async () => {
     if (loadingMoreVideos) return;
@@ -284,21 +264,13 @@ export function ProgramVideoTestimonials({ programId, programTitle }: ProgramVid
                 className="relative w-full md:w-[320px] lg:w-[360px] bg-black shrink-0 aspect-[9/16] group cursor-pointer"
                 onClick={togglePlay}
               >
-                <div
-                  className={cn(
-                    "absolute inset-0 z-10 transition-opacity duration-500",
-                    isModalVideoReady ? "opacity-0 pointer-events-none" : "opacity-100"
-                  )}
-                >
-                  <VideoCardSkeleton className="h-full w-full rounded-none border-0 shadow-none" />
-                </div>
-
                 <video
                   ref={videoRef}
                   src={activeVideo.video_url.includes("#t=") ? activeVideo.video_url : `${activeVideo.video_url}#t=0.001`}
                   autoPlay
                   playsInline
                   preload="auto"
+                  onLoadedMetadata={() => setIsModalVideoReady(true)}
                   onLoadedData={() => setIsModalVideoReady(true)}
                   onCanPlay={() => setIsModalVideoReady(true)}
                   onPlaying={() => {
@@ -307,10 +279,7 @@ export function ProgramVideoTestimonials({ programId, programTitle }: ProgramVid
                   }}
                   onEnded={() => setIsPlaying(false)}
                   onPause={() => setIsPlaying(false)}
-                  className={cn(
-                    "absolute inset-0 w-full h-full object-cover cursor-pointer transition-opacity duration-300",
-                    isModalVideoReady ? "opacity-100" : "opacity-0"
-                  )}
+                  className="absolute inset-0 w-full h-full object-cover cursor-pointer"
                 />
 
                 {/* Desktop controls */}

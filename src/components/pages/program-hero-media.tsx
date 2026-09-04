@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Play, Pause, Volume2, VolumeX, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -22,6 +23,7 @@ export function ProgramHeroMedia({
   linkHref,
 }: ProgramHeroMediaProps) {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -30,6 +32,10 @@ export function ProgramHeroMedia({
   const [isModalVideoReady, setIsModalVideoReady] = useState(false);
   const [activeModal, setActiveModal] = useState<'video' | 'image' | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Optimized video URL with keyframe fragment for immediate browser decoding
   const optimizedVideoUrl = videoUrl
@@ -52,6 +58,17 @@ export function ProgramHeroMedia({
         setIsMuted(true);
       }
       document.body.style.overflow = "hidden";
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+          setActiveModal(null);
+        }
+      };
+      window.addEventListener("keydown", handleKeyDown);
+      return () => {
+        document.body.style.overflow = "";
+        window.removeEventListener("keydown", handleKeyDown);
+      };
     } else {
       document.body.style.overflow = "";
     }
@@ -117,16 +134,6 @@ export function ProgramHeroMedia({
           )}
           onClick={handleContainerClick}
         >
-          {/* Boneyard Skeleton Loader while video loads */}
-          <div
-            className={cn(
-              "absolute inset-0 z-10 transition-opacity duration-500",
-              isVideoReady ? "opacity-0 pointer-events-none" : "opacity-100"
-            )}
-          >
-            <VideoHeroSkeleton className="rounded-none border-0 shadow-none h-full w-full" />
-          </div>
-
           <video 
             ref={videoRef}
             autoPlay 
@@ -134,6 +141,10 @@ export function ProgramHeroMedia({
             loop 
             playsInline 
             preload="auto"
+            onLoadedMetadata={(e) => {
+              setIsVideoReady(true);
+              setDuration(e.currentTarget.duration || 0);
+            }}
             onLoadedData={() => setIsVideoReady(true)}
             onCanPlay={() => setIsVideoReady(true)}
             onPlaying={() => {
@@ -145,13 +156,9 @@ export function ProgramHeroMedia({
               setCurrentTime(e.currentTarget.currentTime);
             }}
             onDurationChange={(e) => setDuration(e.currentTarget.duration || 0)}
-            onLoadedMetadata={(e) => setDuration(e.currentTarget.duration || 0)}
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
-            className={cn(
-              "absolute inset-0 h-full w-full object-cover transition-all duration-700 group-hover:scale-105",
-              isVideoReady ? "opacity-100" : "opacity-0"
-            )}
+            className="absolute inset-0 h-full w-full object-cover transition-all duration-700 group-hover:scale-105"
             src={optimizedVideoUrl} 
           />
 
@@ -159,7 +166,6 @@ export function ProgramHeroMedia({
           <div 
             className={cn(
               "absolute inset-0 flex items-center justify-center transition-all duration-300 z-20",
-              !isVideoReady && "hidden",
               isPlaying 
                 ? "opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto" 
                 : "opacity-100 pointer-events-auto"
@@ -180,7 +186,7 @@ export function ProgramHeroMedia({
           </div>
 
           {/* Mute / Unmute Button at Top Right */}
-          <div className={cn("absolute top-4 right-4 z-20 transition-opacity duration-300", !isVideoReady && "opacity-0 pointer-events-none")}>
+          <div className="absolute top-4 right-4 z-20 transition-opacity duration-300">
             <button 
               type="button"
               onClick={handleMuteUnmute}
@@ -194,10 +200,7 @@ export function ProgramHeroMedia({
           {/* Bottom Seekbar */}
           <div 
             onClick={(e) => e.stopPropagation()} 
-            className={cn(
-              "absolute bottom-0 left-0 right-0 z-20 px-4 pb-3 opacity-90 hover:opacity-100 transition-all duration-300",
-              !isVideoReady && "opacity-0 pointer-events-none"
-            )}
+            className="absolute bottom-0 left-0 right-0 z-20 px-4 pb-3 opacity-90 hover:opacity-100 transition-all duration-300"
           >
             <input
               type="range"
@@ -227,53 +230,44 @@ export function ProgramHeroMedia({
         </div>
       )}
 
-      {/* Lightbox Video / Image Modal */}
-      {activeModal && (
+      {/* Lightbox Video / Image Modal rendered in Portal for perfect full screen & high z-index */}
+      {activeModal && mounted && createPortal(
         <div 
-          className="fixed inset-0 z-[200] flex items-center justify-center pt-20 sm:pt-24 pb-6 sm:pb-8 px-4 sm:px-6 bg-charcoal/95 backdrop-blur-md animate-in fade-in duration-200"
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6 bg-black/90 backdrop-blur-md animate-in fade-in duration-200 overflow-hidden"
           onClick={() => setActiveModal(null)}
         >
+          {/* Minimal Mobile-Only Exit Button */}
           <button 
             type="button"
             onClick={() => setActiveModal(null)}
-            className="absolute top-4 right-4 sm:top-6 sm:right-6 text-white hover:text-gray-300 transition-colors p-2.5 z-[210] bg-charcoal/60 hover:bg-charcoal/90 rounded-full cursor-pointer border border-white/10 shadow-lg"
+            className="md:hidden absolute top-3 right-3 text-white/70 hover:text-white p-1.5 z-[10000] bg-black/40 hover:bg-black/60 rounded-none cursor-pointer border border-white/10 backdrop-blur-sm active:scale-95 flex items-center justify-center transition-colors"
             aria-label="Close modal"
           >
-            <X className="w-6 h-6 sm:w-8 sm:h-8" />
+            <X className="w-4 h-4" />
           </button>
           
           <div 
-            className="relative z-[205] max-h-[75vh] sm:max-h-[80vh] max-w-[95vw] sm:max-w-[90vw] rounded-2xl overflow-hidden shadow-2xl bg-black flex items-center justify-center border border-white/10 my-auto min-w-[280px] min-h-[360px]"
+            className="relative z-[9999] max-h-[85vh] sm:max-h-[90vh] max-w-[95vw] sm:max-w-[85vw] rounded-2xl overflow-hidden shadow-2xl bg-black flex items-center justify-center border border-white/15 my-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {activeModal === 'video' && videoUrl && (
               <>
-                <div
-                  className={cn(
-                    "absolute inset-0 z-10 transition-opacity duration-500",
-                    isModalVideoReady ? "opacity-0 pointer-events-none" : "opacity-100"
-                  )}
-                >
-                  <VideoHeroSkeleton className="rounded-none border-0 shadow-none h-full w-full" />
-                </div>
                 <video 
                   autoPlay 
                   controls 
                   playsInline
                   preload="auto"
-                  onLoadedData={() => setIsModalVideoReady(true)}
-                  onCanPlay={() => setIsModalVideoReady(true)}
-                  onPlaying={() => setIsModalVideoReady(true)}
-                  className={cn(
-                    "max-h-[75vh] sm:max-h-[80vh] max-w-[95vw] sm:max-w-[90vw] w-auto h-auto rounded-2xl object-contain transition-opacity duration-300",
-                    isModalVideoReady ? "opacity-100" : "opacity-0"
-                  )} 
-                  src={optimizedVideoUrl} 
                   onLoadedMetadata={(e) => {
+                    setIsModalVideoReady(true);
                     if (currentTime > 0 && currentTime < (duration || 9999)) {
                       e.currentTarget.currentTime = currentTime;
                     }
                   }}
+                  onLoadedData={() => setIsModalVideoReady(true)}
+                  onCanPlay={() => setIsModalVideoReady(true)}
+                  onPlaying={() => setIsModalVideoReady(true)}
+                  className="max-h-[85vh] sm:max-h-[90vh] max-w-[95vw] sm:max-w-[85vw] w-auto h-auto rounded-2xl object-contain"
+                  src={optimizedVideoUrl} 
                 />
               </>
             )}
@@ -282,11 +276,12 @@ export function ProgramHeroMedia({
               <img 
                 src={imageUrl} 
                 alt={title} 
-                className="max-h-[75vh] sm:max-h-[80vh] max-w-[95vw] sm:max-w-[90vw] w-auto h-auto rounded-2xl object-contain" 
+                className="max-h-[85vh] sm:max-h-[90vh] max-w-[95vw] sm:max-w-[85vw] w-auto h-auto rounded-2xl object-contain" 
               />
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
