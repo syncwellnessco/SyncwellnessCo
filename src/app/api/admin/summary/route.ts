@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServiceSupabase, createClient } from "@/lib/supabase-server";
+import { getMediaStorageStats } from "@/lib/r2";
 
 export async function GET() {
   try {
@@ -11,7 +12,7 @@ export async function GET() {
 
     const supabase = getServiceSupabase();
 
-    // Parallel count & limit queries
+    // Parallel count, limit queries & media storage stats
     const [
       enquiriesCountRes,
       ebooksCountRes,
@@ -20,7 +21,8 @@ export async function GET() {
       purchasesCountRes,
       recentPurchasesRes,
       recentEnquiriesRes,
-      recentEbooksRes
+      recentEbooksRes,
+      mediaStorageStats
     ] = await Promise.all([
       // Counts
       supabase.from("enquiries").select("id", { count: "exact", head: true }).eq("status", "new"),
@@ -34,7 +36,10 @@ export async function GET() {
       // Top 4 recent lists
       supabase.from("purchases").select("*").order("created_at", { ascending: false }).limit(4),
       supabase.from("contact_enquiries").select("*").eq("status", "new").order("created_at", { ascending: false }).limit(4),
-      supabase.from("ebook_requests").select("*").eq("status", "pending").order("created_at", { ascending: false }).limit(4)
+      supabase.from("ebook_requests").select("*").eq("status", "pending").order("created_at", { ascending: false }).limit(4),
+
+      // Cloudflare R2 Media Storage Stats
+      getMediaStorageStats()
     ]);
 
     const enquiriesCount = enquiriesCountRes.count || 0;
@@ -53,6 +58,7 @@ export async function GET() {
         reviews: pendingReviewsCount,
         revenue: totalRevenue
       },
+      mediaStorage: mediaStorageStats,
       recent: {
         purchases: (recentPurchasesRes.data || []).map((p: any) => ({
           id: p.id,
@@ -80,3 +86,4 @@ export async function GET() {
     return NextResponse.json({ error: "Failed to generate admin summary data" }, { status: 500 });
   }
 }
+

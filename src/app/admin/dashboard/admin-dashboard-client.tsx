@@ -49,6 +49,10 @@ const ResourcesManager = dynamic(() => import("./resources-manager").then(m => m
   loading: LoadingFallback,
   ssr: false
 });
+const MediaManager = dynamic(() => import("./media-manager").then(m => m.MediaManager), {
+  loading: LoadingFallback,
+  ssr: false
+});
 
 export function AdminDashboardClient() {
   const searchParams = useSearchParams();
@@ -70,6 +74,7 @@ export function AdminDashboardClient() {
         {activeTab === "programs" && <ProgramsManager />}
         {activeTab === "testimonials" && <TestimonialsManager />}
         {(activeTab === "resources" || activeTab === "blogs") && <ResourcesManager />}
+        {activeTab === "media" && <MediaManager />}
       </div>
     </div>
   );

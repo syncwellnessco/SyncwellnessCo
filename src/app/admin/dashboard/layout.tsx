@@ -3,7 +3,7 @@
 import { ReactNode, useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { BookOpen, Calendar, LayoutDashboard, MessageSquare, ExternalLink, CreditCard, ClipboardList, LogOut } from "lucide-react";
+import { BookOpen, Calendar, LayoutDashboard, MessageSquare, ExternalLink, CreditCard, ClipboardList, LogOut, HardDrive } from "lucide-react";
 import { useUserStore } from "@/store/user-store";
 import { Spinner } from "@/components/ui/spinner";
 import { AdminPresence } from "@/components/admin/AdminPresence";
@@ -18,6 +18,7 @@ const navItems = [
   { label: "Programs", tab: "programs", href: "/admin/dashboard?tab=programs", icon: Calendar },
   { label: "Resources", tab: "resources", href: "/admin/dashboard?tab=resources", icon: BookOpen, altTabs: ["blogs"] },
   { label: "Testimonials", tab: "testimonials", href: "/admin/dashboard?tab=testimonials", icon: MessageSquare },
+  { label: "Media Storage", tab: "media", href: "/admin/dashboard?tab=media", icon: HardDrive },
 ];
 
 function AdminSidebarNav() {
