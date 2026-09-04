@@ -1,21 +1,33 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { aboutContent, brandContent } from "@/data/about-content";
-import { IMAGES } from "@/data/media";
 import { Play, Pause, Volume2, VolumeX, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export function AboutPageContent() {
-  const coachImageSrc = IMAGES.aboutPageProfile;
-  const coachVideoSrc = "/videos/about.mp4";
+  const coachVideoSrc = "/videos/about.mp4#t=0.001";
 
+  const [mounted, setMounted] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [isVideoReady, setIsVideoReady] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (videoRef.current && videoRef.current.readyState >= 1) {
+      setIsVideoReady(true);
+    }
+  }, []);
 
   useEffect(() => {
     if (isModalOpen) {
@@ -25,6 +37,17 @@ export function AboutPageContent() {
         setIsMuted(true);
       }
       document.body.style.overflow = "hidden";
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+          setIsModalOpen(false);
+        }
+      };
+      window.addEventListener("keydown", handleKeyDown);
+      return () => {
+        document.body.style.overflow = "";
+        window.removeEventListener("keydown", handleKeyDown);
+      };
     } else {
       document.body.style.overflow = "";
     }
@@ -86,8 +109,20 @@ export function AboutPageContent() {
       <section className="px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto mb-8 sm:mb-12">
         <div 
           onClick={() => setIsModalOpen(true)}
-          className="relative aspect-[16/10] sm:aspect-[16/9] min-h-[320px] sm:min-h-[440px] w-full rounded-2xl overflow-hidden bg-charcoal shadow-2xl border border-beige-200 group select-none cursor-pointer"
+          className="relative aspect-[16/10] sm:aspect-[16/9] min-h-[320px] sm:min-h-[440px] w-full rounded-2xl overflow-hidden bg-[#1A1F21] shadow-2xl border border-beige-200 group select-none cursor-pointer"
         >
+          {/* Smooth skeleton loader while video metadata is loading */}
+          <div
+            className={cn(
+              "absolute inset-0 z-10 transition-opacity duration-500 bg-[#1E2325] flex items-center justify-center",
+              isVideoReady ? "opacity-0 pointer-events-none" : "opacity-100 animate-pulse"
+            )}
+          >
+            <div className="h-14 w-14 rounded-full bg-white/10 border border-white/20 flex items-center justify-center shadow-lg">
+              <div className="h-5 w-5 rounded-full bg-[#8C6D40]/50" />
+            </div>
+          </div>
+
           <video
             ref={videoRef}
             className="w-full h-full object-cover"
@@ -95,25 +130,35 @@ export function AboutPageContent() {
             muted={isMuted || isModalOpen}
             loop
             playsInline
-            preload="metadata"
-            poster={coachImageSrc}
-            onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
+            preload="auto"
+            onLoadedMetadata={(e) => {
+              setIsVideoReady(true);
+              setDuration(e.currentTarget.duration || 0);
+            }}
+            onLoadedData={() => setIsVideoReady(true)}
+            onCanPlay={() => setIsVideoReady(true)}
+            onPlaying={() => {
+              setIsVideoReady(true);
+              setIsPlaying(true);
+            }}
+            onTimeUpdate={(e) => {
+              if (!isVideoReady) setIsVideoReady(true);
+              setCurrentTime(e.currentTarget.currentTime);
+            }}
             onDurationChange={(e) => setDuration(e.currentTarget.duration || 0)}
-            onLoadedMetadata={(e) => setDuration(e.currentTarget.duration || 0)}
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
-          >
-            <source src={coachVideoSrc} type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
+            src={coachVideoSrc}
+          />
 
           {/* Center Play/Pause Overlay - Visible when paused OR when hovered */}
           <div 
-            className={`absolute inset-0 flex items-center justify-center transition-all duration-300 z-10 ${
+            className={cn(
+              "absolute inset-0 flex items-center justify-center transition-all duration-300 z-20",
               isPlaying 
                 ? "opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto" 
                 : "opacity-100 pointer-events-auto"
-            }`}
+            )}
           >
             <button
               type="button"
@@ -134,7 +179,7 @@ export function AboutPageContent() {
             <button
               onClick={handleMuteUnmute}
               type="button"
-              className="p-2.5 rounded-full bg-white/15 hover:bg-white/25 border border-white/20 backdrop-blur-md shadow-lg text-white active:scale-95 cursor-pointer focus:outline-none flex items-center justify-center transition-all duration-300"
+              className="p-2.5 rounded-full bg-black/40 hover:bg-black/60 border border-white/20 backdrop-blur-md shadow-lg text-white active:scale-95 cursor-pointer focus:outline-none flex items-center justify-center transition-all duration-300"
               aria-label={isMuted ? "Unmute" : "Mute"}
             >
               {isMuted ? (
@@ -166,30 +211,31 @@ export function AboutPageContent() {
         </div>
       </section>
 
-      {/* Lightbox Video Modal */}
-      {isModalOpen && (
+      {/* Lightbox Video Modal (Portaled to body, centered, no scroll) */}
+      {isModalOpen && mounted && createPortal(
         <div 
-          className="fixed inset-0 z-[200] flex items-center justify-center pt-20 sm:pt-24 pb-6 sm:pb-8 px-4 sm:px-6 bg-charcoal/95 backdrop-blur-md animate-in fade-in duration-200"
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6 bg-black/90 backdrop-blur-md animate-in fade-in duration-200 overflow-hidden"
           onClick={() => setIsModalOpen(false)}
         >
+          {/* Minimal Mobile-Only Exit Button */}
           <button 
             type="button"
             onClick={() => setIsModalOpen(false)}
-            className="absolute top-4 right-4 sm:top-6 sm:right-6 text-white hover:text-gray-300 transition-colors p-2.5 z-[210] bg-charcoal/60 hover:bg-charcoal/90 rounded-full cursor-pointer border border-white/10 shadow-lg"
+            className="md:hidden absolute top-3 right-3 text-white/70 hover:text-white p-1.5 z-[10000] bg-black/40 hover:bg-black/60 rounded-none cursor-pointer border border-white/10 backdrop-blur-sm active:scale-95 flex items-center justify-center transition-colors"
             aria-label="Close video modal"
           >
-            <X className="w-6 h-6 sm:w-8 sm:h-8" />
+            <X className="w-4 h-4" />
           </button>
           
           <div 
-            className="relative z-[205] max-h-[75vh] sm:max-h-[80vh] max-w-[90vw] rounded-2xl overflow-hidden shadow-2xl bg-black flex items-center justify-center border border-white/10 my-auto"
+            className="relative z-[9999] max-h-[85vh] sm:max-h-[90vh] max-w-[95vw] sm:max-w-[85vw] rounded-2xl overflow-hidden shadow-2xl bg-black flex items-center justify-center border border-white/15 my-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <video 
               autoPlay 
               controls 
               playsInline
-              className="max-h-[75vh] sm:max-h-[80vh] max-w-[90vw] w-auto h-auto rounded-2xl object-contain" 
+              className="max-h-[85vh] sm:max-h-[90vh] max-w-[95vw] sm:max-w-[85vw] w-auto h-auto rounded-2xl object-contain" 
               src={coachVideoSrc} 
               onLoadedMetadata={(e) => {
                 if (currentTime > 0 && currentTime < (duration || 9999)) {
@@ -198,7 +244,8 @@ export function AboutPageContent() {
               }}
             />
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Story details */}
