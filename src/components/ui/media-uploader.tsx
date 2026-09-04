@@ -230,11 +230,11 @@ export function MediaUploader({
               <button
                 type="button"
                 onClick={handleCopyUrl}
-                className="bg-cream hover:bg-white text-charcoal text-xs font-semibold px-2.5 py-1.5 rounded shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
+                className="bg-cream hover:bg-white text-charcoal text-xs font-semibold p-1.5 rounded shadow-sm transition-all flex items-center justify-center cursor-pointer hover:text-[#8C6D40]"
                 title="Copy URL"
+                aria-label="Copy URL"
               >
                 <Copy className="h-3.5 w-3.5 text-[#8C6D40]" />
-                <span>Copy URL</span>
               </button>
             )}
 
