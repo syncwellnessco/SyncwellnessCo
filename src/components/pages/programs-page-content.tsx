@@ -147,6 +147,7 @@ export async function ProgramsPageContent() {
                 {program.hero?.bannerImage && (
                   <Link
                     href={`/programs/${program.slug || program.id}`}
+                    prefetch={true}
                     className="block relative w-full aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-lg mb-4 shadow-md border border-beige-100 cursor-pointer"
                   >
                     <Image
@@ -177,7 +178,7 @@ export async function ProgramsPageContent() {
                     {program.category || "Signature Program"}
                   </span>
                   
-                  <Link href={`/programs/${program.slug || program.id}`}>
+                  <Link href={`/programs/${program.slug || program.id}`} prefetch={true}>
                     <h3 className="font-display text-2xl sm:text-3xl lg:text-4xl font-medium text-charcoal mb-4 sm:mb-6 group-hover:text-[#8C6D40] transition-colors">
                       {program.title}
                     </h3>
@@ -207,7 +208,7 @@ export async function ProgramsPageContent() {
                       <ProgramPriceOverride program={program} />
                     </div>
                     <Button asChild variant="ghost" className="group/btn text-[#8C6D40] hover:text-[#B8955F] hover:bg-transparent px-0 font-semibold tracking-wide uppercase text-xs shrink-0">
-                      <Link href={`/programs/${program.slug || program.id}`} className="flex items-center whitespace-nowrap">
+                      <Link href={`/programs/${program.slug || program.id}`} prefetch={true} className="flex items-center whitespace-nowrap">
                         View Details
                         <ArrowRight className="ml-1.5 h-3.5 w-3.5 transition-transform group-hover/btn:translate-x-1" />
                       </Link>

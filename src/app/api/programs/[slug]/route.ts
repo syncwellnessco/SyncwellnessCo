@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase-server";
+import { invalidateProgramsCache } from "@/lib/programs";
 import type { Program } from "@/types/program";
 
 type RouteContext = { params: Promise<{ slug: string }> };
@@ -108,6 +109,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     if (error) throw error;
 
     try {
+      invalidateProgramsCache();
       revalidatePath("/programs");
       revalidatePath(`/programs/${slug}`);
       if (data && data[0]?.slug) {
@@ -141,6 +143,7 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
     if (error) throw error;
     
     try {
+      invalidateProgramsCache();
       revalidatePath("/programs");
       revalidatePath(`/programs/${slug}`);
       revalidatePath("/");

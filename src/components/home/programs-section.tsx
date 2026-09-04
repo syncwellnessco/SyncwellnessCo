@@ -134,6 +134,7 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
               {program.hero?.bannerImage && (
                 <Link
                   href={`/programs/${program.slug || program.id}`}
+                  prefetch={true}
                   className="block relative w-full aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-lg mb-4 shadow-md border border-beige-100 cursor-pointer"
                 >
                   <Image
@@ -153,7 +154,7 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
                   {program.category || "Signature Program"}
                 </span>
                 
-                <Link href={`/programs/${program.slug || program.id}`}>
+                <Link href={`/programs/${program.slug || program.id}`} prefetch={true}>
                   <h3 className="font-display text-2xl font-semibold text-charcoal sm:text-3xl mb-4 group-hover:text-[#8C6D40] transition-colors">
                     {program.title}
                   </h3>
@@ -175,7 +176,7 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
                     )}
                   </div>
                   <Button asChild variant="ghost" className="group/btn text-[#8C6D40] hover:text-[#B8955F] hover:bg-transparent px-0 font-bold uppercase tracking-wider text-xs">
-                    <Link href={`/programs/${program.slug || program.id}`}>
+                    <Link href={`/programs/${program.slug || program.id}`} prefetch={true}>
                       Explore
                       <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
                     </Link>

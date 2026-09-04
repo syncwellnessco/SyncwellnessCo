@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
@@ -13,6 +14,7 @@ interface InteractiveLinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElem
   variant?: VariantProps<typeof buttonVariants>["variant"] | "raw";
   size?: VariantProps<typeof buttonVariants>["size"];
   shimmerColor?: "light" | "dark";
+  prefetch?: boolean;
 }
 
 export function InteractiveLink({
@@ -23,60 +25,44 @@ export function InteractiveLink({
   size,
   shimmerColor,
   onClick,
+  prefetch = true,
   ...props
 }: InteractiveLinkProps) {
   const router = useRouter();
-  const [loading, setLoading] = React.useState(false);
 
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    // If it's a modifier click (e.g., cmd+click, middle click), let browser handle it
-    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
-      return;
+  const handleMouseEnter = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (props.onMouseEnter) props.onMouseEnter(e);
+    if (href && href.startsWith("/")) {
+      router.prefetch(href);
     }
+  };
 
-    e.preventDefault();
-    if (loading) return;
-
-    if (onClick) {
-      onClick(e);
+  const handleTouchStart = (e: React.TouchEvent<HTMLAnchorElement>) => {
+    if (props.onTouchStart) props.onTouchStart(e);
+    if (href && href.startsWith("/")) {
+      router.prefetch(href);
     }
-
-    setLoading(true);
-    router.push(href);
   };
 
   const isRaw = variant === "raw";
-  
-  // Decide shimmer color based on styling
-  const finalShimmerColor = shimmerColor 
-    ? shimmerColor 
-    : (variant === "ghost" || variant === "link" || isRaw) ? "dark" : "light";
 
   return (
-    <a
+    <Link
       href={href}
-      onClick={handleClick}
+      prefetch={prefetch}
+      onMouseEnter={handleMouseEnter}
+      onTouchStart={handleTouchStart}
+      onClick={onClick}
       className={cn(
         "relative overflow-hidden transition-all duration-300 select-none",
         !isRaw && buttonVariants({ variant, size }),
-        loading && "pointer-events-none opacity-80",
         className
       )}
       {...props}
     >
-      <span className={cn(
-        "inline-flex items-center justify-center w-full h-full gap-2 transition-opacity",
-        loading && "opacity-75"
-      )}>
+      <span className="inline-flex items-center justify-center w-full h-full gap-2">
         {children}
       </span>
-      {loading && (
-        <span 
-          className={cn(
-            finalShimmerColor === "light" ? "shimmer-bg-light" : "shimmer-bg-dark"
-          )} 
-        />
-      )}
-    </a>
+    </Link>
   );
 }

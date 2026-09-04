@@ -1,5 +1,15 @@
+import { cache } from "react";
 import { publicSupabase } from "@/lib/supabase-server";
 import type { Program } from "@/types/program";
+
+let cachedPrograms: Program[] | null = null;
+let lastProgramsFetch = 0;
+const CACHE_TTL_MS = 60 * 1000; // 1 minute in-memory cache
+
+export function invalidateProgramsCache() {
+  cachedPrograms = null;
+  lastProgramsFetch = 0;
+}
 
 function mapDbToProgram(row: any): Program {
   return {
@@ -12,45 +22,56 @@ function mapDbToProgram(row: any): Program {
   };
 }
 
-export async function getAllPrograms(options?: {
+export const getAllPrograms = cache(async function getAllPrograms(options?: {
   publishedOnly?: boolean;
 }): Promise<Program[]> {
   try {
-    const supabase = publicSupabase;
-    let query = supabase.from("programs").select("*").order("featured_rank", { ascending: true }).order("created_at", { ascending: false });
-    
+    const now = Date.now();
+    let programs = cachedPrograms;
+
+    if (!programs || now - lastProgramsFetch > CACHE_TTL_MS) {
+      const supabase = publicSupabase;
+      const { data, error } = await supabase
+        .from("programs")
+        .select("*")
+        .order("featured_rank", { ascending: true })
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Database error fetching programs:", error.message);
+        return cachedPrograms 
+          ? (options?.publishedOnly ? cachedPrograms.filter((p) => p.status === "published") : cachedPrograms)
+          : [];
+      }
+      
+      programs = (data || []).map(mapDbToProgram);
+      cachedPrograms = programs;
+      lastProgramsFetch = now;
+    }
+
     if (options?.publishedOnly) {
-      query = query.eq("status", "published");
+      return programs.filter((p) => p.status === "published");
     }
 
-    const { data, error } = await query;
-
-    if (error) {
-      console.error("Database error fetching programs:", error.message);
-      return [];
-    }
-    
-    if (!data) return [];
-
-    return data.map(mapDbToProgram);
+    return programs;
   } catch (err) {
     console.error("Error fetching programs from Supabase:", err);
-    return [];
+    return cachedPrograms || [];
   }
-}
+});
 
-export async function getProgram(id: string): Promise<Program | undefined> {
+export const getProgram = cache(async function getProgram(id: string): Promise<Program | undefined> {
   const programs = await getAllPrograms();
   return programs.find((p) => p.id === id);
-}
+});
 
-export async function getProgramBySlug(slug: string): Promise<Program | undefined> {
+export const getProgramBySlug = cache(async function getProgramBySlug(slug: string): Promise<Program | undefined> {
   const programs = await getAllPrograms();
-  const searchSlug = slug.toLowerCase();
+  const searchSlug = (slug || "").toLowerCase();
   return programs.find((p) => (p.slug || "").toLowerCase() === searchSlug || (p.id || "").toLowerCase() === searchSlug);
-}
+});
 
-export async function getProgramReviews(programId: string, limit = 6): Promise<{ data: any[]; total: number }> {
+export const getProgramReviews = cache(async function getProgramReviews(programId: string, limit = 6): Promise<{ data: any[]; total: number }> {
   try {
     const supabase = publicSupabase;
     let query = supabase
@@ -82,9 +103,9 @@ export async function getProgramReviews(programId: string, limit = 6): Promise<{
     console.error("Error in getProgramReviews:", err);
     return { data: [], total: 0 };
   }
-}
+});
 
-export async function getProgramVideos(programId: string, limit = 8): Promise<{ data: any[]; total: number }> {
+export const getProgramVideos = cache(async function getProgramVideos(programId: string, limit = 8): Promise<{ data: any[]; total: number }> {
   try {
     const supabase = publicSupabase;
     let query = supabase
@@ -115,5 +136,6 @@ export async function getProgramVideos(programId: string, limit = 8): Promise<{ 
     console.error("Error in getProgramVideos:", err);
     return { data: [], total: 0 };
   }
-}
+});
+
 

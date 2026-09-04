@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase-server";
+import { invalidateProgramsCache } from "@/lib/programs";
 import type { Program } from "@/types/program";
 
 function slugify(text: string) {
@@ -173,6 +174,7 @@ export async function POST(request: NextRequest) {
     }
 
     try {
+      invalidateProgramsCache();
       revalidatePath("/programs");
       revalidatePath(`/programs/${program.slug}`);
       revalidatePath("/");
