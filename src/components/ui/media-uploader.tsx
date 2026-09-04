@@ -200,13 +200,13 @@ export function MediaUploader({
 
           {/* Upload Progress Overlay */}
           {progress !== undefined && progress !== null && (
-            <div className="absolute inset-0 z-20 bg-charcoal/85 backdrop-blur-xs flex flex-col items-center justify-center p-4 text-white space-y-2.5 transition-all">
+            <div className="absolute inset-0 z-20 bg-charcoal/80 backdrop-blur-xs flex flex-col items-center justify-center p-4 text-white space-y-2">
               <span className="text-xs font-bold tracking-wider uppercase">
-                {progress >= 100 ? "Processing Complete!" : `Uploading... ${progress}%`}
+                {progress >= 100 ? "Uploading... 100%" : `Uploading... ${progress}%`}
               </span>
-              <div className="w-full max-w-[160px] bg-white/20 h-2 rounded-full overflow-hidden p-0.5">
+              <div className="w-full max-w-[150px] bg-white/20 h-2.5 rounded-full overflow-hidden">
                 <div
-                  className="bg-[#B8955F] h-full rounded-full transition-all duration-300 ease-out"
+                  className="bg-[#B8955F] h-full rounded-full transition-all duration-200"
                   style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
                 />
               </div>
@@ -274,13 +274,13 @@ export function MediaUploader({
           } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
         >
           {progress !== undefined && progress !== null ? (
-            <div className="absolute inset-0 z-20 bg-[#FAF8F5]/95 backdrop-blur-xs flex flex-col items-center justify-center p-4 text-charcoal space-y-2.5">
-              <span className="text-xs font-bold tracking-wider uppercase text-charcoal">
-                {progress >= 100 ? "Processing Complete!" : `Uploading... ${progress}%`}
+            <div className="absolute inset-0 z-20 bg-charcoal/80 backdrop-blur-xs flex flex-col items-center justify-center p-4 text-white space-y-2">
+              <span className="text-xs font-bold tracking-wider uppercase">
+                {progress >= 100 ? "Uploading... 100%" : `Uploading... ${progress}%`}
               </span>
-              <div className="w-full max-w-[160px] bg-[#EBE3DB] h-2 rounded-full overflow-hidden p-0.5">
+              <div className="w-full max-w-[150px] bg-white/20 h-2.5 rounded-full overflow-hidden">
                 <div
-                  className="bg-[#8C6D40] h-full rounded-full transition-all duration-300 ease-out"
+                  className="bg-[#B8955F] h-full rounded-full transition-all duration-200"
                   style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
                 />
               </div>
