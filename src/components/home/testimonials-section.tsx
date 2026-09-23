@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef, useMemo } from "react";
 import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
@@ -20,10 +20,22 @@ export function TestimonialsSection() {
   const [loading, setLoading] = useState(true);
 
   // Combine featured database reviews with featured Zustand submittedReviews
-  const displayReviews: Review[] = [
+  const rawDisplayReviews: Review[] = [
     ...submittedReviews.filter((sr) => sr.featured_on_home === true),
     ...reviews.filter((r) => !submittedReviews.some((sr) => sr.id === r.id)),
   ];
+
+  // Reviews with images should be on top, followed by reviews without images, preserving newest first
+  const displayReviews: Review[] = useMemo(() => {
+    const hasImage = (r: Review) => Boolean((r.before_image && r.before_image.trim()) || (r.after_image && r.after_image.trim()));
+    return [...rawDisplayReviews].sort((a, b) => {
+      const aImg = hasImage(a);
+      const bImg = hasImage(b);
+      if (aImg && !bImg) return -1;
+      if (!aImg && bImg) return 1;
+      return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+    });
+  }, [rawDisplayReviews]);
 
   useEffect(() => {
     Promise.allSettled([

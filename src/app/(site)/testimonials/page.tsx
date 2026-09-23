@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Loader2, Star, Play, Pause, Volume2, VolumeX, X, ChevronDown, Sparkles, CheckCircle2 } from "lucide-react";
 import { PageShell } from "@/components/layout/page-shell";
 import { motion, AnimatePresence } from "framer-motion";
@@ -152,10 +152,22 @@ export default function TestimonialsPage() {
   const REVIEW_BATCH_SIZE = 6;
 
   // Combine fetched reviews with Zustand submittedReviews
-  const allReviews: Review[] = [
+  const rawReviews: Review[] = [
     ...submittedReviews,
     ...reviews.filter((r) => !submittedReviews.some((sr) => sr.id === r.id)),
   ];
+
+  // Reviews with images should be on top, followed by reviews without images, preserving newest first
+  const allReviews: Review[] = useMemo(() => {
+    const hasImage = (r: Review) => Boolean((r.before_image && r.before_image.trim()) || (r.after_image && r.after_image.trim()));
+    return [...rawReviews].sort((a, b) => {
+      const aImg = hasImage(a);
+      const bImg = hasImage(b);
+      if (aImg && !bImg) return -1;
+      if (!aImg && bImg) return 1;
+      return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+    });
+  }, [rawReviews]);
 
   useEffect(() => {
     // Initial fetch: 2 rows of videos (8) and 2 rows of reviews (6)

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { X, CheckCircle2, Loader2, Star, ChevronDown } from "lucide-react";
 import toast from "react-hot-toast";
@@ -71,11 +71,21 @@ export function ProgramReviewsSection({
   const INITIAL_REVIEW_LIMIT = 6; // 2 rows of 3 reviews
   const REVIEW_BATCH_SIZE = 6;     // batch size for load more
 
-  // Combine database reviews with Zustand local reviews
-  const combinedReviews: Review[] = [
-    ...submittedReviews.filter((sr) => !programId || sr.program_id === programId),
-    ...reviews.filter((r) => !submittedReviews.some((sr) => sr.id === r.id)),
-  ];
+  // Combine database reviews with Zustand local reviews (reviews with images on top)
+  const combinedReviews: Review[] = useMemo(() => {
+    const list = [
+      ...submittedReviews.filter((sr) => !programId || sr.program_id === programId),
+      ...reviews.filter((r) => !submittedReviews.some((sr) => sr.id === r.id)),
+    ];
+    const hasImage = (r: Review) => Boolean((r.before_image && r.before_image.trim()) || (r.after_image && r.after_image.trim()));
+    return list.sort((a, b) => {
+      const aImg = hasImage(a);
+      const bImg = hasImage(b);
+      if (aImg && !bImg) return -1;
+      if (!aImg && bImg) return 1;
+      return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+    });
+  }, [submittedReviews, reviews, programId]);
 
   useEffect(() => {
     if (initialReviews !== undefined) return;

@@ -92,7 +92,6 @@ export const getProgramReviews = cache(async function getProgramReviews(programI
       query = query.ilike('program_id', `%${programId}%`);
     }
 
-    query = query.range(0, limit - 1);
     const { data, error, count } = await query;
     if (error) {
       console.error("Error fetching program reviews:", error.message);
@@ -108,7 +107,16 @@ export const getProgramReviews = cache(async function getProgramReviews(programI
         : []
     }));
 
-    return { data: mapped, total: count || 0 };
+    const hasImage = (r: any) => Boolean((r.before_image && r.before_image.trim()) || (r.after_image && r.after_image.trim()));
+    const sorted = mapped.sort((a: any, b: any) => {
+      const aImg = hasImage(a);
+      const bImg = hasImage(b);
+      if (aImg && !bImg) return -1;
+      if (!aImg && bImg) return 1;
+      return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+    });
+
+    return { data: sorted.slice(0, limit), total: count || sorted.length };
   } catch (err) {
     console.error("Error in getProgramReviews:", err);
     return { data: [], total: 0 };

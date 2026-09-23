@@ -63,7 +63,7 @@ export async function GET(request: Request) {
     const limitParam = searchParams.get('limit');
     const offsetParam = searchParams.get('offset');
 
-    let query = supabase.from('reviews').select('*', { count: 'exact' }).order('created_at', { ascending: false });
+    let query = supabase.from('reviews').select('*', { count: 'exact' });
     
     if (programId) query = query.ilike('program_id', `%${programId}%`);
     if (status) query = query.eq('status', status);
@@ -71,7 +71,7 @@ export async function GET(request: Request) {
 
     const normalizeMediaUrl = (url?: string | null) => {
       if (!url) return url;
-      const baseUrl = (process.env.NEXT_PUBLIC_R2_PUBLIC_URL || process.env.R2_PUBLIC_URL || "").replace(/\/+$/, "");
+      const baseUrl = (process.env.NEXT_PUBLIC_R2_PUBLIC_URL || process.env.R2_PUBLIC_URL || "https://media.syncwellnessco.com").replace(/\/+$/, "");
       if (baseUrl && url.includes(".r2.dev/")) {
         const key = url.split(".r2.dev/")[1];
         return `${baseUrl}/${key}`;
@@ -88,25 +88,34 @@ export async function GET(request: Request) {
         : []
     });
 
+    const { data, error, count } = await query;
+    if (error) throw error;
+
+    const mapped = (data || []).map(mapReview);
+
+    // Reviews with images should be on top, followed by reviews without images, newest first within each group
+    const hasImage = (r: any) => Boolean((r.before_image && r.before_image.trim()) || (r.after_image && r.after_image.trim()));
+    const sorted = mapped.sort((a: any, b: any) => {
+      const aImg = hasImage(a);
+      const bImg = hasImage(b);
+      if (aImg && !bImg) return -1;
+      if (!aImg && bImg) return 1;
+      return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+    });
+
     if (limitParam) {
       const limit = parseInt(limitParam, 10);
       const offset = offsetParam ? parseInt(offsetParam, 10) : 0;
-      query = query.range(offset, offset + limit - 1);
-
-      const { data, error, count } = await query;
-      if (error) throw error;
+      const paged = sorted.slice(offset, offset + limit);
 
       return NextResponse.json({
-        data: (data || []).map(mapReview),
-        total: count || 0,
-        hasMore: (offset + (data?.length || 0)) < (count || 0)
+        data: paged,
+        total: count || sorted.length,
+        hasMore: (offset + paged.length) < (count || sorted.length)
       });
     }
 
-    const { data, error } = await query;
-
-    if (error) throw error;
-    return NextResponse.json((data || []).map(mapReview));
+    return NextResponse.json(sorted);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
