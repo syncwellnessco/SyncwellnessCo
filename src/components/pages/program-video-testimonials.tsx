@@ -58,9 +58,10 @@ function ProgramVideoCard({
           "w-full h-full object-cover transition-all duration-500 group-hover:scale-105",
           isLoaded ? "opacity-90 group-hover:opacity-100" : "opacity-0"
         )}
-        preload="none"
+        preload="metadata"
         muted
         playsInline
+        onLoadedMetadata={() => setIsLoaded(true)}
         onLoadedData={() => setIsLoaded(true)}
         onCanPlay={() => setIsLoaded(true)}
       />

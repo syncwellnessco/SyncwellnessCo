@@ -54,9 +54,10 @@ function HomeVideoCard({ video, programName, onPointerDown, onPointerUp, onSelec
           "w-full h-full object-cover transition-all duration-500 group-hover:scale-105 pointer-events-none",
           isLoaded ? "opacity-90 group-hover:opacity-100" : "opacity-0"
         )}
-        preload="none"
+        preload="metadata"
         muted
         playsInline
+        onLoadedMetadata={() => setIsLoaded(true)}
         onLoadedData={() => setIsLoaded(true)}
         onCanPlay={() => setIsLoaded(true)}
       />

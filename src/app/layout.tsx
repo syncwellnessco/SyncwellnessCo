@@ -58,10 +58,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${cormorant.variable} ${openSans.variable}`} suppressHydrationWarning>
-      <head>
-        <JsonLd />
-      </head>
       <body className="min-h-screen bg-cream font-sans text-sage-800 antialiased" suppressHydrationWarning>
+        <JsonLd />
         <GoogleAnalytics />
         <AuthProvider>
           <Toaster 
