@@ -34,6 +34,7 @@ function ProgramVideoCard({
   programTitle: string;
   onClick: () => void;
 }) {
+  const [isLoaded, setIsLoaded] = useState(false);
   const optimizedUrl = video.video_url.includes("#t=")
     ? video.video_url
     : `${video.video_url}#t=0.001`;
@@ -45,12 +46,23 @@ function ProgramVideoCard({
       role="button"
       tabIndex={0}
     >
+      {!isLoaded && (
+        <div className="absolute inset-0 bg-[#1A1F21] animate-pulse flex items-center justify-center">
+          <div className="h-10 w-10 sm:h-14 sm:w-14 rounded-full bg-white/10 border border-white/20" />
+        </div>
+      )}
+
       <video
         src={optimizedUrl}
-        className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105 opacity-90 group-hover:opacity-100"
-        preload="metadata"
+        className={cn(
+          "w-full h-full object-cover transition-all duration-500 group-hover:scale-105",
+          isLoaded ? "opacity-90 group-hover:opacity-100" : "opacity-0"
+        )}
+        preload="none"
         muted
         playsInline
+        onLoadedData={() => setIsLoaded(true)}
+        onCanPlay={() => setIsLoaded(true)}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
@@ -264,6 +276,12 @@ export function ProgramVideoTestimonials({ programId, programTitle, initialVideo
                 className="relative w-full md:w-[320px] lg:w-[360px] bg-black shrink-0 aspect-[9/16] group cursor-pointer"
                 onClick={togglePlay}
               >
+                {!isModalVideoReady && (
+                  <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/80">
+                    <Loader2 className="h-8 w-8 animate-spin text-[#D4AF37]" />
+                    <span className="mt-2 text-[11px] font-medium tracking-wider text-white/70 uppercase">Loading video...</span>
+                  </div>
+                )}
                 <video
                   ref={videoRef}
                   src={activeVideo.video_url.includes("#t=") ? activeVideo.video_url : `${activeVideo.video_url}#t=0.001`}

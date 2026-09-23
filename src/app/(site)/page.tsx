@@ -15,14 +15,15 @@ const FinalCTASection = nextDynamic(() => import("@/components/home/final-cta-se
 import { getAllBlogPosts } from "@/lib/blogs";
 import { getAllPrograms } from "@/lib/programs";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 60;
 
 export default async function HomePage() {
-  const blogs = await getAllBlogPosts({ publishedOnly: true });
-  const latestBlogs = blogs.filter(post => post.category !== "Podcast" && post.category !== "News Article" && post.category !== "Event Image").slice(0, 4);
+  const [blogs, allPrograms] = await Promise.all([
+    getAllBlogPosts({ publishedOnly: true }),
+    getAllPrograms({ publishedOnly: true }),
+  ]);
 
-  const allPrograms = await getAllPrograms({ publishedOnly: true });
+  const latestBlogs = blogs.filter(post => post.category !== "Podcast" && post.category !== "News Article" && post.category !== "Event Image").slice(0, 4);
 
   return (
     <main>

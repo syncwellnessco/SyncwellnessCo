@@ -16,12 +16,12 @@ export function SiteLoader({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const rotate = window.setInterval(() => {
       setLineIndex((prev) => (prev + 1) % lines.length);
-    }, 420);
+    }, 380);
 
     const hide = window.setTimeout(() => {
       setShowLoader(false);
       window.clearInterval(rotate);
-    }, 1400);
+    }, 1200);
 
     return () => {
       window.clearTimeout(hide);

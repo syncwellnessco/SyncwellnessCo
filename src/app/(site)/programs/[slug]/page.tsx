@@ -3,8 +3,7 @@ import { PageShell } from "@/components/layout/page-shell";
 import { ProgramDetailContent } from "@/components/pages/program-detail-content";
 import { getProgramBySlug } from "@/lib/programs";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 60;
 
 type PageProps = {
   params: Promise<{ slug: string }>;

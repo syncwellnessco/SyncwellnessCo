@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -10,7 +11,32 @@ import { GlassBadge } from "@/components/ui/glass-badge";
 import { ProgramHeroMedia } from "@/components/pages/program-hero-media";
 import { InteractiveLink } from "@/components/ui/interactive-link";
 import { IMAGES } from "@/data/media";
+import { cn } from "@/lib/utils";
 import type { Program } from "@/types/program";
+
+function ProgramThumbnailImage({ src, alt }: { src: string; alt: string }) {
+  const [loaded, setLoaded] = useState(false);
+  return (
+    <div className="relative w-full h-full bg-[#FAF8F5] overflow-hidden">
+      {!loaded && (
+        <div className="absolute inset-0 bg-[#EBE3DB]/60 animate-pulse" />
+      )}
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        onLoad={() => setLoaded(true)}
+        className={cn(
+          "object-cover transition-all duration-700 ease-out group-hover:scale-105",
+          loaded ? "opacity-100" : "opacity-0"
+        )}
+        sizes="(max-width: 768px) 100vw, 50vw"
+        unoptimized
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-charcoal/40 to-transparent pointer-events-none" />
+    </div>
+  );
+}
 
 export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
   // Only show Rank 1 featured program on the Home Page
@@ -137,15 +163,10 @@ export function ProgramsSection({ programs = [] }: { programs?: Program[] }) {
                   prefetch={true}
                   className="block relative w-full aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-lg mb-4 shadow-md border border-beige-100 cursor-pointer"
                 >
-                  <Image
+                  <ProgramThumbnailImage
                     src={program.hero.bannerImage}
                     alt={program.title}
-                    fill
-                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                    unoptimized
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-charcoal/40 to-transparent pointer-events-none" />
                 </Link>
               )}
               

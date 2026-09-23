@@ -15,6 +15,7 @@ export function HeroSection() {
         {heroContent.videoUrl ? (
           <video
             src={heroContent.videoUrl}
+            poster={heroContent.image}
             autoPlay
             muted
             loop
