@@ -33,8 +33,19 @@ export async function GET(request: Request) {
     query = query.ilike('program_id', `%${programId}%`);
   }
 
+  const normalizeMediaUrl = (url: string) => {
+    if (!url) return url;
+    const baseUrl = (process.env.NEXT_PUBLIC_R2_PUBLIC_URL || process.env.R2_PUBLIC_URL || "").replace(/\/+$/, "");
+    if (baseUrl && url.includes(".r2.dev/")) {
+      const key = url.split(".r2.dev/")[1];
+      return `${baseUrl}/${key}`;
+    }
+    return url;
+  };
+
   const mapVideo = (v: any) => ({
     ...v,
+    video_url: normalizeMediaUrl(v.video_url),
     program_ids: typeof v.program_id === 'string'
       ? v.program_id.split(',').map((s: string) => s.trim()).filter(Boolean)
       : []

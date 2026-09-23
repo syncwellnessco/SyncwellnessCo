@@ -18,6 +18,14 @@ export interface UploadResponse {
 export function resolveMediaUrl(urlOrKey: string): string {
   if (!urlOrKey || typeof urlOrKey !== "string") return "";
 
+  const baseUrl = (process.env.NEXT_PUBLIC_R2_PUBLIC_URL || "").replace(/\/+$/, "");
+
+  // Seamlessly upgrade legacy r2.dev URLs to the custom domain
+  if (urlOrKey.includes(".r2.dev/")) {
+    const key = urlOrKey.split(".r2.dev/")[1];
+    return baseUrl ? `${baseUrl}/${key}` : urlOrKey;
+  }
+
   if (
     urlOrKey.startsWith("http://") ||
     urlOrKey.startsWith("https://") ||
@@ -27,7 +35,6 @@ export function resolveMediaUrl(urlOrKey: string): string {
     return urlOrKey;
   }
 
-  const baseUrl = (process.env.NEXT_PUBLIC_R2_PUBLIC_URL || "").replace(/\/+$/, "");
   const cleanKey = urlOrKey.replace(/^\/+/, "");
 
   return baseUrl ? `${baseUrl}/${cleanKey}` : `/${cleanKey}`;

@@ -231,10 +231,14 @@ export default function TestimonialsPage() {
     if (!videoRef.current) return;
     if (isPlaying) {
       videoRef.current.pause();
+      setIsPlaying(false);
     } else {
-      videoRef.current.play();
+      videoRef.current.play().then(() => {
+        setIsPlaying(true);
+      }).catch(() => {
+        setIsPlaying(false);
+      });
     }
-    setIsPlaying(!isPlaying);
   };
 
   const toggleMute = () => {
@@ -570,10 +574,11 @@ export default function TestimonialsPage() {
                 )}
                 <video 
                   ref={videoRef}
-                  src={activeVideo.video_url.includes("#t=") ? activeVideo.video_url : `${activeVideo.video_url}#t=0.001`} 
+                  src={activeVideo.video_url.split('#')[0]} 
                   autoPlay 
                   playsInline
                   preload="auto"
+                  onError={() => setIsModalVideoReady(true)}
                   onLoadedMetadata={() => setIsModalVideoReady(true)}
                   onLoadedData={() => setIsModalVideoReady(true)}
                   onCanPlay={() => setIsModalVideoReady(true)}

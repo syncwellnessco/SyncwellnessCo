@@ -69,8 +69,20 @@ export async function GET(request: Request) {
     if (status) query = query.eq('status', status);
     if (featured === 'true') query = query.eq('featured_on_home', true);
 
+    const normalizeMediaUrl = (url?: string | null) => {
+      if (!url) return url;
+      const baseUrl = (process.env.NEXT_PUBLIC_R2_PUBLIC_URL || process.env.R2_PUBLIC_URL || "").replace(/\/+$/, "");
+      if (baseUrl && url.includes(".r2.dev/")) {
+        const key = url.split(".r2.dev/")[1];
+        return `${baseUrl}/${key}`;
+      }
+      return url;
+    };
+
     const mapReview = (r: any) => ({
       ...r,
+      before_image: normalizeMediaUrl(r.before_image),
+      after_image: normalizeMediaUrl(r.after_image),
       program_ids: typeof r.program_id === 'string'
         ? r.program_id.split(',').map((s: string) => s.trim()).filter(Boolean)
         : []
