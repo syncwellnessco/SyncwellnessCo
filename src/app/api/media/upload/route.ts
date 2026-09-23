@@ -43,8 +43,27 @@ export async function POST(request: Request) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
+    let uploadBuffer = buffer;
+    if (isVideo) {
+      try {
+        const inPath = `/tmp/faststart_in_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.mp4`;
+        const outPath = `/tmp/faststart_out_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.mp4`;
+        const fs = await import("fs");
+        const { execSync } = await import("child_process");
+        fs.writeFileSync(inPath, buffer);
+        execSync(`ffmpeg -i "${inPath}" -c copy -movflags +faststart "${outPath}" -y`, { stdio: "ignore" });
+        uploadBuffer = fs.readFileSync(outPath);
+        try {
+          fs.unlinkSync(inPath);
+          fs.unlinkSync(outPath);
+        } catch {}
+      } catch (ffErr) {
+        console.warn("Auto FastStart failed, using original video buffer:", ffErr);
+      }
+    }
+
     const result = await uploadBufferToR2({
-      buffer,
+      buffer: uploadBuffer,
       filename: file.name,
       contentType,
       folder,

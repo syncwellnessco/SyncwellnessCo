@@ -47,7 +47,7 @@ export function getR2PublicBaseUrl(): string {
   const url =
     process.env.R2_PUBLIC_URL ||
     process.env.NEXT_PUBLIC_R2_PUBLIC_URL ||
-    "";
+    "https://media.syncwellnessco.com";
   return url.replace(/\/+$/, "");
 }
 

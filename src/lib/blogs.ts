@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import type { BlogPost } from "@/types/blog";
+import { resolveMediaUrl } from "./media-utils";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -22,7 +23,7 @@ export async function getAllBlogPosts(options?: {
     title: d.title,
     excerpt: d.excerpt || "",
     content: d.content || "",
-    image: d.image_url,
+    image: resolveMediaUrl(d.image_url),
     author: d.author || "Admin",
     category: d.category || "",
     tags: d.tags || "",
@@ -46,7 +47,7 @@ export async function getBlogPost(slugOrId: string): Promise<BlogPost | undefine
     title: data.title,
     excerpt: data.excerpt || "",
     content: data.content || "",
-    image: data.image_url,
+    image: resolveMediaUrl(data.image_url),
     author: data.author || "Admin",
     category: data.category || "",
     tags: data.tags || "",

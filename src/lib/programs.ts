@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { publicSupabase } from "@/lib/supabase-server";
 import type { Program } from "@/types/program";
+import { resolveMediaUrl } from "@/lib/media-utils";
 
 let cachedPrograms: Program[] | null = null;
 let lastProgramsFetch = 0;
@@ -12,8 +13,15 @@ export function invalidateProgramsCache() {
 }
 
 function mapDbToProgram(row: any): Program {
+  const hero = row.hero ? {
+    ...row.hero,
+    introVideo: row.hero.introVideo ? resolveMediaUrl(row.hero.introVideo) : undefined,
+    bannerImage: row.hero.bannerImage ? resolveMediaUrl(row.hero.bannerImage) : undefined,
+  } : row.hero;
+
   return {
     ...row,
+    hero,
     shortDescription: row.short_description !== undefined ? row.short_description : (row.shortdescription !== undefined ? row.shortdescription : row.shortDescription),
     problemsSolved: row.problems_solved !== undefined ? row.problems_solved : (row.problemssolved !== undefined ? row.problemssolved : row.problemsSolved),
     createdAt: row.created_at !== undefined ? row.created_at : (row.createdat !== undefined ? row.createdat : row.createdAt),
@@ -93,6 +101,8 @@ export const getProgramReviews = cache(async function getProgramReviews(programI
 
     const mapped = (data || []).map((r: any) => ({
       ...r,
+      before_image: r.before_image ? resolveMediaUrl(r.before_image) : r.before_image,
+      after_image: r.after_image ? resolveMediaUrl(r.after_image) : r.after_image,
       program_ids: typeof r.program_id === 'string'
         ? r.program_id.split(',').map((s: string) => s.trim()).filter(Boolean)
         : []
@@ -126,6 +136,7 @@ export const getProgramVideos = cache(async function getProgramVideos(programId:
 
     const mapped = (data || []).map((v: any) => ({
       ...v,
+      video_url: v.video_url ? resolveMediaUrl(v.video_url) : v.video_url,
       program_ids: typeof v.program_id === 'string'
         ? v.program_id.split(',').map((s: string) => s.trim()).filter(Boolean)
         : []

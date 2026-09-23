@@ -18,12 +18,12 @@ export interface UploadResponse {
 export function resolveMediaUrl(urlOrKey: string): string {
   if (!urlOrKey || typeof urlOrKey !== "string") return "";
 
-  const baseUrl = (process.env.NEXT_PUBLIC_R2_PUBLIC_URL || "").replace(/\/+$/, "");
+  const baseUrl = (process.env.NEXT_PUBLIC_R2_PUBLIC_URL || "https://media.syncwellnessco.com").replace(/\/+$/, "");
 
   // Seamlessly upgrade legacy r2.dev URLs to the custom domain
   if (urlOrKey.includes(".r2.dev/")) {
     const key = urlOrKey.split(".r2.dev/")[1];
-    return baseUrl ? `${baseUrl}/${key}` : urlOrKey;
+    return `${baseUrl}/${key}`;
   }
 
   if (
@@ -37,7 +37,7 @@ export function resolveMediaUrl(urlOrKey: string): string {
 
   const cleanKey = urlOrKey.replace(/^\/+/, "");
 
-  return baseUrl ? `${baseUrl}/${cleanKey}` : `/${cleanKey}`;
+  return `${baseUrl}/${cleanKey}`;
 }
 
 /**
@@ -175,6 +175,11 @@ export async function uploadFile(
 ): Promise<UploadResponse> {
   if (!file) {
     throw new Error("No file provided for upload.");
+  }
+
+  // Videos must be uploaded via server to ensure MP4 FastStart optimization is applied automatically
+  if (file.type && file.type.startsWith("video/")) {
+    return await uploadFileViaServer(file, folder, onProgress);
   }
 
   const tracker = createSmartProgressTracker(onProgress);
